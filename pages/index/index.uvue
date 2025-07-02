@@ -1,7 +1,6 @@
 <template>
 	<view>
-		<image class="logo" src="/static/logo.png"></image>
-		<text class="title">{{title}}</text>
+		<k-button></k-button>
 	</view>
 </template>
 

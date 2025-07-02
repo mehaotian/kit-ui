@@ -1,0 +1,9 @@
+<template>
+	<view>
+		按钮
+	</view>
+</template>
+<script>
+</script>
+<style>
+</style>
