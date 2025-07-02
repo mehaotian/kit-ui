@@ -1,0 +1,166 @@
+/**
+ * kit-ui 主题变量系统
+ * 基于 CSS Variables 和 SCSS 变量的双重主题系统
+ * 支持亮色/暗色主题切换和自定义主题
+ */
+
+/* ==================== 基础色彩系统 ==================== */
+
+/* 主色调 */
+$k-color-primary: #007aff !default;
+$k-color-primary-light: #4da6ff !default;
+$k-color-primary-dark: #0056cc !default;
+
+/* 功能色彩 */
+$k-color-success: #4cd964 !default;
+$k-color-warning: #ff9500 !default;
+$k-color-error: #ff3b30 !default;
+$k-color-info: #5ac8fa !default;
+
+/* 中性色彩 */
+$k-color-white: #ffffff !default;
+$k-color-black: #000000 !default;
+$k-color-transparent: transparent !default;
+
+/* 灰度色阶 */
+$k-color-gray-50: #fafafa !default;
+$k-color-gray-100: #f5f5f5 !default;
+$k-color-gray-200: #eeeeee !default;
+$k-color-gray-300: #e0e0e0 !default;
+$k-color-gray-400: #bdbdbd !default;
+$k-color-gray-500: #9e9e9e !default;
+$k-color-gray-600: #757575 !default;
+$k-color-gray-700: #616161 !default;
+$k-color-gray-800: #424242 !default;
+$k-color-gray-900: #212121 !default;
+
+/* ==================== 语义化颜色 ==================== */
+
+/* 文本颜色 */
+$k-text-color-primary: #333333 !default;
+$k-text-color-secondary: #666666 !default;
+$k-text-color-tertiary: #999999 !default;
+$k-text-color-quaternary: #cccccc !default;
+$k-text-color-inverse: #ffffff !default;
+$k-text-color-placeholder: #c0c4cc !default;
+$k-text-color-disabled: #c0c4cc !default;
+
+/* 背景颜色 */
+$k-bg-color: #ffffff !default;
+$k-bg-color-page: #f8f9fa !default;
+$k-bg-color-overlay: rgba(0, 0, 0, 0.7) !default;
+$k-bg-color-mask: rgba(0, 0, 0, 0.4) !default;
+$k-bg-color-disabled: #f5f7fa !default;
+
+/* 边框颜色 */
+$k-border-color: #ebeef5 !default;
+$k-border-color-light: #f2f6fc !default;
+$k-border-color-lighter: #fafbfc !default;
+$k-border-color-dark: #d3d4d6 !default;
+$k-border-color-darker: #cdd0d6 !default;
+
+/* ==================== 尺寸系统 ==================== */
+
+/* 字体大小 */
+$k-font-size-xs: 10px !default;
+$k-font-size-sm: 12px !default;
+$k-font-size-base: 14px !default;
+$k-font-size-md: 16px !default;
+$k-font-size-lg: 18px !default;
+$k-font-size-xl: 20px !default;
+$k-font-size-xxl: 24px !default;
+
+/* 字体粗细 */
+$k-font-weight-light: 300 !default;
+$k-font-weight-normal: 400 !default;
+$k-font-weight-medium: 500 !default;
+$k-font-weight-semibold: 600 !default;
+$k-font-weight-bold: 700 !default;
+
+/* 行高 */
+$k-line-height-xs: 1.2 !default;
+$k-line-height-sm: 1.4 !default;
+$k-line-height-base: 1.5 !default;
+$k-line-height-lg: 1.6 !default;
+$k-line-height-xl: 1.8 !default;
+
+/* 间距系统 */
+$k-spacing-xs: 4px !default;
+$k-spacing-sm: 8px !default;
+$k-spacing-base: 12px !default;
+$k-spacing-md: 16px !default;
+$k-spacing-lg: 20px !default;
+$k-spacing-xl: 24px !default;
+$k-spacing-xxl: 32px !default;
+
+/* 圆角 */
+$k-border-radius-xs: 2px !default;
+$k-border-radius-sm: 4px !default;
+$k-border-radius-base: 6px !default;
+$k-border-radius-md: 8px !default;
+$k-border-radius-lg: 12px !default;
+$k-border-radius-xl: 16px !default;
+$k-border-radius-round: 50% !default;
+$k-border-radius-circle: 50% !default;
+
+/* 边框宽度 */
+$k-border-width-base: 1px !default;
+$k-border-width-thick: 2px !default;
+
+/* 阴影 */
+$k-box-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04) !default;
+$k-box-shadow-base: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04) !default;
+$k-box-shadow-dark: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.12) !default;
+
+/* ==================== 动画系统 ==================== */
+
+/* 动画时长 */
+$k-transition-duration-fast: 0.2s !default;
+$k-transition-duration-base: 0.3s !default;
+$k-transition-duration-slow: 0.5s !default;
+
+/* 动画曲线 */
+$k-transition-timing-function-ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1) !default;
+$k-transition-timing-function-ease-out: cubic-bezier(0.23, 1, 0.32, 1) !default;
+$k-transition-timing-function-ease-in: cubic-bezier(0.755, 0.05, 0.855, 0.06) !default;
+
+/* 常用动画 */
+$k-transition-all: all $k-transition-duration-base $k-transition-timing-function-ease-in-out !default;
+$k-transition-fade: opacity $k-transition-duration-base $k-transition-timing-function-ease-in-out !default;
+$k-transition-color: color $k-transition-duration-fast $k-transition-timing-function-ease-in-out !default;
+
+/* ==================== 组件尺寸 ==================== */
+
+/* 组件高度 */
+$k-component-size-xs: 24px !default;
+$k-component-size-sm: 32px !default;
+$k-component-size-base: 40px !default;
+$k-component-size-md: 48px !default;
+$k-component-size-lg: 56px !default;
+$k-component-size-xl: 64px !default;
+
+/* Z-index 层级 */
+$k-z-index-normal: 1 !default;
+$k-z-index-top: 1000 !default;
+$k-z-index-popper: 2000 !default;
+$k-z-index-toast: 3000 !default;
+$k-z-index-modal: 4000 !default;
+$k-z-index-loading: 5000 !default;
+
+/* ==================== 暗色主题变量 ==================== */
+
+/* 暗色主题文本颜色 */
+$k-dark-text-color-primary: #e5e5e5 !default;
+$k-dark-text-color-secondary: #a3a3a3 !default;
+$k-dark-text-color-tertiary: #737373 !default;
+$k-dark-text-color-quaternary: #525252 !default;
+
+/* 暗色主题背景颜色 */
+$k-dark-bg-color: #141414 !default;
+$k-dark-bg-color-page: #0a0a0a !default;
+$k-dark-bg-color-overlay: rgba(0, 0, 0, 0.8) !default;
+
+/* 暗色主题边框颜色 */
+$k-dark-border-color: #303030 !default;
+$k-dark-border-color-light: #262626 !default;
+$k-dark-border-color-lighter: #1f1f1f !default;

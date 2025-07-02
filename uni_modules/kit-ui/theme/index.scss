@@ -1,0 +1,227 @@
+/**
+ * kit-ui 主题系统入口文件
+ * 导入所有主题相关文件，定义CSS变量
+ */
+
+@import './variables.scss';
+@import './mixins.scss';
+
+/* ==================== CSS 变量定义 ==================== */
+
+:root {
+  /* 主色调 */
+  --k-color-primary: #{$k-color-primary};
+  --k-color-primary-light: #{$k-color-primary-light};
+  --k-color-primary-dark: #{$k-color-primary-dark};
+  
+  /* 功能色彩 */
+  --k-color-success: #{$k-color-success};
+  --k-color-warning: #{$k-color-warning};
+  --k-color-error: #{$k-color-error};
+  --k-color-info: #{$k-color-info};
+  
+  /* 文本颜色 */
+  --k-text-color-primary: #{$k-text-color-primary};
+  --k-text-color-secondary: #{$k-text-color-secondary};
+  --k-text-color-tertiary: #{$k-text-color-tertiary};
+  --k-text-color-quaternary: #{$k-text-color-quaternary};
+  --k-text-color-inverse: #{$k-text-color-inverse};
+  --k-text-color-placeholder: #{$k-text-color-placeholder};
+  --k-text-color-disabled: #{$k-text-color-disabled};
+  
+  /* 背景颜色 */
+  --k-bg-color: #{$k-bg-color};
+  --k-bg-color-page: #{$k-bg-color-page};
+  --k-bg-color-overlay: #{$k-bg-color-overlay};
+  --k-bg-color-mask: #{$k-bg-color-mask};
+  --k-bg-color-disabled: #{$k-bg-color-disabled};
+  
+  /* 边框颜色 */
+  --k-border-color: #{$k-border-color};
+  --k-border-color-light: #{$k-border-color-light};
+  --k-border-color-lighter: #{$k-border-color-lighter};
+  --k-border-color-dark: #{$k-border-color-dark};
+  --k-border-color-darker: #{$k-border-color-darker};
+  
+  /* 字体大小 */
+  --k-font-size-xs: #{$k-font-size-xs};
+  --k-font-size-sm: #{$k-font-size-sm};
+  --k-font-size-base: #{$k-font-size-base};
+  --k-font-size-md: #{$k-font-size-md};
+  --k-font-size-lg: #{$k-font-size-lg};
+  --k-font-size-xl: #{$k-font-size-xl};
+  --k-font-size-xxl: #{$k-font-size-xxl};
+  
+  /* 间距系统 */
+  --k-spacing-xs: #{$k-spacing-xs};
+  --k-spacing-sm: #{$k-spacing-sm};
+  --k-spacing-base: #{$k-spacing-base};
+  --k-spacing-md: #{$k-spacing-md};
+  --k-spacing-lg: #{$k-spacing-lg};
+  --k-spacing-xl: #{$k-spacing-xl};
+  --k-spacing-xxl: #{$k-spacing-xxl};
+  
+  /* 圆角 */
+  --k-border-radius-xs: #{$k-border-radius-xs};
+  --k-border-radius-sm: #{$k-border-radius-sm};
+  --k-border-radius-base: #{$k-border-radius-base};
+  --k-border-radius-md: #{$k-border-radius-md};
+  --k-border-radius-lg: #{$k-border-radius-lg};
+  --k-border-radius-xl: #{$k-border-radius-xl};
+  --k-border-radius-round: #{$k-border-radius-round};
+  
+  /* 组件尺寸 */
+  --k-component-size-xs: #{$k-component-size-xs};
+  --k-component-size-sm: #{$k-component-size-sm};
+  --k-component-size-base: #{$k-component-size-base};
+  --k-component-size-md: #{$k-component-size-md};
+  --k-component-size-lg: #{$k-component-size-lg};
+  --k-component-size-xl: #{$k-component-size-xl};
+  
+  /* 动画时长 */
+  --k-transition-duration-fast: #{$k-transition-duration-fast};
+  --k-transition-duration-base: #{$k-transition-duration-base};
+  --k-transition-duration-slow: #{$k-transition-duration-slow};
+}
+
+/* ==================== 暗色主题 ==================== */
+
+.k-theme-dark {
+  /* 文本颜色 */
+  --k-text-color-primary: #{$k-dark-text-color-primary};
+  --k-text-color-secondary: #{$k-dark-text-color-secondary};
+  --k-text-color-tertiary: #{$k-dark-text-color-tertiary};
+  --k-text-color-quaternary: #{$k-dark-text-color-quaternary};
+  
+  /* 背景颜色 */
+  --k-bg-color: #{$k-dark-bg-color};
+  --k-bg-color-page: #{$k-dark-bg-color-page};
+  --k-bg-color-overlay: #{$k-dark-bg-color-overlay};
+  
+  /* 边框颜色 */
+  --k-border-color: #{$k-dark-border-color};
+  --k-border-color-light: #{$k-dark-border-color-light};
+  --k-border-color-lighter: #{$k-dark-border-color-lighter};
+}
+
+/* 系统暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 文本颜色 */
+    --k-text-color-primary: #{$k-dark-text-color-primary};
+    --k-text-color-secondary: #{$k-dark-text-color-secondary};
+    --k-text-color-tertiary: #{$k-dark-text-color-tertiary};
+    --k-text-color-quaternary: #{$k-dark-text-color-quaternary};
+    
+    /* 背景颜色 */
+    --k-bg-color: #{$k-dark-bg-color};
+    --k-bg-color-page: #{$k-dark-bg-color-page};
+    --k-bg-color-overlay: #{$k-dark-bg-color-overlay};
+    
+    /* 边框颜色 */
+    --k-border-color: #{$k-dark-border-color};
+    --k-border-color-light: #{$k-dark-border-color-light};
+    --k-border-color-lighter: #{$k-dark-border-color-lighter};
+  }
+}
+
+/* ==================== 主题切换动画 ==================== */
+
+* {
+  transition: background-color $k-transition-duration-base $k-transition-timing-function-ease-in-out,
+              border-color $k-transition-duration-base $k-transition-timing-function-ease-in-out,
+              color $k-transition-duration-base $k-transition-timing-function-ease-in-out;
+}
+
+/* ==================== 基础样式重置 ==================== */
+
+.k-reset {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  
+  &,
+  &::before,
+  &::after {
+    box-sizing: inherit;
+  }
+}
+
+/* ==================== 工具类 ==================== */
+
+/* 文本对齐 */
+.k-text-left { text-align: left; }
+.k-text-center { text-align: center; }
+.k-text-right { text-align: right; }
+
+/* 文本颜色 */
+.k-text-primary { color: var(--k-text-color-primary); }
+.k-text-secondary { color: var(--k-text-color-secondary); }
+.k-text-tertiary { color: var(--k-text-color-tertiary); }
+.k-text-success { color: var(--k-color-success); }
+.k-text-warning { color: var(--k-color-warning); }
+.k-text-error { color: var(--k-color-error); }
+.k-text-info { color: var(--k-color-info); }
+
+/* 字体大小 */
+.k-text-xs { font-size: var(--k-font-size-xs); }
+.k-text-sm { font-size: var(--k-font-size-sm); }
+.k-text-base { font-size: var(--k-font-size-base); }
+.k-text-md { font-size: var(--k-font-size-md); }
+.k-text-lg { font-size: var(--k-font-size-lg); }
+.k-text-xl { font-size: var(--k-font-size-xl); }
+.k-text-xxl { font-size: var(--k-font-size-xxl); }
+
+/* 字体粗细 */
+.k-font-light { font-weight: $k-font-weight-light; }
+.k-font-normal { font-weight: $k-font-weight-normal; }
+.k-font-medium { font-weight: $k-font-weight-medium; }
+.k-font-semibold { font-weight: $k-font-weight-semibold; }
+.k-font-bold { font-weight: $k-font-weight-bold; }
+
+/* 间距 */
+.k-m-xs { margin: var(--k-spacing-xs); }
+.k-m-sm { margin: var(--k-spacing-sm); }
+.k-m-base { margin: var(--k-spacing-base); }
+.k-m-md { margin: var(--k-spacing-md); }
+.k-m-lg { margin: var(--k-spacing-lg); }
+.k-m-xl { margin: var(--k-spacing-xl); }
+.k-m-xxl { margin: var(--k-spacing-xxl); }
+
+.k-p-xs { padding: var(--k-spacing-xs); }
+.k-p-sm { padding: var(--k-spacing-sm); }
+.k-p-base { padding: var(--k-spacing-base); }
+.k-p-md { padding: var(--k-spacing-md); }
+.k-p-lg { padding: var(--k-spacing-lg); }
+.k-p-xl { padding: var(--k-spacing-xl); }
+.k-p-xxl { padding: var(--k-spacing-xxl); }
+
+/* Flex 布局 */
+.k-flex { display: flex; }
+.k-flex-col { flex-direction: column; }
+.k-flex-row { flex-direction: row; }
+.k-flex-wrap { flex-wrap: wrap; }
+.k-flex-nowrap { flex-wrap: nowrap; }
+.k-justify-start { justify-content: flex-start; }
+.k-justify-center { justify-content: center; }
+.k-justify-end { justify-content: flex-end; }
+.k-justify-between { justify-content: space-between; }
+.k-justify-around { justify-content: space-around; }
+.k-items-start { align-items: flex-start; }
+.k-items-center { align-items: center; }
+.k-items-end { align-items: flex-end; }
+.k-items-stretch { align-items: stretch; }
+
+/* 显示/隐藏 */
+.k-hidden { display: none; }
+.k-visible { display: block; }
+.k-invisible { visibility: hidden; }
+
+/* 圆角 */
+.k-rounded-xs { border-radius: var(--k-border-radius-xs); }
+.k-rounded-sm { border-radius: var(--k-border-radius-sm); }
+.k-rounded-base { border-radius: var(--k-border-radius-base); }
+.k-rounded-md { border-radius: var(--k-border-radius-md); }
+.k-rounded-lg { border-radius: var(--k-border-radius-lg); }
+.k-rounded-xl { border-radius: var(--k-border-radius-xl); }
+.k-rounded-full { border-radius: var(--k-border-radius-round); }
