@@ -1,6 +1,6 @@
-# u-kit 组件库开发文档
+# kit-ui 组件库开发文档
 
-欢迎来到 u-kit 组件库开发文档中心！本文档集合包含了组件库开发过程中的所有重要指南和规范。
+欢迎来到 kit-ui 组件库开发文档中心！本文档集合包含了组件库开发过程中的所有重要指南和规范。
 
 ## 📚 文档目录
 
@@ -195,8 +195,8 @@ Closes #123
 
 ### 技术支持
 
-- **GitHub Issues**: [提交问题](https://github.com/your-org/u-kit/issues)
-- **讨论区**: [GitHub Discussions](https://github.com/your-org/u-kit/discussions)
+- **GitHub Issues**: [提交问题](https://github.com/your-org/kit-ui/issues)
+- **讨论区**: [GitHub Discussions](https://github.com/your-org/kit-ui/discussions)
 
 ### 团队成员
 
