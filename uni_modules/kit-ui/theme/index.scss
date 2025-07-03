@@ -109,25 +109,25 @@
 }
 
 /* 系统暗色主题适配 */
-@media (prefers-color-scheme: dark) {
-  .kit-ui--root {
-    /* 文本颜色 */
-    --k-text-color-primary: #{$k-dark-text-color-primary};
-    --k-text-color-secondary: #{$k-dark-text-color-secondary};
-    --k-text-color-tertiary: #{$k-dark-text-color-tertiary};
-    --k-text-color-quaternary: #{$k-dark-text-color-quaternary};
+// @media (prefers-color-scheme: dark) {
+//   .kit-ui--root {
+//     /* 文本颜色 */
+//     --k-text-color-primary: #{$k-dark-text-color-primary};
+//     --k-text-color-secondary: #{$k-dark-text-color-secondary};
+//     --k-text-color-tertiary: #{$k-dark-text-color-tertiary};
+//     --k-text-color-quaternary: #{$k-dark-text-color-quaternary};
     
-    /* 背景颜色 */
-    --k-bg-color: #{$k-dark-bg-color};
-    --k-bg-color-page: #{$k-dark-bg-color-page};
-    --k-bg-color-overlay: #{$k-dark-bg-color-overlay};
+//     /* 背景颜色 */
+//     --k-bg-color: #{$k-dark-bg-color};
+//     --k-bg-color-page: #{$k-dark-bg-color-page};
+//     --k-bg-color-overlay: #{$k-dark-bg-color-overlay};
     
-    /* 边框颜色 */
-    --k-border-color: #{$k-dark-border-color};
-    --k-border-color-light: #{$k-dark-border-color-light};
-    --k-border-color-lighter: #{$k-dark-border-color-lighter};
-  }
-}
+//     /* 边框颜色 */
+//     --k-border-color: #{$k-dark-border-color};
+//     --k-border-color-light: #{$k-dark-border-color-light};
+//     --k-border-color-lighter: #{$k-dark-border-color-lighter};
+//   }
+// }
 
 /* ==================== 主题切换动画 ==================== */
 

@@ -1,63 +1,72 @@
 <template>
-	<view class="config-demo">
-		<view class="demo-section">
-			<text class="section-title">k-config 主题注入演示</text>
-			
-			<!-- 默认主题配置 -->
-			<view class="demo-group">
-				<text class="group-title">默认主题（成功色为红色）</text>
-				<k-config>
-					<view class="button-group">
-						<k-button type="success" text="成功按钮" />
-						<k-button type="primary" text="主要按钮" />
-						<k-button type="warning" text="警告按钮" />
-					</view>
-				</k-config>
-			</view>
-			
-			<!-- 自定义主题配置 -->
-			<view class="demo-group">
-				<text class="group-title">自定义主题配置</text>
-				<k-config :theme="customTheme">
-					<view class="button-group">
-						<k-button type="success" text="成功按钮" />
-						<k-button type="primary" text="主要按钮" />
-						<k-button type="warning" text="警告按钮" />
-					</view>
-				</k-config>
-			</view>
-			
-			<!-- 橙色主题配置 -->
-			<view class="demo-group">
-				<text class="group-title">橙色主题配置</text>
-				<k-config :theme="orangeTheme">
-					<view class="button-group">
-						<k-button type="success" text="成功按钮" />
-						<k-button type="primary" text="主要按钮" />
-						<k-button type="warning" text="警告按钮" />
-					</view>
-				</k-config>
-			</view>
-			
-			<!-- 动态主题切换 -->
-			<view class="demo-group">
-				<text class="group-title">动态主题切换</text>
-				<view class="theme-controls">
-					<button @click="switchToBlue" class="control-btn">蓝色主题</button>
-					<button @click="switchToGreen" class="control-btn">绿色主题</button>
-					<button @click="switchToPurple" class="control-btn">紫色主题</button>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex:1">
+	<!-- #endif -->
+
+
+		<view class="config-demo">
+			<view class="demo-section">
+				<text class="section-title">k-config 主题注入演示</text>
+
+				<!-- 默认主题配置 -->
+				<view class="demo-group">
+					<text class="group-title">默认主题（成功色为红色）</text>
+					<k-config>
+						<view class="button-group">
+							<k-button type="success" text="成功按钮" />
+							<k-button type="primary" text="主要按钮" />
+							<k-button type="warning" text="警告按钮" />
+						</view>
+					</k-config>
 				</view>
-				{{dynamicTheme}}
-				<k-config :theme="dynamicTheme">
-					<view class="button-group">
-						<k-button type="success" text="成功按钮" />
-						<k-button type="primary" text="主要按钮" />
-						<k-button type="warning" text="警告按钮" />
+
+				<!-- 自定义主题配置 -->
+				<view class="demo-group">
+					<text class="group-title">自定义主题配置</text>
+					<k-config :theme="customTheme">
+						<view class="button-group">
+							<k-button type="success" text="成功按钮" />
+							<k-button type="primary" text="主要按钮" />
+							<k-button type="warning" text="警告按钮" />
+						</view>
+					</k-config>
+				</view>
+
+				<!-- 橙色主题配置 -->
+				<view class="demo-group">
+					<text class="group-title">橙色主题配置</text>
+					<k-config :theme="orangeTheme">
+						<view class="button-group">
+							<k-button type="success" text="成功按钮" />
+							<k-button type="primary" text="主要按钮" />
+							<k-button type="warning" text="警告按钮" />
+						</view>
+					</k-config>
+				</view>
+
+				<!-- 动态主题切换 -->
+				<view class="demo-group">
+					<text class="group-title">动态主题切换</text>
+					<view class="theme-controls">
+						<button @click="switchToBlue" class="control-btn">蓝色主题</button>
+						<button @click="switchToGreen" class="control-btn">绿色主题</button>
+						<button @click="switchToPurple" class="control-btn">紫色主题</button>
 					</view>
-				</k-config>
+					{{dynamicTheme}}
+					<k-config :theme="dynamicTheme">
+						<view class="button-group">
+							<k-button type="success" text="成功按钮" />
+							<k-button type="success" text="成功按钮" />
+							<k-button type="primary" text="主要按钮" />
+							<k-button type="warning" text="警告按钮" />
+						</view>
+					</k-config>
+				</view>
 			</view>
 		</view>
-	</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
 </template>
 
 <script setup>
@@ -80,9 +89,9 @@
 		spacingBase: '16px'
 	}
 	type DynamicTheme = {
-		colorSuccess: string
-		colorPrimary: string
-		colorWarning: string
+		colorSuccess : string
+		colorPrimary : string
+		colorWarning : string
 	}
 	// 动态主题配置
 	const dynamicTheme = reactive<DynamicTheme>({
@@ -148,6 +157,7 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
+		border: 1px red solid;
 	}
 
 	.theme-controls {

@@ -25,7 +25,10 @@
 </template>
 
 <script setup>
-	import { inject, computed } from 'vue'
+	import {
+		inject,
+		computed
+	} from 'vue'
 
 	/**
 	 * k-button 按钮组件
@@ -94,19 +97,17 @@
 
 	// 计算按钮动态样式
 	const buttonStyle = computed(() => {
-		const styles: string[] = []
-
 		// 如果有注入的主题配置，生成对应的 CSS 变量
-		if (themeConfig != null && Object.keys(themeConfig).length > 0) {
-			Object.entries(themeConfig).forEach(([key, value]) => {
-				if (key !== 'mode' && value !== undefined) {
-					// 将驼峰命名转换为 kebab-case
-					const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-					styles.push(`--k-${cssVar}: ${value}`)
-				}
-			})
+		const styles: string[] = []
+		// 遍历主题配置，生成 CSS 变量
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				// 将驼峰命名转换为 kebab-case
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
 		}
-
 		return styles.join('; ')
 	})
 
