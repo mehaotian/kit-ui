@@ -99,6 +99,7 @@
 <style lang="scss">
 	@import "../../theme/index.scss";
 
+
 	.k-button {
 		display: flex;
 		flex-direction: row;
@@ -303,40 +304,14 @@
 		}
 
 		// 加载状态
-		&--loading {
-			// cursor: default;
-
-			&:hover {
-				transform: none;
-			}
-
-			&:active {
-				transform: none;
-			}
-		}
+		&--loading {}
 
 		// 内部元素
-		&__loading {
-			display: flex;
-			align-items: center;
-			margin-right: 8px;
-		}
+		&__loading {}
 
-		&__loading-icon {
-			// width: 16px;
-			// height: 16px;
-			// border: 2px solid currentColor;
-			// border-top-color: transparent;
-			// border-radius: 200px;
-			// animation: k-button-loading 1s linear infinite;
-		}
+		&__loading-icon {}
 
-		&__icon {
-			// display: flex;
-			// align-items: center;
-			// margin-right: 8px;
-			// font-size: 1.2em;
-		}
+		&__icon {}
 
 		&__text {
 			font-size: var(--k-font-size-base, 14px);
@@ -388,14 +363,4 @@
 			font-size: var(--k-font-size-lg, 18px);
 		}
 	}
-
-	// @keyframes k-button-loading {
-	// 	0% {
-	// 		transform: rotate(0deg);
-	// 	}
-
-	// 	100% {
-	// 		transform: rotate(360deg);
-	// 	}
-	// }
 </style>
