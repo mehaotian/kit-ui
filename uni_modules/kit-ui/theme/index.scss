@@ -8,7 +8,7 @@
 
 /* ==================== CSS 变量定义 ==================== */
 
-:root {
+.kit-ui--root {
   /* 主色调 */
   --k-color-primary: #{$k-color-primary};
   --k-color-primary-light: #{$k-color-primary-light};
@@ -69,6 +69,10 @@
   --k-border-radius-lg: #{$k-border-radius-lg};
   --k-border-radius-xl: #{$k-border-radius-xl};
   --k-border-radius-round: #{$k-border-radius-round};
+
+  /* 边框宽度 */
+  --k-border-width-base: #{$k-border-width-base};
+  --k-border-width-thick: #{$k-border-width-thick};
   
   /* 组件尺寸 */
   --k-component-size-xs: #{$k-component-size-xs};
@@ -106,7 +110,7 @@
 
 /* 系统暗色主题适配 */
 @media (prefers-color-scheme: dark) {
-  :root {
+  .kit-ui--root {
     /* 文本颜色 */
     --k-text-color-primary: #{$k-dark-text-color-primary};
     --k-text-color-secondary: #{$k-dark-text-color-secondary};
@@ -127,25 +131,11 @@
 
 /* ==================== 主题切换动画 ==================== */
 
-* {
-  transition: background-color $k-transition-duration-base $k-transition-timing-function-ease-in-out,
-              border-color $k-transition-duration-base $k-transition-timing-function-ease-in-out,
-              color $k-transition-duration-base $k-transition-timing-function-ease-in-out;
-}
-
-/* ==================== 基础样式重置 ==================== */
-
-.k-reset {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  
-  &,
-  &::before,
-  &::after {
-    box-sizing: inherit;
-  }
-}
+// * {
+//   transition: background-color $k-transition-duration-base $k-transition-timing-function-ease-in-out,
+//               border-color $k-transition-duration-base $k-transition-timing-function-ease-in-out,
+//               color $k-transition-duration-base $k-transition-timing-function-ease-in-out;
+// }
 
 /* ==================== 工具类 ==================== */
 
@@ -213,9 +203,9 @@
 .k-items-stretch { align-items: stretch; }
 
 /* 显示/隐藏 */
-.k-hidden { display: none; }
-.k-visible { display: block; }
-.k-invisible { visibility: hidden; }
+// .k-hidden { display: none; }
+// .k-visible { display: block; }
+// .k-invisible { visibility: hidden; }
 
 /* 圆角 */
 .k-rounded-xs { border-radius: var(--k-border-radius-xs); }

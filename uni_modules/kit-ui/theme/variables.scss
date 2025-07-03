@@ -71,10 +71,10 @@ $k-font-size-xl: 20px !default;
 $k-font-size-xxl: 24px !default;
 
 /* 字体粗细 */
-$k-font-weight-light: 300 !default;
+$k-font-weight-light: normal !default;
 $k-font-weight-normal: 400 !default;
-$k-font-weight-medium: 500 !default;
-$k-font-weight-semibold: 600 !default;
+$k-font-weight-medium: bold !default;
+$k-font-weight-semibold: 700 !default;
 $k-font-weight-bold: 700 !default;
 
 /* 行高 */

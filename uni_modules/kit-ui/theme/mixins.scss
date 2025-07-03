@@ -194,88 +194,88 @@
 /**
  * 淡入动画
  */
-@mixin k-fade-in {
-  animation: k-fade-in $k-transition-duration-base $k-transition-timing-function-ease-out;
-}
+// @mixin k-fade-in {
+//   animation: k-fade-in $k-transition-duration-base $k-transition-timing-function-ease-out;
+// }
 
-@keyframes k-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+// @keyframes k-fade-in {
+//   0% {
+//     opacity: 0;
+//   }
+//   100% {
+//     opacity: 1;
+//   }
+// }
 
 /**
  * 滑入动画
  * @param {String} $direction - 方向 (up, down, left, right)
  */
-@mixin k-slide-in($direction: 'up') {
-  animation: k-slide-in-#{$direction} $k-transition-duration-base $k-transition-timing-function-ease-out;
-}
+// @mixin k-slide-in($direction: 'up') {
+//   animation: k-slide-in-#{$direction} $k-transition-duration-base $k-transition-timing-function-ease-out;
+// }
 
-@keyframes k-slide-in-up {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
+// @keyframes k-slide-in-up {
+//   0% {
+//     transform: translateY(100%);
+//     opacity: 0;
+//   }
+//   100% {
+//     transform: translateY(0);
+//     opacity: 1;
+//   }
+// }
 
-@keyframes k-slide-in-down {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
+// @keyframes k-slide-in-down {
+//   0% {
+//     transform: translateY(-100%);
+//     opacity: 0;
+//   }
+//   100% {
+//     transform: translateY(0);
+//     opacity: 1;
+//   }
+// }
 
-@keyframes k-slide-in-left {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
+// @keyframes k-slide-in-left {
+//   0% {
+//     transform: translateX(-100%);
+//     opacity: 0;
+//   }
+//   100% {
+//     transform: translateX(0);
+//     opacity: 1;
+//   }
+// }
 
-@keyframes k-slide-in-right {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
+// @keyframes k-slide-in-right {
+//   0% {
+//     transform: translateX(100%);
+//     opacity: 0;
+//   }
+//   100% {
+//     transform: translateX(0);
+//     opacity: 1;
+//   }
+// }
 
 /**
  * 缩放动画
  */
-@mixin k-scale-in {
-  animation: k-scale-in $k-transition-duration-base $k-transition-timing-function-ease-out;
-}
+// @mixin k-scale-in {
+//   animation: k-scale-in $k-transition-duration-base $k-transition-timing-function-ease-out;
+// }
 
-@keyframes k-scale-in {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+// @keyframes k-scale-in {
+//   0% {
+//     transform: scale(0.8);
+//     opacity: 0;
+//   }
+//   100% {
+//     transform: scale(1);
+//     opacity: 1;
+//   }
+// }
 
 /* ==================== 工具混合器 ==================== */
 
