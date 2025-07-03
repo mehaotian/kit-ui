@@ -1,0 +1,178 @@
+<template>
+	<view class="config-demo">
+		<view class="demo-section">
+			<text class="section-title">k-config 主题注入演示</text>
+			
+			<!-- 默认主题配置 -->
+			<view class="demo-group">
+				<text class="group-title">默认主题（成功色为红色）</text>
+				<k-config>
+					<view class="button-group">
+						<k-button type="success" text="成功按钮" />
+						<k-button type="primary" text="主要按钮" />
+						<k-button type="warning" text="警告按钮" />
+					</view>
+				</k-config>
+			</view>
+			
+			<!-- 自定义主题配置 -->
+			<view class="demo-group">
+				<text class="group-title">自定义主题配置</text>
+				<k-config :theme="customTheme">
+					<view class="button-group">
+						<k-button type="success" text="成功按钮" />
+						<k-button type="primary" text="主要按钮" />
+						<k-button type="warning" text="警告按钮" />
+					</view>
+				</k-config>
+			</view>
+			
+			<!-- 橙色主题配置 -->
+			<view class="demo-group">
+				<text class="group-title">橙色主题配置</text>
+				<k-config :theme="orangeTheme">
+					<view class="button-group">
+						<k-button type="success" text="成功按钮" />
+						<k-button type="primary" text="主要按钮" />
+						<k-button type="warning" text="警告按钮" />
+					</view>
+				</k-config>
+			</view>
+			
+			<!-- 动态主题切换 -->
+			<view class="demo-group">
+				<text class="group-title">动态主题切换</text>
+				<view class="theme-controls">
+					<button @click="switchToBlue" class="control-btn">蓝色主题</button>
+					<button @click="switchToGreen" class="control-btn">绿色主题</button>
+					<button @click="switchToPurple" class="control-btn">紫色主题</button>
+				</view>
+				{{dynamicTheme}}
+				<k-config :theme="dynamicTheme">
+					<view class="button-group">
+						<k-button type="success" text="成功按钮" />
+						<k-button type="primary" text="主要按钮" />
+						<k-button type="warning" text="警告按钮" />
+					</view>
+				</k-config>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup>
+	import { ref, reactive } from 'vue'
+
+	// 自定义主题配置
+	const customTheme = {
+		colorSuccess: '#52c41a',
+		colorPrimary: '#1890ff',
+		colorWarning: '#faad14',
+		borderRadiusMd: '12px'
+	}
+
+	// 橙色主题配置
+	const orangeTheme = {
+		colorSuccess: '#ff6b35',
+		colorPrimary: '#ff8c42',
+		colorWarning: '#ffa726',
+		borderRadiusMd: '16px',
+		spacingBase: '16px'
+	}
+	type DynamicTheme = {
+		colorSuccess: string
+		colorPrimary: string
+		colorWarning: string
+	}
+	// 动态主题配置
+	const dynamicTheme = reactive<DynamicTheme>({
+		colorSuccess: '#4cd964',
+		colorPrimary: '#007aff',
+		colorWarning: '#ff9500'
+	})
+
+	// 主题切换函数
+	const switchToBlue = () => {
+		dynamicTheme.colorSuccess = '#1890ff'
+		dynamicTheme.colorPrimary = '#096dd9'
+		dynamicTheme.colorWarning = '#69c0ff'
+	}
+
+	const switchToGreen = () => {
+		dynamicTheme.colorSuccess = '#52c41a'
+		dynamicTheme.colorPrimary = '#389e0d'
+		dynamicTheme.colorWarning = '#95de64'
+	}
+
+	const switchToPurple = () => {
+		dynamicTheme.colorSuccess = '#722ed1'
+		dynamicTheme.colorPrimary = '#531dab'
+		dynamicTheme.colorWarning = '#b37feb'
+	}
+</script>
+
+<style lang="scss">
+	.config-demo {
+		padding: 20px;
+		background-color: #f8f9fa;
+	}
+
+	.demo-section {
+		max-width: 800px;
+		margin: 0 auto;
+	}
+
+	.section-title {
+		font-size: 24px;
+		font-weight: bold;
+		color: #333;
+		margin-bottom: 20px;
+	}
+
+	.demo-group {
+		margin-bottom: 30px;
+		padding: 20px;
+		background-color: #ffffff;
+		border-radius: 8px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	.group-title {
+		font-size: 16px;
+		font-weight: 400;
+		color: #666;
+		margin-bottom: 15px;
+	}
+
+	.button-group {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.theme-controls {
+		display: flex;
+		flex-direction: row;
+		margin-bottom: 15px;
+		flex-wrap: wrap;
+	}
+
+	.control-btn {
+		padding: 8px 16px;
+		border: 1px solid #d9d9d9;
+		border-radius: 6px;
+		background-color: #ffffff;
+		color: #333;
+		font-size: 14px;
+		transition: all 0.3s ease;
+
+		&:hover {
+			border-color: #40a9ff;
+			color: #40a9ff;
+		}
+
+		&:active {
+			transform: scale(0.98);
+		}
+	}
+</style>

@@ -4,38 +4,43 @@
  * 这里整合了 uni-app 内置变量和 kit-ui 组件库的主题系统
  * 提供统一的设计令牌和主题定制能力
  */
-
+$k-color-primary: red;
 // 引入 kit-ui 主题系统
-// @import "./uni_modules/kit-ui/theme/index.scss";
+@import "@/uni_modules/kit-ui/theme/index.scss";
 
 /**
  * uni-app 内置样式变量（保持兼容性）
  * 同时与 kit-ui 主题系统进行映射
  */
 
-/* 颜色变量 - 映射到 kit-ui 主题系统 */
+// .kit-ui--root {
+//   /* 主色调 */
+//   --k-color-primary: #{$k-color-primary};
+// }
+
+/* 颜色变量 */
 
 /* 行为相关颜色 */
 $uni-color-primary: #007aff;
-$uni-color-success: var(--k-color-success, #4cd964);
-$uni-color-warning: var(--k-color-warning, #f0ad4e);
-$uni-color-error: var(--k-color-danger, #dd524d);
+$uni-color-success: #4cd964;
+$uni-color-warning: #f0ad4e;
+$uni-color-error: #dd524d;
 
-/* 文字基本颜色 - 映射到 kit-ui 主题系统 */
-$uni-text-color: var(--k-text-color-primary, #333);//基本色
-$uni-text-color-inverse: var(--k-text-color-inverse, #fff);//反色
-$uni-text-color-grey: var(--k-text-color-secondary, #999);//辅助灰色，如加载更多的提示信息
-$uni-text-color-placeholder: var(--k-text-color-placeholder, #808080);
-$uni-text-color-disable: var(--k-text-color-disabled, #c0c0c0);
+/* 文字基本颜色 */
+$uni-text-color:#333;//基本色
+$uni-text-color-inverse:#fff;//反色
+$uni-text-color-grey:#999;//辅助灰色，如加载更多的提示信息
+$uni-text-color-placeholder: #808080;
+$uni-text-color-disable:#c0c0c0;
 
-/* 背景颜色 - 映射到 kit-ui 主题系统 */
-$uni-bg-color: var(--k-bg-color-page, #ffffff);
-$uni-bg-color-grey: var(--k-bg-color-container, #f8f8f8);
-$uni-bg-color-hover: var(--k-bg-color-hover, #f1f1f1);//点击状态颜色
-$uni-bg-color-mask: var(--k-bg-color-mask, rgba(0, 0, 0, 0.4));//遮罩颜色
+/* 背景颜色 */
+$uni-bg-color:#ffffff;
+$uni-bg-color-grey:#f8f8f8;
+$uni-bg-color-hover:#f1f1f1;//点击状态颜色
+$uni-bg-color-mask:rgba(0, 0, 0, 0.4);//遮罩颜色
 
-/* 边框颜色 - 映射到 kit-ui 主题系统 */
-$uni-border-color: var(--k-border-color, #c8c7cc);
+/* 边框颜色 */
+$uni-border-color:#c8c7cc;
 
 /* 尺寸变量 */
 

@@ -1,5 +1,5 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://doc.dcloud.net.cn/uni-app-x/collocation/pagesjson.html
+	"pages": [
 		{
 			"path": "pages/index/index",
 			"style": {
@@ -11,6 +11,13 @@
 			"style" : 
 			{
 				"navigationBarTitleText" : "按钮"
+			}
+		},
+		{
+			"path" : "pages/config/config",
+			"style" : 
+			{
+				"navigationBarTitleText" : "主题配置"
 			}
 		}
 	],

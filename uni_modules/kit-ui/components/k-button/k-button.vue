@@ -9,7 +9,7 @@
 				'k-button--round': round,
 				'k-button--circle': circle
 			}
-		]" :style="customStyle" @tap="handleClick">
+		]" :style="buttonStyle" @click="handleClick">
 		<!-- <view v-if="loading" class="k-button__loading">
 			<view class="k-button__loading-icon"></view>
 		</view>
@@ -25,10 +25,15 @@
 </template>
 
 <script setup>
+	import { inject, computed } from 'vue'
+
 	/**
 	 * k-button 按钮组件
 	 * 支持多种类型、尺寸和状态的按钮
 	 */
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
 
 	// 定义 props
 	const props = defineProps({
@@ -77,15 +82,33 @@
 			type: String,
 			default: ''
 		},
-		// 自定义样式
-		customStyle: {
-			type: Object,
-			default: () => ({})
-		}
+		// // 自定义样式
+		// customStyle: {
+		// 	type: Object,
+		// 	default: () => ({})
+		// }
 	});
 
 	// 定义事件
 	const emit = defineEmits(['click']);
+
+	// 计算按钮动态样式
+	const buttonStyle = computed(() => {
+		const styles: string[] = []
+
+		// 如果有注入的主题配置，生成对应的 CSS 变量
+		if (themeConfig != null && Object.keys(themeConfig).length > 0) {
+			Object.entries(themeConfig).forEach(([key, value]) => {
+				if (key !== 'mode' && value !== undefined) {
+					// 将驼峰命名转换为 kebab-case
+					const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+					styles.push(`--k-${cssVar}: ${value}`)
+				}
+			})
+		}
+
+		return styles.join('; ')
+	})
 
 	// 点击处理函数
 	const handleClick = () => {
@@ -98,7 +121,6 @@
 
 <style lang="scss">
 	@import "../../theme/index.scss";
-
 
 	.k-button {
 		display: flex;
@@ -125,7 +147,7 @@
 		user-select: none;
 		cursor: pointer;
 		/* #endif */
-		
+
 
 		// 默认样式
 		background-color: var(--k-bg-color, #ffffff);
