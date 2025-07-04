@@ -1,0 +1,225 @@
+<template>
+	<scroll-view class="page" scroll-y>
+		<view class="page-header">
+			<text class="page-title">k-icon 图标组件</text>
+			<text class="page-desc">轻量、扩展方便、用法简单的图标组件</text>
+		</view>
+		
+		<!-- 基础用法 -->
+		<view class="section">
+			<text class="section-title">基础用法</text>
+			<view class="demo-row">
+				<k-icon name="home" size="24" />
+				<k-icon name="user" size="24" />
+				<k-icon name="setting" size="24" />
+				<k-icon name="search" size="24" />
+				<k-icon name="heart" size="24" />
+				<k-icon name="star" size="24" />
+			</view>
+		</view>
+		
+		<!-- 图标尺寸 -->
+		<view class="section">
+			<text class="section-title">图标尺寸</text>
+			<view class="demo-row">
+				<k-icon name="home" size="xs" />
+				<k-icon name="home" size="sm" />
+				<k-icon name="home" size="md" />
+				<k-icon name="home" size="lg" />
+				<k-icon name="home" size="xl" />
+				<k-icon name="home" size="2xl" />
+			</view>
+			<view class="demo-row">
+				<k-icon name="user" size="16" />
+				<k-icon name="user" size="20" />
+				<k-icon name="user" size="24" />
+				<k-icon name="user" size="32" />
+				<k-icon name="user" size="48" />
+			</view>
+		</view>
+		
+		<!-- 图标颜色 -->
+		<view class="section">
+			<text class="section-title">图标颜色</text>
+			<view class="demo-row">
+				<k-icon name="heart" size="24" color="primary" />
+				<k-icon name="heart" size="24" color="success" />
+				<k-icon name="heart" size="24" color="warning" />
+				<k-icon name="heart" size="24" color="danger" />
+				<k-icon name="heart" size="24" color="info" />
+			</view>
+			<view class="demo-row">
+				<k-icon name="star" size="24" color="#ff6b6b" />
+				<k-icon name="star" size="24" color="#4ecdc4" />
+				<k-icon name="star" size="24" color="#45b7d1" />
+				<k-icon name="star" size="24" color="#f9ca24" />
+				<k-icon name="star" size="24" color="#6c5ce7" />
+			</view>
+		</view>
+		
+		<!-- 加载状态 -->
+		<view class="section">
+			<text class="section-title">加载状态</text>
+			<view class="demo-row">
+				<k-icon name="loading" size="24" loading />
+				<k-icon name="refresh" size="24" spin />
+				<k-icon name="setting" size="24" :loading="isLoading" @click="toggleLoading" />
+			</view>
+		</view>
+		
+		<!-- 徽标功能 -->
+		<view class="section">
+			<text class="section-title">徽标功能</text>
+			<view class="demo-row">
+				<k-icon name="home" size="24" dot />
+				<k-icon name="user" size="24" badge="5" />
+				<k-icon name="setting" size="24" badge="99" />
+				<k-icon name="search" size="24" badge="999" />
+				<k-icon name="heart" size="24" badge="new" />
+			</view>
+		</view>
+		
+		<!-- 禁用状态 -->
+		<view class="section">
+			<text class="section-title">禁用状态</text>
+			<view class="demo-row">
+				<k-icon name="home" size="24" disabled />
+				<k-icon name="user" size="24" disabled />
+				<k-icon name="setting" size="24" disabled />
+				<k-icon name="search" size="24" disabled />
+			</view>
+		</view>
+		
+		<!-- 图片图标 -->
+		<view class="section">
+			<text class="section-title">图片图标</text>
+			<view class="demo-row">
+				<k-icon name="https://fastly.jsdelivr.net/npm/@vant/assets/icon-demo.png" size="32" />
+				<k-icon name="/static/logo.png" size="32" />
+			</view>
+		</view>
+		
+		<!-- Unicode 字符 -->
+		<view class="section">
+			<text class="section-title">Unicode 字符</text>
+			<view class="demo-row">
+				<k-icon name="\uE001" size="24" prefix="custom-font" />
+				<k-icon name="\uE002" size="24" prefix="custom-font" />
+				<k-icon name="\uE003" size="24" prefix="custom-font" />
+			</view>
+		</view>
+		
+		<!-- 自定义样式 -->
+		<view class="section">
+			<text class="section-title">自定义样式</text>
+			<view class="demo-row">
+				<k-icon 
+					name="heart" 
+					size="32" 
+					color="#ff6b6b" 
+					custom-style="border: 2px solid #ff6b6b; border-radius: 50%; padding: 8px;"
+				/>
+				<k-icon 
+					name="star" 
+					size="32" 
+					color="#f9ca24" 
+					custom-style="background: linear-gradient(45deg, #f9ca24, #f0932b); border-radius: 8px; padding: 6px;"
+				/>
+			</view>
+		</view>
+		
+		<!-- 点击事件 -->
+		<view class="section">
+			<text class="section-title">点击事件</text>
+			<view class="demo-row">
+				<k-icon name="home" size="24" @click="handleIconClick('home')" />
+				<k-icon name="user" size="24" @click="handleIconClick('user')" />
+				<k-icon name="setting" size="24" @click="handleIconClick('setting')" />
+			</view>
+			<text class="click-result">{{ clickResult }}</text>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+import { ref } from 'vue'
+
+// 响应式数据
+const isLoading = ref(false)
+const clickResult = ref('点击图标查看效果')
+
+// 方法
+function toggleLoading() {
+	isLoading.value = !isLoading.value
+	setTimeout(() => {
+		isLoading.value = false
+	}, 2000)
+}
+
+function handleIconClick(iconName: string) {
+	clickResult.value = `点击了 ${iconName} 图标 - ${new Date().toLocaleTimeString()}`
+}
+</script>
+
+<style lang="scss">
+.page {
+	flex: 1;
+	background-color: var(--k-color-background, #f8f9fa);
+}
+
+.page-header {
+	padding: 20px;
+	background-color: var(--k-color-white, #ffffff);
+	border-bottom: 1px solid var(--k-color-border, #ebeef5);
+	margin-bottom: 12px;
+}
+
+.page-title {
+	font-size: 24px;
+	font-weight: 600;
+	color: var(--k-color-text-primary, #303133);
+	display: block;
+	margin-bottom: 8px;
+}
+
+.page-desc {
+	font-size: 14px;
+	color: var(--k-color-text-secondary, #606266);
+	display: block;
+}
+
+.section {
+	margin-bottom: 12px;
+	background-color: var(--k-color-white, #ffffff);
+	border-radius: var(--k-border-radius-base, 8px);
+	padding: 16px;
+}
+
+.section-title {
+	font-size: 16px;
+	font-weight: 500;
+	color: var(--k-color-text-primary, #303133);
+	display: block;
+	margin-bottom: 12px;
+}
+
+.demo-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 8px;
+	flex-wrap: wrap;
+}
+
+.click-result {
+	font-size: 14px;
+	color: var(--k-color-text-secondary, #606266);
+	margin-top: 8px;
+	display: block;
+}
+
+// 自定义字体示例 (实际使用时需要引入真实字体文件)
+.custom-font {
+	font-family: 'custom-icons', sans-serif;
+}
+</style>

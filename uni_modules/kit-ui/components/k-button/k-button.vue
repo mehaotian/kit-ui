@@ -93,7 +93,6 @@
 		}
 	});
 
-	// 定义事件
 	const emit = defineEmits(['click']);
 
 	// 计算按钮动态样式

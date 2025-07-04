@@ -14,18 +14,18 @@
 			<!-- 快速入口 -->
 			<view class="quick-actions">
 				<view class="quick-action-item" @click="goToConfig">
-					<view class="quick-action-icon">⚙️</view>
+					<text class="quick-action-icon">⚙️</text>
 					<text class="quick-action-text">主题配置</text>
 				</view>
 				<view class="quick-action-item" @click="goToButtonDemo">
-					<view class="quick-action-icon">🎨</view>
+					<text class="quick-action-icon">🎨</text>
 					<text class="quick-action-text">组件演示</text>
 				</view>
 			</view>
 
 			<!-- 组件分类列表 -->
 			<view class="category-list">
-				<view v-for="(category, index) in componentCategories" :key="index" class="category-card" @click="navigateToCategory(category)">
+				<view v-for="(category, index) in componentCategories" :key="index" class="category-card">
 					<view class="category-header">
 						<view class="category-icon" :style="{ background: category.color }">
 							<text class="icon-text">{{ category.icon }}</text>
@@ -42,7 +42,7 @@
 
 					<!-- 组件预览 -->
 					<view class="component-preview">
-						<view v-for="(component, compIndex) in category.components" :key="compIndex" class="component-tag" :class="'status-' + component.status">
+						<view v-for="(component, compIndex) in category.components" :key="compIndex" class="component-tag" :class="'status-' + component.status" @click="navigateToComponent(component)">
 							<text class="component-name">{{ component.name }}</text>
 						</view>
 						<!-- <view v-if="category.components.length > 6" class="more-components">
@@ -201,25 +201,9 @@
 			url: '/pages/button-demo/button-demo'
 		});
 	}
-	// 导航到分类页面
-	const navigateToCategory = (category : ComponentCategoriesType) => {
-		// 如果分类有已完成的组件，直接跳转到第一个完成的组件
-		const completedComponent = category.components.find(comp => comp.status == 'completed')
-		if (completedComponent != null) {
-			uni.navigateTo({
-				url: completedComponent!.path
-			})
-		} else {
-			// 否则显示分类下的组件列表（暂时用Toast提示）
-			uni.showToast({
-				title: `${category.name}开发中...`,
-				icon: 'none'
-			})
-		}
-	}
 	// 导航到具体组件页面
 	const navigateToComponent = (component : ComponentItemType) => {
-		if (component.status == 'completed') {
+		if (component.status == 'completed' || component.status == 'developing') {
 			uni.navigateTo({
 				url: component.path
 			});
@@ -318,9 +302,6 @@
 	.quick-action-icon {
 		width: 48px;
 		height: 48px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		font-size: 24px;
 		border-radius: 8px;
 		margin-bottom: 12px;
@@ -565,7 +546,7 @@
 		padding: 10px;
 		position: relative;
 		transition: all 0.2s ease;
-		margin: 5px 0 ;
+		margin: 5px 0;
 	}
 
 	.component-tag.status-completed {

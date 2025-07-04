@@ -1,0 +1,38 @@
+{
+  "name": "kit-ui",
+  "version": "1.0.0",
+  "description": "kit-ui 组件库 - 基于 uni-app x 的跨端组件库",
+  "main": "main.uts",
+  "scripts": {
+    "dev:h5": "echo '请使用 HBuilderX 运行到浏览器'",
+    "dev:mp-weixin": "echo '请使用 HBuilderX 运行到微信小程序开发者工具'",
+    "dev:app": "echo '请使用 HBuilderX 运行到手机或模拟器'",
+    "build:h5": "echo '请使用 HBuilderX 发行到 H5'",
+    "build:mp-weixin": "echo '请使用 HBuilderX 发行到微信小程序'",
+    "build:app": "echo '请使用 HBuilderX 发行到 App'"
+  },
+  "keywords": [
+    "uni-app",
+    "uni-app-x",
+    "vue3",
+    "typescript",
+    "component-library",
+    "cross-platform"
+  ],
+  "author": "kit-ui team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/kit-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/kit-ui/issues"
+  },
+  "homepage": "https://github.com/your-org/kit-ui#readme",
+  "engines": {
+    "HBuilderX": ">=3.8.0"
+  },
+  "uni-app": {
+    "scripts": {}
+  }
+}

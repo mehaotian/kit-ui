@@ -19,6 +19,13 @@
 			{
 				"navigationBarTitleText" : "主题配置"
 			}
+		},
+		{
+			"path" : "pages/icon/icon",
+			"style" : 
+			{
+				"navigationBarTitleText" : "图标"
+			}
 		}
 	],
 	"globalStyle": {

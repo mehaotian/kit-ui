@@ -1,0 +1,205 @@
+// k-icon 配置文件
+// 用于管理图标资源、主题配置和扩展设置
+
+// 引入图标映射配置
+import { 
+	ICON_UNICODE_MAP, 
+	ICON_CATEGORIES, 
+	ICON_ALIASES,
+	getIconUnicode,
+	getIconCategory,
+	getAllIconNames,
+	isValidIcon
+} from './fonts/k-icon.uts'
+
+// 内置图标 Unicode 映射（从独立文件引入）
+export const BUILTIN_ICONS : UTSJSONObject = ICON_UNICODE_MAP
+
+// 导出图标相关工具函数
+export { 
+	ICON_UNICODE_MAP, 
+	ICON_CATEGORIES, 
+	ICON_ALIASES,
+	getIconUnicode,
+	getIconCategory,
+	getAllIconNames,
+	isValidIcon
+}
+
+// 图标尺寸预设
+export const ICON_SIZES : UTSJSONObject = {
+	'xs': '12px',
+	'sm': '16px',
+	'md': '20px',
+	'lg': '24px',
+	'xl': '32px',
+	'2xl': '48px'
+}
+
+// 图标颜色预设 (基于主题色彩)
+export const ICON_COLORS : UTSJSONObject = {
+	'primary': 'var(--k-color-primary)',
+	'success': 'var(--k-color-success)',
+	'warning': 'var(--k-color-warning)',
+	'danger': 'var(--k-color-danger)',
+	'info': 'var(--k-color-info)',
+	'text': 'var(--k-color-text-primary)',
+	'text-secondary': 'var(--k-color-text-secondary)',
+	'text-placeholder': 'var(--k-color-text-placeholder)'
+}
+
+// 图标类型定义
+export type IconType = 'text' | 'image' | 'svg' | 'slot'
+
+// 图标配置接口
+export type IconConfig = {
+	// 图标资源配置
+	iconHost ?: string // 图标服务器地址
+	iconPrefix ?: string // 图标前缀
+	customIcons ?: UTSJSONObject // 自定义图标映射
+
+	// 默认配置
+	defaultSize ?: string
+	defaultColor ?: string
+	inheritColor ?: boolean
+
+	// 缓存配置
+	enableCache ?: boolean
+	cacheExpire ?: number // 缓存过期时间(毫秒)
+
+	// 性能配置
+	lazyLoad ?: boolean // 懒加载
+	preload ?: string[] // 预加载图标列表
+}
+
+// 默认配置
+export const DEFAULT_CONFIG : IconConfig = {
+	iconHost: '',
+	iconPrefix: 'k-icon',
+	customIcons: {},
+	defaultSize: 'md',
+	defaultColor: 'text',
+	inheritColor: true,
+	enableCache: true,
+	cacheExpire: 24 * 60 * 60 * 1000, // 24小时
+	lazyLoad: false,
+	preload: []
+}
+
+// 全局图标配置实例
+let globalConfig : IconConfig = DEFAULT_CONFIG
+
+// 配置管理函数
+export function setIconConfig(config : IconConfig) : void {
+	globalConfig = { ...globalConfig, ...config }
+}
+
+export function getIconConfig() : IconConfig {
+	return globalConfig
+}
+
+export function resetIconConfig() : void {
+	globalConfig = { ...DEFAULT_CONFIG }
+}
+
+// 图标工具函数
+export function isBuiltinIcon(name : string) : boolean {
+	return BUILTIN_ICONS.hasOwnProperty(name)
+}
+
+export function getBuiltinIcon(name : string) : string {
+	let icons = BUILTIN_ICONS[name] as string
+	return icons 
+}
+
+export function isImageUrl(url : string) : boolean {
+	// 检测是否为图片 URL
+	if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
+		return true
+	}
+
+	// 检测文件扩展名
+	const imageExts = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp', '.tiff']
+	for (let i = 0; i < imageExts.length; i++) {
+		if (url.toLowerCase().endsWith(imageExts[i])) {
+			return true
+		}
+	}
+
+	return false
+}
+
+export function isSvgIcon(name : string) : boolean {
+	// 检测是否为 SVG 图标 (通常包含 : 分隔符，如 iconify 格式)
+	return name.includes(':')
+}
+
+export function parseIconSize(size : string | number) : string {
+	if (typeof size == 'number') {
+		return size + 'px'
+	}
+
+	const sizeStr = size as string
+
+	// 如果是预设尺寸
+	if (ICON_SIZES.hasOwnProperty(sizeStr)) {
+		return ICON_SIZES[sizeStr] as string
+	}
+
+	// 直接返回原始值
+	return sizeStr
+}
+
+export function parseIconColor(color : string) : string {
+	// 如果是预设颜色
+	if (ICON_COLORS.hasOwnProperty(color)) {
+		return ICON_COLORS[color] as string
+	}
+
+	// 直接返回原始值
+	return color
+}
+
+// 图标缓存管理
+const iconCache : UTSJSONObject = {}
+
+export function getCachedIcon(key : string) : string | null {
+	if (globalConfig.enableCache == null) {
+		return null
+	}
+
+	const cached = iconCache[key] as UTSJSONObject | null
+	if (cached != null) {
+		const now = Date.now()
+		const expire = cached['expire'] as number
+		if (now < expire) {
+			return cached['data'] as string
+		}
+		// TODO 不支持 delete
+		// else {
+		// 	// 缓存过期，删除
+		// 	delete iconCache[key]
+		// }
+	}
+
+	return null
+}
+
+export function setCachedIcon(key : string, data : string) : void {
+	if (globalConfig.enableCache != null) {
+		return
+	}
+
+	// const expire = Date.now() + (globalConfig.cacheExpire ?? DEFAULT_CONFIG.cacheExpire!)
+	const expire = ''
+	iconCache[key] = {
+		data: data,
+		expire: expire
+	}
+}
+
+export function clearIconCache() : void {
+	for (const key in iconCache) {
+		delete iconCache[key]
+	}
+}

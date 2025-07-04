@@ -1,0 +1,461 @@
+<template>
+	<view 
+		class="k-icon" 
+		:class="iconClass"
+		:style="iconStyle"
+		@click="handleClick"
+	>
+		<!-- Unicode 字符图标 -->
+		
+		<text 
+			v-if="iconType == 'text'" 
+			class="k-icon__text"
+			:class="textClass"
+			:style="textStyle"
+		>{{ iconContent }}</text>
+		
+		<!-- 图片图标 -->
+		<image 
+			v-else-if="iconType == 'image'" 
+			class="k-icon__image"
+			:src="iconContent"
+			:style="imageStyle"
+			mode="aspectFit"
+			@error="handleImageError"
+			@load="handleImageLoad"
+		/>
+		
+		<!-- SVG 图标 (通过背景图片实现) -->
+		<view 
+			v-else-if="iconType == 'svg'" 
+			class="k-icon__svg"
+			:style="svgStyle"
+		></view>
+		
+	</view>
+</template>
+
+<script setup lang="uts">
+import { computed, inject, ref } from 'vue'
+import { 
+	BUILTIN_ICONS, 
+	ICON_SIZES, 
+	ICON_COLORS,
+	IconType,
+	IconConfig,
+	DEFAULT_CONFIG,
+	getIconConfig,
+	setIconConfig,
+	isBuiltinIcon,
+	getBuiltinIcon,
+	isImageUrl,
+	isSvgIcon,
+	parseIconSize,
+	parseIconColor,
+	getCachedIcon,
+	setCachedIcon,
+	clearIconCache,
+	getIconUnicode,
+	isValidIcon
+} from './config.uts'
+
+// 注入主题配置
+const kitTheme = inject('kit-theme', null)
+
+// Props 定义
+interface Props {
+	name: string
+	size?: string
+	color?: string
+	prefix?: string
+	customStyle?: string 
+	disabled?: boolean
+	loading?: boolean
+	inherit?: boolean
+	spin?: boolean // 旋转动画
+	dot?: boolean // 显示为圆点
+	badge?: string// 徽标内容
+}
+
+ const props = defineProps({
+	 	name:{
+			type:String,
+			default:''
+		},
+		size:{
+			type:String,
+			default:''
+		},
+		color:{
+			type:String,
+			default:''
+		},
+		prefix:{
+			type:String,
+			default:''
+		},
+		customStyle:{
+			type:String,
+			default:''
+		},
+		disabled:{
+			type:Boolean,
+			default:false
+		},
+		loading:{
+			type:Boolean,
+			default:false
+		},
+		inherit:{
+			type:Boolean,
+			default:true
+		},
+		spin:{
+			type:Boolean,
+			default:false
+		},
+		dot:{
+			type:Boolean,
+			default:false
+		},
+		badge:{
+			type:String,
+			default:''
+		}
+ })
+
+
+// Events 定义
+const emit = defineEmits<{
+	click: [event: any]
+	error: [error: any]
+	load: []
+}>()
+
+// 获取全局配置
+const config = getIconConfig()
+console.log(config);
+// 图标类型检测
+const iconType = computed((): IconType => {
+	if (props.name == '') return 'slot'
+	
+	// 检测是否为图片 URL
+	if (isImageUrl(props.name)) {
+		return 'image'
+	}
+	
+	// 检测是否为 SVG (包含 : 的通常是 iconify 格式)
+	if (isSvgIcon(props.name)) {
+		return 'svg'
+	}
+	
+	// 默认为文本图标 (Unicode)
+	return 'text'
+})
+
+// 图标内容获取
+const iconContent = computed((): string => {
+	if (iconType.value == 'text') {
+		// 使用新的图标映射函数获取 Unicode
+		const unicode = getIconUnicode(props.name)
+		console.log(unicode);
+		if (unicode != null) {
+			return unicode
+		}
+		// 检查全局配置中的自定义图标
+		// const config = getIconConfig()
+		// if (config.customIcons && config.customIcons[props.name]) {
+		// 	return config.customIcons[props.name] as string
+		// }
+		
+		// 直接返回 name（可能是 Unicode 字符）
+		return props.name
+	}
+	
+	if (iconType.value == 'image') {
+		return props.name
+	}
+	
+	// if (iconType.value == 'svg') {
+	// 	return buildSvgUrl(props.name)
+	// }
+	
+	return props.name
+})
+
+// 尺寸处理
+const iconSize = computed((): string => {
+	if (props.size != '') {
+		return parseIconSize(props.size)
+	}
+	
+	// 使用配置的默认尺寸
+	const defaultSize = config.defaultSize ?? 'md'
+	return parseIconSize(defaultSize)
+})
+
+// 颜色处理
+const iconColor = computed((): string => {
+	if (props.color != '') {
+		return parseIconColor(props.color)
+	}
+	
+	if (props.inherit) {
+		return 'inherit'
+	}
+	
+	// 使用配置的默认颜色
+	const defaultColor = config.defaultColor ?? 'text'
+	return parseIconColor(defaultColor)
+})
+
+
+// 样式计算
+const iconClass = computed((): string[] => {
+	const classes: string[] = []
+	
+	if (props.disabled) {
+		classes.push('k-icon--disabled')
+	}
+	
+	if (props.loading || props.spin) {
+		classes.push('k-icon--loading')
+	}
+	
+	if (props.dot) {
+		classes.push('k-icon--dot')
+	}
+	
+	if (props.badge != '' && props.badge != '0') {
+		classes.push('k-icon--badge')
+	}
+	
+	if (iconType.value != 'slot') {
+		classes.push(`k-icon--${iconType.value}`)
+	}
+	
+	return classes
+})
+
+const iconStyle = computed((): UTSJSONObject => {
+	const style: UTSJSONObject = {}
+	
+	// 处理自定义样式
+	if (props.customStyle != '') {
+		if (typeof props.customStyle == 'string') {
+			// 简单的字符串样式解析
+			const styleStr = props.customStyle as string
+			const pairs = styleStr.split(';')
+			for (let i = 0; i < pairs.length; i++) {
+				const pair = pairs[i].trim()
+				if (pair != '') {
+					const colonIndex = pair.indexOf(':')
+					if (colonIndex > 0) {
+						const key = pair.substring(0, colonIndex).trim()
+						const value = pair.substring(colonIndex + 1).trim()
+						style[key] = value
+					}
+				}
+			}
+		} 
+		// else {
+		// 	// 对象样式
+		// 	const customObj = props.customStyle as UTSJSONObject
+		// 	for (const key in customObj) {
+		// 		style[key] = customObj[key]
+		// 	}
+		// }
+	}
+	
+	return style
+})
+
+const textClass = computed((): string[] => {
+	const classes: string[] = []
+	
+	if (props.prefix != '') {
+		classes.push(props.prefix)
+	}
+	
+	return classes
+})
+
+const textStyle = computed((): UTSJSONObject => {
+	return {
+		fontSize: iconSize.value,
+		color: iconColor.value,
+		lineHeight: '1'
+	}
+})
+
+const imageStyle = computed((): UTSJSONObject => {
+	return {
+		width: iconSize.value,
+		height: iconSize.value
+	}
+})
+
+const svgStyle = computed((): UTSJSONObject => {
+	const style: UTSJSONObject = {
+		width: iconSize.value,
+		height: iconSize.value,
+		backgroundSize: 'contain',
+		backgroundRepeat: 'no-repeat',
+		backgroundPosition: 'center'
+	}
+	
+	// 设置 SVG 背景图片
+	if (iconType.value == 'svg' && iconContent.value != '') {
+		style.backgroundImage = `url(${iconContent.value})`
+	}
+	
+	return style
+})
+
+// 徽标文本处理
+const badgeText = computed((): string => {
+	if (typeof props.badge == 'number') {
+		// 数字徽标，超过 99 显示 99+
+		return parseInt(props.badge) > 99 ? '99+' : props.badge
+	}
+	
+	// 文字徽标
+	return props.badge as string
+})
+
+
+// SVG URL 构建函数
+function buildSvgUrl(name: string): string {
+	if (config.iconHost != null && config.iconHost != '') {
+		// 使用自定义图标服务器
+		return `${config.iconHost}/${name.replace(':', '/')}.svg`
+	}
+	
+	// 使用 iconify API (需要网络)
+	const [collection, iconName] = name.split(':')
+	return `https://api.iconify.design/${collection}/${iconName}.svg`
+}
+
+// 事件处理
+function handleClick(event: any) {
+	if (props.disabled || props.loading) {
+		return
+	}
+	
+	emit('click', event)
+}
+
+function handleImageError(error: any) {
+	console.warn(`[k-icon] 图片加载失败: ${props.name}`, error)
+	emit('error', error)
+}
+
+function handleImageLoad() {
+	emit('load')
+}
+</script>
+
+<style lang="scss">
+@import "../../theme/index.scss";
+
+.k-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: middle;
+	position: relative;
+	cursor: pointer;
+	transition: all var(--k-animation-duration-base, 0.3s) var(--k-animation-timing-function-ease, ease);
+	
+	&:hover {
+		transform: scale(1.1);
+	}
+	
+	&:active {
+		transform: scale(0.95);
+	}
+	
+	&--disabled {
+		opacity: var(--k-opacity-disabled, 0.4);
+		cursor: not-allowed;
+		pointer-events: none;
+		
+		&:hover {
+			transform: none;
+		}
+	}
+	
+	&--loading {
+		.k-icon__text,
+		.k-icon__image,
+		.k-icon__svg {
+			animation: k-icon-spin 1s linear infinite;
+		}
+	}
+	
+	&--dot {
+		.k-icon__dot {
+			animation: k-icon-pulse 2s ease-in-out infinite;
+		}
+	}
+	
+	&__text {
+		font-style: normal;
+		text-align: center;
+		text-transform: none;
+		line-height: 1;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		transition: color var(--k-animation-duration-base, 0.3s) var(--k-animation-timing-function-ease, ease);
+	}
+	
+	&__image {
+		display: block;
+		transition: opacity var(--k-animation-duration-base, 0.3s) var(--k-animation-timing-function-ease, ease);
+	}
+	
+	&__svg {
+		display: inline-block;
+		transition: all var(--k-animation-duration-base, 0.3s) var(--k-animation-timing-function-ease, ease);
+	}
+	
+	// 圆点徽标
+	&__dot {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 8px;
+		height: 8px;
+		background-color: var(--k-color-danger, #ff4757);
+		border-radius: 50%;
+		border: 2px solid var(--k-color-white, #ffffff);
+		transform: translate(50%, -50%);
+	}
+	
+	// 数字/文字徽标
+	&__badge {
+		position: absolute;
+		top: 0;
+		right: 0;
+		min-width: 16px;
+		height: 16px;
+		padding: 0 4px;
+		background-color: var(--k-color-danger, #ff4757);
+		border-radius: 8px;
+		border: 1px solid var(--k-color-white, #ffffff);
+		transform: translate(50%, -50%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		
+		&-text {
+			font-size: 10px;
+			color: var(--k-color-white, #ffffff);
+			font-weight: 500;
+			line-height: 1;
+		}
+	}
+}
+</style>

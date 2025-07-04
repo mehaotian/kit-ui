@@ -1,0 +1,137 @@
+/**
+ * k-icon 图标映射配置
+ * 基于 iconfont.json 生成的图标 Unicode 映射关系
+ * 字体文件：iconfont.ttf
+ * 字体族：iconfont
+ * CSS 前缀：icon-
+ */
+
+// 图标 Unicode 映射表
+export const ICON_UNICODE_MAP: UTSJSONObject = {
+  // 营销工具-自定义模板
+  'template': '\uE601',
+  'custom-template': '\uE601',
+  'yingxiaogongju-zidingyimoban': '\uE601',
+  
+  // 操作-翻译
+  'translate': '\uE6BA',
+  'fanyi': '\uE6BA',
+  
+  // 文档
+  'document': '\uE634',
+  'doc': '\uE634',
+  'wendang': '\uE634',
+  
+  // 清理缓存
+  'clear-cache': '\uE607',
+  'cache': '\uE607',
+  'qinglihuancun': '\uE607',
+  
+  // 燃烧优化
+  'optimize': '\uE62D',
+  'performance': '\uE62D',
+  'ranshaoyouhua': '\uE62D',
+  
+  // 成本数据录入_编辑录入操作
+  'entry-costdata': '\uE6F3',
+  'cost-data': '\uE6F3',
+  'jurassic_entry-costdata': '\uE6F3',
+  
+  // 修复
+  'repair': '\uE620',
+  'fix': '\uE620',
+  
+  // 拆分
+  'split': '\uE600',
+  'chaifen': '\uE600',
+  
+  // 调试
+  'debug': '\uE793',
+  'tiaoshi': '\uE793',
+  
+  // 正则解析
+  'regex': '\uE628',
+  'parse': '\uE628',
+  'zhengzejiexi': '\uE628',
+  
+  // 双箭头-下
+  'double-arrow-down': '\uE6AC',
+  'arrow-down': '\uE6AC',
+  'shuangjiantou-xia': '\uE6AC'
+}
+
+// 图标类别映射（便于分类管理）
+export const ICON_CATEGORIES: UTSJSONObject = {
+  'tools': ['template', 'custom-template', 'translate', 'clear-cache', 'optimize', 'repair', 'debug'],
+  'documents': ['document', 'doc'],
+  'data': ['entry-costdata', 'cost-data'],
+  'actions': ['split', 'regex', 'parse'],
+  'navigation': ['double-arrow-down', 'arrow-down']
+}
+
+// 图标别名映射（支持多种命名方式）
+export const ICON_ALIASES: UTSJSONObject = {
+  // 英文别名
+  'template': ['custom-template', 'tpl'],
+  'translate': ['trans', 'i18n'],
+  'document': ['doc', 'file'],
+  'clear-cache': ['cache', 'clean'],
+  'optimize': ['performance', 'perf'],
+  'repair': ['fix', 'restore'],
+  'split': ['divide', 'separate'],
+  'debug': ['test', 'dev'],
+  'regex': ['parse', 'pattern'],
+  'double-arrow-down': ['arrow-down', 'expand']
+}
+
+// 获取图标 Unicode
+export function getIconUnicode(name: string): string | null {
+  // 直接匹配
+  if (ICON_UNICODE_MAP[name] != null) {
+    return ICON_UNICODE_MAP[name] as string
+  }
+  
+  // 别名匹配
+  for (const key in ICON_ALIASES) {
+    const aliases = ICON_ALIASES[key] as string[]
+    if (aliases.includes(name)) {
+      return ICON_UNICODE_MAP[key] as string
+    }
+  }
+  
+  return null
+}
+
+// 获取图标分类
+export function getIconCategory(name: string): string | null {
+  for (const category in ICON_CATEGORIES) {
+    const icons = ICON_CATEGORIES[category] as string[]
+    if (icons.includes(name)) {
+      return category
+    }
+  }
+  return null
+}
+
+// 获取所有图标名称
+export function getAllIconNames(): string[] {
+  const names: string[] = []
+  
+  // 添加主要图标名称
+  for (const key in ICON_UNICODE_MAP) {
+    names.push(key)
+  }
+  
+  // 添加别名
+  for (const key in ICON_ALIASES) {
+    const aliases = ICON_ALIASES[key] as string[]
+    names.push(...aliases)
+  }
+  
+  return [...new Set(names)] // 去重
+}
+
+// 检查是否为有效图标
+export function isValidIcon(name: string): boolean {
+  return getIconUnicode(name) != null
+}
