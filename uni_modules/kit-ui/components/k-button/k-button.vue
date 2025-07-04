@@ -12,12 +12,6 @@
 				'k-button--shadow': shadow
 			}
 		]" :style="buttonStyle" @click="handleClick">
-		<!-- <view v-if="loading" class="k-button__loading">
-			<view class="k-button__loading-icon"></view>
-		</view>
-		<view v-if="icon != null && !loading" class="k-button__icon">
-			{{ icon }}
-		</view> -->
 		<text class="k-button__text">
 			<slot>{{ text }}</slot>
 		</text>
@@ -96,12 +90,7 @@
 		shadow: {
 			type: Boolean,
 			default: false
-		},
-		// // 自定义样式
-		// customStyle: {
-		// 	type: Object,
-		// 	default: () => ({})
-		// }
+		}
 	});
 
 	// 定义事件
