@@ -2,149 +2,644 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		<view class="content">
-			<view class="text-area">
-				<text class="title">{{title}}</text>
-			</view>
-			<view class="demo-section">
-				<text class="demo-title">组件演示</text>
-				<view class="demo-row">
-					<k-button class="k-btn" type="primary" text="按钮演示" @click="goToButton"></k-button>
-					<k-button class="k-btn" type="success" text="主题配置演示" @click="goToConfig"></k-button>
-					<k-button class="k-btn" type="warning" text="新主题演示" @click="goToButtonDemo"></k-button>
+		<view class="page">
+			<!-- 头部区域 -->
+			<view class="header">
+				<view class="header-content">
+					<text class="header-title">Kit-UI</text>
+					<text class="header-subtitle">uni-app x 组件库</text>
 				</view>
 			</view>
-			
-			<k-config>
-				<view class="demo-section">
-					<text class="demo-title">默认主题演示</text>
-					<view class="demo-row">
-						<k-button class="k-btn" type="default" text="默认按钮" @click="handleClick('default')"></k-button>
-						<k-button class="k-btn" type="primary" text="主要按钮" @click="handleClick('primary')"></k-button>
-						<k-button class="k-btn" type="success" text="成功按钮" @click="handleClick('success')"></k-button>
+
+			<!-- 快速入口 -->
+			<view class="quick-actions">
+				<view class="quick-action-item" @click="goToConfig">
+					<view class="quick-action-icon">⚙️</view>
+					<text class="quick-action-text">主题配置</text>
+				</view>
+				<view class="quick-action-item" @click="goToButtonDemo">
+					<view class="quick-action-icon">🎨</view>
+					<text class="quick-action-text">组件演示</text>
+				</view>
+			</view>
+
+			<!-- 组件分类列表 -->
+			<view class="category-list">
+				<view v-for="(category, index) in componentCategories" :key="index" class="category-card" @click="navigateToCategory(category)">
+					<view class="category-header">
+						<view class="category-icon" :style="{ background: category.color }">
+							<text class="icon-text">{{ category.icon }}</text>
+						</view>
+						<view class="category-info">
+							<text class="category-title">{{ category.name }}</text>
+							<text class="category-desc">{{ category.description }}</text>
+						</view>
+						<view class="category-meta">
+							<text class="component-count">{{ category.count }}个组件</text>
+							<text class="arrow-icon">›</text>
+						</view>
+					</view>
+
+					<!-- 组件预览 -->
+					<view class="component-preview">
+						<view v-for="(component, compIndex) in category.components" :key="compIndex" class="component-tag" :class="'status-' + component.status">
+							<text class="component-name">{{ component.name }}</text>
+						</view>
+						<!-- <view v-if="category.components.length > 6" class="more-components">
+							<text class="more-text">+{{ category.components.length - 6 }}</text>
+						</view> -->
 					</view>
 				</view>
-			</k-config>
+			</view>
 		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
 	<!-- #endif -->
 </template>
 
-<script>
-	export default {
-		data() {
-			return {
-				title: 'Kit-UI 按钮组件演示',
-				isLoading: false
-			}
-		},
-		onLoad() {
+<script setup>
+	import { reactive } from 'vue'
+	type ComponentItemType = {
+		name : string
+		path : string
+		status : string
+	}
+	type ComponentCategoriesType = {
+		name : string
+		description : string
+		icon : string
+		color : string
+		count : number
+		path : string
+		components : ComponentItemType[]
+	}
 
+	const componentCategories = reactive<ComponentCategoriesType[]>([
+		{
+			name: '基础组件',
+			description: '构建界面的基础元素',
+			icon: '🧱',
+			color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+			count: 8,
+			path: '/pages/category/basic',
+			components: [
+				{ name: 'Button', path: '/pages/button/button', status: 'completed' },
+				{ name: 'Icon', path: '/pages/icon/icon', status: 'developing' },
+				{ name: 'Text', path: '/pages/text/text', status: 'planning' },
+				{ name: 'Image', path: '/pages/image/image', status: 'planning' },
+				{ name: 'Layout', path: '/pages/layout/layout', status: 'planning' },
+				{ name: 'Grid', path: '/pages/grid/grid', status: 'planning' },
+				{ name: 'Space', path: '/pages/space/space', status: 'planning' },
+				{ name: 'Divider', path: '/pages/divider/divider', status: 'planning' }
+			]
 		},
-		methods: {
-				// 导航到按钮演示页面
-				goToButton() {
-					uni.navigateTo({
-						url: '/pages/button/button'
-					});
-				},
-				// 导航到主题配置演示页面
-			goToConfig() {
-				uni.navigateTo({
-					url: '/pages/config/config'
-				});
-			},
-			// 导航到新主题按钮演示页面
-			goToButtonDemo() {
-				uni.navigateTo({
-					url: '/pages/button/button'
-				});
-			},
-				onClick() {
-					uni.showToast({
-						title: `点击了test按钮`,
-						icon: 'none',
-						duration: 1500
-					});
-				},
-				handleClick(type : string) {
-					console.log('按钮点击:', type);
-					uni.showToast({
-						title: `点击了${type}按钮`,
-						icon: 'none',
-						duration: 1500
-					});
-				},
-				handleLoading() {
-					this.isLoading = true;
-					setTimeout(() => {
-						this.isLoading = false;
-						uni.showToast({
-							title: '加载完成',
-							icon: 'success',
-							duration: 1500
-						});
-					}, 2000);
-				}
-			}
+		{
+			name: '表单组件',
+			description: '数据录入和交互组件',
+			icon: '📝',
+			color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+			count: 12,
+			path: '/pages/category/form',
+			components: [
+				{ name: 'Input', path: '/pages/input/input', status: 'planning' },
+				{ name: 'Textarea', path: '/pages/textarea/textarea', status: 'planning' },
+				{ name: 'Radio', path: '/pages/radio/radio', status: 'planning' },
+				{ name: 'Checkbox', path: '/pages/checkbox/checkbox', status: 'planning' },
+				{ name: 'Switch', path: '/pages/switch/switch', status: 'planning' },
+				{ name: 'Slider', path: '/pages/slider/slider', status: 'planning' },
+				{ name: 'Rate', path: '/pages/rate/rate', status: 'planning' },
+				{ name: 'Picker', path: '/pages/picker/picker', status: 'planning' },
+				{ name: 'DatePicker', path: '/pages/datepicker/datepicker', status: 'planning' },
+				{ name: 'Upload', path: '/pages/upload/upload', status: 'planning' },
+				{ name: 'Form', path: '/pages/form/form', status: 'planning' },
+				{ name: 'Search', path: '/pages/search/search', status: 'planning' }
+			]
+		},
+		{
+			name: '反馈组件',
+			description: '用户操作反馈和提示',
+			icon: '💬',
+			color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+			count: 8,
+			path: '/pages/category/feedback',
+			components: [
+				{ name: 'Toast', path: '/pages/toast/toast', status: 'planning' },
+				{ name: 'Modal', path: '/pages/modal/modal', status: 'planning' },
+				{ name: 'ActionSheet', path: '/pages/actionsheet/actionsheet', status: 'planning' },
+				{ name: 'Loading', path: '/pages/loading/loading', status: 'planning' },
+				{ name: 'Progress', path: '/pages/progress/progress', status: 'planning' },
+				{ name: 'Alert', path: '/pages/alert/alert', status: 'planning' },
+				{ name: 'Notification', path: '/pages/notification/notification', status: 'planning' },
+				{ name: 'Skeleton', path: '/pages/skeleton/skeleton', status: 'planning' }
+			]
+		},
+		{
+			name: '导航组件',
+			description: '页面导航和路由组件',
+			icon: '🧭',
+			color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+			count: 6,
+			path: '/pages/category/navigation',
+			components: [
+				{ name: 'Navbar', path: '/pages/navbar/navbar', status: 'planning' },
+				{ name: 'Tabbar', path: '/pages/tabbar/tabbar', status: 'planning' },
+				{ name: 'Tabs', path: '/pages/tabs/tabs', status: 'planning' },
+				{ name: 'Sidebar', path: '/pages/sidebar/sidebar', status: 'planning' },
+				{ name: 'Steps', path: '/pages/steps/steps', status: 'planning' },
+				{ name: 'Breadcrumb', path: '/pages/breadcrumb/breadcrumb', status: 'planning' }
+			]
+		},
+		{
+			name: '展示组件',
+			description: '数据展示和内容呈现',
+			icon: '📊',
+			color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+			count: 10,
+			path: '/pages/category/display',
+			components: [
+				{ name: 'List', path: '/pages/list/list', status: 'planning' },
+				{ name: 'Card', path: '/pages/card/card', status: 'planning' },
+				{ name: 'Table', path: '/pages/table/table', status: 'planning' },
+				{ name: 'Tag', path: '/pages/tag/tag', status: 'planning' },
+				{ name: 'Badge', path: '/pages/badge/badge', status: 'planning' },
+				{ name: 'Avatar', path: '/pages/avatar/avatar', status: 'planning' },
+				{ name: 'Collapse', path: '/pages/collapse/collapse', status: 'planning' },
+				{ name: 'Timeline', path: '/pages/timeline/timeline', status: 'planning' },
+				{ name: 'Swiper', path: '/pages/swiper/swiper', status: 'planning' },
+				{ name: 'Calendar', path: '/pages/calendar/calendar', status: 'planning' }
+			]
+		},
+		{
+			name: '业务组件',
+			description: '常见业务场景组件',
+			icon: '🏢',
+			color: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+			count: 8,
+			path: '/pages/category/business',
+			components: [
+				{ name: 'GoodsCard', path: '/pages/goodscard/goodscard', status: 'planning' },
+				{ name: 'UserCard', path: '/pages/usercard/usercard', status: 'planning' },
+				{ name: 'OrderCard', path: '/pages/ordercard/ordercard', status: 'planning' },
+				{ name: 'AddressPicker', path: '/pages/addresspicker/addresspicker', status: 'planning' },
+				{ name: 'ShareSheet', path: '/pages/sharesheet/sharesheet', status: 'planning' },
+				{ name: 'PayKeyboard', path: '/pages/paykeyboard/paykeyboard', status: 'planning' },
+				{ name: 'Coupon', path: '/pages/coupon/coupon', status: 'planning' },
+				{ name: 'Empty', path: '/pages/empty/empty', status: 'planning' }
+			]
+		}
+	])
+
+
+	const goToConfig = () => {
+		uni.navigateTo({
+			url: '/pages/config/config'
+		});
+	}
+	// 导航到新主题按钮演示页面
+	const goToButtonDemo = () => {
+		uni.navigateTo({
+			url: '/pages/button-demo/button-demo'
+		});
+	}
+	// 导航到分类页面
+	const navigateToCategory = (category : ComponentCategoriesType) => {
+		// 如果分类有已完成的组件，直接跳转到第一个完成的组件
+		const completedComponent = category.components.find(comp => comp.status == 'completed')
+		if (completedComponent != null) {
+			uni.navigateTo({
+				url: completedComponent!.path
+			})
+		} else {
+			// 否则显示分类下的组件列表（暂时用Toast提示）
+			uni.showToast({
+				title: `${category.name}开发中...`,
+				icon: 'none'
+			})
+		}
+	}
+	// 导航到具体组件页面
+	const navigateToComponent = (component : ComponentItemType) => {
+		if (component.status == 'completed') {
+			uni.navigateTo({
+				url: component.path
+			});
+		} else {
+			uni.showToast({
+				title: `${component.name} 正在开发中...`,
+				icon: 'none',
+				duration: 2000
+			});
+		}
 	}
 </script>
 
 <style lang="scss">
-	.content {
+	/* 头部区域 */
+	.header {
+		position: relative;
+
+		// padding-top: calc(var(--status-bar-height, 44px) + var(--k-spacing-lg, 24px));
+		// padding-right: var(--k-spacing-lg, 24px);
+		// padding-bottom: var(--k-spacing-xl, 32px);
+		// padding-left: var(--k-spacing-lg, 24px);
+		background-image: linear-gradient(to bottom left, #667eea, #764ba2);
+	}
+
+	.header-content {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		padding: 20px 0;
+		z-index: 2;
+	}
+
+	.header-title {
+		font-size: var(--k-font-size-xxl, 32px);
+		font-weight: var(--k-font-weight-bold, 700);
+		color: #ffffff;
+		margin-bottom: var(--k-spacing-xs, 8px);
+	}
+
+	.header-subtitle {
+		font-size: var(--k-font-size-md, 16px);
+		color: rgba(255, 255, 255, 0.9);
+		margin-bottom: var(--k-spacing-xs, 8px);
+	}
+
+	.header-description {
+		font-size: var(--k-font-size-sm, 14px);
+		color: rgba(255, 255, 255, 0.8);
+		line-height: 1.5;
+	}
+
+	// .header-decoration {
+	// 	position: absolute;
+	// 	top: 0;
+	// 	right: -50px;
+	// 	width: 200px;
+	// 	height: 200px;
+	// 	background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+	// 	border-radius: 50%;
+	// }
+
+	/* 快速入口 */
+	.quick-actions {
+		display: flex;
+		padding-top: 0;
+		// padding-right: var(--k-spacing-lg, 24px);
+		// padding-bottom: 0;
+		// padding-left: var(--k-spacing-lg, 24px);
+		// margin-top: calc(-1 * var(--k-spacing-lg, 24px));
+		// margin-bottom: var(--k-spacing-lg, 24px);
+	}
+
+	.quick-action-item {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding: 10px;
-		// background-color: $k-color-primary;
+		padding-top: 24px;
+		padding-right: 16px;
+		padding-bottom: 24px;
+		padding-left: 16px;
+		background: rgba(255, 255, 255, 0.95);
+		border-radius: 12px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		transition: all var(--k-animation-duration-base, 0.3s) var(--k-animation-timing-function-ease-in-out, ease-in-out);
 	}
 
-	.text-area {
+	.quick-action-item:active {
+		transform: translateY(2px);
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+	}
 
+	.quick-action-icon {
+		width: 48px;
+		height: 48px;
 		display: flex;
+		align-items: center;
 		justify-content: center;
-		margin-bottom: 60rpx;
+		font-size: 24px;
+		border-radius: 8px;
+		margin-bottom: 12px;
 	}
 
-	.title {
-		font-size: 32rpx;
-		font-weight: 400;
-		color: var(--k-text-color-primary, #333);
+	.config-icon {
+		background-image: linear-gradient(to bottom left, #ff9a9e, #fecfef);
+	}
+
+	.demo-icon {
+		background-image: linear-gradient(to bottom left, #a8edea, #fed6e3);
+	}
+
+	.quick-action-text {
+		font-size: 14px;
+		color: #374151;
 		text-align: center;
 	}
 
-	.k-btn {
-		margin-bottom: 10px;
+	/* 组件区域 */
+	.components-section {
+		padding-top: 0;
+		padding-right: 24px;
+		padding-bottom: 0;
+		padding-left: 24px;
+		margin-bottom: 24px;
 	}
 
-	.demo-section {
-		width: 100%;
-		padding:10px;
-		margin:10px;
-		border-radius: 10px;
-		background-color: var(--k-bg-color-container, #fff);
-		box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+	.section-title {
+		font-size: 18px;
+		color: #374151;
+		margin-bottom: 16px;
+		padding-left: 8px;
+		border-left: 4px solid #3b82f6;
 	}
 
-	.demo-title {
-		font-size: 28rpx;
-		font-weight: 400;
-		color: var(--k-text-color-primary, #333);
-		margin-bottom: 32rpx;
-		text-align: center;
+	.component-grid {
+		display: flex;
+		flex-direction: column;
 	}
 
-	.demo-row {
+	.component-card {
+		display: flex;
+		align-items: center;
+		padding-top: 24px;
+		padding-right: 16px;
+		padding-bottom: 24px;
+		padding-left: 16px;
+		background: rgba(255, 255, 255, 0.95);
+		border-radius: 12px;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.component-card:active {
+		transform: translateY(1px);
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+		background: rgba(255, 255, 255, 1);
+	}
+
+	.component-icon {
+		width: 48px;
+		height: 48px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		margin-right: 16px;
+		background-image: linear-gradient(to bottom, #667eea, #764ba2);
+	}
+
+	.icon-text {
+		font-size: 20px;
+		color: #ffffff;
+	}
+
+	.component-info {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.component-name {
+		font-size: 16px;
+		color: #374151;
+		margin-bottom: 4px;
+	}
+
+	.component-desc {
+		font-size: 14px;
+		color: #6b7280;
+		line-height: 1.4;
+	}
+
+	.component-arrow {
+		font-size: 20px;
+		color: var(--k-text-color-placeholder, #9ca3af);
+		font-weight: var(--k-font-weight-bold, 700);
+		margin-left: var(--k-spacing-sm, 12px);
+	}
+
+	/* 不同图标的渐变色 */
+	.button-icon {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+
+	.icon-icon {
+		background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	}
+
+	.text-icon {
+		background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+	}
+
+	.image-icon {
+		background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+	}
+
+	.input-icon {
+		background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+	}
+
+	.radio-icon {
+		background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+	}
+
+	.checkbox-icon {
+		background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+	}
+
+	.switch-icon {
+		background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+	}
+
+	.loading-icon {
+		background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+	}
+
+	.toast-icon {
+		background: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%);
+	}
+
+	.modal-icon {
+		background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+	}
+
+	.actionsheet-icon {
+		background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+	}
+
+	/* 分类列表样式 */
+	.category-list {
+		padding-top: 0;
+		padding-right: 20px;
+		padding-bottom: 40px;
+		padding-left: 20px;
+	}
+
+	.category-card {
+		margin-bottom: 20px;
+		background: rgba(255, 255, 255, 0.9);
+		border-radius: 16px;
+		padding-top: 20px;
+		padding-right: 20px;
+		padding-bottom: 20px;
+		padding-left: 20px;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+		transition: all 0.3s ease;
+	}
+
+	.category-card:active {
+		transform: translateY(-2px);
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+	}
+
+	.category-header {
+		display: flex;
+		align-items: center;
+		margin-bottom: 16px;
+	}
+
+	.category-icon {
+		width: 48px;
+		height: 48px;
+		border-radius: 12px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-right: 16px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+
+	.icon-text {
+		font-size: 24px;
+		color: white;
+	}
+
+	.category-info {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		flex: 1;
+	}
+
+	.category-title {
+		font-size: 18px;
+		color: #1a1a1a;
+		margin-bottom: 4px;
+	}
+
+	.category-desc {
+		font-size: 14px;
+		color: #666;
+	}
+
+	.category-meta {
 		display: flex;
 		flex-direction: row;
-		flex-wrap: wrap;
-		justify-content: center;
 		align-items: center;
-		margin-bottom: 24rpx;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
 	}
+
+	.component-count {
+		font-size: 12px;
+		color: #999;
+	}
+
+	.arrow-icon {
+		font-size: 20px;
+		color: #ccc;
+		font-weight: 400;
+	}
+
+	.component-preview {
+		display: flex;
+		flex-wrap: wrap;
+	}
+
+	.component-tag {
+		background: rgba(0, 0, 0, 0.04);
+		border-radius: 6px;
+		padding: 10px;
+		position: relative;
+		transition: all 0.2s ease;
+		margin: 5px 0 ;
+	}
+
+	.component-tag.status-completed {
+		background: rgba(82, 196, 26, 0.1);
+		border: 1px solid rgba(82, 196, 26, 0.2);
+	}
+
+	.component-tag.status-developing {
+		background: rgba(24, 144, 255, 0.1);
+		border: 1px solid rgba(24, 144, 255, 0.2);
+	}
+
+	.component-tag.status-planning {
+		background: rgba(0, 0, 0, 0.04);
+		border: 1px solid rgba(0, 0, 0, 0.08);
+	}
+
+	.component-name {
+		font-size: 11px;
+		color: #666;
+	}
+
+	.component-tag.status-completed .component-name {
+		color: #52c41a;
+	}
+
+	.component-tag.status-developing .component-name {
+		color: #1890ff;
+	}
+
+	.more-components {
+		background: rgba(0, 0, 0, 0.06);
+		border-radius: 6px;
+		padding-top: 4px;
+		padding-right: 8px;
+		padding-bottom: 4px;
+		padding-left: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.more-text {
+		font-size: 11px;
+		color: #999;
+	}
+
+	// /* 暗色主题适配 */
+	// @media (prefers-color-scheme: dark) {
+	// 	.page {
+	// 		background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+	// 	}
+
+	// 	.header {
+	// 		background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+	// 	}
+
+	// 	.quick-action-item,
+	// 	.component-card {
+	// 		background: rgba(30, 41, 59, 0.8);
+	// 		border: 1px solid rgba(255, 255, 255, 0.1);
+	// 	}
+
+	// 	.quick-action-text,
+	// 	.component-name {
+	// 		color: var(--k-text-color-dark, #f1f5f9);
+	// 	}
+
+	// 	.component-desc {
+	// 		color: var(--k-text-color-secondary-dark, #94a3b8);
+	// 	}
+
+	// 	.section-title {
+	// 		color: var(--k-text-color-dark, #f1f5f9);
+	// 	}
+	// }
 </style>
