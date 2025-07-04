@@ -20,6 +20,13 @@
   --k-color-error: #{$k-color-error};
   --k-color-info: #{$k-color-info};
   
+  /* 渐变色彩 */
+  --k-gradient-primary: #{$k-gradient-primary};
+  --k-gradient-success: #{$k-gradient-success};
+  --k-gradient-warning: #{$k-gradient-warning};
+  --k-gradient-error: #{$k-gradient-error};
+  --k-gradient-info: #{$k-gradient-info};
+  
   /* 文本颜色 */
   --k-text-color-primary: #{$k-text-color-primary};
   --k-text-color-secondary: #{$k-text-color-secondary};
@@ -35,6 +42,8 @@
   --k-bg-color-overlay: #{$k-bg-color-overlay};
   --k-bg-color-mask: #{$k-bg-color-mask};
   --k-bg-color-disabled: #{$k-bg-color-disabled};
+  --k-bg-color-hover: #{$k-bg-color-hover};
+  --k-bg-color-active: #{$k-bg-color-active};
   
   /* 边框颜色 */
   --k-border-color: #{$k-border-color};
@@ -86,6 +95,25 @@
   --k-transition-duration-fast: #{$k-transition-duration-fast};
   --k-transition-duration-base: #{$k-transition-duration-base};
   --k-transition-duration-slow: #{$k-transition-duration-slow};
+  
+  /* 阴影系统 */
+  --k-box-shadow-xs: #{$k-box-shadow-xs};
+  --k-box-shadow-sm: #{$k-box-shadow-sm};
+  --k-box-shadow-base: #{$k-box-shadow-base};
+  --k-box-shadow-md: #{$k-box-shadow-md};
+  --k-box-shadow-lg: #{$k-box-shadow-lg};
+  --k-box-shadow-xl: #{$k-box-shadow-xl};
+  
+  /* 新拟态阴影 */
+  --k-shadow-neumorphism-raised: #{$k-shadow-neumorphism-raised};
+  --k-shadow-neumorphism-inset: #{$k-shadow-neumorphism-inset};
+  --k-shadow-neumorphism-flat: #{$k-shadow-neumorphism-flat};
+  
+  /* 彩色阴影 */
+  --k-shadow-primary: #{$k-shadow-primary};
+  --k-shadow-success: #{$k-shadow-success};
+  --k-shadow-warning: #{$k-shadow-warning};
+  --k-shadow-error: #{$k-shadow-error};
 }
 
 /* ==================== 暗色主题 ==================== */
@@ -101,11 +129,22 @@
   --k-bg-color: #{$k-dark-bg-color};
   --k-bg-color-page: #{$k-dark-bg-color-page};
   --k-bg-color-overlay: #{$k-dark-bg-color-overlay};
+  --k-bg-color-mask: #{$k-dark-bg-color-mask};
+  --k-bg-color-disabled: #{$k-dark-bg-color-disabled};
+  --k-bg-color-hover: #{$k-dark-bg-color-hover};
+  --k-bg-color-active: #{$k-dark-bg-color-active};
   
   /* 边框颜色 */
   --k-border-color: #{$k-dark-border-color};
   --k-border-color-light: #{$k-dark-border-color-light};
   --k-border-color-lighter: #{$k-dark-border-color-lighter};
+  --k-border-color-dark: #{$k-dark-border-color-dark};
+  --k-border-color-darker: #{$k-dark-border-color-darker};
+  
+  /* 暗色主题阴影 */
+  --k-shadow-neumorphism-raised: #{$k-dark-shadow-neumorphism-raised};
+  --k-shadow-neumorphism-inset: #{$k-dark-shadow-neumorphism-inset};
+  --k-shadow-neumorphism-flat: #{$k-dark-shadow-neumorphism-flat};
 }
 
 /* 系统暗色主题适配 */

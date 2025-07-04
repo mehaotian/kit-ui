@@ -6,58 +6,68 @@
 
 /* ==================== 基础色彩系统 ==================== */
 
-/* 主色调 */
-$k-color-primary: #007aff !default;
-$k-color-primary-light: #4da6ff !default;
-$k-color-primary-dark: #0056cc !default;
+/* 主色调 - 优雅紫蓝渐变系 */
+$k-color-primary: #6366f1 !default;        // 现代紫蓝色，低饱和度
+$k-color-primary-light: #a5b4fc !default;  // 柔和浅紫
+$k-color-primary-dark: #4338ca !default;   // 深邃紫蓝
+$k-color-primary-gradient: linear-gradient(to bottom right, #667eea, #764ba2) !default;
 
-/* 功能色彩 */
-$k-color-success: #4cd964 !default;
-$k-color-warning: #ff9500 !default;
-$k-color-error: #ff3b30 !default;
-$k-color-info: #5ac8fa !default;
+/* 功能色彩 - 自然呼吸色系 */
+$k-color-success: #10b981 !default;        // 翡翠绿，温和自然
+$k-color-warning: #f59e0b !default;        // 琥珀橙，温暖舒适
+$k-color-error: #ef4444 !default;          // 珊瑚红，柔和警示
+$k-color-info: #06b6d4 !default;           // 青蓝色，清新淡雅
+
+/* 渐变色彩组合 */
+$k-gradient-primary: linear-gradient(to bottom left, #667eea, #764ba2) !default;
+$k-gradient-success: linear-gradient(to bottom left, #10b981, #059669) !default;
+$k-gradient-warning: linear-gradient(to bottom left, #f59e0b, #d97706) !default;
+$k-gradient-error: linear-gradient(to bottom left, #ef4444, #dc2626) !default;
+$k-gradient-info: linear-gradient(to bottom left, #06b6d4, #0891b2) !default;
 
 /* 中性色彩 */
 $k-color-white: #ffffff !default;
 $k-color-black: #000000 !default;
 $k-color-transparent: transparent !default;
 
-/* 灰度色阶 */
-$k-color-gray-50: #fafafa !default;
-$k-color-gray-100: #f5f5f5 !default;
-$k-color-gray-200: #eeeeee !default;
-$k-color-gray-300: #e0e0e0 !default;
-$k-color-gray-400: #bdbdbd !default;
-$k-color-gray-500: #9e9e9e !default;
-$k-color-gray-600: #757575 !default;
-$k-color-gray-700: #616161 !default;
-$k-color-gray-800: #424242 !default;
-$k-color-gray-900: #212121 !default;
+/* 灰度色阶 - 温润呼吸感 */
+$k-color-gray-50: #fafbfc !default;   // 云白色，极致纯净
+$k-color-gray-100: #f7f8fa !default; // 晨雾色，轻盈透明
+$k-color-gray-200: #f1f3f5 !default; // 月光色，柔和宁静
+$k-color-gray-300: #e9ecef !default; // 薄雾色，优雅分界
+$k-color-gray-400: #ced4da !default; // 石墨色，温和中性
+$k-color-gray-500: #adb5bd !default; // 银灰色，平衡稳重
+$k-color-gray-600: #6c757d !default; // 暮色灰，深度内敛
+$k-color-gray-700: #495057 !default; // 炭墨色，沉稳大气
+$k-color-gray-800: #343a40 !default; // 夜幕色，神秘深邃
+$k-color-gray-900: #212529 !default; // 墨黑色，极致深沉
 
 /* ==================== 语义化颜色 ==================== */
 
-/* 文本颜色 */
-$k-text-color-primary: #333333 !default;
-$k-text-color-secondary: #666666 !default;
-$k-text-color-tertiary: #999999 !default;
-$k-text-color-quaternary: #cccccc !default;
-$k-text-color-inverse: #ffffff !default;
-$k-text-color-placeholder: #c0c4cc !default;
-$k-text-color-disabled: #c0c4cc !default;
+/* 文本颜色 - 层次分明的阅读体验 */
+$k-text-color-primary: #1f2937 !default;     // 深灰蓝，主要文本
+$k-text-color-secondary: #4b5563 !default;   // 中灰色，次要文本
+$k-text-color-tertiary: #6b7280 !default;    // 浅灰色，辅助文本
+$k-text-color-quaternary: #9ca3af !default;  // 极浅灰，提示文本
+$k-text-color-inverse: #ffffff !default;     // 反色文本
+$k-text-color-placeholder: #d1d5db !default; // 占位符文本
+$k-text-color-disabled: #d1d5db !default;    // 禁用文本
 
-/* 背景颜色 */
-$k-bg-color: #ffffff !default;
-$k-bg-color-page: #f8f9fa !default;
-$k-bg-color-overlay: rgba(0, 0, 0, 0.7) !default;
-$k-bg-color-mask: rgba(0, 0, 0, 0.4) !default;
-$k-bg-color-disabled: #f5f7fa !default;
+/* 背景颜色 - 简约留白设计 */
+$k-bg-color: #ffffff !default;                    // 纯白背景
+$k-bg-color-page: #fafbfc !default;               // 页面背景，微妙灰调
+$k-bg-color-overlay: rgba(15, 23, 42, 0.6) !default;  // 遮罩层，深蓝调
+$k-bg-color-mask: rgba(15, 23, 42, 0.3) !default;     // 蒙版层，轻透明
+$k-bg-color-disabled: #f8fafc !default;           // 禁用背景
+$k-bg-color-hover: rgba(99, 102, 241, 0.04) !default; // 悬停背景
+$k-bg-color-active: rgba(99, 102, 241, 0.08) !default; // 激活背景
 
-/* 边框颜色 */
-$k-border-color: #ebeef5 !default;
-$k-border-color-light: #f2f6fc !default;
-$k-border-color-lighter: #fafbfc !default;
-$k-border-color-dark: #d3d4d6 !default;
-$k-border-color-darker: #cdd0d6 !default;
+/* 边框颜色 - 新拟态光影效果 */
+$k-border-color: #e5e7eb !default;           // 主边框色
+$k-border-color-light: #f3f4f6 !default;    // 浅边框色
+$k-border-color-lighter: #f9fafb !default;  // 极浅边框色
+$k-border-color-dark: #d1d5db !default;     // 深边框色
+$k-border-color-darker: #9ca3af !default;   // 极深边框色
 
 /* ==================== 尺寸系统 ==================== */
 
@@ -107,10 +117,24 @@ $k-border-radius-circle: 50% !default;
 $k-border-width-base: 1px !default;
 $k-border-width-thick: 2px !default;
 
-/* 阴影 */
-$k-box-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04) !default;
-$k-box-shadow-base: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04) !default;
-$k-box-shadow-dark: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.12) !default;
+/* 阴影系统 - 新拟态光影设计 */
+$k-box-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05) !default;                                    // 极轻阴影
+$k-box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !default;     // 轻微阴影
+$k-box-shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !default; // 基础阴影
+$k-box-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !default;  // 中等阴影
+$k-box-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !default; // 大阴影
+$k-box-shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !default;                           // 超大阴影
+
+/* 新拟态阴影 - 内凹外凸效果 */
+$k-shadow-neumorphism-raised: 6px 6px 12px rgba(163, 177, 198, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.5) !default;
+$k-shadow-neumorphism-inset: inset 6px 6px 12px rgba(163, 177, 198, 0.6), inset -6px -6px 12px rgba(255, 255, 255, 0.5) !default;
+$k-shadow-neumorphism-flat: 3px 3px 6px rgba(163, 177, 198, 0.4), -3px -3px 6px rgba(255, 255, 255, 0.3) !default;
+
+/* 彩色阴影 - 品牌色光晕 */
+$k-shadow-primary: 0 8px 25px rgba(99, 102, 241, 0.15) !default;
+$k-shadow-success: 0 8px 25px rgba(16, 185, 129, 0.15) !default;
+$k-shadow-warning: 0 8px 25px rgba(245, 158, 11, 0.15) !default;
+$k-shadow-error: 0 8px 25px rgba(239, 68, 68, 0.15) !default;
 
 /* ==================== 动画系统 ==================== */
 
@@ -149,18 +173,29 @@ $k-z-index-loading: 5000 !default;
 
 /* ==================== 暗色主题变量 ==================== */
 
-/* 暗色主题文本颜色 */
-$k-dark-text-color-primary: #e5e5e5 !default;
-$k-dark-text-color-secondary: #a3a3a3 !default;
-$k-dark-text-color-tertiary: #737373 !default;
-$k-dark-text-color-quaternary: #525252 !default;
+/* 暗色主题文本颜色 - 温润夜色系 */
+$k-dark-text-color-primary: #f8fafc !default;     // 月光白，主要文本
+$k-dark-text-color-secondary: #e2e8f0 !default;   // 星光银，次要文本
+$k-dark-text-color-tertiary: #cbd5e1 !default;    // 晨曦灰，辅助文本
+$k-dark-text-color-quaternary: #94a3b8 !default;  // 暮光蓝，提示文本
 
-/* 暗色主题背景颜色 */
-$k-dark-bg-color: #141414 !default;
-$k-dark-bg-color-page: #0a0a0a !default;
-$k-dark-bg-color-overlay: rgba(0, 0, 0, 0.8) !default;
+/* 暗色主题背景颜色 - 深邃空间感 */
+$k-dark-bg-color: #0f172a !default;                    // 深空蓝，主背景
+$k-dark-bg-color-page: #020617 !default;               // 宇宙黑，页面背景
+$k-dark-bg-color-overlay: rgba(15, 23, 42, 0.9) !default;   // 深蓝遮罩
+$k-dark-bg-color-mask: rgba(15, 23, 42, 0.6) !default;      // 轻透蒙版
+$k-dark-bg-color-disabled: #1e293b !default;           // 禁用背景
+$k-dark-bg-color-hover: rgba(99, 102, 241, 0.1) !default;   // 悬停背景
+$k-dark-bg-color-active: rgba(99, 102, 241, 0.15) !default; // 激活背景
 
-/* 暗色主题边框颜色 */
-$k-dark-border-color: #303030 !default;
-$k-dark-border-color-light: #262626 !default;
-$k-dark-border-color-lighter: #1f1f1f !default;
+/* 暗色主题边框颜色 - 柔和分界线 */
+$k-dark-border-color: #334155 !default;           // 主边框色
+$k-dark-border-color-light: #1e293b !default;     // 浅边框色
+$k-dark-border-color-lighter: #0f172a !default;   // 极浅边框色
+$k-dark-border-color-dark: #475569 !default;      // 深边框色
+$k-dark-border-color-darker: #64748b !default;    // 极深边框色
+
+/* 暗色主题阴影 - 深邃光影 */
+$k-dark-shadow-neumorphism-raised: 6px 6px 12px rgba(2, 6, 23, 0.8), -6px -6px 12px rgba(30, 41, 59, 0.3) !default;
+$k-dark-shadow-neumorphism-inset: inset 6px 6px 12px rgba(2, 6, 23, 0.8), inset -6px -6px 12px rgba(30, 41, 59, 0.3) !default;
+$k-dark-shadow-neumorphism-flat: 3px 3px 6px rgba(2, 6, 23, 0.6), -3px -3px 6px rgba(30, 41, 59, 0.2) !default;

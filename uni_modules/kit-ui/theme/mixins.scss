@@ -379,3 +379,125 @@
     @content;
   }
 }
+
+/* ==================== 新设计系统混合器 ==================== */
+
+/**
+ * 渐变背景混合器
+ * @param {String} $type - 渐变类型 (primary, success, warning, error, info)
+ */
+@mixin k-gradient-bg($type: 'primary') {
+  @if $type == 'primary' {
+    background: $k-gradient-primary;
+  } @else if $type == 'success' {
+    background: $k-gradient-success;
+  } @else if $type == 'warning' {
+    background: $k-gradient-warning;
+  } @else if $type == 'error' {
+    background: $k-gradient-error;
+  } @else if $type == 'info' {
+    background: $k-gradient-info;
+  }
+}
+
+/**
+ * 新拟态效果混合器
+ * @param {String} $type - 效果类型 (raised, inset, flat)
+ * @param {Color} $bg-color - 背景颜色
+ */
+@mixin k-neumorphism($type: 'raised', $bg-color: $k-bg-color) {
+  background-color: $bg-color;
+  
+  @if $type == 'raised' {
+    box-shadow: $k-shadow-neumorphism-raised;
+  } @else if $type == 'inset' {
+    box-shadow: $k-shadow-neumorphism-inset;
+  } @else if $type == 'flat' {
+    box-shadow: $k-shadow-neumorphism-flat;
+  }
+  
+  @include k-dark-mode {
+    @if $type == 'raised' {
+      box-shadow: $k-dark-shadow-neumorphism-raised;
+    } @else if $type == 'inset' {
+      box-shadow: $k-dark-shadow-neumorphism-inset;
+    } @else if $type == 'flat' {
+      box-shadow: $k-dark-shadow-neumorphism-flat;
+    }
+  }
+}
+
+/**
+ * 彩色阴影混合器
+ * @param {String} $type - 阴影类型 (primary, success, warning, error)
+ */
+@mixin k-colored-shadow($type: 'primary') {
+  @if $type == 'primary' {
+    box-shadow: $k-shadow-primary;
+  } @else if $type == 'success' {
+    box-shadow: $k-shadow-success;
+  } @else if $type == 'warning' {
+    box-shadow: $k-shadow-warning;
+  } @else if $type == 'error' {
+    box-shadow: $k-shadow-error;
+  }
+}
+
+/**
+ * 呼吸感动画混合器
+ */
+// @mixin k-breathing-animation {
+//   animation: k-breathing 2s ease-in-out infinite;
+// }
+
+// @keyframes k-breathing {
+//   0%, 100% {
+//     transform: scale(1);
+//     opacity: 1;
+//   }
+//   50% {
+//     transform: scale(1.02);
+//     opacity: 0.95;
+//   }
+// }
+
+// /**
+//  * 流动渐变动画混合器
+//  */
+// @mixin k-flowing-gradient($type: 'primary') {
+//   background-size: 200% 200%;
+//   animation: k-flowing-gradient 3s ease infinite;
+  
+//   @include k-gradient-bg($type);
+// }
+
+// @keyframes k-flowing-gradient {
+//   0% {
+//     background-position: 0% 50%;
+//   }
+//   50% {
+//     background-position: 100% 50%;
+//   }
+//   100% {
+//     background-position: 0% 50%;
+//   }
+// }
+
+/**
+ * 柔和悬停效果混合器
+ */
+@mixin k-soft-hover {
+  transition: all $k-transition-duration-base $k-transition-timing-function-ease-in-out;
+  
+  &:hover {
+    background-color: var(--k-bg-color-hover);
+    transform: translateY(-1px);
+    box-shadow: $k-box-shadow-md;
+  }
+  
+  &:active {
+    background-color: var(--k-bg-color-active);
+    transform: translateY(0);
+    box-shadow: $k-box-shadow-sm;
+  }
+}

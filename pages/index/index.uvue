@@ -11,6 +11,7 @@
 				<view class="demo-row">
 					<k-button class="k-btn" type="primary" text="按钮演示" @click="goToButton"></k-button>
 					<k-button class="k-btn" type="success" text="主题配置演示" @click="goToConfig"></k-button>
+					<k-button class="k-btn" type="warning" text="新主题演示" @click="goToButtonDemo"></k-button>
 				</view>
 			</view>
 			
@@ -49,11 +50,17 @@
 					});
 				},
 				// 导航到主题配置演示页面
-				goToConfig() {
-					uni.navigateTo({
-						url: '/pages/config/config'
-					});
-				},
+			goToConfig() {
+				uni.navigateTo({
+					url: '/pages/config/config'
+				});
+			},
+			// 导航到新主题按钮演示页面
+			goToButtonDemo() {
+				uni.navigateTo({
+					url: '/pages/button/button'
+				});
+			},
 				onClick() {
 					uni.showToast({
 						title: `点击了test按钮`,
@@ -90,7 +97,7 @@
 		flex-direction: column;
 		align-items: center;
 		padding: 10px;
-		background-color: $k-color-primary;
+		// background-color: $k-color-primary;
 	}
 
 	.text-area {

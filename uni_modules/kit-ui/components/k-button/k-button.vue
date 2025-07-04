@@ -7,7 +7,9 @@
 				'k-button--loading': loading,
 				'k-button--plain': plain,
 				'k-button--round': round,
-				'k-button--circle': circle
+				'k-button--circle': circle,
+				'k-button--gradient': gradient,
+				'k-button--shadow': shadow
 			}
 		]" :style="buttonStyle" @click="handleClick">
 		<!-- <view v-if="loading" class="k-button__loading">
@@ -85,6 +87,16 @@
 			type: String,
 			default: ''
 		},
+		// 是否启用渐变背景
+		gradient: {
+			type: Boolean,
+			default: false
+		},
+		// 是否启用阴影效果
+		shadow: {
+			type: Boolean,
+			default: false
+		},
 		// // 自定义样式
 		// customStyle: {
 		// 	type: Object,
@@ -139,20 +151,18 @@
 		border-top-right-radius: var(--k-border-radius-md, 8px);
 		border-bottom-left-radius: var(--k-border-radius-md, 8px);
 		border-bottom-right-radius: var(--k-border-radius-md, 8px);
-		// transition: all var(--k-transition-duration-fast, 0.3s) var(--k-transition-timing-function-ease-in-out, ease-in-out);
-		transition-duration: var(--k-transition-duration-fast, 0.3s);
-		transition-timing-function: var(--k-transition-timing-function-ease-in-out, ease-in-out);
-		transition-property: all;
+		transition: all var(--k-animation-duration-normal, 0.3s) var(--k-animation-timing-ease-out, cubic-bezier(0.25, 0.46, 0.45, 0.94));
 		/* #ifdef WEB */
+		will-change: transform, box-shadow, background-color;
 		// web 禁止选中
 		user-select: none;
 		cursor: pointer;
 		/* #endif */
 
 
-		// 默认样式
+		// 默认样式 - 简洁风格
 		background-color: var(--k-bg-color, #ffffff);
-		border-color: var(--k-border-color, #ebeef5);
+		border-color: var(--k-border-color-light, #e5e7eb);
 
 		&__btn {
 			position: absolute;
@@ -166,91 +176,117 @@
 			opacity: 0;
 		}
 
-		// &:hover {
-		// 	background-color: var(--k-bg-color-page, #f8f9fa);
-		// }
+		&:hover {
+			background-color: var(--k-bg-color-hover, #f9fafb);
+			border-color: var(--k-border-color, #d1d5db);
+		}
 
 		&:active {
-			transform: scale(0.98);
+			background-color: var(--k-bg-color-active, #f3f4f6);
 		}
 
-		// 主要按钮
+		// 主要按钮 - 纯色背景
 		&--primary {
-			background-color: var(--k-color-primary, #007aff);
-			border-color: var(--k-color-primary, #007aff);
+			background-color: var(--k-color-primary, #6366f1);
+			border-color: var(--k-color-primary, #6366f1);
 
 			&:hover {
-				background-color: var(--k-color-primary-light, #4da6ff);
-				border-color: var(--k-color-primary-light, #4da6ff);
+				background-color: var(--k-color-primary-hover, #5855eb);
+				border-color: var(--k-color-primary-hover, #5855eb);
+			}
+
+			&:active {
+				background-color: var(--k-color-primary-active, #4f46e5);
+				border-color: var(--k-color-primary-active, #4f46e5);
 			}
 		}
 
-		// 成功按钮
+		// 成功按钮 - 纯色背景
 		&--success {
-			background-color: var(--k-color-success, #4cd964);
-			border-color: var(--k-color-success, #4cd964);
+			background-color: var(--k-color-success, #10b981);
+			border-color: var(--k-color-success, #10b981);
 
 			&:hover {
-				background-color: #7ee68a;
-				border-color: #7ee68a;
+				background-color: var(--k-color-success-hover, #059669);
+				border-color: var(--k-color-success-hover, #059669);
+			}
+
+			&:active {
+				background-color: var(--k-color-success-active, #047857);
+				border-color: var(--k-color-success-active, #047857);
 			}
 		}
 
-		// 警告按钮
+		// 警告按钮 - 纯色背景
 		&--warning {
-			background-color: var(--k-color-warning, #ff9500);
-			border-color: var(--k-color-warning, #ff9500);
+			background-color: var(--k-color-warning, #f59e0b);
+			border-color: var(--k-color-warning, #f59e0b);
 
 			&:hover {
-				background-color: #ffb84d;
-				border-color: #ffb84d;
+				background-color: var(--k-color-warning-hover, #d97706);
+				border-color: var(--k-color-warning-hover, #d97706);
+			}
+
+			&:active {
+				background-color: var(--k-color-warning-active, #b45309);
+				border-color: var(--k-color-warning-active, #b45309);
 			}
 		}
 
-		// 危险按钮
+		// 危险按钮 - 纯色背景
 		&--danger {
-			background-color: var(--k-color-error, #ff3b30);
-			border-color: var(--k-color-error, #ff3b30);
+			background-color: var(--k-color-error, #ef4444);
+			border-color: var(--k-color-error, #ef4444);
 
 			&:hover {
-				background-color: #ff6b5c;
-				border-color: #ff6b5c;
+				background-color: var(--k-color-error-hover, #dc2626);
+				border-color: var(--k-color-error-hover, #dc2626);
+			}
+
+			&:active {
+				background-color: var(--k-color-error-active, #b91c1c);
+				border-color: var(--k-color-error-active, #b91c1c);
 			}
 		}
 
-		// 朴素按钮
+		// 朴素按钮 - 透明背景 + 柔和边框
 		&--plain {
 			background-color: transparent;
+			box-shadow: none;
 
 			&.k-button--primary {
-				border-color: var(--k-color-primary, #007aff);
+				border-color: var(--k-color-primary, #6366f1);
 
 				&:hover {
-					background-color: rgba(0, 122, 255, 0.1);
+					background-color: rgba(99, 102, 241, 0.08);
+					box-shadow: var(--k-box-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
 				}
 			}
 
 			&.k-button--success {
-				border-color: var(--k-color-success, #4cd964);
+				border-color: var(--k-color-success, #10b981);
 
 				&:hover {
-					background-color: rgba(76, 217, 100, 0.1);
+					background-color: rgba(16, 185, 129, 0.08);
+					box-shadow: var(--k-box-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
 				}
 			}
 
 			&.k-button--warning {
-				border-color: var(--k-color-warning, #ff9500);
+				border-color: var(--k-color-warning, #f59e0b);
 
 				&:hover {
-					background-color: rgba(255, 149, 0, 0.1);
+					background-color: rgba(245, 158, 11, 0.08);
+					box-shadow: var(--k-box-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
 				}
 			}
 
 			&.k-button--error {
-				border-color: var(--k-color-error, #ff3b30);
+				border-color: var(--k-color-error, #ef4444);
 
 				&:hover {
-					background-color: rgba(255, 59, 48, 0.1);
+					background-color: rgba(239, 68, 68, 0.08);
+					box-shadow: var(--k-box-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
 				}
 			}
 		}
@@ -312,6 +348,96 @@
 			border-radius: 200px;
 		}
 
+		// 渐变效果 - 通过属性控制
+		&--gradient {
+
+			&.k-button--primary {
+				// background-image: var(--k-gradient-primary, linear-gradient(to bottom right, #667eea, #764ba2));
+				background-image: var(--k-gradient-primary);
+			}
+
+			&.k-button--success {
+				background-image: var(--k-gradient-success);
+			}
+
+			&.k-button--warning {
+				background-image: var(--k-gradient-warning);
+			}
+
+			&.k-button--danger {
+				background-image: var(--k-gradient-error);
+			}
+		}
+
+		// 阴影效果 - 通过属性控制
+		&--shadow {
+			&.k-button--default {
+				box-shadow: var(--k-shadow-neumorphism-flat, 3px 3px 6px rgba(163, 177, 198, 0.4), -3px -3px 6px rgba(255, 255, 255, 0.3));
+
+				&:hover {
+					transform: translateY(-1px);
+					box-shadow: var(--k-shadow-neumorphism-raised, 6px 6px 12px rgba(163, 177, 198, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.5));
+				}
+
+				&:active {
+					transform: translateY(0);
+					box-shadow: var(--k-shadow-neumorphism-inset, inset 6px 6px 12px rgba(163, 177, 198, 0.6), inset -6px -6px 12px rgba(255, 255, 255, 0.5));
+				}
+			}
+
+			&.k-button--primary {
+				box-shadow: var(--k-shadow-primary, 0 8px 25px rgba(99, 102, 241, 0.15));
+
+				&:hover {
+					transform: translateY(-2px);
+					box-shadow: var(--k-shadow-primary, 0 8px 25px rgba(99, 102, 241, 0.15)), var(--k-box-shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
+				}
+
+				&:active {
+					transform: translateY(-1px);
+				}
+			}
+
+			&.k-button--success {
+				box-shadow: var(--k-shadow-success, 0 8px 25px rgba(16, 185, 129, 0.15));
+
+				&:hover {
+					transform: translateY(-2px);
+					box-shadow: var(--k-shadow-success, 0 8px 25px rgba(16, 185, 129, 0.15)), var(--k-box-shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
+				}
+
+				&:active {
+					transform: translateY(-1px);
+				}
+			}
+
+			&.k-button--warning {
+				box-shadow: var(--k-shadow-warning, 0 8px 25px rgba(245, 158, 11, 0.15));
+
+				&:hover {
+					transform: translateY(-2px);
+					box-shadow: var(--k-shadow-warning, 0 8px 25px rgba(245, 158, 11, 0.15)), var(--k-box-shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
+				}
+
+				&:active {
+					transform: translateY(-1px);
+				}
+			}
+
+			&.k-button--danger {
+				box-shadow: var(--k-shadow-error, 0 8px 25px rgba(239, 68, 68, 0.15));
+
+				&:hover {
+					transform: translateY(-2px);
+					box-shadow: var(--k-shadow-error, 0 8px 25px rgba(239, 68, 68, 0.15)), var(--k-box-shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
+				}
+
+				&:active {
+					transform: translateY(-1px);
+				}
+			}
+		}
+
 		// 禁用状态
 		&--disabled {
 			opacity: 0.5;
@@ -340,41 +466,49 @@
 			font-size: var(--k-font-size-base, 14px);
 			font-weight: 400;
 			// text-align: center;
-			color: var(--k-text-color-primary, #333333);
+			color: var(--k-text-color, #374151);
 		}
 
 		// 不同按钮类型的文字颜色
 		&--primary &__text {
-			color: var(--k-text-color-inverse, #ffffff);
+			color: #ffffff;
+			font-weight: 700;
 		}
 
 		&--success &__text {
-			color: var(--k-text-color-inverse, #ffffff);
+			color: #ffffff;
+			font-weight: 700;
 		}
 
 		&--warning &__text {
-			color: var(--k-text-color-inverse, #ffffff);
+			color: #ffffff;
+			font-weight: 700;
 		}
 
 		&--danger &__text {
-			color: var(--k-text-color-inverse, #ffffff);
+			color: #ffffff;
+			font-weight: 700;
 		}
 
 		// 朴素按钮的文字颜色
 		&--plain.k-button--primary &__text {
-			color: var(--k-color-primary, #007aff);
+			color: var(--k-color-primary, #6366f1);
+			font-weight: 700;
 		}
 
 		&--plain.k-button--success &__text {
-			color: var(--k-color-success, #4cd964);
+			color: var(--k-color-success, #10b981);
+			font-weight: 700;
 		}
 
 		&--plain.k-button--warning &__text {
-			color: var(--k-color-warning, #ff9500);
+			color: var(--k-color-warning, #f59e0b);
+			font-weight: 700;
 		}
 
 		&--plain.k-button--danger &__text {
-			color: var(--k-color-error, #ff3b30);
+			color: var(--k-color-error, #ef4444);
+			font-weight: 700;
 		}
 
 		// 不同尺寸的文字大小
