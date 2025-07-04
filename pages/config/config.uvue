@@ -94,7 +94,7 @@
 		colorWarning : string
 	}
 	// 动态主题配置
-	const dynamicTheme = reactive<DynamicTheme>({
+	const dynamicTheme = reactive<UTSJSONObject>({
 		colorSuccess: '#4cd964',
 		colorPrimary: '#007aff',
 		colorWarning: '#ff9500'
@@ -157,7 +157,6 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		border: 1px red solid;
 	}
 
 	.theme-controls {

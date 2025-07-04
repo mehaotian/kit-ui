@@ -1,99 +1,64 @@
 <template>
-	<view style="border: 1px red solid;">
-		{{props.theme}}
+	<view>
 		<slot></slot>
 	</view>
 </template>
 
 <script setup>
-	import { computed, provide, reactive, watch } from 'vue'
+	import { computed, provide, reactive, watchEffect, watch } from 'vue'
 
-	const props = defineProps({
+	const props = defineProps<{
 		// 主题配置对象
-		theme: {
-			type: UTSJSONObject,
-			default: () : UTSJSONObject => ({})
-		},
+		theme ?: UTSJSONObject | null,
 		// 主题模式: light, dark
-		mode: {
-			type: String,
-			default: 'light'
-		}
+		mode ?: 'light' | 'dark'
+	}>()
+
+	let themeTempObj = {}
+	if (props.theme != null) {
+		themeTempObj = UTSJSONObject.assign(themeTempObj, props.theme)
+	}
+
+	// 创建响应式主题配置
+	let themeConfig = reactive({
+		mode: props.mode ?? 'light',
+		...themeTempObj
 	})
 
-	// const themeData = {...props.theme}
-	// // 创建响应式主题配置
-	// const themeConfig = reactive({
-	// 	mode: props.mode,
-	// 	theme: themeData
+	// watchEffect(() => {
+	// 	const theme = props.theme
+	// 	console.log('++++++', theme);
 	// })
+	let watchTheme = reactive<UTSJSONObject>({})
+	if(props.theme != null){
+		watchTheme = props.theme
+	}
 
-	// 监听 props 变化，更新主题配置
-	// watch(
-	// 	() : any => props.theme,
-	// 	(newTheme : any) => {
-	// 		let theme = newTheme as UTSJSONObject
-	// 		console.log('theme', theme);
-	// 		for (let key in theme) {
-	// 			if (key == 'mode') {
-	// 				// delete themeConfig[key]
-	// 				continue
-	// 			}
-	// 			themeConfig[key] = theme[key]
-	// 		}
-	// 		// 清空当前配置
-	// 		// Object.keys(themeConfig).forEach(key => {
-	// 		// 	if (key !== 'mode') {
-	// 		// 		delete themeConfig[key]
-	// 		// 	}
-	// 		// })
+	watch(() : UTSJSONObject => watchTheme, (theme : UTSJSONObject) => {
+		for (let key in theme) {
+			if (key == 'mode') {
+				continue
+			}
+			themeConfig[key] = theme[key]
+		}
+	}, { deep: true, immediate: false })
+	
+	let watchMode = ref('')
+	if(props.mode !=null) {
+		watchMode.value = props.mode
+	}
+	watch(
+		() : string  => watchMode.value,
+		(newMode : string) => {
+			// // 更新配置
+			themeConfig['mode'] = newMode
+		},
+		{ deep: true, immediate: false }
+	)
 
-	// 		// // 更新配置
-	// 		// themeConfig.mode = newMode
-	// 		// Object.assign(themeConfig, newTheme)
-	// 	},
-	// 	{ deep: true, immediate: false }
-	// )
-
-	// watch(
-	// 	() => [props.theme, props.mode],
-	// 	([newTheme, newMode]) => {
-	// 		// 清空当前配置
-	// 		// Object.keys(themeConfig).forEach(key => {
-	// 		// 	if (key !== 'mode') {
-	// 		// 		delete themeConfig[key]
-	// 		// 	}
-	// 		// })
-
-	// 		// // 更新配置
-	// 		// themeConfig.mode = newMode
-	// 		// Object.assign(themeConfig, newTheme)
-	// 	},
-	// 	{ deep: true, immediate: false }
-	// )
-
-	// // 提供主题配置给子组件
-	// provide('kit-theme', themeConfig)
-
-	// // 计算自定义样式
-	// const customStyle = computed(() => {
-	// 	const styles : string[] = []
-	// 	// 遍历主题配置，生成 CSS 变量
-	// 	// for (let key in themeConfig) {
-	// 	// 	const value = themeConfig[key]
-	// 	// 	if (key != 'mode' && value != null) {
-	// 	// 		// 将驼峰命名转换为 kebab-case
-	// 	// 		const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-	// 	// 		styles.push(`--k-${cssVar}: ${value}`)
-	// 	// 	}
-	// 	// }
-
-	// 	// 添加默认的主题变量示例
-	// 	// if (Object.keys(props.theme).length === 0) {
-	// 	// 	styles.push('--k-color-success: red')
-	// 	// }
-	// 	return styles.join('; ')
-	// })
+	// 提供主题配置给子组件
+	provide('kit-theme', themeConfig)
+	
 </script>
 
 <style>
