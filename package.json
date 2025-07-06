@@ -9,7 +9,13 @@
     "dev:app": "echo '请使用 HBuilderX 运行到手机或模拟器'",
     "build:h5": "echo '请使用 HBuilderX 发行到 H5'",
     "build:mp-weixin": "echo '请使用 HBuilderX 发行到微信小程序'",
-    "build:app": "echo '请使用 HBuilderX 发行到 App'"
+    "build:app": "echo '请使用 HBuilderX 发行到 App'",
+    "generate:icons": "node scripts/generate-icon-config.js",
+    "icons": "node scripts/generate-icon-config.js",
+    "test:icons": "node scripts/test-icon-config.js",
+    "icons:test": "node scripts/test-icon-config.js",
+    "check:icon-pairs": "node scripts/check-icon-pairs.js",
+    "icons:pairs": "node scripts/check-icon-pairs.js"
   },
   "keywords": [
     "uni-app",
@@ -34,5 +40,8 @@
   },
   "uni-app": {
     "scripts": {}
+  },
+  "devDependencies": {
+    "@iconify-json/ant-design": "^1.2.5"
   }
 }

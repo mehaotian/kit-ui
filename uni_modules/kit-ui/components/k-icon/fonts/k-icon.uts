@@ -1,137 +1,573 @@
 /**
- * k-icon 图标映射配置
- * 基于 iconfont.json 生成的图标 Unicode 映射关系
+ * kit-ui 图标映射配置
+ * kit-ui 用图标库
  * 字体文件：iconfont.ttf
  * 字体族：iconfont
- * CSS 前缀：icon-
+ * CSS 前缀：kit-
+ * 
+ * 图标分类统计：
+ * - Fill 类型：233 个
+ * - Line 类型：233 个
+ * - 其他类型：0 个
+ * 
+ * 自动生成文件，请勿手动修改
+ * 生成时间：2025/7/6 00:54:40
  */
 
 // 图标 Unicode 映射表
 export const ICON_UNICODE_MAP: UTSJSONObject = {
-  // 营销工具-自定义模板
-  'template': '\uE601',
-  'custom-template': '\uE601',
-  'yingxiaogongju-zidingyimoban': '\uE601',
-  
-  // 操作-翻译
-  'translate': '\uE6BA',
-  'fanyi': '\uE6BA',
-  
-  // 文档
-  'document': '\uE634',
-  'doc': '\uE634',
-  'wendang': '\uE634',
-  
-  // 清理缓存
-  'clear-cache': '\uE607',
-  'cache': '\uE607',
-  'qinglihuancun': '\uE607',
-  
-  // 燃烧优化
-  'optimize': '\uE62D',
-  'performance': '\uE62D',
-  'ranshaoyouhua': '\uE62D',
-  
-  // 成本数据录入_编辑录入操作
-  'entry-costdata': '\uE6F3',
-  'cost-data': '\uE6F3',
-  'jurassic_entry-costdata': '\uE6F3',
-  
-  // 修复
-  'repair': '\uE620',
-  'fix': '\uE620',
-  
-  // 拆分
-  'split': '\uE600',
-  'chaifen': '\uE600',
-  
-  // 调试
-  'debug': '\uE793',
-  'tiaoshi': '\uE793',
-  
-  // 正则解析
-  'regex': '\uE628',
-  'parse': '\uE628',
-  'zhengzejiexi': '\uE628',
-  
-  // 双箭头-下
-  'double-arrow-down': '\uE6AC',
-  'arrow-down': '\uE6AC',
-  'shuangjiantou-xia': '\uE6AC'
+  'account-box-fill': '\ue889',
+  'account-circle-fill': '\ue88b',
+  'advertisement-fill': '\ue6c3',
+  'alipay-fill': '\ue7e9',
+  'android-fill': '\ue7ea',
+  'anticlockwise-2-fill': '\ue74e',
+  'anticlockwise-fill': '\ue74d',
+  'app-store-fill': '\ue7ed',
+  'apple-fill': '\ue7eb',
+  'arrow-down-fill': '\ue83d',
+  'arrow-down-s-fill': '\ue83f',
+  'arrow-drop-down-fill': '\ue842',
+  'arrow-drop-left-fill': '\ue844',
+  'arrow-drop-right-fill': '\ue846',
+  'arrow-drop-up-fill': '\ue847',
+  'arrow-left-fill': '\ue849',
+  'arrow-left-s-fill': '\ue84b',
+  'arrow-right-fill': '\ue84d',
+  'arrow-right-s-fill': '\ue84f',
+  'arrow-up-fill': '\ue851',
+  'arrow-up-s-fill': '\ue866',
+  'artboard-2-fill': '\ue751',
+  'at-fill': '\ue6c4',
+  'award-fill': '\ue6c6',
+  'baidu-fill': '\ue7f2',
+  'ball-pen-fill': '\ue753',
+  'bar-chart-fill': '\ue6c9',
+  'barcode-box-fill': '\ue78d',
+  'battery-2-charge-fill': '\ue78e',
+  'battery-2-fill': '\ue790',
+  'battery-charge-fill': '\ue791',
+  'battery-low-fill': '\ue794',
+  'battery-saver-fill': '\ue796',
+  'bilibili-fill': '\ue7ef',
+  'bluetooth-fill': '\ue798',
+  'blur-off-fill': '\ue755',
+  'book-2-fill': '\ue7b8',
+  'book-3-fill': '\ue7b9',
+  'bookmark-2-fill': '\ue6ca',
+  'bookmark-3-fill': '\ue6cc',
+  'bookmark-fill': '\ue6cd',
+  'briefcase-2-fill': '\ue6d0',
+  'briefcase-3-fill': '\ue6d3',
+  'briefcase-4-fill': '\ue6d4',
+  'briefcase-5-fill': '\ue6d5',
+  'briefcase-fill': '\ue6d6',
+  'brush-2-fill': '\ue756',
+  'bus-fill': '\ue80f',
+  'calculator-fill': '\ue6d9',
+  'calendar-2-fill': '\ue6da',
+  'calendar-check-fill': '\ue6de',
+  'calendar-fill': '\ue6e1',
+  'calendar-todo-fill': '\ue6e2',
+  'car-fill': '\ue810',
+  'chat-1-fill': '\ue72e',
+  'chat-2-fill': '\ue731',
+  'chat-3-fill': '\ue732',
+  'chat-4-fill': '\ue736',
+  'chat-check-fill': '\ue734',
+  'chat-delete-fill': '\ue738',
+  'chat-download-fill': '\ue739',
+  'chat-history-fill': '\ue73c',
+  'chat-quote-fill': '\ue744',
+  'chat-smile-2-fill': '\ue743',
+  'chat-smile-3-fill': '\ue742',
+  'chat-smile-fill': '\ue740',
+  'checkbox-blank-circle-fill': '\ue853',
+  'checkbox-blank-fill': '\ue856',
+  'checkbox-circle-fill': '\ue858',
+  'checkbox-fill': '\ue859',
+  'checkbox-multiple-blank-fill': '\ue85b',
+  'chrome-fill': '\ue7f3',
+  'clockwise-2-fill': '\ue759',
+  'clockwise-fill': '\ue75c',
+  'close-circle-fill': '\ue85d',
+  'close-fill': '\ue860',
+  'cloud-fill': '\ue6e4',
+  'cloud-off-fill': '\ue6e6',
+  'code-box-fill': '\ue786',
+  'collage-fill': '\ue75b',
+  'compass-fill': '\ue813',
+  'computer-fill': '\ue79a',
+  'contacts-book-fill': '\ue7bc',
+  'contrast-2-fill': '\ue75e',
+  'contrast-drop-2-fill': '\ue760',
+  'contrast-drop-fill': '\ue762',
+  'contrast-fill': '\ue761',
+  'copyleft-fill': '\ue6e8',
+  'copyright-fill': '\ue6e9',
+  'coupon-3-fill': '\ue7cf',
+  'creative-commons-by-fill': '\ue6ee',
+  'creative-commons-nd-fill': '\ue6ed',
+  'creative-commons-sa-fill': '\ue6f1',
+  'crop-2-fill': '\ue766',
+  'crop-fill': '\ue767',
+  'customer-service-2-fill': '\ue6f8',
+  'customer-service-fill': '\ue6f3',
+  'database-2-fill': '\ue79d',
+  'delete-bin-2-fill': '\ue861',
+  'dingding-fill': '\ue7f6',
+  'discuss-fill': '\ue74b',
+  'dislike-fill': '\ue7e3',
+  'donut-chart-fill': '\ue6fa',
+  'download-cloud-fill': '\ue864',
+  'download-fill': '\ue865',
+  'drop-fill': '\ue76a',
+  'e-bike-fill': '\ue815',
+  'earth-fill': '\ue817',
+  'edge-fill': '\ue7f8',
+  'edit-2-fill': '\ue771',
+  'edit-box-fill': '\ue76c',
+  'edit-circle-fill': '\ue76e',
+  'edit-fill': '\ue770',
+  'eraser-fill': '\ue773',
+  'file-3-fill': '\ue7be',
+  'file-add-fill': '\ue7c0',
+  'file-cloud-fill': '\ue7c2',
+  'file-excel-2-fill': '\ue7c4',
+  'file-paper-fill': '\ue7c7',
+  'file-word-fill': '\ue7c8',
+  'finder-fill': '\ue7fb',
+  'fingerprint-fill': '\ue79e',
+  'firefox-fill': '\ue7ff',
+  'flag-2-fill': '\ue6f4',
+  'flag-fill': '\ue6f6',
+  'focus-fill': '\ue774',
+  'folder-5-fill': '\ue7ca',
+  'folder-add-fill': '\ue7cc',
+  'footprint-fill': '\ue816',
+  'gift-fill': '\ue7d0',
+  'github-fill': '\ue7fc',
+  'global-fill': '\ue6fc',
+  'heart-3-fill': '\ue7e5',
+  'heart-fill': '\ue7e4',
+  'home-2-fill': '\ue6b6',
+  'home-3-fill': '\ue6b5',
+  'home-4-fill': '\ue6b8',
+  'home-5-fill': '\ue6b9',
+  'home-6-fill': '\ue6bb',
+  'home-7-fill': '\ue6bc',
+  'home-heart-fill': '\ue6be',
+  'honour-fill': '\ue6fe',
+  'ie-fill': '\ue801',
+  'image-fill': '\ue828',
+  'inbox-archive-fill': '\ue701',
+  'inbox-fill': '\ue705',
+  'inbox-unarchive-fill': '\ue703',
+  'input-method-fill': '\ue777',
+  'keyboard-box-fill': '\ue7a0',
+  'layout-2-fill': '\ue77c',
+  'layout-3-fill': '\ue779',
+  'layout-4-fill': '\ue77d',
+  'lock-fill': '\ue869',
+  'lock-unlock-fill': '\ue86c',
+  'mail-add-fill': '\ue709',
+  'mail-check-fill': '\ue707',
+  'mail-download-fill': '\ue70f',
+  'mail-fill': '\ue70b',
+  'mail-forbid-fill': '\ue70c',
+  'mail-open-fill': '\ue710',
+  'mail-send-fill': '\ue713',
+  'mail-unread-fill': '\ue715',
+  'map-pin-2-fill': '\ue81a',
+  'map-pin-3-fill': '\ue81c',
+  'map-pin-5-fill': '\ue81f',
+  'map-pin-add-fill': '\ue81d',
+  'map-pin-fill': '\ue822',
+  'message-2-fill': '\ue747',
+  'message-3-fill': '\ue746',
+  'mic-fill': '\ue82a',
+  'mic-off-fill': '\ue82d',
+  'money-cny-circle-fill': '\ue7d3',
+  'music-fill': '\ue82e',
+  'paint-fill': '\ue77f',
+  'palette-fill': '\ue780',
+  'parentheses-fill': '\ue788',
+  'pie-chart-2-fill': '\ue716',
+  'printer-cloud-fill': '\ue718',
+  'profile-fill': '\ue71a',
+  'projector-2-fill': '\ue71c',
+  'projector-fill': '\ue71f',
+  'qq-fill': '\ue802',
+  'red-packet-fill': '\ue7d5',
+  'reply-all-fill': '\ue720',
+  'reply-fill': '\ue721',
+  'roadster-fill': '\ue824',
+  'route-fill': '\ue826',
+  'screenshot-2-fill': '\ue782',
+  'search-2-fill': '\ue86d',
+  'search-fill': '\ue86e',
+  'send-plane-2-fill': '\ue724',
+  'send-plane-fill': '\ue725',
+  'settings-fill': '\ue871',
+  'share-fill': '\ue873',
+  'share-forward-fill': '\ue874',
+  'shopping-bag-fill': '\ue7d7',
+  'shopping-cart-2-fill': '\ue7d8',
+  'signal-wifi-1-fill': '\ue7a2',
+  'signal-wifi-2-fill': '\ue7a3',
+  'signal-wifi-3-fill': '\ue7a6',
+  'signal-wifi-error-fill': '\ue7a7',
+  'signal-wifi-fill': '\ue7aa',
+  'signal-wifi-off-fill': '\ue7ac',
+  'slideshow-3-fill': '\ue727',
+  'star-fill': '\ue87c',
+  'star-half-fill': '\ue87d',
+  'star-half-s-fill': '\ue880',
+  'star-s-fill': '\ue87a',
+  'store-2-fill': '\ue6c1',
+  't-box-fill': '\ue785',
+  'taobao-fill': '\ue806',
+  'telegram-fill': '\ue804',
+  'terminal-box-fill': '\ue78b',
+  'thumb-down-fill': '\ue882',
+  'thumb-up-fill': '\ue883',
+  'ticket-2-fill': '\ue7da',
+  'u-disk-fill': '\ue7ae',
+  'usb-fill': '\ue7b0',
+  'user-fill': '\ue88d',
+  'vip-crown-2-fill': '\ue7dc',
+  'vip-diamond-fill': '\ue7df',
+  'volume-up-fill': '\ue830',
+  'wallet-3-fill': '\ue7e1',
+  'wechat-2-fill': '\ue808',
+  'wechat-fill': '\ue809',
+  'wifi-fill': '\ue7b5',
+  'wifi-off-fill': '\ue7b4',
+  'window-2-fill': '\ue72a',
+  'window-fill': '\ue72b',
+  'wireless-charging-fill': '\ue7b6',
+  'zhihu-fill': '\ue80c',
+  'zoom-in-fill': '\ue885',
+  'zoom-out-fill': '\ue887',
+  'account-box-line': '\ue88a',
+  'account-circle-line': '\ue88c',
+  'advertisement-line': '\ue6c2',
+  'alipay-line': '\ue7e8',
+  'android-line': '\ue7ec',
+  'anticlockwise-2-line': '\ue74c',
+  'anticlockwise-line': '\ue74f',
+  'app-store-line': '\ue7ee',
+  'apple-line': '\ue7f0',
+  'arrow-down-line': '\ue83e',
+  'arrow-down-s-line': '\ue840',
+  'arrow-drop-down-line': '\ue841',
+  'arrow-drop-left-line': '\ue843',
+  'arrow-drop-right-line': '\ue845',
+  'arrow-drop-up-line': '\ue848',
+  'arrow-left-line': '\ue84a',
+  'arrow-left-s-line': '\ue84c',
+  'arrow-right-line': '\ue84e',
+  'arrow-right-s-line': '\ue850',
+  'arrow-up-line': '\ue852',
+  'arrow-up-s-line': '\ue868',
+  'artboard-2-line': '\ue750',
+  'at-line': '\ue6c5',
+  'award-line': '\ue6c7',
+  'baidu-line': '\ue7f4',
+  'ball-pen-line': '\ue752',
+  'bar-chart-line': '\ue6c8',
+  'barcode-box-line': '\ue78c',
+  'battery-2-charge-line': '\ue78f',
+  'battery-2-line': '\ue793',
+  'battery-charge-line': '\ue792',
+  'battery-low-line': '\ue795',
+  'battery-saver-line': '\ue797',
+  'bilibili-line': '\ue7f1',
+  'bluetooth-line': '\ue799',
+  'blur-off-line': '\ue754',
+  'book-2-line': '\ue7ba',
+  'book-3-line': '\ue7bb',
+  'bookmark-2-line': '\ue6cb',
+  'bookmark-3-line': '\ue6cf',
+  'bookmark-line': '\ue6ce',
+  'briefcase-2-line': '\ue6d1',
+  'briefcase-3-line': '\ue6d2',
+  'briefcase-4-line': '\ue6db',
+  'briefcase-5-line': '\ue6d7',
+  'briefcase-line': '\ue6dc',
+  'brush-2-line': '\ue757',
+  'bus-line': '\ue80e',
+  'calculator-line': '\ue6d8',
+  'calendar-2-line': '\ue6dd',
+  'calendar-check-line': '\ue6df',
+  'calendar-line': '\ue6e0',
+  'calendar-todo-line': '\ue6e3',
+  'car-line': '\ue811',
+  'chat-1-line': '\ue72f',
+  'chat-2-line': '\ue730',
+  'chat-3-line': '\ue733',
+  'chat-4-line': '\ue737',
+  'chat-check-line': '\ue735',
+  'chat-delete-line': '\ue73b',
+  'chat-download-line': '\ue73a',
+  'chat-history-line': '\ue73d',
+  'chat-quote-line': '\ue741',
+  'chat-smile-2-line': '\ue745',
+  'chat-smile-3-line': '\ue73e',
+  'chat-smile-line': '\ue73f',
+  'checkbox-blank-circle-line': '\ue854',
+  'checkbox-blank-line': '\ue855',
+  'checkbox-circle-line': '\ue857',
+  'checkbox-line': '\ue85a',
+  'checkbox-multiple-blank-line': '\ue85c',
+  'chrome-line': '\ue7f5',
+  'clockwise-2-line': '\ue758',
+  'clockwise-line': '\ue75a',
+  'close-circle-line': '\ue85f',
+  'close-line': '\ue85e',
+  'cloud-line': '\ue6e5',
+  'cloud-off-line': '\ue6ea',
+  'code-box-line': '\ue787',
+  'collage-line': '\ue75d',
+  'compass-line': '\ue812',
+  'computer-line': '\ue79b',
+  'contacts-book-line': '\ue7bd',
+  'contrast-2-line': '\ue75f',
+  'contrast-drop-2-line': '\ue763',
+  'contrast-drop-line': '\ue764',
+  'contrast-line': '\ue765',
+  'copyleft-line': '\ue6e7',
+  'copyright-line': '\ue6ec',
+  'coupon-3-line': '\ue7ce',
+  'creative-commons-by-line': '\ue6eb',
+  'creative-commons-nd-line': '\ue6f0',
+  'creative-commons-sa-line': '\ue6ef',
+  'crop-2-line': '\ue769',
+  'crop-line': '\ue768',
+  'customer-service-2-line': '\ue6f2',
+  'customer-service-line': '\ue6f5',
+  'database-2-line': '\ue79c',
+  'delete-bin-2-line': '\ue862',
+  'dingding-line': '\ue7f7',
+  'discuss-line': '\ue748',
+  'dislike-line': '\ue7e2',
+  'donut-chart-line': '\ue6f9',
+  'download-cloud-line': '\ue863',
+  'download-line': '\ue867',
+  'drop-line': '\ue76b',
+  'e-bike-line': '\ue814',
+  'earth-line': '\ue818',
+  'edge-line': '\ue7f9',
+  'edit-2-line': '\ue833',
+  'edit-box-line': '\ue76d',
+  'edit-circle-line': '\ue76f',
+  'edit-line': '\ue832',
+  'eraser-line': '\ue775',
+  'file-3-line': '\ue7bf',
+  'file-add-line': '\ue7c1',
+  'file-cloud-line': '\ue7c3',
+  'file-excel-2-line': '\ue7c5',
+  'file-paper-line': '\ue7c6',
+  'file-word-line': '\ue7c9',
+  'finder-line': '\ue7fa',
+  'fingerprint-line': '\ue79f',
+  'firefox-line': '\ue7fd',
+  'flag-2-line': '\ue6f7',
+  'flag-line': '\ue6fb',
+  'focus-line': '\ue835',
+  'folder-5-line': '\ue7cb',
+  'folder-add-line': '\ue7cd',
+  'footprint-line': '\ue819',
+  'gift-line': '\ue7d1',
+  'github-line': '\ue7fe',
+  'global-line': '\ue700',
+  'heart-3-line': '\ue7e7',
+  'heart-line': '\ue7e6',
+  'home-2-line': '\ue6b2',
+  'home-3-line': '\ue6b3',
+  'home-4-line': '\ue6b4',
+  'home-5-line': '\ue6b7',
+  'home-6-line': '\ue6ba',
+  'home-7-line': '\ue6bd',
+  'home-heart-line': '\ue6bf',
+  'honour-line': '\ue6fd',
+  'ie-line': '\ue800',
+  'image-line': '\ue829',
+  'inbox-archive-line': '\ue6ff',
+  'inbox-line': '\ue702',
+  'inbox-unarchive-line': '\ue704',
+  'input-method-line': '\ue776',
+  'keyboard-box-line': '\ue7a1',
+  'layout-2-line': '\ue77a',
+  'layout-3-line': '\ue778',
+  'layout-4-line': '\ue77b',
+  'lock-line': '\ue86a',
+  'lock-unlock-line': '\ue86b',
+  'mail-add-line': '\ue706',
+  'mail-check-line': '\ue708',
+  'mail-download-line': '\ue70a',
+  'mail-forbid-line': '\ue70e',
+  'mail-line': '\ue70d',
+  'mail-open-line': '\ue711',
+  'mail-send-line': '\ue712',
+  'mail-unread-line': '\ue714',
+  'map-pin-2-line': '\ue81e',
+  'map-pin-3-line': '\ue81b',
+  'map-pin-5-line': '\ue820',
+  'map-pin-add-line': '\ue823',
+  'map-pin-line': '\ue821',
+  'message-2-line': '\ue749',
+  'message-3-line': '\ue74a',
+  'mic-line': '\ue82b',
+  'mic-off-line': '\ue82c',
+  'money-cny-circle-line': '\ue7d2',
+  'music-line': '\ue82f',
+  'paint-line': '\ue77e',
+  'palette-line': '\ue781',
+  'parentheses-line': '\ue789',
+  'pie-chart-2-line': '\ue717',
+  'printer-cloud-line': '\ue719',
+  'profile-line': '\ue71b',
+  'projector-2-line': '\ue71d',
+  'projector-line': '\ue71e',
+  'qq-line': '\ue803',
+  'red-packet-line': '\ue7d4',
+  'reply-all-line': '\ue723',
+  'reply-line': '\ue722',
+  'roadster-line': '\ue825',
+  'route-line': '\ue827',
+  'screenshot-2-line': '\ue783',
+  'search-2-line': '\ue86f',
+  'search-line': '\ue870',
+  'send-plane-2-line': '\ue72d',
+  'send-plane-line': '\ue726',
+  'settings-line': '\ue872',
+  'share-forward-line': '\ue875',
+  'share-line': '\ue876',
+  'shopping-bag-line': '\ue7d6',
+  'shopping-cart-2-line': '\ue7d9',
+  'signal-wifi-1-line': '\ue7a4',
+  'signal-wifi-2-line': '\ue7a8',
+  'signal-wifi-3-line': '\ue7a5',
+  'signal-wifi-error-line': '\ue7a9',
+  'signal-wifi-line': '\ue7ab',
+  'signal-wifi-off-line': '\ue7ad',
+  'slideshow-3-line': '\ue728',
+  'star-half-line': '\ue87f',
+  'star-half-s-line': '\ue879',
+  'star-line': '\ue881',
+  'star-s-line': '\ue87b',
+  'store-2-line': '\ue6c0',
+  't-box-line': '\ue784',
+  'taobao-line': '\ue807',
+  'telegram-line': '\ue805',
+  'terminal-box-line': '\ue78a',
+  'thumb-down-line': '\ue884',
+  'thumb-up-line': '\ue87e',
+  'ticket-2-line': '\ue7db',
+  'u-disk-line': '\ue7af',
+  'usb-line': '\ue7b1',
+  'user-line': '\ue88e',
+  'vip-crown-2-line': '\ue7dd',
+  'vip-diamond-line': '\ue7de',
+  'volume-up-line': '\ue831',
+  'wallet-3-line': '\ue7e0',
+  'wechat-2-line': '\ue80d',
+  'wechat-line': '\ue80b',
+  'wifi-line': '\ue7b2',
+  'wifi-off-line': '\ue7b3',
+  'window-2-line': '\ue729',
+  'window-line': '\ue72c',
+  'wireless-charging-line': '\ue7b7',
+  'zhihu-line': '\ue80a',
+  'zoom-in-line': '\ue888',
+  'zoom-out-line': '\ue886'
 }
 
-// 图标类别映射（便于分类管理）
-export const ICON_CATEGORIES: UTSJSONObject = {
-  'tools': ['template', 'custom-template', 'translate', 'clear-cache', 'optimize', 'repair', 'debug'],
-  'documents': ['document', 'doc'],
-  'data': ['entry-costdata', 'cost-data'],
-  'actions': ['split', 'regex', 'parse'],
-  'navigation': ['double-arrow-down', 'arrow-down']
+// 辅助函数
+
+/**
+ * 获取图标的 Unicode 字符
+ * @param iconName 图标名称
+ * @returns Unicode 字符或 null
+ */
+export function getIconUnicode(iconName: string): string | null {
+  return ICON_UNICODE_MAP[iconName] as string || null
 }
 
-// 图标别名映射（支持多种命名方式）
-export const ICON_ALIASES: UTSJSONObject = {
-  // 英文别名
-  'template': ['custom-template', 'tpl'],
-  'translate': ['trans', 'i18n'],
-  'document': ['doc', 'file'],
-  'clear-cache': ['cache', 'clean'],
-  'optimize': ['performance', 'perf'],
-  'repair': ['fix', 'restore'],
-  'split': ['divide', 'separate'],
-  'debug': ['test', 'dev'],
-  'regex': ['parse', 'pattern'],
-  'double-arrow-down': ['arrow-down', 'expand']
+/**
+ * 检查图标是否存在
+ * @param iconName 图标名称
+ * @returns 是否存在
+ */
+export function hasIcon(iconName: string): boolean {
+  return iconName in ICON_UNICODE_MAP
 }
 
-// 获取图标 Unicode
-export function getIconUnicode(name: string): string | null {
-  // 直接匹配
-  if (ICON_UNICODE_MAP[name] != null) {
-    return ICON_UNICODE_MAP[name] as string
-  }
-  
-  // 别名匹配
-  for (const key in ICON_ALIASES) {
-    const aliases = ICON_ALIASES[key] as string[]
-    if (aliases.includes(name)) {
-      return ICON_UNICODE_MAP[key] as string
-    }
-  }
-  
-  return null
-}
-
-// 获取图标分类
-export function getIconCategory(name: string): string | null {
-  for (const category in ICON_CATEGORIES) {
-    const icons = ICON_CATEGORIES[category] as string[]
-    if (icons.includes(name)) {
-      return category
-    }
-  }
-  return null
-}
-
-// 获取所有图标名称
+/**
+ * 获取所有图标名称
+ * @returns 图标名称数组
+ */
 export function getAllIconNames(): string[] {
-  const names: string[] = []
-  
-  // 添加主要图标名称
-  for (const key in ICON_UNICODE_MAP) {
-    names.push(key)
-  }
-  
-  // 添加别名
-  for (const key in ICON_ALIASES) {
-    const aliases = ICON_ALIASES[key] as string[]
-    names.push(...aliases)
-  }
-  
-  return [...new Set(names)] // 去重
+  return UTSJSONObject.keys(ICON_UNICODE_MAP)
 }
 
-// 检查是否为有效图标
-export function isValidIcon(name: string): boolean {
-  return getIconUnicode(name) != null
+/**
+ * 根据类型获取图标名称
+ * @param type 图标类型 ('fill' | 'line' | 'other')
+ * @returns 图标名称数组
+ */
+export function getIconNamesByType(type: 'fill' | 'line' | 'other'): string[] {
+  const allNames = UTSJSONObject.keys(ICON_UNICODE_MAP)
+  
+  switch (type) {
+    case 'fill':
+      return allNames.filter(name => name.endsWith('-fill')).sort()
+    case 'line':
+      return allNames.filter(name => name.endsWith('-line')).sort()
+    case 'other':
+      return allNames.filter(name => !name.endsWith('-fill') && !name.endsWith('-line')).sort()
+    default:
+      return []
+  }
+}
+
+/**
+ * 搜索图标
+ * @param keyword 关键词
+ * @returns 匹配的图标名称数组
+ */
+export function searchIcons(keyword: string): string[] {
+  if (!keyword) return []
+  
+  const lowerKeyword = keyword.toLowerCase()
+  return UTSJSONObject.keys(ICON_UNICODE_MAP)
+    .filter(name => name.toLowerCase().includes(lowerKeyword))
+    .sort()
+}
+
+/**
+ * 获取图标的基础名称（去除 -fill 或 -line 后缀）
+ * @param iconName 图标名称
+ * @returns 基础名称
+ */
+export function getIconBaseName(iconName: string): string {
+  return iconName.replace(/-(fill|line)$/, '')
+}
+
+/**
+ * 获取图标的所有变体（fill 和 line 版本）
+ * @param baseName 基础名称
+ * @returns 变体数组
+ */
+export function getIconVariants(baseName: string): string[] {
+  const variants: string[] = []
+  const fillName = `${baseName}-fill`
+  const lineName = `${baseName}-line`
+  
+  if (hasIcon(fillName)) variants.push(fillName)
+  if (hasIcon(lineName)) variants.push(lineName)
+  if (hasIcon(baseName)) variants.push(baseName)
+  
+  return variants
 }

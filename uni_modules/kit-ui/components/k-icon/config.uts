@@ -4,26 +4,17 @@
 // 引入图标映射配置
 import { 
 	ICON_UNICODE_MAP, 
-	ICON_CATEGORIES, 
-	ICON_ALIASES,
-	getIconUnicode,
-	getIconCategory,
-	getAllIconNames,
-	isValidIcon
 } from './fonts/k-icon.uts'
 
 // 内置图标 Unicode 映射（从独立文件引入）
 export const BUILTIN_ICONS : UTSJSONObject = ICON_UNICODE_MAP
 
-// 导出图标相关工具函数
-export { 
-	ICON_UNICODE_MAP, 
-	ICON_CATEGORIES, 
-	ICON_ALIASES,
-	getIconUnicode,
-	getIconCategory,
-	getAllIconNames,
-	isValidIcon
+export function getIconUnicode(name: string): string | null {
+  // 直接匹配
+  if (ICON_UNICODE_MAP[name] != null) {
+    return ICON_UNICODE_MAP[name] as string
+  }
+  return null
 }
 
 // 图标尺寸预设

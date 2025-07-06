@@ -2,76 +2,14 @@
 // 定义图标字体和基础样式
 
 @font-face {
-  font-family: 'k-icon-root';
-  src: url('./fonts/k-icon.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+  font-family: KIconRoot;
+  src: url('./fonts/k-icon.ttf');
 }
 
 // 基础图标字体类
 .k-icon-font {
-  font-family: 'k-icon-root', sans-serif;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	font-family: KIconRoot;
+	font-size: 18px;
+	font-style: normal;
+	color: #333;
 }
-
-// 图标 CSS 类定义（基于 iconfont.json）
-.icon-yingxiaogongju-zidingyimoban::before,
-.icon-template::before,
-.icon-custom-template::before { content: '\e601'; }
-
-.icon-fanyi::before,
-.icon-translate::before { content: '\e6ba'; }
-
-.icon-wendang::before,
-.icon-document::before,
-.icon-doc::before { content: '\e634'; }
-
-.icon-qinglihuancun::before,
-.icon-clear-cache::before,
-.icon-cache::before { content: '\e607'; }
-
-.icon-ranshaoyouhua::before,
-.icon-optimize::before,
-.icon-performance::before { content: '\e62d'; }
-
-.icon-jurassic_entry-costdata::before,
-.icon-entry-costdata::before,
-.icon-cost-data::before { content: '\e6f3'; }
-
-.icon-repair::before,
-.icon-fix::before { content: '\e620'; }
-
-.icon-chaifen::before,
-.icon-split::before { content: '\e600'; }
-
-.icon-tiaoshi::before,
-.icon-debug::before { content: '\e793'; }
-
-.icon-zhengzejiexi::before,
-.icon-regex::before,
-.icon-parse::before { content: '\e628'; }
-
-.icon-shuangjiantou-xia::before,
-.icon-double-arrow-down::before,
-.icon-arrow-down::before { content: '\e6ac'; }
-
-/* 
-图标字体使用说明：
-1. 字体文件：iconfont.ttf（需要放置在 ./fonts/ 目录下）
-2. 字体族：iconfont
-3. CSS 前缀：icon-
-4. 基于 iconfont.json 生成的映射关系
-5. 支持多种别名，便于使用
-
-使用方式：
-- 直接使用图标名：<k-icon name="template" />
-- 使用别名：<k-icon name="custom-template" />
-- 使用原始类名：<k-icon name="yingxiaogongju-zidingyimoban" />
-*/
