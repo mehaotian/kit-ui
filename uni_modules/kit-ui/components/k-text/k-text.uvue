@@ -1,0 +1,194 @@
+<script setup lang="uts">
+	import { computed, inject } from 'vue'
+	import { formatDate, formatPrice, maskText, DateFormatOptions, PriceFormatOptions, MaskOptions } from './utils.uts'
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
+
+	// 定义 props
+	const props = defineProps({
+		// 文本类型: default, primary, success, warning, danger, info
+		type: {
+			type: String,
+			default: 'default'
+		},
+		// 文本大小: xs, sm, base, md, lg, xl, xxl
+		size: {
+			type: String,
+			default: 'base'
+		},
+		// 文本粗细: light, normal, medium, bold
+		weight: {
+			type: String,
+			default: 'normal'
+		},
+		// 自定义颜色
+		color: {
+			type: String,
+			default: ''
+		},
+		// 自定义样式
+		customStyle: {
+			type: String,
+			default: ''
+		},
+		// 是否显示省略号
+		ellipsis: {
+			type: Boolean,
+			default: false
+		},
+		// 最大行数
+		lines: {
+			type: Number,
+			default: 1
+		},
+		// 是否可选择
+		selectable: {
+			type: Boolean,
+			default: false
+		},
+		// 空格处理方式
+		space: {
+			type: String,
+			default: ''
+		},
+		// 是否解码
+		decode: {
+			type: Boolean,
+			default: false
+		},
+		// 文本内容
+		text: {
+			type: String,
+			default: ''
+		},
+		// 格式化类型: date, price, mask
+		format: {
+			type: String,
+			default: ''
+		},
+		// 格式化选项
+		formatOptions: {
+			type: UTSJSONObject,
+			default: () : UTSJSONObject => ({})
+		},
+		// 装饰类型: underline, line-through, none
+		decoration: {
+			type: String,
+			default: 'none'
+		},
+		// 对齐方式: left, center, right
+		align: {
+			type: String,
+			default: 'left'
+		}
+	});
+
+	// 计算文本样式
+	const textStyle = computed(() => {
+		const styles : string[] = []
+
+		// 自定义颜色
+		if (props.color != '') {
+			styles.push(`color: ${props.color}`)
+		}
+
+		// 多行省略
+		if (props.ellipsis) {
+			if (props.lines > 1) {
+				// #ifndef APP
+				styles.push(`-webkit-line-clamp: ${props.lines}`)
+				// #endif
+				// #ifdef APP
+				console.log('----props.lines', props.lines)
+				styles.push('text-overflow: ellipsis')
+				styles.push(`lines: ${props.lines}`)
+				// #endif
+			} else {
+				styles.push('text-overflow: ellipsis;white-space: nowrap')
+				styles.push(`lines: 1`)
+			}
+		}
+
+		// 自定义样式
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+
+		// 如果有注入的主题配置，生成对应的 CSS 变量
+		// 遍历主题配置，生成 CSS 变量
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				// 将驼峰命名转换为 kebab-case
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		return styles.join('; ')
+	})
+
+	// 格式化文本
+	const formattedText = computed(() => {
+		if (props.text == '') {
+			return ''
+		}
+		const formatOptions = props.formatOptions
+		// 根据format类型进行格式化
+		switch (props.format) {
+			case 'date': {
+				// 日期格式化
+				const options : DateFormatOptions = {
+					format: (formatOptions?.format ?? 'YYYY-MM-DD') as string,
+					locale: (formatOptions?.locale ?? '') as string
+				}
+				return formatDate(props.text, options)
+			}
+			case 'price': {
+				// 金额格式化
+				const options : PriceFormatOptions = {
+					digits: (formatOptions?.digits ?? 2) as number,
+					symbol: (formatOptions.symbol ?? '$') as string,
+					thousandsSeparator: (formatOptions?.thousandsSeparator ?? true) as boolean
+				}
+				return formatPrice(props.text, options)
+			}
+			case 'mask': {
+				// 脱敏处理
+				const options : MaskOptions = {
+					type: (formatOptions?.type ?? 'custom') as string,
+					startLen: (formatOptions?.startLen ?? 0) as number,
+					endLen: (formatOptions?.endLen ?? 0) as number,
+					maskChar: (formatOptions?.maskChar ?? '*') as string,
+					// 暂时没有用到
+					pattern: (formatOptions?.pattern ?? '') as string
+				}
+				return maskText(props.text, options)
+			}
+			default:
+				return props.text
+		}
+	})
+</script>
+
+<template>
+	<text class="kit-ui--root k-text" :class="[
+			`k-text--${type}`,
+			`k-text--${size}`,
+			`k-text--weight-${weight}`,
+			{
+				'k-text--ellipsis': ellipsis,
+				'k-text--decoration-underline': decoration === 'underline',
+				'k-text--decoration-line-through': decoration === 'line-through',
+				'k-text--align-center': align === 'center',
+				'k-text--align-right': align === 'right'
+			}
+		]" :style="textStyle" :selectable="selectable" :space="space" :decode="decode">
+		<slot>{{ formattedText }}</slot>
+	</text>
+</template>
+
+
+<style lang="scss">
+	@import "./k-text.scss";
+</style>

@@ -25,10 +25,6 @@
 		...themeTempObj
 	})
 
-	// watchEffect(() => {
-	// 	const theme = props.theme
-	// 	console.log('++++++', theme);
-	// })
 	let watchTheme = reactive<UTSJSONObject>({})
 	if(props.theme != null){
 		watchTheme = props.theme

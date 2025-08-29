@@ -1,7 +1,7 @@
 <script lang="uts">
-  // #ifdef APP-ANDROID || APP-HARMONY
+	// #ifdef APP-ANDROID || APP-HARMONY
 	let firstBackTime = 0
-  // #endif
+	// #endif
 	export default {
 		onLaunch: function () {
 			console.log('App Launch')
@@ -38,11 +38,46 @@
 
 <style>
 	/*每个页面公共css */
-	.uni-row {
-		flex-direction: row;
+	.page-header {
+		padding: 20px;
+		background-color: var(--k-color-white, #ffffff);
+		border-bottom: 1px solid var(--k-color-border, #ebeef5);
+		margin-bottom: 12px;
 	}
 
-	.uni-column {
-		flex-direction: column;
+	.page-title {
+		font-size: 24px;
+		font-weight: bold;
+		color: var(--k-color-text-primary, #303133);
+		margin-bottom: 8px;
 	}
+
+	.page-desc {
+		font-size: 14px;
+		color: var(--k-color-text-secondary, #606266);
+	}
+	
+	
+.section {
+	margin-bottom: 12px;
+	background-color: var(--k-color-white, #ffffff);
+	border-radius: 8px;
+	padding: 16px;
+}
+
+.section-title {
+	font-size: 16px;
+	font-weight: bold;
+	color: var(--k-color-text-primary, #303133);
+	margin-bottom: 12px;
+}
+
+.demo-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	margin-bottom: 8px;
+	flex-wrap: wrap;
+}
 </style>

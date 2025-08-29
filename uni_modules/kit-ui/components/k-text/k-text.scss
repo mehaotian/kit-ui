@@ -1,0 +1,119 @@
+@import '../../theme/index.scss';
+
+.k-text {
+  position: relative;
+  box-sizing: border-box;
+  transition: color var(--k-transition-duration-base, 0.3s) var(--k-animation-timing-ease-out, cubic-bezier(0.25, 0.46, 0.45, 0.94));
+  
+  /* 基础样式 */
+  color: var(--k-text-color-primary, #1f2937);
+  font-size: var(--k-font-size-base, 14px);
+  line-height: 1.5;
+  
+  /* 文本类型 */
+  &--default {
+    color: var(--k-text-color-primary, #1f2937);
+  }
+  
+  &--primary {
+    color: var(--k-color-primary, #6366f1);
+  }
+  
+  &--success {
+    color: var(--k-color-success, #10b981);
+  }
+  
+  &--warning {
+    color: var(--k-color-warning, #f59e0b);
+  }
+  &--error {
+    color: var(--k-color-error, #ef4444);
+  }
+  &--danger {
+    color: var(--k-color-error, #ef4444);
+  }
+  
+  &--info {
+    color: var(--k-color-info, #06b6d4);
+  }
+  
+  /* 文本尺寸 */
+  &--xs {
+    font-size: var(--k-font-size-xs, 10px);
+  }
+  
+  &--sm {
+    font-size: var(--k-font-size-sm, 12px);
+  }
+  
+  &--base {
+    font-size: var(--k-font-size-base, 14px);
+  }
+  
+  &--md {
+    font-size: var(--k-font-size-md, 16px);
+  }
+  
+  &--lg {
+    font-size: var(--k-font-size-lg, 18px);
+  }
+  
+  &--xl {
+    font-size: var(--k-font-size-xl, 20px);
+  }
+  
+  &--xxl {
+    font-size: var(--k-font-size-xxl, 24px);
+  }
+  
+  /* 文本粗细 */
+  &--weight-light {
+    font-weight: var(--k-font-weight-light, normal);
+  }
+  
+  &--weight-normal {
+    font-weight: var(--k-font-weight-normal, 400);
+  }
+  
+  &--weight-medium {
+    font-weight: var(--k-font-weight-medium, bold);
+  }
+  
+  &--weight-bold {
+    font-weight: var(--k-font-weight-bold, 700);
+  }
+  
+  /* 文本溢出 */
+  &--ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+		/* #ifdef WEB */
+		white-space: nowrap;
+		/* 多行省略 */
+		&[style*="-webkit-line-clamp"] {
+		  white-space: normal;
+		  display: -webkit-box;
+		  -webkit-box-orient: vertical;
+		}
+		/* #endif */
+   
+  }
+  
+  /* 文本装饰 */
+  &--decoration-underline {
+    text-decoration: underline;
+  }
+  
+  &--decoration-line-through {
+    text-decoration: line-through;
+  }
+  
+  /* 文本对齐 */
+  &--align-center {
+    text-align: center;
+  }
+  
+  &--align-right {
+    text-align: right;
+  }
+}

@@ -32,6 +32,12 @@
 			"style": {
 				"navigationBarTitleText": ""
 			}
+		},
+		{
+			"path": "pages/text/text",
+			"style": {
+				"navigationBarTitleText": "文本"
+			}
 		}
 	],
 	"globalStyle": {

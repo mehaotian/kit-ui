@@ -1,0 +1,199 @@
+/**
+ * k-text 组件工具函数
+ */
+
+/**
+ * 日期格式化选项
+ */
+export type DateFormatOptions = {
+	format ?: string; // 日期格式，如 'YYYY-MM-DD HH:mm:ss'
+	locale ?: string; // 地区，如 'zh-CN'
+}
+
+/**
+ * 金额格式化选项
+ */
+export type PriceFormatOptions = {
+	digits ?: number; // 小数位数
+	symbol ?: string; // 货币符号
+	thousandsSeparator ?: boolean; // 是否使用千分位分隔符
+}
+
+/**
+ * 脱敏选项
+ */
+export type MaskOptions = {
+	type ?: string; // 脱敏类型：'phone', 'email', 'name', 'idcard', 'custom'
+	startLen ?: number; // 起始保留长度
+	endLen ?: number; // 结尾保留长度
+	maskChar ?: string; // 掩码字符
+	pattern ?: string; // 自定义脱敏模式
+}
+
+/**
+ * 格式化日期
+ * @param value 日期字符串或时间戳
+ * @param options 格式化选项
+ * @returns 格式化后的日期字符串
+ */
+export function formatDate(value : string | number, options : DateFormatOptions = {}) : string {
+	if (value == '') {
+		return ''
+	}
+
+	// 默认格式
+	const format = options.format ?? 'YYYY-MM-DD'
+
+	// 解析日期
+	let date : Date
+	if (typeof value === 'number') {
+		date = new Date(value)
+	} else {
+		// 尝试解析日期字符串
+		date = new Date(value)
+	}
+
+	// 检查日期是否有效
+	if (isNaN(date.getTime())) {
+		return value.toString()
+	}
+
+	// 获取日期各部分
+	const year = date.getFullYear()
+	const month = date.getMonth() + 1
+	const day = date.getDate()
+	const hours = date.getHours()
+	const minutes = date.getMinutes()
+	const seconds = date.getSeconds()
+
+	// 格式化函数
+	const padZero = (num : number) : string => {
+		return num < 10 ? `0${num}` : `${num}`
+	}
+
+	// 替换格式
+	let result = format
+		.replace(/YYYY/g, year.toString())
+		.replace(/YY/g, year.toString().slice(-2))
+		.replace(/MM/g, padZero(month))
+		.replace(/M/g, month.toString())
+		.replace(/DD/g, padZero(day))
+		.replace(/D/g, day.toString())
+		.replace(/HH/g, padZero(hours))
+		.replace(/H/g, hours.toString())
+		.replace(/mm/g, padZero(minutes))
+		.replace(/m/g, minutes.toString())
+		.replace(/ss/g, padZero(seconds))
+		.replace(/s/g, seconds.toString())
+
+	return result
+}
+
+/**
+ * 格式化金额
+ * @param value 金额数值或字符串
+ * @param options 格式化选项
+ * @returns 格式化后的金额字符串
+ */
+export function formatPrice(value : string | number, options : PriceFormatOptions = {}) : string {
+	if (value == null) {
+		return ''
+	}
+
+	// 默认选项
+	const digits = options.digits ?? 2
+	const symbol = options.symbol ?? '¥'
+	const thousandsSeparator = options.thousandsSeparator ?? true
+
+	// 转换为数字
+	let num : number
+	if (typeof value === 'string') {
+		num = parseFloat(value)
+		if (isNaN(num)) {
+			return value
+		}
+	} else {
+		num = value
+	}
+
+	// 格式化数字
+	let numStr = num.toFixed(digits)
+
+	// 添加千分位分隔符
+	if (thousandsSeparator) {
+		const parts = numStr.split('.')
+		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+		numStr = parts.join('.')
+	}
+
+	// 添加货币符号
+	return symbol + numStr
+}
+
+/**
+ * 脱敏处理
+ * @param value 需要脱敏的字符串
+ * @param options 脱敏选项
+ * @returns 脱敏后的字符串
+ */
+export function maskText(value : string, options : MaskOptions = {}) : string {
+	if (value == '') {
+		return ''
+	}
+
+	// 默认选项
+	const type = options.type ?? 'custom'
+	const maskChar = options.maskChar ?? '*'
+
+	// 根据类型进行脱敏
+	switch (type) {
+		case 'phone': {
+			// 手机号脱敏: 保留前3位和后4位
+			if (value.length < 7) {
+				return value
+			}
+			return value.slice(0, 3) + maskChar.repeat(value.length - 7) + value.slice(-4)
+		}
+		case 'email': {
+			// 邮箱脱敏: 邮箱名称显示前3个字符，其余用*代替，@后面的域名显示完整
+			const parts = value.split('@')
+			if (parts.length !== 2) {
+				return value
+			}
+			const name = parts[0]
+			const domain = parts[1]
+			if (name.length <= 3) {
+				return name + '@' + domain
+			}
+			return name.slice(0, 3) + maskChar.repeat(name.length - 3) + '@' + domain
+		}
+		case 'name': {
+			// 姓名脱敏: 只显示姓，其余用*代替
+			if (value.length <= 1) {
+				return value
+			}
+			return value.slice(0, 1) + maskChar.repeat(value.length - 1)
+		}
+		case 'idcard': {
+			// 身份证脱敏: 保留前4位和后4位
+			if (value.length < 8) {
+				return value
+			}
+			return value.slice(0, 4) + maskChar.repeat(value.length - 8) + value.slice(-4)
+		}
+		case 'custom':
+		default: {
+			// 自定义脱敏
+			const startLen = options.startLen ?? 0
+			const endLen = options.endLen ?? 0
+
+			if (startLen + endLen >= value.length) {
+				return value
+			}
+
+			return value.slice(0, startLen) +
+				maskChar.repeat(value.length - startLen - endLen) +
+				(endLen > 0 ? value.slice(-endLen) : '')
+		}
+	}
+}

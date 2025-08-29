@@ -27,19 +27,6 @@
 	const kitTheme = inject('kit-theme', null)
 	// 获取全局配置
 	const config = getIconConfig()
-	// Props 定义
-	interface Props {
-		name : string
-		size ?: string
-		color ?: string
-		prefix ?: string
-		customStyle ?: string
-		disabled ?: boolean
-		loading ?: boolean
-		spin ?: boolean // 旋转动画
-		spinSpeed ?: number // 旋转速度
-		spinReverse ?: boolean // 是否反向旋转
-	}
 
 
 	const props = defineProps({
