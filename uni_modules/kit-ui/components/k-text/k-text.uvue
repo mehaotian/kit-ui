@@ -1,6 +1,6 @@
 <script setup lang="uts">
 	import { computed, inject } from 'vue'
-	import { formatDate, formatPrice, maskText, DateFormatOptions, PriceFormatOptions, MaskOptions } from './utils.uts'
+	import { formatDate, formatPrice, maskText, parseTextSize, DateFormatOptions, PriceFormatOptions, MaskOptions } from './utils.uts'
 
 	// 注入主题配置
 	const themeConfig = inject('kit-theme', {})
@@ -12,7 +12,7 @@
 			type: String,
 			default: 'default'
 		},
-		// 文本大小: xs, sm, base, md, lg, xl, xxl
+		// 文本大小: xs, sm, base, md, lg, xl, xxl 或具体数值（如 '16', '18px', '1.2em'）
 		size: {
 			type: String,
 			default: 'base'
@@ -84,9 +84,24 @@
 		}
 	});
 
+	// 计算文本尺寸
+	const textSize = computed(() : string => {
+		if (props.size != '') {
+			return parseTextSize(props.size)
+		}
+		// 如果没有指定 size，使用默认的 base 尺寸
+		return parseTextSize('base')
+	})
+
 	// 计算文本样式
 	const textStyle = computed(() => {
 		const styles : string[] = []
+
+		// 动态字体大小
+		// 如果 size 不是预设值（即包含数字或单位），则直接设置 font-size
+		if (props.size != '' && !['xs', 'sm', 'base', 'md', 'lg', 'xl', 'xxl'].includes(props.size)) {
+			styles.push(`font-size: ${textSize.value}`)
+		}
 
 		// 自定义颜色
 		if (props.color != '') {
@@ -100,7 +115,6 @@
 				styles.push(`-webkit-line-clamp: ${props.lines}`)
 				// #endif
 				// #ifdef APP
-				console.log('----props.lines', props.lines)
 				styles.push('text-overflow: ellipsis')
 				styles.push(`lines: ${props.lines}`)
 				// #endif
@@ -139,29 +153,29 @@
 			case 'date': {
 				// 日期格式化
 				const options : DateFormatOptions = {
-					format: (formatOptions?.format ?? 'YYYY-MM-DD') as string,
-					locale: (formatOptions?.locale ?? '') as string
+					format: (formatOptions.format ?? 'YYYY-MM-DD') as string,
+					locale: (formatOptions.locale ?? '') as string
 				}
 				return formatDate(props.text, options)
 			}
 			case 'price': {
 				// 金额格式化
 				const options : PriceFormatOptions = {
-					digits: (formatOptions?.digits ?? 2) as number,
+					digits: (formatOptions.digits ?? 2) as number,
 					symbol: (formatOptions.symbol ?? '$') as string,
-					thousandsSeparator: (formatOptions?.thousandsSeparator ?? true) as boolean
+					thousandsSeparator: (formatOptions.thousandsSeparator ?? true) as boolean
 				}
 				return formatPrice(props.text, options)
 			}
 			case 'mask': {
 				// 脱敏处理
 				const options : MaskOptions = {
-					type: (formatOptions?.type ?? 'custom') as string,
-					startLen: (formatOptions?.startLen ?? 0) as number,
-					endLen: (formatOptions?.endLen ?? 0) as number,
-					maskChar: (formatOptions?.maskChar ?? '*') as string,
+					type: (formatOptions.type ?? 'custom') as string,
+					startLen: (formatOptions.startLen ?? 0) as number,
+					endLen: (formatOptions.endLen ?? 0) as number,
+					maskChar: (formatOptions.maskChar ?? '*') as string,
 					// 暂时没有用到
-					pattern: (formatOptions?.pattern ?? '') as string
+					pattern: (formatOptions.pattern ?? '') as string
 				}
 				return maskText(props.text, options)
 			}

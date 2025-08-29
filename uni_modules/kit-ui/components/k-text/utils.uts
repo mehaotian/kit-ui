@@ -2,6 +2,43 @@
  * k-text 组件工具函数
  */
 
+// 文本尺寸预设
+export const TEXT_SIZES : UTSJSONObject = {
+	'xs': '10px',
+	'sm': '12px',
+	'base': '14px',
+	'md': '16px',
+	'lg': '18px',
+	'xl': '20px',
+	'xxl': '24px'
+}
+
+/**
+ * 解析文本尺寸
+ * @param size 尺寸值，可以是预设尺寸名称、数字或带单位的字符串
+ * @returns 解析后的尺寸值
+ */
+export function parseTextSize(size : string | number) : string {
+	if (typeof size == 'number') {
+		return size + 'px'
+	}
+
+	const sizeStr = size as string
+
+	// 如果是预设尺寸
+	if (TEXT_SIZES.hasOwnProperty(sizeStr)) {
+		return TEXT_SIZES[sizeStr] as string
+	}
+
+	// 检查是否为纯数字字符串
+	if (/^\d+$/.test(sizeStr)) {
+		return sizeStr + 'px'
+	}
+
+	// 直接返回原始值（支持带单位的值如 '16px', '30rpx' 等）
+	return sizeStr
+}
+
 /**
  * 日期格式化选项
  */

@@ -69,6 +69,25 @@
 		</view>
 
 		<view class="section">
+			<k-text size="lg" weight="bold">自定义尺寸（数值和单位）</k-text>
+			<view class="demo-item">
+				<k-text size="12">12px 文本（纯数字）</k-text>
+			</view>
+			<view class="demo-item">
+				<k-text size="15px">15px 文本（带px单位）</k-text>
+			</view>
+			<view class="demo-item">
+				<k-text size="30rpx">30rpx 文本（rpx单位）</k-text>
+			</view>
+			<view class="demo-item">
+				<k-text size="22px">22px 文本（大尺寸）</k-text>
+			</view>
+			<view class="demo-item">
+				<k-text size="28">28px 文本（大数值）</k-text>
+			</view>
+		</view>
+
+		<view class="section">
 			<k-text size="lg" weight="bold">文本粗细</k-text>
 			<view class="demo-item">
 				<k-text weight="light">细体文本</k-text>
