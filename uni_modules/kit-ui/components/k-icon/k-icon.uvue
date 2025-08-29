@@ -23,7 +23,6 @@
 		customStyle ?: string
 		disabled ?: boolean
 		loading ?: boolean
-		inherit ?: boolean
 		spin ?: boolean // 旋转动画
 		spinSpeed ?: string // 旋转速度
 		spinReverse ?: boolean // 是否反向旋转
@@ -42,46 +41,52 @@
 	}
 
 	const props = defineProps({
+		// 图标名称，可以是内置图标名、图片URL或SVG图标名（格式：collection:name）
 		name: {
 			type: String,
 			default: ''
 		},
+		// 图标大小，支持数字、预设尺寸（如'small'、'medium'）或带单位的尺寸值（如'20px'）
 		size: {
 			type: String,
 			default: ''
 		},
+		// 图标颜色，支持颜色名、十六进制、RGB、RGBA
 		color: {
 			type: String,
 			default: ''
 		},
+		// 图标前缀，用于自定义图标类名（如 'k-icon'）
 		prefix: {
 			type: String,
 			default: ''
 		},
+		// 自定义样式，支持内联样式
 		customStyle: {
 			type: String,
 			default: ''
 		},
+		// 是否禁用图标点击
 		disabled: {
 			type: Boolean,
 			default: false
 		},
+		// 是否显示加载状态
 		loading: {
 			type: Boolean,
 			default: false
 		},
-		inherit: {
-			type: Boolean,
-			default: true
-		},
+		// 是否显示旋转动画
 		spin: {
 			type: Boolean,
 			default: false
 		},
+		// 旋转速度
 		spinSpeed: {
 			type: String,
 			default: '1s'
 		},
+		// 是否反向旋转
 		spinReverse: {
 			type: Boolean,
 			default: false
@@ -138,7 +143,6 @@
 		}
 
 		if (iconType.value == 'svg') {
-			console.log(buildSvgUrl(props.name))
 			return buildSvgUrl(props.name)
 		}
 
@@ -160,10 +164,6 @@
 	const iconColor = computed(() : string => {
 		if (props.color != '') {
 			return parseIconColor(props.color)
-		}
-
-		if (props.inherit) {
-			return 'inherit'
 		}
 
 		// 使用配置的默认颜色
@@ -214,7 +214,7 @@
 						}
 					}
 				}
-			} 
+			}
 			// TODO 只支持 string类型，通 style ，暂不支持对象格式
 			// else {
 			// 	// 对象样式
@@ -253,7 +253,6 @@
 	})
 
 	const imageStyle = computed(() : UTSJSONObject => {
-		console.log(iconSize.value)
 		return {
 			width: iconSize.value,
 			height: iconSize.value
@@ -285,12 +284,10 @@
 		if (props.disabled || props.loading) {
 			return
 		}
-
 		emit('click', event)
 	}
 
 	function handleImageError(error : any) {
-		console.warn(`[k-icon] 图片加载失败: ${props.name}`, error)
 		emit('error', error)
 	}
 
