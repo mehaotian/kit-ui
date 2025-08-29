@@ -313,6 +313,7 @@
 }
 
 // 动画定义
+// #ifndef APP
 @keyframes k-loading-spin {
   0% {
     transform: rotate(0deg);
@@ -358,3 +359,4 @@
     opacity: 1;
   }
 }
+// #endif

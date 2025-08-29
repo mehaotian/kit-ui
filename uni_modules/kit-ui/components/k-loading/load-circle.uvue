@@ -182,35 +182,63 @@
 	.uni-loading-circle {
 		/* 尺寸通过内联样式动态设置 */
 		box-sizing: border-box;
+		border-radius: 50%;
+		border: 2px solid transparent;
+		border-top-color: #007aff;
+		/* #ifndef APP */
+		animation: uni-loading-circle 1s linear infinite;
+		/* #endif */
 	}
 
-	/* #ifdef MP-WEIXIN */
+	/* #ifndef APP */
+	@keyframes uni-loading-circle {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+	/* #endif */
+
+	/* #if defined(MP-WEIXIN) && !defined(APP) */
 	.uni-loading-circle-wx {
 		display: inline-block;
 		box-sizing: border-box;
 		/* 尺寸通过内联样式动态设置 */
-		border: 5px solid transparent;
-		border-top-color: currentColor;
+		border: 2px solid transparent;
+		border-top-color: #007aff;
 		border-radius: 50%;
-		animation: loading-rotate 0.8s linear infinite;
-		color: #1989fa;
+		animation: uni-loading-circle-wx 1s linear infinite;
 	}
 
-	@keyframes loading-rotate {
-		from {
+	@keyframes uni-loading-circle-wx {
+		0% {
 			transform: rotate(0deg);
 		}
-
-		to {
+		100% {
 			transform: rotate(360deg);
 		}
 	}
 
 	/* #endif */
 
-	/* #ifdef WEB */
+	/* #if defined(WEB) && !defined(APP) */
 	.uni-load__img {
 		/* 尺寸通过内联样式动态设置 */
+		border-radius: 50%;
+		border: 2px solid transparent;
+		border-top-color: #007aff;
+		animation: uni-load-img 1s linear infinite;
+	}
+
+	@keyframes uni-load-img {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
 	}
 
 	.uni-load__img--android-H5 {

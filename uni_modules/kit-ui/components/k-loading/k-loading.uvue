@@ -1,6 +1,6 @@
 <script setup lang="uts">
-	import { computed } from 'vue'
-	import loadCircle from './load-circle.uvue'
+	import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
+	// import loadCircle from './load-circle.uvue'
 	import { parseLoadingSize, parseLoadingColor, LOADING_SIZES, LOADING_COLORS } from './utils.uts'
 
 	// 组件属性定义
@@ -62,6 +62,187 @@
 		return parseLoadingSize(props.size)
 	})
 
+	// #ifdef APP
+	// 动画相关变量
+	const rotateAngle = ref(0)
+	const scaleValue = ref(1)
+	const opacityValue = ref(1)
+	const animationFrameId = ref<number | null>(null)
+	const dotAnimationStates = ref([0, 0, 0]) // dots 动画状态
+	const barAnimationStates = ref([0, 0, 0, 0, 0]) // bars 动画状态
+
+	/**
+	 * 停止所有动画
+	 */
+	function stopAllAnimations() {
+		if (animationFrameId.value != null) {
+			cancelAnimationFrame(animationFrameId.value)
+			animationFrameId.value = null
+		}
+	}
+
+	/**
+	 * 启动 Spinner 旋转动画
+	 */
+	function startSpinnerAnimation() {
+		stopAllAnimations()
+		
+		let lastTimestamp = 0
+		const speed = 1000 // 1秒一圈
+		
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				const deltaTime = timestamp - lastTimestamp
+				const degreePerMs = 360 / speed
+				rotateAngle.value += degreePerMs * deltaTime
+				
+				if (rotateAngle.value >= 360) {
+					rotateAngle.value -= 360
+				}
+			}
+			lastTimestamp = timestamp
+			
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+		
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	/**
+	 * 启动 Dots 动画
+	 */
+	function startDotsAnimation() {
+		stopAllAnimations()
+		
+		let lastTimestamp = 0
+		const cycleDuration = 1400 // 1.4秒一个周期
+		const delays = [-320, -160, 0] // 每个点的延迟
+		
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				// const deltaTime = timestamp - lastTimestamp
+				
+				for (let i = 0; i < 3; i++) {
+					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
+				
+					if (progress < 0.4) {
+						// 0-40%: 缩放从0到1
+						dotAnimationStates.value[i] = progress / 0.4
+					} else if (progress < 0.8) {
+						// 40-80%: 保持1
+						dotAnimationStates.value[i] = 1
+					} else {
+						// 80-100%: 缩放从1到0
+						dotAnimationStates.value[i] = 1 - (progress - 0.8) / 0.2
+					}
+				}
+			}
+			lastTimestamp = timestamp
+			
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+		
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	/**
+	 * 启动 Bars 动画
+	 */
+	function startBarsAnimation() {
+		stopAllAnimations()
+		
+		let lastTimestamp = 0
+		const cycleDuration = 1200 // 1.2秒一个周期
+		const delays = [-1200, -1100, -1000, -900, -800] // 每个条的延迟
+		
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				// const deltaTime = timestamp - lastTimestamp
+				
+				for (let i = 0; i < 5; i++) {
+					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
+					
+					if (progress < 0.4) {
+						// 0-40%: 高度从0.4到1
+						barAnimationStates.value[i] = 0.4 + (progress / 0.4) * 0.6
+					} else {
+						// 40-100%: 高度从1到0.4
+						barAnimationStates.value[i] = 1 - (progress - 0.4) / 0.6 * 0.6
+					}
+				}
+			}
+			lastTimestamp = timestamp
+			
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+		
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	/**
+	 * 启动 Pulse 动画
+	 */
+	function startPulseAnimation() {
+		stopAllAnimations()
+		
+		let lastTimestamp = 0
+		const cycleDuration = 1500 // 1.5秒一个周期
+		
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				// const deltaTime = timestamp - lastTimestamp
+				const progress = (timestamp % cycleDuration) / cycleDuration
+				
+				if (progress < 0.5) {
+					// 0-50%: 缩放从1到1.2，透明度从1到0.7
+					scaleValue.value = 1 + (progress / 0.5) * 0.2
+					opacityValue.value = 1 - (progress / 0.5) * 0.3
+				} else {
+					// 50-100%: 缩放从1.2到1，透明度从0.7到1
+					scaleValue.value = 1.2 - ((progress - 0.5) / 0.5) * 0.2
+					opacityValue.value = 0.7 + ((progress - 0.5) / 0.5) * 0.3
+				}
+			}
+			lastTimestamp = timestamp
+			
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+		
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	/**
+	 * 根据类型启动对应动画
+	 */
+	function startAnimation() {
+		if (props.type == 'spinner') {
+			startSpinnerAnimation()
+		} else if (props.type == 'dots') {
+			startDotsAnimation()
+		} else if (props.type == 'bars') {
+			startBarsAnimation()
+		} else if (props.type == 'pulse') {
+			startPulseAnimation()
+		}
+	}
+	// #endif
+
 	// 计算加载器数值尺寸（用于 load-circle 组件）
 	const loadingSizeNumber = computed(() : number => {
 		const sizeStr = parseLoadingSize(props.size)
@@ -70,6 +251,22 @@
 		const mat1 = numMatch != null ? (numMatch[0] as string) : '24'
 		return parseInt(mat1)
 	})
+
+	// #ifdef APP
+	// 生命周期钩子
+	onMounted(() => {
+		startAnimation()
+	})
+
+	onBeforeUnmount(() => {
+		stopAllAnimations()
+	})
+
+	// 监听 type 变化，重新启动动画
+	watch(() => props.type, () => {
+		startAnimation()
+	})
+	// #endif
 
 	// 计算加载器颜色
 	const loadingColor = computed(() : string => {
@@ -192,20 +389,44 @@
 		<view class="k-loading-container" :class="containerClass" :style="containerStyle">
 			<view class="k-loading-content" :class="loadingClass" :style="loadingStyle">
 				<!-- Spinner 样式 -->
-				<load-circle v-if="type === 'spinner'" :size="loadingSizeNumber" :color="loadingColor"></load-circle>
+			<!-- #ifdef APP -->
+			<load-circle v-if="type === 'spinner'" :size="loadingSizeNumber" :color="loadingColor" :style="{ transform: `rotate(${rotateAngle}deg)` }"></load-circle>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
+			<load-circle v-if="type === 'spinner'" :size="loadingSizeNumber" :color="loadingColor"></load-circle>
+			<!-- #endif -->
 
 				<!-- Dots 样式 -->
-				<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
-					<view class="k-loading-dot" v-for="i in 3" :key="i"></view>
-				</view>
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
+				<view class="k-loading-dot" v-for="(state, i) in dotAnimationStates" :key="i" :style="{ transform: `scale(${state})` }"></view>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
+			<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
+				<view class="k-loading-dot" v-for="i in 3" :key="i"></view>
+			</view>
+			<!-- #endif -->
 
-				<!-- Bars 样式 -->
-				<view v-else-if="type === 'bars'" class="k-loading-bars" :class="barsClass">
-					<view class="k-loading-bar" v-for="i in 5" :key="i"></view>
-				</view>
+			<!-- Bars 样式 -->
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'bars'" class="k-loading-bars" :class="barsClass">
+				<view class="k-loading-bar" v-for="(state, i) in barAnimationStates" :key="i" :style="{ transform: `scaleY(${state})` }"></view>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
+			<view v-else-if="type === 'bars'" class="k-loading-bars" :class="barsClass">
+				<view class="k-loading-bar" v-for="i in 5" :key="i"></view>
+			</view>
+			<!-- #endif -->
 
-				<!-- Pulse 样式 -->
-				<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass"></view>
+			<!-- Pulse 样式 -->
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass" :style="{ transform: `scale(${scaleValue})`, opacity: opacityValue }"></view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
+			<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass"></view>
+			<!-- #endif -->
 			</view>
 
 			<!-- 加载文本 -->
@@ -220,17 +441,36 @@
 			<!-- <load-circle v-if="type === 'spinner'" :size="loadingSizeNumber" :color="loadingColor"></load-circle> -->
 			<view v-if="type === 'spinner'" class="k-loading-spinner" :class="spinnerClass"></view>
 			<!-- Dots 样式 -->
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
+				<view class="k-loading-dot" v-for="(state, i) in dotAnimationStates" :key="i" :style="{ transform: `scale(${state})` }"></view>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
 			<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
 				<view class="k-loading-dot" v-for="i in 3" :key="i"></view>
 			</view>
+			<!-- #endif -->
 
 			<!-- Bars 样式 -->
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'bars'" class="k-loading-bars" :class="barsClass">
+				<view class="k-loading-bar" v-for="(state, i) in barAnimationStates" :key="i" :style="{ transform: `scaleY(${state})` }"></view>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
 			<view v-else-if="type === 'bars'" class="k-loading-bars" :class="barsClass">
 				<view class="k-loading-bar" v-for="i in 5" :key="i"></view>
 			</view>
+			<!-- #endif -->
 
 			<!-- Pulse 样式 -->
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass" :style="{ transform: `scale(${scaleValue})`, opacity: opacityValue }"></view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
 			<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass"></view>
+			<!-- #endif -->
 		</view>
 
 		<!-- 加载文本 -->
