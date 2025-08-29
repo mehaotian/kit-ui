@@ -38,6 +38,12 @@
 			"style": {
 				"navigationBarTitleText": "文本"
 			}
+		},
+		{
+			"path": "pages/loading/loading",
+			"style": {
+				"navigationBarTitleText": "加载"
+			}
 		}
 	],
 	"globalStyle": {

@@ -1,0 +1,244 @@
+<script setup lang="uts">
+	import { computed } from 'vue'
+	import loadCircle from './load-circle.uvue'
+	import { parseLoadingSize, parseLoadingColor, LOADING_SIZES, LOADING_COLORS } from './utils.uts'
+
+	// 组件属性定义
+	const props = defineProps({
+		// 加载样式类型：spinner(旋转圆圈)、dots(点状)、bars(条状)、pulse(脉冲)
+		type: {
+			type: String,
+			default: 'spinner'
+		},
+		// 尺寸：xs, sm, md, lg, xl 或自定义数值（如 '24', '32px'）
+		size: {
+			type: String,
+			default: 'md'
+		},
+		// 颜色主题：primary, success, warning, danger, info 或自定义颜色值
+		color: {
+			type: String,
+			default: 'primary'
+		},
+		// 加载文本
+		text: {
+			type: String,
+			default: ''
+		},
+		// 是否显示全屏遮罩
+		overlay: {
+			type: Boolean,
+			default: false
+		},
+		// 遮罩背景色
+		overlayColor: {
+			type: String,
+			default: 'rgba(0, 0, 0, 0.5)'
+		},
+		// 点击遮罩是否可关闭
+		closeOnClickOverlay: {
+			type: Boolean,
+			default: false
+		},
+		// 自定义样式
+		customStyle: {
+			type: String,
+			default: ''
+		},
+		// 是否垂直排列（图标在上，文字在下）
+		vertical: {
+			type: Boolean,
+			default: true
+		}
+	})
+
+	// 事件定义
+	const emit = defineEmits<{
+		close : []
+	}>()
+
+	// 计算加载器尺寸
+	const loadingSize = computed(() : string => {
+		return parseLoadingSize(props.size)
+	})
+
+	// 计算加载器数值尺寸（用于 load-circle 组件）
+	const loadingSizeNumber = computed(() : number => {
+		const sizeStr = parseLoadingSize(props.size)
+		// 提取数值部分
+		const numMatch = sizeStr.match(/\d+/)
+		const mat1 = numMatch != null ? (numMatch[0] as string) : '24'
+		return parseInt(mat1)
+	})
+
+	// 计算加载器颜色
+	const loadingColor = computed(() : string => {
+		return parseLoadingColor(props.color)
+	})
+
+	// 遮罩样式类
+	const overlayClass = computed(() : string => {
+		return ''
+	})
+
+	// 容器样式类
+	const containerClass = computed(() : string => {
+		let classes = 'k-loading-container--default'
+		if (props.vertical) {
+			classes += ' k-loading-container--vertical'
+		} else {
+			classes += ' k-loading-container--horizontal'
+		}
+		return classes
+	})
+
+	// 容器样式
+	const containerStyle = computed(() : string => {
+		return props.customStyle
+	})
+
+	// 包装器样式类
+	const wrapperClass = computed(() : string => {
+		let classes = 'k-loading-wrapper--default'
+		if (props.vertical) {
+			classes += ' k-loading-wrapper--vertical'
+		} else {
+			classes += ' k-loading-wrapper--horizontal'
+		}
+		return classes
+	})
+
+	// 包装器样式
+	const wrapperStyle = computed(() : string => {
+		return props.customStyle
+	})
+
+	// 加载内容样式类
+	const loadingClass = computed(() : string => {
+		return `k-loading-content--${props.size}`
+	})
+
+	// 加载内容样式
+	const loadingStyle = computed(() : string => {
+		let style = ''
+
+		// 如果不是预定义尺寸，使用自定义尺寸
+		if (!LOADING_SIZES.has(props.size)) {
+			const size = loadingSize.value
+			style += `width: ${size}; height: ${size};`
+		}
+
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `color: ${color};`
+		}
+
+		return style
+	})
+
+	// Spinner 样式类
+	const spinnerClass = computed(() : string => {
+		let classes = `k-loading-spinner--${props.size} k-loading-spinner--${props.color}`
+		return classes
+	})
+
+	// Dots 样式类
+	const dotsClass = computed(() : string => {
+		let classes = `k-loading-dots--${props.size} k-loading-dots--${props.color}`
+		return classes
+	})
+
+	// Bars 样式类
+	const barsClass = computed(() : string => {
+		let classes = `k-loading-bars--${props.size} k-loading-bars--${props.color}`
+		return classes
+	})
+
+	// Pulse 样式类
+	const pulseClass = computed(() : string => {
+		let classes = `k-loading-pulse--${props.size} k-loading-pulse--${props.color}`
+		return classes
+	})
+
+	// 文本样式类
+	const textClass = computed(() : string => {
+		return `k-loading-text--${props.size} k-loading-text--${props.color}`
+	})
+
+	// 文本样式
+	const textStyle = computed(() : string => {
+		let style = ''
+
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `color: ${color};`
+		}
+
+		return style
+	})
+
+	// 处理遮罩点击事件
+	const handleOverlayClick = () => {
+		if (props.closeOnClickOverlay) {
+			emit('close')
+		}
+	}
+</script>
+
+<template>
+	<view v-if="overlay" class="k-loading-overlay" :class="overlayClass" @click="handleOverlayClick">
+		<view class="k-loading-container" :class="containerClass" :style="containerStyle">
+			<view class="k-loading-content" :class="loadingClass" :style="loadingStyle">
+				<!-- Spinner 样式 -->
+				<load-circle v-if="type === 'spinner'" :size="loadingSizeNumber" :color="loadingColor"></load-circle>
+
+				<!-- Dots 样式 -->
+				<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
+					<view class="k-loading-dot" v-for="i in 3" :key="i"></view>
+				</view>
+
+				<!-- Bars 样式 -->
+				<view v-else-if="type === 'bars'" class="k-loading-bars" :class="barsClass">
+					<view class="k-loading-bar" v-for="i in 5" :key="i"></view>
+				</view>
+
+				<!-- Pulse 样式 -->
+				<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass"></view>
+			</view>
+
+			<!-- 加载文本 -->
+			<text v-if="text" class="k-loading-text" :class="textClass" :style="textStyle">{{ text }}</text>
+		</view>
+	</view>
+
+	<!-- 非遮罩模式 -->
+	<view v-else class="k-loading-wrapper" :class="wrapperClass" :style="wrapperStyle">
+		<view class="k-loading-content" :class="loadingClass" :style="loadingStyle">
+			<!-- Spinner 样式 -->
+			<!-- <load-circle v-if="type === 'spinner'" :size="loadingSizeNumber" :color="loadingColor"></load-circle> -->
+			<view v-if="type === 'spinner'" class="k-loading-spinner" :class="spinnerClass"></view>
+			<!-- Dots 样式 -->
+			<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
+				<view class="k-loading-dot" v-for="i in 3" :key="i"></view>
+			</view>
+
+			<!-- Bars 样式 -->
+			<view v-else-if="type === 'bars'" class="k-loading-bars" :class="barsClass">
+				<view class="k-loading-bar" v-for="i in 5" :key="i"></view>
+			</view>
+
+			<!-- Pulse 样式 -->
+			<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass"></view>
+		</view>
+
+		<!-- 加载文本 -->
+		<text v-if="text" class="k-loading-text" :class="textClass" :style="textStyle">{{ text }}</text>
+	</view>
+</template>
+
+
+<style lang="scss" scoped>
+	@import './k-loading.scss';
+</style>

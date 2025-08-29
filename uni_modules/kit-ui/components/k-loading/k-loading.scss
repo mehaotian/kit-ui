@@ -1,0 +1,360 @@
+/**
+ * k-loading 组件样式
+ */
+
+// 遮罩层样式
+.k-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+// 容器样式
+.k-loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 20px;
+  
+  &--vertical {
+    flex-direction: column;
+  }
+  
+  &--horizontal {
+    flex-direction: row;
+  }
+}
+
+// 包装器样式
+.k-loading-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &--vertical {
+    flex-direction: column;
+  }
+  
+  &--horizontal {
+    flex-direction: row;
+  }
+}
+
+// 加载内容基础样式
+.k-loading-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  // 尺寸样式
+  &--xs {
+    width: 16px;
+    height: 16px;
+  }
+  
+  &--sm {
+    width: 20px;
+    height: 20px;
+  }
+  
+  &--md {
+    width: 24px;
+    height: 24px;
+  }
+  
+  &--lg {
+    width: 32px;
+    height: 32px;
+  }
+  
+  &--xl {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+// Spinner 旋转加载器
+.k-loading-spinner {
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-left-color: currentColor;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  animation: k-loading-spin 1s linear infinite;
+  
+  // 颜色主题
+  &--primary {
+    border-left-color: #007AFF;
+  }
+  
+  &--success {
+    border-left-color: #34C759;
+  }
+  
+  &--warning {
+    border-left-color: #FF9500;
+  }
+  
+  &--danger {
+    border-left-color: #FF3B30;
+  }
+  
+  &--info {
+    border-left-color: #5AC8FA;
+  }
+}
+
+// Dots 点状加载器
+.k-loading-dots {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  
+  .k-loading-dot {
+    width: 20%;
+    height: 20%;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: k-loading-dots 1.4s ease-in-out infinite both;
+    
+    &:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+    
+    &:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+    
+    &:nth-child(3) {
+      animation-delay: 0s;
+    }
+  }
+  
+  // 颜色主题
+  &--primary .k-loading-dot {
+    background-color: #007AFF;
+  }
+  
+  &--success .k-loading-dot {
+    background-color: #34C759;
+  }
+  
+  &--warning .k-loading-dot {
+    background-color: #FF9500;
+  }
+  
+  &--danger .k-loading-dot {
+    background-color: #FF3B30;
+  }
+  
+  &--info .k-loading-dot {
+    background-color: #5AC8FA;
+  }
+}
+
+// Bars 条状加载器
+.k-loading-bars {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  
+  .k-loading-bar {
+    width: 15%;
+    height: 100%;
+    background-color: currentColor;
+    animation: k-loading-bars 1.2s ease-in-out infinite;
+    
+    &:nth-child(1) {
+      animation-delay: -1.2s;
+    }
+    
+    &:nth-child(2) {
+      animation-delay: -1.1s;
+    }
+    
+    &:nth-child(3) {
+      animation-delay: -1.0s;
+    }
+    
+    &:nth-child(4) {
+      animation-delay: -0.9s;
+    }
+    
+    &:nth-child(5) {
+      animation-delay: -0.8s;
+    }
+  }
+  
+  // 颜色主题
+  &--primary .k-loading-bar {
+    background-color: #007AFF;
+  }
+  
+  &--success .k-loading-bar {
+    background-color: #34C759;
+  }
+  
+  &--warning .k-loading-bar {
+    background-color: #FF9500;
+  }
+  
+  &--danger .k-loading-bar {
+    background-color: #FF3B30;
+  }
+  
+  &--info .k-loading-bar {
+    background-color: #5AC8FA;
+  }
+}
+
+// Pulse 脉冲加载器
+.k-loading-pulse {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: k-loading-pulse 1.5s ease-in-out infinite;
+  
+  // 颜色主题
+  &--primary {
+    background-color: #007AFF;
+  }
+  
+  &--success {
+    background-color: #34C759;
+  }
+  
+  &--warning {
+    background-color: #FF9500;
+  }
+  
+  &--danger {
+    background-color: #FF3B30;
+  }
+  
+  &--info {
+    background-color: #5AC8FA;
+  }
+}
+
+// 加载文本样式
+.k-loading-text {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  
+  // 尺寸样式
+  &--xs {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  
+  &--sm {
+    font-size: 14px;
+    margin-top: 6px;
+  }
+  
+  &--md {
+    font-size: 16px;
+    margin-top: 8px;
+  }
+  
+  &--lg {
+    font-size: 18px;
+    margin-top: 10px;
+  }
+  
+  &--xl {
+    font-size: 20px;
+    margin-top: 12px;
+  }
+  
+  // 颜色主题
+  &--primary {
+    color: #007AFF;
+  }
+  
+  &--success {
+    color: #34C759;
+  }
+  
+  &--warning {
+    color: #FF9500;
+  }
+  
+  &--danger {
+    color: #FF3B30;
+  }
+  
+  &--info {
+    color: #5AC8FA;
+  }
+}
+
+// 水平布局时的文本样式
+.k-loading-container--horizontal .k-loading-text,
+.k-loading-wrapper--horizontal .k-loading-text {
+  margin-top: 0;
+  margin-left: 8px;
+}
+
+// 动画定义
+@keyframes k-loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes k-loading-dots {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes k-loading-bars {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes k-loading-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

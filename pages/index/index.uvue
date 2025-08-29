@@ -115,7 +115,7 @@
 				{ name: 'Toast', path: '/pages/toast/toast', status: 'planning' },
 				{ name: 'Modal', path: '/pages/modal/modal', status: 'planning' },
 				{ name: 'ActionSheet', path: '/pages/actionsheet/actionsheet', status: 'planning' },
-				{ name: 'Loading', path: '/pages/loading/loading', status: 'planning' },
+				{ name: 'Loading', path: '/pages/loading/loading', status: 'developing' },
 				{ name: 'Progress', path: '/pages/progress/progress', status: 'planning' },
 				{ name: 'Alert', path: '/pages/alert/alert', status: 'planning' },
 				{ name: 'Notification', path: '/pages/notification/notification', status: 'planning' },
