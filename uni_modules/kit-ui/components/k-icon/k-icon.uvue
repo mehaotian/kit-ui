@@ -9,6 +9,19 @@
 		parseIconColor,
 		getIconUnicode,
 	} from './config.uts'
+	
+	// 微信小程序使用动态加载字体
+	// #ifdef MP-WEIXIN
+	import KiconPath from "./fonts/k-icon.ttf"
+	uni.loadFontFace({
+		global: false,
+		family: 'KIconRoot',
+		source: `url('${KiconPath}')`,
+		success() {},
+		fail(error) {},
+	})
+
+	// #endif
 
 	// 注入主题配置
 	const kitTheme = inject('kit-theme', null)
@@ -82,7 +95,6 @@
 		}
 	})
 
-
 	// 旋转动画相关
 	// 旋转角度
 	const rotateAngle = ref(0)
@@ -101,33 +113,86 @@
 
 	/**
 	 * 启动旋转动画
+	 * 使用requestAnimationFrame时间戳计算实际刷新率，动态调整每帧旋转角度
 	 */
 	function startRotateAnimation() {
 		// 如果已经有动画在运行，先停止
 		stopRotateAnimation()
 
-		// 计算每帧旋转角度
-		// 默认速度为1000ms旋转一圈，即每帧约6度（假设60fps）
+		// 计算每帧旋转角度的初始值
 		let degreePerFrame = 6
-
-		// 解析spinSpeed字符串，提取数值部分
-		// 只保留数字部分
 		let speed = props.spinSpeed
-		// let speed = parseFloat(speedValue)
+
+		// 用于计算实际刷新率的变量
+		let lastTimestamp : number = 0
+		let totalFrameTime = 0
+		let frameTimeArray : number[] = []
+		const MAX_SAMPLES = 10 // 采样帧数
+
+		// 默认帧时间（假设60fps）
+		let avgFrameTime = 16.67 // 毫秒
+
+		// 限制每帧最大旋转角度，避免旋转过快
+		let maxDegreePerFrame = 15
 
 		// 确保解析出有效数字
 		if (!isNaN(speed) && speed > 0) {
-			// 基准：spinSpeed=1000ms时，每帧旋转6度
-			degreePerFrame = 360 / (speed / 16.7) // 16.7ms约等于一帧的时间(60fps)
+			// 初始化每帧旋转角度（基于默认帧率）
+			degreePerFrame = 360 / (speed / avgFrameTime)
 
-			// 限制每帧最大旋转角度，避免旋转过快
-			if (degreePerFrame > 15) {
-				degreePerFrame = 15
+			// 限制初始旋转角度
+			if (degreePerFrame > maxDegreePerFrame) {
+				degreePerFrame = maxDegreePerFrame
 			}
 		}
 
 		// 动画函数
-		function animate() {
+		function animate(timestamp : number) {
+			// 计算实际刷新率
+			if (lastTimestamp != 0) {
+				// 计算当前帧与上一帧的时间差
+				const frameTime = timestamp - lastTimestamp
+
+				// 收集帧时间样本
+				if (frameTime > 0) { // 忽略异常值
+					frameTimeArray.push(frameTime)
+					if (frameTimeArray.length > MAX_SAMPLES) {
+						frameTimeArray.shift() // 保持固定样本数
+					}
+
+					// 计算平均帧时间
+					totalFrameTime = 0
+					for (let i = 0; i < frameTimeArray.length; i++) {
+						totalFrameTime += frameTimeArray[i]
+					}
+					avgFrameTime = totalFrameTime / frameTimeArray.length
+
+					// 根据实际帧率重新计算每帧旋转角度
+					if (!isNaN(speed) && speed > 0 && avgFrameTime > 0) {
+						// 根据实际刷新率和动画持续时间计算每帧旋转角度
+						const newDegreePerFrame = 360 / (speed / avgFrameTime)
+
+						// 平滑过渡到新的旋转角度
+						degreePerFrame = degreePerFrame * 0.9 + newDegreePerFrame * 0.1
+
+						// 根据实际刷新率调整最大旋转角度
+						if (avgFrameTime < 10) { // 约100Hz以上
+							maxDegreePerFrame = 8
+						} else {
+							maxDegreePerFrame = 15
+						}
+
+						// 限制每帧最大旋转角度
+						if (degreePerFrame > maxDegreePerFrame) {
+							degreePerFrame = maxDegreePerFrame
+						}
+					}
+				}
+			}
+
+			// 更新时间戳
+			lastTimestamp = timestamp
+
 			// 根据旋转方向增加或减少角度
 			if (props.spinReverse) {
 				rotateAngle.value -= degreePerFrame // 逆时针
@@ -142,18 +207,16 @@
 			}
 
 			// 继续下一帧
-			animationFrameId.value = requestAnimationFrame(() => {
-				animate()
+			animationFrameId.value = requestAnimationFrame((timestamp : number) => {
+				animate(timestamp)
 			})
 		}
 
 		// 开始动画
-		animationFrameId.value = requestAnimationFrame(() => {
-			animate()
+		animationFrameId.value = requestAnimationFrame((timestamp : number) => {
+			animate(timestamp)
 		})
 	}
-
-
 
 	// SVG URL 构建函数
 	function buildSvgUrl(name : string) : string {
@@ -203,13 +266,6 @@
 			if (unicode != null) {
 				return unicode
 			}
-			// 检查全局配置中的自定义图标
-			// const config = getIconConfig()
-			// if (config.customIcons && config.customIcons[props.name]) {
-			// 	return config.customIcons[props.name] as string
-			// }
-			// 直接返回 name（可能是 Unicode 字符）
-			// return props.name
 			return ''
 		}
 
@@ -362,8 +418,6 @@
 	})
 
 
-
-
 	// 事件处理
 	function handleClick(event : UniEvent) {
 		if (props.disabled || props.loading) {
@@ -372,14 +426,13 @@
 		emit('click', event)
 	}
 
-	function handleImageError(error : UniError) {
+	function handleImageError(error : any) {
 		emit('error', error)
 	}
 
 	function handleImageLoad() {
 		emit('load')
 	}
-
 
 	// 监听组件挂载
 	onMounted(() => {
@@ -393,11 +446,15 @@
 
 	// 监听组件卸载
 	onBeforeUnmount(() => {
+		// #ifdef APP
 		// 停止动画
 		stopRotateAnimation()
+		// #endif
 	})
 
+	// #ifdef APP
 	const load = computed(() => props.loading)
+	const spin = computed(() => props.spin)
 	watch(load, (loading : boolean) => {
 		if (loading) {
 			startRotateAnimation()
@@ -406,15 +463,15 @@
 		}
 	})
 	// 监听 loading 和 spin 属性变化
-	// watch(props.loading,
-	// 	(loading : boolean) => {
-	// 		if (loading) {
-	// 			startRotateAnimation()
-	// 		} else {
-	// 			stopRotateAnimation()
-	// 		}
-	// 	}
-	// )
+	watch(spin,
+		(loading : boolean) => {
+			if (loading) {
+				startRotateAnimation()
+			} else {
+				stopRotateAnimation()
+			}
+		}
+	)
 	const spin_speed = computed(() => props.spinSpeed)
 	// 监听旋转速度变化
 	watch(spin_speed,
@@ -425,6 +482,7 @@
 			}
 		}
 	)
+	// #endif
 </script>
 <template>
 	<view class="kit-ui--root k-icon" :class="iconClass" :style="iconStyle" @click="handleClick">
@@ -438,5 +496,42 @@
 </template>
 <style lang="scss">
 	@import "../../theme/index.scss";
-	@import "./k-icon.scss";
+	/* #ifndef MP-WEIXIN */
+	@font-face {
+		font-family: KIconRoot;
+		src: url('./fonts/k-icon.ttf');
+	}
+	/* #endif */
+	
+
+	// 基础图标字体类
+	.k-icon-font {
+		font-family: KIconRoot;
+		font-size: 18px;
+		font-style: normal;
+		color: #333;
+	}
+
+	/* #ifndef APP*/
+
+	.k-icon--loading {
+		animation: k-icon-loading 1s linear infinite;
+		transform: rotate(0);
+	}
+
+	.k-icon--loading-reverse {
+		animation-direction: reverse;
+	}
+
+	@keyframes k-icon-loading {
+		0% {
+			transform: rotate(0deg);
+		}
+
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	/* #endif */
 </style>
