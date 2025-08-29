@@ -492,7 +492,7 @@ export const ICON_UNICODE_MAP: UTSJSONObject = {
  * @returns Unicode 字符或 null
  */
 export function getIconUnicode(iconName: string): string | null {
-  return ICON_UNICODE_MAP[iconName] as string || null
+  return ICON_UNICODE_MAP[iconName] as string ?? null
 }
 
 /**
@@ -538,7 +538,7 @@ export function getIconNamesByType(type: 'fill' | 'line' | 'other'): string[] {
  * @returns 匹配的图标名称数组
  */
 export function searchIcons(keyword: string): string[] {
-  if (!keyword) return []
+  if (keyword != '') return []
   
   const lowerKeyword = keyword.toLowerCase()
   return UTSJSONObject.keys(ICON_UNICODE_MAP)

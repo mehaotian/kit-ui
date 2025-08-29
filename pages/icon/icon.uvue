@@ -1,32 +1,124 @@
 <template>
 	<!-- #ifdef APP -->
-	<scroll-view style="flex:1;height: 2000px;">
+	<scroll-view style="flex:1">
 	<!-- #endif -->
 		<view class="page-header">
 			<text class="page-title">k-icon 图标组件</text>
 			<text class="page-desc">轻量、扩展方便、用法简单的图标组件</text>
 		</view>
-
+		
 		<!-- 基础用法 -->
 		<view class="section">
 			<text class="section-title">基础用法</text>
-			<view class="icon-demo-row">
-				<template v-for="(item,index) in allFillIcons">
-					<view class="icon-demo-item">
-						<k-icon :name="item" size="24" />
-					</view>
-					<!-- <view class="icon-demo-item">
-						<k-icon :name="allLineIcons[index]" size="24" />
-					</view> -->
-				</template>
+			<view class="demo-row">
+				<k-icon name="account-box-fill" size="24" />
+				<k-icon name="arrow-down-fill" size="24" />
+				<k-icon name="settings-fill" size="24" />
+				<k-icon name="anticlockwise-2-fill" size="24" />
+				<k-icon name="share-fill" size="24" />
+				<k-icon name="signal-wifi-1-fill" size="24" />
 			</view>
-			<!-- <view class="icon-demo-row">
-				<template v-for="item in allLineIcons">
-					<view class="icon-demo-item">
-						<k-icon :name="item" size="24" />
-					</view>
-				</template>
-			</view> --> 
+		</view>
+		
+		<!-- 图标尺寸 -->
+		<view class="section">
+			<text class="section-title">图标尺寸</text>
+			<view class="demo-row">
+				<k-icon name="account-box-fill" size="xs" />
+				<k-icon name="account-box-fill" size="sm" />
+				<k-icon name="account-box-fill" size="md" />
+				<k-icon name="account-box-fill" size="lg" />
+				<k-icon name="account-box-fill" size="xl" />
+				<k-icon name="account-box-fill" size="2xl" />
+			</view>
+			<view class="demo-row">
+				<k-icon name="account-box-fill" size="16" />
+				<k-icon name="account-box-fill" size="20" />
+				<k-icon name="account-box-fill" size="24" />
+				<k-icon name="account-box-fill" size="32" />
+				<k-icon name="account-box-fill" size="48" />
+			</view>
+		</view>
+		
+		<!-- 图标颜色 -->
+		<view class="section">
+			<text class="section-title">图标颜色</text>
+			<view class="demo-row">
+				<k-icon name="account-box-fill" size="24" color="primary" />
+				<k-icon name="arrow-down-fill" size="24" color="success" />
+				<k-icon name="settings-fill" size="24" color="warning" />
+				<k-icon name="anticlockwise-2-fill" size="24" color="danger" />
+				<k-icon name="share-fill" size="24" color="info" />
+			</view>
+			<view class="demo-row">
+				<k-icon name="account-box-fill" size="24" color="#ff6b6b" />
+				<k-icon name="arrow-down-fill" size="24" color="#4ecdc4" />
+				<k-icon name="settings-fill" size="24" color="#45b7d1" />
+				<k-icon name="anticlockwise-2-fill" size="24" color="#f9ca24" />
+				<k-icon name="share-fill" size="24" color="#6c5ce7" />
+			</view>
+		</view>
+		
+		<!-- 加载状态 -->
+		<view class="section">
+			<text class="section-title">加载状态</text>
+			<view class="demo-row">
+				<k-icon name="settings-line" spin-speed="3s" size="24" loading />
+				<k-icon name="donut-chart-line" :spin-reverse="true" size="24" spin />
+				<k-icon name="settings-fill" size="24" :loading="isLoading" @click="toggleLoading" />
+			</view>
+			<text class="click-result">点击第三个图标，开始旋转2秒后停止</text>
+		</view>
+		
+		<!-- 禁用状态 -->
+		<view class="section">
+			<text class="section-title">禁用状态</text>
+			<view class="demo-row">
+				<k-icon name="settings-fill" size="24" disabled @click="handleIconClick('settings-fill')" />
+				<k-icon name="volume-up-line" size="24" disabled @click="handleIconClick('volume-up-line')" />
+				<k-icon name="chat-4-line" size="24" disabled @click="handleIconClick('chat-4-line')" />
+			</view>
+			<text class="click-result">当前图标有点击事件，但是点击不会被触发</text>
+		</view>
+		
+		<!-- 图片图标 -->
+		<view class="section">
+			<text class="section-title">图片图标</text>
+			<view class="demo-row">
+				<k-icon name="https://fastly.jsdelivr.net/npm/@vant/assets/icon-demo.png" size="32" />
+				<k-icon name="/static/logo.png" size="32" />
+				<k-icon name="tabler:alarm-plus" size="32" />
+			</view>
+		</view>
+		
+		<!-- 自定义样式 -->
+		<view class="section">
+			<text class="section-title">自定义样式</text>
+			<view class="demo-row">
+				<k-icon 
+					name="mic-line" 
+					size="32" 
+					color="#ff6b6b" 
+					custom-style="border: 2px solid #ff6b6b; border-radius: 100px; padding: 8px;"
+				/>
+				<k-icon 
+					name="music-line" 
+					size="32" 
+					color="#f9ca24" 
+					custom-style="background-image: linear-gradient(45deg, #f9ca24, #f0932b); border-radius: 8px; padding: 6px;"
+				/>
+			</view>
+		</view>
+		
+		<!-- 点击事件 -->
+		<view class="section">
+			<text class="section-title">点击事件</text>
+			<view class="demo-row">
+				<k-icon name="volume-up-line" size="24" @click="handleIconClick('volume-up-line')" />
+				<k-icon name="chat-3-line" size="24" @click="handleIconClick('chat-3-line')" />
+				<k-icon name="chat-4-line" size="24" @click="handleIconClick('chat-4-line')" />
+			</view>
+			<text class="click-result">{{ clickResult }}</text>
 		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
@@ -34,95 +126,81 @@
 </template>
 
 <script setup lang="uts">
-	import { ref, reactive } from 'vue'
-	import { getAllIconNames } from '@/uni_modules/kit-ui/components/k-icon/fonts/k-icon.uts'
-	// console.log('getAllIconNames', getIconNamesByType());
+import { ref } from 'vue'
 
-	// 响应式数据
-	const isLoading = ref(false)
-	const clickResult = ref('点击图标查看效果')
-	const allFillIcons = reactive(getAllIconNames())
-	// const allLineIcons = reactive(getIconNamesByType('line'))
-	// console.log(allFillIcons.length ,allLineIcons.length);
-	// 方法
-	function toggleLoading() {
-		isLoading.value = !isLoading.value
-		setTimeout(() => {
-			isLoading.value = false
-		}, 2000)
-	}
+// 响应式数据
+const isLoading = ref(false)
+const clickResult = ref('点击图标查看效果')
 
-	function handleIconClick(iconName : string) {
-		clickResult.value = `点击了 ${iconName} 图标 - ${new Date().toLocaleTimeString()}`
-	}
+// 方法
+function toggleLoading() {
+	isLoading.value = !isLoading.value
+	setTimeout(() => {
+		isLoading.value = false
+	}, 2000)
+}
+
+function handleIconClick(iconName: string) {
+	clickResult.value = `点击了 ${iconName} 图标 - ${new Date().toLocaleTimeString()}`
+}
 </script>
 
 <style lang="scss">
-	.page {
-		flex: 1;
-		background-color: var(--k-color-background, #f8f9fa);
-	}
+.page {
+	flex: 1;
+	background-color: var(--k-color-background, #f8f9fa);
+}
 
-	.page-header {
-		padding: 20px;
-		background-color: var(--k-color-white, #ffffff);
-		border-bottom: 1px solid var(--k-color-border, #ebeef5);
-		margin-bottom: 12px;
-	}
+.page-header {
+	padding: 20px;
+	background-color: var(--k-color-white, #ffffff);
+	border-bottom: 1px solid var(--k-color-border, #ebeef5);
+	margin-bottom: 12px;
+}
 
-	.page-title {
-		font-size: 24px;
-		font-weight: 400;
-		color: var(--k-color-text-primary, #303133);
-		margin-bottom: 8px;
-	}
+.page-title {
+	font-size: 24px;
+	font-weight: bold;
+	color: var(--k-color-text-primary, #303133);
+	margin-bottom: 8px;
+}
 
-	.page-desc {
-		font-size: 14px;
-		color: var(--k-color-text-secondary, #606266);
-	}
+.page-desc {
+	font-size: 14px;
+	color: var(--k-color-text-secondary, #606266);
+}
 
-	.section {
-		margin-bottom: 12px;
-		background-color: var(--k-color-white, #ffffff);
-		padding: 16px;
-	}
+.section {
+	margin-bottom: 12px;
+	background-color: var(--k-color-white, #ffffff);
+	border-radius: 8px;
+	padding: 16px;
+}
 
-	.section-title {
-		font-size: 16px;
-		font-weight: 400;
-		color: var(--k-color-text-primary, #303133);
-		margin-bottom: 12px;
-	}
+.section-title {
+	font-size: 16px;
+	font-weight: bold;
+	color: var(--k-color-text-primary, #303133);
+	margin-bottom: 12px;
+}
 
-	.icon-demo-row {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-wrap: wrap;
-	}
-	.icon-demo-item {
-		display: flex;
-		align-items: center;
-		align-items: center;
-		width:10%;
-		height: 40px;
-	}
+.demo-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	margin-bottom: 8px;
+	flex-wrap: wrap;
+}
 
-	.demo-desc {
-		font-size: 12px;
-		color: var(--k-color-text-secondary, #909399);
-		margin-top: 8px;
-	}
+.click-result {
+	font-size: 14px;
+	color: var(--k-color-text-secondary, #606266);
+	margin-top: 8px;
+}
 
-	.click-result {
-		font-size: 14px;
-		color: var(--k-color-text-secondary, #606266);
-		margin-top: 8px;
-	}
-
-	// 自定义字体示例 (实际使用时需要引入真实字体文件)
-	.custom-font {
-		font-family: 'custom-icons', sans-serif;
-	}
+// 自定义字体示例 (实际使用时需要引入真实字体文件)
+.custom-font {
+	font-family: 'custom-icons', sans-serif;
+}
 </style>

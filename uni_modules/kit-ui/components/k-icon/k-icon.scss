@@ -13,3 +13,24 @@
 	font-style: normal;
 	color: #333;
 }
+/* #ifdef WEB */
+
+.k-icon--loading {
+	animation: k-icon-loading 1s linear infinite;
+	transform: rotate(0);
+}
+
+.k-icon--loading-reverse {
+  animation-direction: reverse;
+}
+
+@keyframes k-icon-loading {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+/* #endif */

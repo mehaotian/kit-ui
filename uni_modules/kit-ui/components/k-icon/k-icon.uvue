@@ -1,29 +1,19 @@
 <script setup lang="uts">
 	import { computed, inject, ref } from 'vue'
 	import {
-		BUILTIN_ICONS,
-		ICON_SIZES,
-		ICON_COLORS,
 		IconType,
-		IconConfig,
-		DEFAULT_CONFIG,
 		getIconConfig,
-		setIconConfig,
-		isBuiltinIcon,
-		getBuiltinIcon,
 		isImageUrl,
 		isSvgIcon,
 		parseIconSize,
 		parseIconColor,
-		getCachedIcon,
-		setCachedIcon,
-		clearIconCache,
 		getIconUnicode,
 	} from './config.uts'
 
 	// 注入主题配置
 	const kitTheme = inject('kit-theme', null)
-
+	// 获取全局配置
+	const config = getIconConfig()
 	// Props 定义
 	interface Props {
 		name : string
@@ -35,8 +25,20 @@
 		loading ?: boolean
 		inherit ?: boolean
 		spin ?: boolean // 旋转动画
-		dot ?: boolean // 显示为圆点
-		badge ?: string// 徽标内容
+		spinSpeed ?: string // 旋转速度
+		spinReverse ?: boolean // 是否反向旋转
+	}
+
+	// SVG URL 构建函数
+	function buildSvgUrl(name : string) : string {
+		if (config.iconHost != null && config.iconHost != '') {
+			// 使用自定义图标服务器
+			return `${config.iconHost}/${name.replace(':', '/')}.svg`
+		}
+
+		// 使用 iconify API (需要网络)
+		const [collection, iconName] = name.split(':')
+		return `https://api.iconify.design/${collection}/${iconName}.svg`
 	}
 
 	const props = defineProps({
@@ -76,13 +78,13 @@
 			type: Boolean,
 			default: false
 		},
-		dot: {
+		spinSpeed: {
+			type: String,
+			default: '1s'
+		},
+		spinReverse: {
 			type: Boolean,
 			default: false
-		},
-		badge: {
-			type: String,
-			default: ''
 		}
 	})
 
@@ -94,8 +96,7 @@
 		load : []
 	}>()
 
-	// 获取全局配置
-	const config = getIconConfig()
+
 	// 图标类型检测
 	const iconType = computed(() : IconType => {
 		if (props.name == '') return 'slot'
@@ -136,9 +137,10 @@
 			return props.name
 		}
 
-		// if (iconType.value == 'svg') {
-		// 	return buildSvgUrl(props.name)
-		// }
+		if (iconType.value == 'svg') {
+			console.log(buildSvgUrl(props.name))
+			return buildSvgUrl(props.name)
+		}
 
 		return props.name
 	})
@@ -180,14 +182,10 @@
 
 		if (props.loading || props.spin) {
 			classes.push('k-icon--loading')
-		}
-
-		if (props.dot) {
-			classes.push('k-icon--dot')
-		}
-
-		if (props.badge != '' && props.badge != '0') {
-			classes.push('k-icon--badge')
+			// 是否正反转
+			if (props.spinReverse) {
+				classes.push('k-icon--loading-reverse')
+			}
 		}
 
 		if (iconType.value != 'slot') {
@@ -199,7 +197,6 @@
 
 	const iconStyle = computed(() : UTSJSONObject => {
 		const style : UTSJSONObject = {}
-
 		// 处理自定义样式
 		if (props.customStyle != '') {
 			if (typeof props.customStyle == 'string') {
@@ -217,7 +214,8 @@
 						}
 					}
 				}
-			}
+			} 
+			// TODO 只支持 string类型，通 style ，暂不支持对象格式
 			// else {
 			// 	// 对象样式
 			// 	const customObj = props.customStyle as UTSJSONObject
@@ -226,6 +224,12 @@
 			// 	}
 			// }
 		}
+
+		// 处理自定义旋转速度
+		if ((props.loading || props.spin) && props.spinSpeed != '1s') {
+			style['animation-duration'] = props.spinSpeed
+		}
+
 
 		return style
 	})
@@ -249,6 +253,7 @@
 	})
 
 	const imageStyle = computed(() : UTSJSONObject => {
+		console.log(iconSize.value)
 		return {
 			width: iconSize.value,
 			height: iconSize.value
@@ -272,29 +277,8 @@
 		return style
 	})
 
-	// 徽标文本处理
-	const badgeText = computed(() : string => {
-		if (typeof props.badge == 'number') {
-			// 数字徽标，超过 99 显示 99+
-			return parseInt(props.badge) > 99 ? '99+' : props.badge
-		}
-
-		// 文字徽标
-		return props.badge as string
-	})
 
 
-	// SVG URL 构建函数
-	function buildSvgUrl(name : string) : string {
-		if (config.iconHost != null && config.iconHost != '') {
-			// 使用自定义图标服务器
-			return `${config.iconHost}/${name.replace(':', '/')}.svg`
-		}
-
-		// 使用 iconify API (需要网络)
-		const [collection, iconName] = name.split(':')
-		return `https://api.iconify.design/${collection}/${iconName}.svg`
-	}
 
 	// 事件处理
 	function handleClick(event : any) {
@@ -315,29 +299,14 @@
 	}
 </script>
 <template>
-	<text v-if="iconType == 'text'" class="k-icon-font" :style="textStyle">{{ iconContent }}</text>
-	<!-- <view class="k-icon" :class="iconClass" :style="iconStyle" @click="handleClick"> -->
-	<!-- Unicode 字符图标 -->
-	<!-- v-if="iconType == 'text'"  -->
-	<!-- 图片图标 -->
-	<!-- <image 
-			v-else-if="iconType == 'image'" 
-			class="k-icon__image"
-			:src="iconContent"
-			:style="imageStyle"
-			mode="aspectFit"
-			@error="handleImageError"
-			@load="handleImageLoad"
-		/> -->
-
-	<!-- SVG 图标 (通过背景图片实现) -->
-	<!-- <view 
-			v-else-if="iconType == 'svg'" 
-			class="k-icon__svg"
-			:style="svgStyle"
-		></view> -->
-
-	<!-- </view> -->
+	<view class="kit-ui--root k-icon" :class="iconClass" :style="iconStyle" @click="handleClick">
+		<!-- 字体图标 -->
+		<text v-if="iconType == 'text'" class="k-icon-font" :style="textStyle">{{ iconContent }}</text>
+		<!-- 图片图标 -->
+		<image v-else-if="iconType == 'image'" class="k-icon__image" :src="iconContent" :style="imageStyle" mode="aspectFit" @error="handleImageError" @load="handleImageLoad" />
+		<!-- SVG 图标 (通过背景图片实现) -->
+		<view v-else-if="iconType == 'svg'" class="k-icon__svg" :style="svgStyle"></view>
+	</view>
 </template>
 <style lang="scss">
 	@import "../../theme/index.scss";

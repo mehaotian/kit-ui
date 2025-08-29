@@ -14,9 +14,9 @@
 		mode ?: 'light' | 'dark'
 	}>()
 
-	let themeTempObj = {}
+	let themeTempObj = {} as UTSJSONObject
 	if (props.theme != null) {
-		themeTempObj = UTSJSONObject.assign(themeTempObj, props.theme)
+		themeTempObj = UTSJSONObject.assign(themeTempObj, props.theme as UTSJSONObject)
 	}
 
 	// 创建响应式主题配置

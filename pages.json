@@ -26,6 +26,12 @@
 			{
 				"navigationBarTitleText" : "图标"
 			}
+		},
+		{
+			"path": "pages/icon-list/icon-list",
+			"style": {
+				"navigationBarTitleText": ""
+			}
 		}
 	],
 	"globalStyle": {

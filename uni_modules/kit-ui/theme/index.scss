@@ -18,6 +18,7 @@
   --k-color-success: #{$k-color-success};
   --k-color-warning: #{$k-color-warning};
   --k-color-error: #{$k-color-error};
+	--k-color-danger:#{$k-color-error};
   --k-color-info: #{$k-color-info};
   
   /* 渐变色彩 */
@@ -25,6 +26,7 @@
   --k-gradient-success: #{$k-gradient-success};
   --k-gradient-warning: #{$k-gradient-warning};
   --k-gradient-error: #{$k-gradient-error};
+	--k-gradient-danger:#{$k-gradient-error};
   --k-gradient-info: #{$k-gradient-info};
   
   /* 文本颜色 */
@@ -114,6 +116,7 @@
   --k-shadow-success: #{$k-shadow-success};
   --k-shadow-warning: #{$k-shadow-warning};
   --k-shadow-error: #{$k-shadow-error};
+  --k-shadow-danger: #{$k-shadow-error};
 }
 
 /* ==================== 暗色主题 ==================== */
@@ -190,6 +193,7 @@
 .k-text-success { color: var(--k-color-success); }
 .k-text-warning { color: var(--k-color-warning); }
 .k-text-error { color: var(--k-color-error); }
+.k-text-danger { color: var(--k-color-error); }
 .k-text-info { color: var(--k-color-info); }
 
 /* 字体大小 */

@@ -10,8 +10,8 @@
 
 				<!-- 默认主题配置 -->
 				<view class="demo-group">
-					<text class="group-title">默认主题（成功色为红色）</text>
-					<k-config>
+					<text class="group-title">默认主题</text>
+					<k-config >
 						<view class="button-group">
 							<k-button type="success" text="成功按钮" />
 							<k-button type="primary" text="主要按钮" />

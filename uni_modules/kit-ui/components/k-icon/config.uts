@@ -137,6 +137,11 @@ export function parseIconSize(size : string | number) : string {
 		return ICON_SIZES[sizeStr] as string
 	}
 
+	// 检查是否为纯数字字符串
+	if (/^\d+$/.test(sizeStr)) {
+		return sizeStr + 'px'
+	}
+
 	// 直接返回原始值
 	return sizeStr
 }
@@ -176,21 +181,15 @@ export function getCachedIcon(key : string) : string | null {
 	return null
 }
 
-export function setCachedIcon(key : string, data : string) : void {
-	if (globalConfig.enableCache != null) {
-		return
-	}
+// export function setCachedIcon(key : string, data : string) : void {
+// 	if (globalConfig.enableCache != null) {
+// 		return
+// 	}
 
-	// const expire = Date.now() + (globalConfig.cacheExpire ?? DEFAULT_CONFIG.cacheExpire!)
-	const expire = ''
-	iconCache[key] = {
-		data: data,
-		expire: expire
-	}
-}
-
-export function clearIconCache() : void {
-	for (const key in iconCache) {
-		delete iconCache[key]
-	}
-}
+// 	// const expire = Date.now() + (globalConfig.cacheExpire ?? DEFAULT_CONFIG.cacheExpire!)
+// 	const expire = ''
+// 	iconCache[key] = {
+// 		data: data,
+// 		expire: expire
+// 	}
+// }
