@@ -126,7 +126,7 @@
 			name: '导航组件',
 			description: '页面导航和路由组件',
 			icon: 'car-line',
-			color: 'linear-gradient(to bootom right, #4facfe 0%, #00f2fe 100%)',
+			color: 'linear-gradient(to bootom right, #4facfe, #00f2fe)',
 			count: 6,
 			path: '/pages/category/navigation',
 			components: [
@@ -142,7 +142,7 @@
 			name: '展示组件',
 			description: '数据展示和内容呈现',
 			icon: 'layout-3-line',
-			color: 'linear-gradient(to bootom right, #43e97b 0%, #38f9d7 100%)',
+			color: 'linear-gradient(to bootom right, #43e97b, #38f9d7)',
 			count: 10,
 			path: '/pages/category/display',
 			components: [
@@ -162,7 +162,7 @@
 			name: '业务组件',
 			description: '常见业务场景组件',
 			icon: 'code-box-line',
-			color: 'linear-gradient(to bootom right, #ff9a9e 0%, #fecfef 100%)',
+			color: 'linear-gradient(to bootom right, #ff9a9e, #fecfef)',
 			count: 8,
 			path: '/pages/category/business',
 			components: [

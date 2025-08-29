@@ -1,5 +1,5 @@
 <script setup lang="uts">
-	import { computed, inject, ref } from 'vue'
+	import { computed, inject, ref, onMounted, onBeforeUnmount, watch } from 'vue'
 	import {
 		IconType,
 		getIconConfig,
@@ -24,21 +24,10 @@
 		disabled ?: boolean
 		loading ?: boolean
 		spin ?: boolean // 旋转动画
-		spinSpeed ?: string // 旋转速度
+		spinSpeed ?: number // 旋转速度
 		spinReverse ?: boolean // 是否反向旋转
 	}
 
-	// SVG URL 构建函数
-	function buildSvgUrl(name : string) : string {
-		if (config.iconHost != null && config.iconHost != '') {
-			// 使用自定义图标服务器
-			return `${config.iconHost}/${name.replace(':', '/')}.svg`
-		}
-
-		// 使用 iconify API (需要网络)
-		const [collection, iconName] = name.split(':')
-		return `https://api.iconify.design/${collection}/${iconName}.svg`
-	}
 
 	const props = defineProps({
 		// 图标名称，可以是内置图标名、图片URL或SVG图标名（格式：collection:name）
@@ -83,8 +72,8 @@
 		},
 		// 旋转速度
 		spinSpeed: {
-			type: String,
-			default: '1s'
+			type: Number,
+			default: 1000
 		},
 		// 是否反向旋转
 		spinReverse: {
@@ -92,6 +81,92 @@
 			default: false
 		}
 	})
+
+
+	// 旋转动画相关
+	// 旋转角度
+	const rotateAngle = ref(0)
+	// 动画帧ID
+	const animationFrameId = ref<number | null>(null)
+
+	/**
+	 * 停止旋转动画
+	 */
+	function stopRotateAnimation() {
+		if (animationFrameId.value != null) {
+			cancelAnimationFrame(animationFrameId.value)
+			animationFrameId.value = null
+		}
+	}
+
+	/**
+	 * 启动旋转动画
+	 */
+	function startRotateAnimation() {
+		// 如果已经有动画在运行，先停止
+		stopRotateAnimation()
+
+		// 计算每帧旋转角度
+		// 默认速度为1000ms旋转一圈，即每帧约6度（假设60fps）
+		let degreePerFrame = 6
+
+		// 解析spinSpeed字符串，提取数值部分
+		// 只保留数字部分
+		let speed = props.spinSpeed
+		// let speed = parseFloat(speedValue)
+
+		// 确保解析出有效数字
+		if (!isNaN(speed) && speed > 0) {
+			// 基准：spinSpeed=1000ms时，每帧旋转6度
+			degreePerFrame = 360 / (speed / 16.7) // 16.7ms约等于一帧的时间(60fps)
+
+			// 限制每帧最大旋转角度，避免旋转过快
+			if (degreePerFrame > 15) {
+				degreePerFrame = 15
+			}
+		}
+
+		// 动画函数
+		function animate() {
+			// 根据旋转方向增加或减少角度
+			if (props.spinReverse) {
+				rotateAngle.value -= degreePerFrame // 逆时针
+				if (rotateAngle.value < 0) {
+					rotateAngle.value += 360
+				}
+			} else {
+				rotateAngle.value += degreePerFrame // 顺时针
+				if (rotateAngle.value >= 360) {
+					rotateAngle.value -= 360
+				}
+			}
+
+			// 继续下一帧
+			animationFrameId.value = requestAnimationFrame(() => {
+				animate()
+			})
+		}
+
+		// 开始动画
+		animationFrameId.value = requestAnimationFrame(() => {
+			animate()
+		})
+	}
+
+
+
+	// SVG URL 构建函数
+	function buildSvgUrl(name : string) : string {
+		if (config.iconHost != null && config.iconHost != '') {
+			// 使用自定义图标服务器
+			return `${config.iconHost}/${name.replace(':', '/')}.svg`
+		}
+
+		// 使用 iconify API (需要网络)
+		const [collection, iconName] = name.split(':')
+		return `https://api.iconify.design/${collection}/${iconName}.svg`
+	}
+
 
 
 	// Events 定义
@@ -197,6 +272,16 @@
 
 	const iconStyle = computed(() : UTSJSONObject => {
 		const style : UTSJSONObject = {}
+
+		// #ifdef APP
+		// 处理旋转动画
+		if (props.loading || props.spin) {
+			// 使用requestAnimationFrame计算的旋转角度
+			style.transform = `rotate(${rotateAngle.value}deg)`
+		}
+		// #endif
+
+
 		// 处理自定义样式
 		if (props.customStyle != '') {
 			if (typeof props.customStyle == 'string') {
@@ -226,8 +311,8 @@
 		}
 
 		// 处理自定义旋转速度
-		if ((props.loading || props.spin) && props.spinSpeed != '1s') {
-			style['animation-duration'] = props.spinSpeed
+		if ((props.loading || props.spin) && props.spinSpeed != 1000) {
+			style['animation-duration'] = (props.spinSpeed / 1000) + 's'
 		}
 
 
@@ -280,20 +365,66 @@
 
 
 	// 事件处理
-	function handleClick(event : any) {
+	function handleClick(event : UniEvent) {
 		if (props.disabled || props.loading) {
 			return
 		}
 		emit('click', event)
 	}
 
-	function handleImageError(error : any) {
+	function handleImageError(error : UniError) {
 		emit('error', error)
 	}
 
 	function handleImageLoad() {
 		emit('load')
 	}
+
+
+	// 监听组件挂载
+	onMounted(() => {
+		// #ifdef APP
+		// 如果需要旋转，启动动画
+		if (props.loading || props.spin) {
+			startRotateAnimation()
+		}
+		// #endif
+	})
+
+	// 监听组件卸载
+	onBeforeUnmount(() => {
+		// 停止动画
+		stopRotateAnimation()
+	})
+
+	const load = computed(() => props.loading)
+	watch(load, (loading : boolean) => {
+		if (loading) {
+			startRotateAnimation()
+		} else {
+			stopRotateAnimation()
+		}
+	})
+	// 监听 loading 和 spin 属性变化
+	// watch(props.loading,
+	// 	(loading : boolean) => {
+	// 		if (loading) {
+	// 			startRotateAnimation()
+	// 		} else {
+	// 			stopRotateAnimation()
+	// 		}
+	// 	}
+	// )
+	const spin_speed = computed(() => props.spinSpeed)
+	// 监听旋转速度变化
+	watch(spin_speed,
+		() => {
+			// 如果正在旋转，重启动画以应用新速度
+			if (props.loading || props.spin) {
+				startRotateAnimation()
+			}
+		}
+	)
 </script>
 <template>
 	<view class="kit-ui--root k-icon" :class="iconClass" :style="iconStyle" @click="handleClick">
