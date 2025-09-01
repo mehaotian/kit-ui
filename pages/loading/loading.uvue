@@ -22,8 +22,8 @@
             <text class="demo-label">Dots</text>
           </view>
           <view class="demo-item">
-            <k-loading type="bars" />
-            <text class="demo-label">Bars</text>
+            <k-loading type="bands" />
+            <text class="demo-label">Bands</text>
           </view>
           <view class="demo-item">
             <k-loading type="pulse" />
@@ -140,7 +140,7 @@
             <k-loading type="dots" text="请稍候" color="success" />
           </view>
           <view class="demo-item-full">
-            <k-loading type="bars" text="数据处理中" color="warning" size="lg" />
+            <k-loading type="bands" text="数据处理中" color="warning" size="lg" />
           </view>
         </view>
       </view>
@@ -171,7 +171,7 @@
             <k-loading type="dots" color="success" size="md" text="Dots" />
           </view>
           <view class="demo-item">
-            <k-loading type="bars" color="warning" size="sm" text="Bars" />
+            <k-loading type="bands" color="warning" size="sm" text="Bands" />
           </view>
           <view class="demo-item">
             <k-loading type="pulse" color="danger" size="xl" text="Pulse" />
@@ -278,7 +278,9 @@ const hideOverlay = () => {
 
 .page-header {
   margin-bottom: 30px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .page-title {
@@ -315,13 +317,11 @@ const hideOverlay = () => {
 .demo-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
 }
 
 .demo-column {
   display: flex;
   flex-direction: column;
-  gap: 15px;
 }
 
 .demo-item {
@@ -360,7 +360,6 @@ const hideOverlay = () => {
   padding: 12px 20px;
   background-color: #007AFF;
   border-radius: 6px;
-  cursor: pointer;
 }
 
 .button-text {

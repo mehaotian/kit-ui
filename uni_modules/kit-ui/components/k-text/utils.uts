@@ -133,9 +133,9 @@ export function formatDate(value : string | number, options : DateFormatOptions 
  * @returns 格式化后的金额字符串
  */
 export function formatPrice(value : string | number, options : PriceFormatOptions = {}) : string {
-	if (value == null) {
-		return ''
-	}
+	// if (value == null) {
+	// 	return ''
+	// }
 
 	// 默认选项
 	const digits = options.digits ?? 2
@@ -194,9 +194,9 @@ export function maskText(value : string, options : MaskOptions = {}) : string {
 		case 'email': {
 			// 邮箱脱敏: 邮箱名称显示前3个字符，其余用*代替，@后面的域名显示完整
 			const parts = value.split('@')
-			if (parts.length !== 2) {
-				return value
-			}
+			// if (parts.length != 2) {
+			// 	return value
+			// }
 			const name = parts[0]
 			const domain = parts[1]
 			if (name.length <= 3) {

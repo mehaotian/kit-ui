@@ -85,11 +85,13 @@
 // Spinner 旋转加载器
 .k-loading-spinner {
   border: 2px solid rgba(0, 0, 0, 0.1);
-  border-left-color: currentColor;
-  border-radius: 50%;
+  border-left-color: #007AFF; // 默认颜色
+  border-radius: 100px; // 使用具体数值替代百分比，App端不支持百分比圆角
   width: 100%;
   height: 100%;
+  // #ifndef APP
   animation: k-loading-spin 1s linear infinite;
+  // #endif
   
   // 颜色主题
   &--primary {
@@ -124,8 +126,9 @@
   .k-loading-dot {
     width: 20%;
     height: 20%;
-    border-radius: 50%;
-    background-color: currentColor;
+    border-radius: 10px; // 使用具体数值替代百分比
+    background-color: #007AFF; // 默认颜色
+    // #ifndef APP
     animation: k-loading-dots 1.4s ease-in-out infinite both;
     
     &:nth-child(1) {
@@ -139,6 +142,7 @@
     &:nth-child(3) {
       animation-delay: 0s;
     }
+		// #endif
   }
   
   // 颜色主题
@@ -163,9 +167,10 @@
   }
 }
 
-// Bars 条状加载器
-.k-loading-bars {
+// bands 条状加载器
+.k-loading-bands {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   width: 100%;
@@ -174,28 +179,30 @@
   .k-loading-bar {
     width: 15%;
     height: 100%;
-    background-color: currentColor;
-    animation: k-loading-bars 1.2s ease-in-out infinite;
+    background-color: #007AFF; // 默认颜色
+    // #ifndef APP
+    animation: k-loading-bands 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     
     &:nth-child(1) {
-      animation-delay: -1.2s;
+      animation-delay: -3s;
     }
     
     &:nth-child(2) {
-      animation-delay: -1.1s;
+      animation-delay: -2.4s;
     }
     
     &:nth-child(3) {
-      animation-delay: -1.0s;
+      animation-delay: -1.8s;
     }
     
     &:nth-child(4) {
-      animation-delay: -0.9s;
+      animation-delay: -1.2s;
     }
     
     &:nth-child(5) {
-      animation-delay: -0.8s;
+      animation-delay: -0.6s;
     }
+		// #endif
   }
   
   // 颜色主题
@@ -224,9 +231,11 @@
 .k-loading-pulse {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  background-color: currentColor;
+  border-radius: 100px; // 使用具体数值替代百分比
+  background-color: #007AFF; // 默认颜色
+  // #ifndef APP
   animation: k-loading-pulse 1.5s ease-in-out infinite;
+  // #endif
   
   // 颜色主题
   &--primary {
@@ -334,14 +343,30 @@
   }
 }
 
-@keyframes k-loading-bars {
-  0%, 40%, 100% {
-    transform: scaleY(0.4);
-    opacity: 0.5;
+@keyframes k-loading-bands {
+  0% {
+    transform: scaleY(0.3);
+    opacity: 0.6;
   }
   20% {
     transform: scaleY(1);
     opacity: 1;
+  }
+  40% {
+    transform: scaleY(0.6);
+    opacity: 0.8;
+  }
+  60% {
+    transform: scaleY(0.3);
+    opacity: 0.6;
+  }
+  80% {
+    transform: scaleY(0.8);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scaleY(0.3);
+    opacity: 0.6;
   }
 }
 

@@ -98,6 +98,7 @@
 		/* #endif */
    
   }
+  /* #ifdef WEB || MP-WEIXIN */
   
   /* 文本装饰 */
   &--decoration-underline {
@@ -108,6 +109,7 @@
     text-decoration: line-through;
   }
   
+	/* #endif */
   /* 文本对齐 */
   &--align-center {
     text-align: center;
