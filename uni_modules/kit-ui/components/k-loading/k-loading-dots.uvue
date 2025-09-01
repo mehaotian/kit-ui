@@ -1,0 +1,174 @@
+<script setup lang="uts">
+	import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+	import { parseLoadingColor, LOADING_COLORS } from './utils.uts'
+
+	// 组件属性定义
+	const props = defineProps({
+		// 尺寸：xs, sm, md, lg, xl 或自定义数值（如 '24', '32px'）
+		size: {
+			type: String,
+			default: 'md'
+		},
+		// 颜色主题：primary, success, warning, danger, info 或自定义颜色值
+		color: {
+			type: String,
+			default: 'primary'
+		}
+	})
+
+	// #ifdef APP
+	// 动画相关变量
+	const animationFrameId = ref<number | null>(null)
+	const dotAnimationStates = ref<number[]>([0, 0, 0]) // dots 动画状态
+
+	/**
+	 * 停止动画
+	 */
+	function stopAnimation() {
+		if (animationFrameId.value != null) {
+			cancelAnimationFrame(animationFrameId.value)
+			animationFrameId.value = null
+		}
+	}
+
+	/**
+	 * 启动 Dots 动画
+	 */
+	function startDotsAnimation() {
+		stopAnimation()
+
+		let lastTimestamp = 0
+		const cycleDuration = 1400 // 1.4秒一个周期
+		const delays = [-320, -160, 0] // 每个点的延迟
+
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				// const deltaTime = timestamp - lastTimestamp
+
+				for (let i = 0; i < 3; i++) {
+					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
+
+					if (progress < 0.4) {
+						// 0-40%: 缩放从0到1
+						dotAnimationStates.value[i] = (progress / 0.4) as number
+					} else if (progress < 0.8) {
+						// 40-80%: 保持1
+						dotAnimationStates.value[i] = 1
+					} else {
+						// 80-100%: 缩放从1到0
+						dotAnimationStates.value[i] = (1 - (progress - 0.8) / 0.2) as number
+					}
+				}
+			}
+			lastTimestamp = timestamp
+
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	// 生命周期钩子
+	onMounted(() => {
+		startDotsAnimation()
+	})
+
+	onBeforeUnmount(() => {
+		stopAnimation()
+	})
+	// #endif
+
+	// 计算加载器颜色
+	const loadingColor = computed(() : string => {
+		return parseLoadingColor(props.color)
+	})
+
+	// Dots 样式类
+	const dotsClass = computed(() : string => {
+		let classes = ''
+		// 只有预设尺寸才添加尺寸类
+		if (props.size == 'xs' || props.size == 'sm' || props.size == 'md' || props.size == 'lg' || props.size == 'xl') {
+			classes += `k-loading-dots--${props.size} `
+		}
+		// 只有预设颜色才添加颜色类
+		if (LOADING_COLORS.has(props.color)) {
+			classes += `k-loading-dots--${props.color}`
+		}
+		return classes
+	})
+
+	// Dots 样式
+	const dotsStyle = computed(() : string => {
+		let style = ''
+		// 处理自定义尺寸
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			// 解析数值用于计算点的大小
+			const numericValue = parseFloat(sizeValue)
+			if (!isNaN(numericValue)) {
+				// 点的大小约为容器尺寸的1/4，最小4px
+				const dotSize = Math.max(4, numericValue / 4)
+				// 点之间的间距约为点大小的1/2
+				const gap = Math.max(2, dotSize / 2)
+				style += `width: ${sizeValue}; height: ${dotSize}px; gap: ${gap}px;`
+			}
+		}
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `background-color: ${color};`
+		}
+		return style
+	})
+
+	// 单个点的样式
+	const dotStyle = computed(() : string => {
+		let style = ''
+		// 处理自定义尺寸的单个点样式
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			// 解析数值用于计算点的大小
+			const numericValue = parseFloat(sizeValue)
+			if (!isNaN(numericValue)) {
+				// 点的大小约为容器尺寸的1/4，最小4px
+				const dotSize = Math.max(4, numericValue / 4)
+				style += `width: ${dotSize}px; height: ${dotSize}px;`
+			}
+		}
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `background-color: ${color};`
+		}
+		return style
+	})
+</script>
+
+<template>
+	<!-- #ifdef APP -->
+	<view class="k-loading-dots" :class="dotsClass" :style="dotsStyle">
+		<view class="k-loading-dot" v-for="(state, i) in dotAnimationStates" :key="i" :style="`transform: scale(${state}); ${dotStyle}`"></view>
+	</view>
+	<!-- #endif -->
+	<!-- #ifndef APP -->
+	<view class="k-loading-dots" :class="dotsClass" :style="dotsStyle">
+		<view class="k-loading-dot" v-for="i in 3" :key="i" :style="dotStyle"></view>
+	</view>
+	<!-- #endif -->
+</template>
+
+<style lang="scss" scoped>
+	@import './k-loading.scss';
+</style>

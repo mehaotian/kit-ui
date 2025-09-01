@@ -2,7 +2,7 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		<view class="page">
+		<view class="">
 			<!-- 头部区域 -->
 			<view class="header">
 				<view class="header-content">
@@ -206,7 +206,7 @@
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	/* 头部区域 */
 	.header {
 		position: relative;
@@ -381,10 +381,11 @@
 
 	/* 分类列表样式 */
 	.category-list {
-		padding-top: 0;
-		padding-right: 20px;
-		padding-bottom: 40px;
-		padding-left: 20px;
+		// padding-top: 0;
+		// padding-right: 20px;
+		// padding-bottom: 40px;
+		// padding-left: 20px;
+		padding: 20px;
 	}
 
 	.category-card {

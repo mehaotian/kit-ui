@@ -1,0 +1,171 @@
+<script setup lang="uts">
+	import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+	import { parseLoadingColor, LOADING_COLORS } from './utils.uts'
+
+	// 组件属性定义
+	const props = defineProps({
+		// 尺寸：xs, sm, md, lg, xl 或自定义数值（如 '24', '32px'）
+		size: {
+			type: String,
+			default: 'md'
+		},
+		// 颜色主题：primary, success, warning, danger, info 或自定义颜色值
+		color: {
+			type: String,
+			default: 'primary'
+		}
+	})
+
+	// #ifdef APP
+	// 动画相关变量
+	const animationFrameId = ref<number | null>(null)
+	const waveAnimationStates = ref<number[]>([0, 0, 0, 0, 0]) // wave 动画状态
+
+	/**
+	 * 停止动画
+	 */
+	function stopAnimation() {
+		if (animationFrameId.value != null) {
+			cancelAnimationFrame(animationFrameId.value)
+			animationFrameId.value = null
+		}
+	}
+
+	/**
+	 * 启动 Wave 波浪动画（从右到左的垂直方向动画）
+	 */
+	function startWaveAnimation() {
+		stopAnimation()
+
+		let lastTimestamp = 0
+		const cycleDuration = 1200 // 1.2秒一个周期
+		const delays = [-1200, -1100, -1000, -900, -800] // 每个条的延迟，从右到左
+
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				// const deltaTime = timestamp - lastTimestamp
+
+				for (let i = 0; i < 5; i++) {
+					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
+
+					if (progress < 0.4) {
+						// 0-40%: 高度从0.4到1
+						waveAnimationStates.value[i] = 0.4 + (progress / 0.4) * 0.6
+					} else {
+						// 40-100%: 高度从1到0.4
+						waveAnimationStates.value[i] = 1 - (progress - 0.4) / 0.6 * 0.6
+					}
+				}
+			}
+			lastTimestamp = timestamp
+
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	// 生命周期钩子
+	onMounted(() => {
+		startWaveAnimation()
+	})
+
+	onBeforeUnmount(() => {
+		stopAnimation()
+	})
+	// #endif
+
+	// 计算加载器颜色
+	const loadingColor = computed(() : string => {
+		return parseLoadingColor(props.color)
+	})
+
+	// wave 样式类
+	const waveClass = computed(() : string => {
+		let classes = ''
+		// 只有预设尺寸才添加尺寸类
+		if (props.size == 'xs' || props.size == 'sm' || props.size == 'md' || props.size == 'lg' || props.size == 'xl') {
+			classes += `k-loading-wave--${props.size} `
+		}
+		// 只有预设颜色才添加颜色类
+		if (LOADING_COLORS.has(props.color)) {
+			classes += `k-loading-wave--${props.color}`
+		}
+		return classes
+	})
+
+	// wave 样式
+	const waveStyle = computed(() : string => {
+		let style = ''
+		// 处理自定义尺寸
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			// 解析数值用于计算波浪的大小
+			const numericValue = parseFloat(sizeValue)
+			if (!isNaN(numericValue)) {
+				// 波浪条宽度约为容器尺寸的1/8，最小2px
+				const barWidth = Math.max(2, numericValue / 8)
+				// 波浪条之间的间距约为条宽的1/2
+				const gap = Math.max(1, barWidth / 2)
+				style += `width: ${sizeValue}; height: ${sizeValue}; gap: ${gap}px;`
+			}
+		}
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `background-color: ${color};`
+		}
+		return style
+	})
+
+	// 单个波浪条的样式
+	const barStyle = computed(() : string => {
+		let style = ''
+		// 处理自定义尺寸的单个波浪条样式
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			// 解析数值用于计算波浪条的大小
+			const numericValue = parseFloat(sizeValue)
+			if (!isNaN(numericValue)) {
+				// 波浪条宽度约为容器尺寸的1/8，最小2px
+				const barWidth = Math.max(2, numericValue / 8)
+				style += `width: ${barWidth}px; height: ${sizeValue};`
+			}
+		}
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `background-color: ${color};`
+		}
+		return style
+	})
+</script>
+
+<template>
+	<!-- #ifdef APP -->
+	<view class="k-loading-wave" :class="waveClass" :style="waveStyle">
+		<view class="k-loading-bar" v-for="(state, i) in waveAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${barStyle}`"></view>
+	</view>
+	<!-- #endif -->
+	<!-- #ifndef APP -->
+	<view class="k-loading-wave" :class="waveClass" :style="waveStyle">
+		<view class="k-loading-bar" v-for="i in 5" :key="i" :style="barStyle"></view>
+	</view>
+	<!-- #endif -->
+</template>
+
+<style lang="scss" scoped>
+	@import './k-loading.scss';
+</style>

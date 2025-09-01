@@ -2,38 +2,44 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		<view class="content">
-			<view class="text-area">
-				<text class="title">{{title}}</text>
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-button 按钮组件</text>
+				<text class="page-desc">常用按钮</text>
 			</view>
-			<!-- k-button 主题演示 -->
-			<view class="demo-section">
-				<text class="demo-title">按钮类型演示</text>
-				<view class="demo-row">
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+				</view>
+				<view class="demo-column">
 					<k-button class="k-btn" type="default" text="默认按钮" @click="handleClick('default')"></k-button>
 					<k-button class="k-btn" type="primary" text="主要按钮" @click="handleClick('primary')"></k-button>
 					<k-button class="k-btn" type="success" text="成功按钮" @click="handleClick('success')"></k-button>
-				</view>
-				<view class="demo-row">
 					<k-button class="k-btn" type="warning" text="警告按钮" @click="handleClick('warning')"></k-button>
 					<k-button class="k-btn" type="danger" text="危险按钮" @click="handleClick('danger')"></k-button>
 				</view>
 			</view>
 
-			<view class="demo-section">
-				<text class="demo-title">朴素按钮</text>
-				<view class="demo-row">
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">朴素按钮</text>
+				</view>
+				<view class="demo-column">
 					<k-button class="k-btn" plain text="默认按钮" @click="handleClick('plain-primary')"></k-button>
 					<k-button class="k-btn" type="primary" plain text="朴素主要" @click="handleClick('plain-primary')"></k-button>
 					<k-button class="k-btn" type="success" plain text="朴素成功" @click="handleClick('plain-success')"></k-button>
 					<k-button class="k-btn" type="warning" plain text="朴素警告" @click="handleClick('plain-warning')"></k-button>
 					<k-button class="k-btn" type="danger" plain text="朴素危险" @click="handleClick('plain-danger')"></k-button>
+
 				</view>
 			</view>
-			
-			<view class="demo-section">
-				<text class="demo-title">渐变按钮</text>
-				<view class="demo-row">
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">渐变按钮</text>
+				</view>
+				<view class="demo-column">
 					<k-button class="k-btn" type="primary" gradient>渐变主要</k-button>
 					<k-button class="k-btn" type="success" gradient>渐变成功</k-button>
 					<k-button class="k-btn" type="warning" gradient>渐变警告</k-button>
@@ -41,46 +47,47 @@
 				</view>
 			</view>
 
-			<view class="demo-section">
-				<text class="demo-title">按钮尺寸</text>
-				<view class="demo-row">
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">按钮尺寸</text>
+				</view>
+				<view class="demo-column">
 					<k-button class="k-btn" type="primary" size="small" text="小按钮" @click="handleClick('small')"></k-button>
 					<k-button class="k-btn" type="primary" size="medium" text="中按钮" @click="handleClick('medium')"></k-button>
 					<k-button class="k-btn" type="primary" size="large" text="大按钮" @click="handleClick('large')"></k-button>
+
 				</view>
 			</view>
 
-			<view class="demo-section">
-				<text class="demo-title">特殊形状</text>
-				<view class="demo-row">
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">特殊形状</text>
+				</view>
+				<view class="demo-column">
 					<k-button class="k-btn" type="primary" round size="small" text="圆角按钮" @click="handleClick('round')"></k-button>
 					<k-button class="k-btn" type="primary" round text="圆角按钮" @click="handleClick('round')"></k-button>
 					<k-button class="k-btn" type="primary" round size="large" text="圆角按钮" @click="handleClick('round')"></k-button>
-					<k-button class="k-btn" type="primary" circle size="small" text="+" @click="handleClick('small')"></k-button>
-					<k-button class="k-btn" type="primary" circle text="+" @click="handleClick('circle')">字</k-button>
-					<k-button class="k-btn" type="primary" circle size="large" text="+" @click="handleClick('small')"></k-button>
 
+					<view class="demo-row">
+
+						<k-button class="k-btn" type="primary" circle size="small" text="+" @click="handleClick('small')"></k-button>
+						<k-button class="k-btn" type="primary" circle text="+" @click="handleClick('circle')">字</k-button>
+						<k-button class="k-btn" type="primary" circle size="large" text="+" @click="handleClick('small')"></k-button>
+					</view>
 				</view>
 			</view>
 
-			<view class="demo-section">
-				<text class="demo-title">按钮状态</text>
-				<view class="demo-row">
-					<!-- <k-button type="primary" :loading="isLoading" text="加载按钮" @click="handleLoading"></k-button> -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">按钮状态</text>
+				</view>
+				<view class="demo-column">
 					<k-button class="k-btn" disabled>禁用按钮</k-button>
 					<k-button class="k-btn" type="primary" disabled>禁用按钮</k-button>
 					<k-button class="k-btn" type="success" disabled gradient>禁用渐变</k-button>
 				</view>
 			</view>
 
-			<!--<view class="demo-section">
-			<text class="demo-title">带图标按钮</text>
-			<view class="demo-row">
-				<k-button type="primary" icon="★" text="收藏" @click="handleClick('icon-star')"></k-button>
-				<k-button type="success" icon="✓" text="确认" @click="handleClick('icon-check')"></k-button>
-				<k-button type="danger" icon="✕" text="删除" @click="handleClick('icon-delete')"></k-button>
-			</view>
-		</view> -->
 		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
@@ -130,59 +137,7 @@
 </script>
 
 <style lang="scss">
-	.content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 10px;
-		background-color: #f5f5f5;
-	}
-
-	.text-area {
-
-		display: flex;
-		justify-content: center;
-		margin-bottom: 60rpx;
-	}
-
-	.title {
-		font-size: 32rpx;
-		font-weight: 400;
-		color: var(--k-text-color-primary, #333);
-		text-align: center;
-	}
-
 	.k-btn {
-		margin-bottom: 10px;
-	}
-
-	.demo-section {
-		width: 100%;
-		padding: 10px;
-		margin: 10px;
-		border-radius: 10px;
-		background-color: var(--k-bg-color-container, #fff);
-		box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
-	}
-
-	.demo-title {
-		font-size: 28rpx;
-		font-weight: 400;
-		color: var(--k-text-color-primary, #333);
-		margin-bottom: 32rpx;
-		text-align: center;
-	}
-
-	.demo-row {
-		display: flex;
-		// flex-direction:row;
-		// flex-wrap: wrap;
-		justify-content: center;
-		align-items: center;
-		margin-bottom: 24rpx;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
+		margin: 10px 0;
 	}
 </style>

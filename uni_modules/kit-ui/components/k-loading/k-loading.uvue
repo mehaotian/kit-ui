@@ -1,7 +1,15 @@
 <script setup lang="uts">
-	import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
-	// import loadCircle from './load-circle.uvue'
+	import { computed } from 'vue'
 	import { parseLoadingSize, parseLoadingColor, LOADING_SIZES, LOADING_COLORS } from './utils.uts'
+	import KLoadSpinner from './k-loading-spinner.uvue'
+	import KLoadDots from './k-loading-dots.uvue'
+	import KLoadBands from './k-loading-bands.uvue'
+	import KLoadWave from './k-loading-wave.uvue'
+	import KLoadPulse from './k-loading-pulse.uvue'
+
+
+
+
 
 	// 组件属性定义
 	const props = defineProps({
@@ -62,238 +70,6 @@
 		return parseLoadingSize(props.size)
 	})
 
-	// #ifdef APP
-	// 动画相关变量
-	const rotateAngle = ref(0)
-	const scaleValue = ref(1)
-	const opacityValue = ref(1)
-	const animationFrameId = ref<number | null>(null)
-	const dotAnimationStates = ref<number[]>([0, 0, 0]) // dots 动画状态
-	const bandsAnimationStates = ref<number[]>([0, 0, 0, 0, 0]) // bands 动画状态
-	const waveAnimationStates = ref<number[]>([0, 0, 0, 0, 0]) // wave 动画状态
-
-	/**
-	 * 停止所有动画
-	 */
-	function stopAllAnimations() {
-		if (animationFrameId.value != null) {
-			cancelAnimationFrame(animationFrameId.value)
-			animationFrameId.value = null
-		}
-	}
-
-	/**
-	 * 启动 Spinner 旋转动画
-	 */
-	function startSpinnerAnimation() {
-		stopAllAnimations()
-
-		let lastTimestamp = 0
-		const speed = 1000 // 1秒一圈
-
-		function animate(timestamp : number) {
-			if (lastTimestamp != 0) {
-				const deltaTime = timestamp - lastTimestamp
-				const degreePerMs = 360 / speed
-				rotateAngle.value += degreePerMs * deltaTime
-
-				if (rotateAngle.value >= 360) {
-					rotateAngle.value -= 360
-				}
-			}
-			lastTimestamp = timestamp
-
-			animationFrameId.value = requestAnimationFrame((ts : number) => {
-				animate(ts)
-			})
-		}
-
-		animationFrameId.value = requestAnimationFrame((ts : number) => {
-			animate(ts)
-		})
-	}
-
-	/**
-	 * 启动 Dots 动画
-	 */
-	function startDotsAnimation() {
-		stopAllAnimations()
-
-		let lastTimestamp = 0
-		const cycleDuration = 1400 // 1.4秒一个周期
-		const delays = [-320, -160, 0] // 每个点的延迟
-
-		function animate(timestamp : number) {
-			if (lastTimestamp != 0) {
-				// const deltaTime = timestamp - lastTimestamp
-
-				for (let i = 0; i < 3; i++) {
-					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
-
-					if (progress < 0.4) {
-						// 0-40%: 缩放从0到1
-						dotAnimationStates.value[i] = (progress / 0.4) as number
-					} else if (progress < 0.8) {
-						// 40-80%: 保持1
-						dotAnimationStates.value[i] = 1
-					} else {
-						// 80-100%: 缩放从1到0
-						dotAnimationStates.value[i] = (1 - (progress - 0.8) / 0.2) as number
-					}
-				}
-			}
-			lastTimestamp = timestamp
-
-			animationFrameId.value = requestAnimationFrame((ts : number) => {
-				animate(ts)
-			})
-		}
-
-		animationFrameId.value = requestAnimationFrame((ts : number) => {
-			animate(ts)
-		})
-	}
-
-	/**
-	 * 启动 bands 动画（不规律垂直动画）
-	 */
-	function startBandsAnimation() {
-		stopAllAnimations()
-
-		let lastTimestamp = 0
-		const cycleDuration = 3000 // 3秒一个周期，更长的周期产生不规律效果
-		const delays = [-3000, -2400, -1800, -1200, -600] // 不规律的延迟
-
-		function animate(timestamp : number) {
-			if (lastTimestamp != 0) {
-				// const deltaTime = timestamp - lastTimestamp
-
-				for (let i = 0; i < 5; i++) {
-					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
-
-					// 使用更复杂的函数产生不规律的垂直动画
-					if (progress < 0.2) {
-						// 0-20%: 高度从0.3到1
-						bandsAnimationStates.value[i] = 0.3 + (progress / 0.2) * 0.7
-					} else if (progress < 0.4) {
-						// 20-40%: 保持1
-						bandsAnimationStates.value[i] = 1
-					} else if (progress < 0.6) {
-						// 40-60%: 高度从1到0.6
-						bandsAnimationStates.value[i] = 1 - ((progress - 0.4) / 0.2) * 0.4
-					} else if (progress < 0.8) {
-						// 60-80%: 高度从0.6到0.8
-						bandsAnimationStates.value[i] = 0.6 + ((progress - 0.6) / 0.2) * 0.2
-					} else {
-						// 80-100%: 高度从0.8到0.3
-						bandsAnimationStates.value[i] = 0.8 - ((progress - 0.8) / 0.2) * 0.5
-					}
-				}
-			}
-			lastTimestamp = timestamp
-
-			animationFrameId.value = requestAnimationFrame((ts : number) => {
-				animate(ts)
-			})
-		}
-
-			animationFrameId.value = requestAnimationFrame((ts : number) => {
-				animate(ts)
-			})
-	}
-
-	/**
-	 * 启动 Wave 波浪动画（从右到左的垂直方向动画）
-	 */
-	function startWaveAnimation() {
-		stopAllAnimations()
-
-		let lastTimestamp = 0
-		const cycleDuration = 1200 // 1.2秒一个周期
-		const delays = [-1200, -1100, -1000, -900, -800] // 每个条的延迟，从右到左
-
-		function animate(timestamp : number) {
-			if (lastTimestamp != 0) {
-				// const deltaTime = timestamp - lastTimestamp
-
-				for (let i = 0; i < 5; i++) {
-					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
-
-					if (progress < 0.4) {
-						// 0-40%: 高度从0.4到1
-						waveAnimationStates.value[i] = 0.4 + (progress / 0.4) * 0.6
-					} else {
-						// 40-100%: 高度从1到0.4
-						waveAnimationStates.value[i] = 1 - (progress - 0.4) / 0.6 * 0.6
-					}
-				}
-			}
-			lastTimestamp = timestamp
-
-			animationFrameId.value = requestAnimationFrame((ts : number) => {
-				animate(ts)
-			})
-		}
-
-		animationFrameId.value = requestAnimationFrame((ts : number) => {
-			animate(ts)
-		})
-	}
-
-	/**
-	 * 启动 Pulse 动画
-	 */
-	function startPulseAnimation() {
-		stopAllAnimations()
-
-		let lastTimestamp = 0
-		const cycleDuration = 1500 // 1.5秒一个周期
-
-		function animate(timestamp : number) {
-			if (lastTimestamp != 0) {
-				// const deltaTime = timestamp - lastTimestamp
-				const progress = (timestamp % cycleDuration) / cycleDuration
-
-				if (progress < 0.5) {
-					// 0-50%: 缩放从1到1.2，透明度从1到0.7
-					scaleValue.value = 1 + (progress / 0.5) * 0.2
-					opacityValue.value = 1 - (progress / 0.5) * 0.3
-				} else {
-					// 50-100%: 缩放从1.2到1，透明度从0.7到1
-					scaleValue.value = 1.2 - ((progress - 0.5) / 0.5) * 0.2
-					opacityValue.value = 0.7 + ((progress - 0.5) / 0.5) * 0.3
-				}
-			}
-			lastTimestamp = timestamp
-
-			animationFrameId.value = requestAnimationFrame((ts : number) => {
-				animate(ts)
-			})
-		}
-
-		animationFrameId.value = requestAnimationFrame((ts : number) => {
-			animate(ts)
-		})
-	}
-
-	/**
-	 * 根据类型启动对应动画
-	 */
-	function startAnimation() {
-		if (props.type == 'spinner') {
-			startSpinnerAnimation()
-		} else if (props.type == 'dots') {
-			startDotsAnimation()
-		} else if (props.type == 'bands') {
-			startBandsAnimation()
-		} else if (props.type == 'wave') {
-			startWaveAnimation()
-		} else if (props.type == 'pulse') {
-			startPulseAnimation()
-		}
-	}
-	// #endif
-
 	// 计算加载器数值尺寸（用于 load-circle 组件）
 	const loadingSizeNumber = computed(() : number => {
 		const sizeStr = parseLoadingSize(props.size)
@@ -303,36 +79,16 @@
 		return parseInt(mat1)
 	})
 
-	// #ifdef APP
-	// 生命周期钩子
-	onMounted(() => {
-		startAnimation()
-	})
 
-	onBeforeUnmount(() => {
-		stopAllAnimations()
-	})
-
-	const comTpe = computed(() => props.type)
-	// 监听 type 变化，重新启动动画
-	watch(comTpe, () => {
-		startAnimation()
-	})
-	// #endif
-
-	// 计算加载器颜色
-	const loadingColor = computed(() : string => {
-		return parseLoadingColor(props.color)
-	})
 
 	// 遮罩样式类
 	const overlayClass = computed(() : string => {
-		return ''
+		return 'k-loading-overlay'
 	})
 
 	// 容器样式类
 	const containerClass = computed(() : string => {
-		let classes = 'k-loading-container--default'
+		let classes = 'k-loading-container'
 		if (props.vertical) {
 			classes += ' k-loading-container--vertical'
 		} else {
@@ -343,12 +99,12 @@
 
 	// 容器样式
 	const containerStyle = computed(() : string => {
-		return props.customStyle
+		return ''
 	})
 
 	// 包装器样式类
 	const wrapperClass = computed(() : string => {
-		let classes = 'k-loading-wrapper--default'
+		let classes = 'k-loading-wrapper'
 		if (props.vertical) {
 			classes += ' k-loading-wrapper--vertical'
 		} else {
@@ -364,126 +120,73 @@
 
 	// 加载内容样式类
 	const loadingClass = computed(() : string => {
-		return `k-loading-content--${props.size}`
+		let classes = 'k-loading-content'
+		// 只有预设尺寸才添加尺寸类
+		if (props.size == 'xs' || props.size == 'sm' || props.size == 'md' || props.size == 'lg' || props.size == 'xl') {
+			classes += ` k-loading-content--${props.size}`
+		}
+		return classes
 	})
 
 	// 加载内容样式
 	const loadingStyle = computed(() : string => {
-		let style = ''
-
-		// 如果不是预定义尺寸，使用自定义尺寸
-		if (!LOADING_SIZES.has(props.size)) {
-			const size = loadingSize.value
-			style += `width: ${size}; height: ${size};`
+		let styles = ''
+		// 处理自定义尺寸
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			styles += `width: ${sizeValue}; height: ${sizeValue};`
 		}
-
-		// 注意：不在view元素上设置color属性，因为color只能用于text、button等元素
-		// 自定义颜色通过子元素的样式类来处理
-
-		return style
-	})
-
-	// Spinner 样式类
-	const spinnerClass = computed(() : string => {
-		let classes = `k-loading-spinner--${props.size} k-loading-spinner--${props.color}`
-		return classes
-	})
-
-	// Spinner 样式
-	const spinnerStyle = computed(() : string => {
-		let style = ''
-		// 如果不是预定义颜色，使用自定义颜色
-		if (!LOADING_COLORS.has(props.color)) {
-			const color = loadingColor.value
-			style += `border-left-color: ${color};`
-		}
-		return style
-	})
-
-	// Dots 样式类
-	const dotsClass = computed(() : string => {
-		let classes = `k-loading-dots--${props.size} k-loading-dots--${props.color}`
-		return classes
-	})
-
-	// Dots 样式
-	const dotsStyle = computed(() : string => {
-		let style = ''
-		// 如果不是预定义颜色，使用自定义颜色
-		if (!LOADING_COLORS.has(props.color)) {
-			const color = loadingColor.value
-			style += `background-color: ${color};`
-		}
-		return style
-	})
-
-	// bands 样式类
-	const bandsClass = computed(() : string => {
-		let classes = `k-loading-bands--${props.size} k-loading-bands--${props.color}`
-		return classes
-	})
-
-	// bands 样式
-	const bandsStyle = computed(() : string => {
-		let style = ''
-		// 如果不是预定义颜色，使用自定义颜色
-		if (!LOADING_COLORS.has(props.color)) {
-			const color = loadingColor.value
-			style += `background-color: ${color};`
-		}
-		return style
-	})
-
-	// wave 样式类
-	const waveClass = computed(() : string => {
-		let classes = `k-loading-wave--${props.size} k-loading-wave--${props.color}`
-		return classes
-	})
-
-	// wave 样式
-	const waveStyle = computed(() : string => {
-		let style = ''
-		// 如果不是预定义颜色，使用自定义颜色
-		if (!LOADING_COLORS.has(props.color)) {
-			const color = loadingColor.value
-			style += `background-color: ${color};`
-		}
-		return style
-	})
-
-	// Pulse 样式类
-	const pulseClass = computed(() : string => {
-		let classes = `k-loading-pulse--${props.size} k-loading-pulse--${props.color}`
-		return classes
-	})
-
-	// Pulse 样式
-	const pulseStyle = computed(() : string => {
-		let style = ''
-		// 如果不是预定义颜色，使用自定义颜色
-		if (!LOADING_COLORS.has(props.color)) {
-			const color = loadingColor.value
-			style += `background-color: ${color};`
-		}
-		return style
+		return styles
 	})
 
 	// 文本样式类
 	const textClass = computed(() : string => {
-		return `k-loading-text--${props.size} k-loading-text--${props.color}`
+		let classes = 'k-loading-text'
+		// 只有预设尺寸才添加尺寸类
+		if (props.size == 'xs' || props.size == 'sm' || props.size == 'md' || props.size == 'lg' || props.size == 'xl') {
+			classes += ` k-loading-text--${props.size}`
+		}
+		// 添加颜色类
+		if (props.color == 'primary' || props.color == 'success' || props.color == 'warning' || props.color == 'danger' || props.color == 'info') {
+			classes += ` k-loading-text--${props.color}`
+		}
+		return classes
 	})
 
 	// 文本样式
 	const textStyle = computed(() : string => {
-		let style = ''
-
-		// 如果不是预定义颜色，使用自定义颜色
-		if (!LOADING_COLORS.has(props.color)) {
-			const color = loadingColor.value
-			style += `color: ${color};`
+		let styles = ''
+		// 自定义颜色
+		if (props.color != 'primary' && props.color != 'success' && props.color != 'warning' && props.color != 'danger' && props.color != 'info') {
+			styles += `color: ${props.color};`
 		}
-
-		return style
+		// 处理自定义尺寸的文本样式
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			// 解析数值用于计算文本大小
+			const numericValue = parseFloat(sizeValue)
+			if (!isNaN(numericValue)) {
+				// 文本大小约为加载器尺寸的0.6倍
+				const fontSize = Math.max(12, numericValue * 0.6)
+				// 间距约为加载器尺寸的0.3倍
+				const margin = Math.max(4, numericValue * 0.3)
+				styles += `font-size: ${fontSize}px;`
+				if (props.vertical) {
+					styles += `margin-top: ${margin}px;`
+				} else {
+					styles += `margin-left: ${margin}px;`
+				}
+			}
+		}
+		return styles
 	})
 
 	// 处理遮罩点击事件
@@ -498,57 +201,20 @@
 	<view v-if="overlay" class="k-loading-overlay" :class="overlayClass" @click="handleOverlayClick">
 		<view class="k-loading-container" :class="containerClass" :style="containerStyle">
 			<view class="k-loading-content" :class="loadingClass" :style="loadingStyle">
-				<!-- Spinner 样式 -->
-			<!-- #ifdef APP -->
-			<view v-if="type === 'spinner'" class="k-loading-spinner" :class="spinnerClass" :style="`transform: rotate(${rotateAngle}deg); ${spinnerStyle}`"></view>
-			<!-- #endif -->
-			<!-- #ifndef APP -->
-			<view v-if="type === 'spinner'" class="k-loading-spinner" :class="spinnerClass" :style="spinnerStyle"></view>
-			<!-- #endif -->
+				<!-- Spinner 动画 -->
+				<!-- <KLoadSpinner v-if="type === 'spinner'" :size="size" :color="color" /> -->
 
-				<!-- Dots 样式 -->
-				<!-- #ifdef APP -->
-				<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
-					<view class="k-loading-dot" v-for="(state, i) in dotAnimationStates" :key="i" :style="`transform: scale(${state}); ${dotsStyle}`"></view>
-				</view>
-				<!-- #endif -->
-				<!-- #ifndef APP -->
-				<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
-					<view class="k-loading-dot" v-for="i in 3" :key="i" :style="dotsStyle"></view>
-				</view>
-				<!-- #endif -->
+				<!-- Dots 动画 -->
+				<!-- <k-loading-dots v-else-if="type === 'dots'" :size="size" :color="color" /> -->
 
-				<!-- bands 样式 -->
-			<!-- #ifdef APP -->
-			<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
-				<view class="k-loading-bar" v-for="(state, i) in bandsAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${bandsStyle}`"></view>
-			</view>
-			<!-- #endif -->
-			<!-- #ifndef APP -->
-			<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
-				<view class="k-loading-bar" v-for="i in 5" :key="i" :style="bandsStyle"></view>
-			</view>
-			<!-- #endif -->
+				<!-- Bands 动画 -->
+				<!-- <k-loading-bands v-else-if="type === 'bands'" :size="size" :color="color" /> -->
 
-			<!-- wave 样式 -->
-			<!-- #ifdef APP -->
-			<view v-else-if="type === 'wave'" class="k-loading-wave" :class="waveClass">
-				<view class="k-loading-bar" v-for="(state, i) in waveAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${waveStyle}`"></view>
-			</view>
-			<!-- #endif -->
-			<!-- #ifndef APP -->
-			<view v-else-if="type === 'wave'" class="k-loading-wave" :class="waveClass">
-				<view class="k-loading-bar" v-for="i in 5" :key="i" :style="waveStyle"></view>
-			</view>
-			<!-- #endif -->
+				<!-- Wave 动画 -->
+				<!-- <k-loading-wave v-else-if="type === 'wave'" :size="size" :color="color" /> -->
 
-			<!-- Pulse 样式 -->
-				<!-- #ifdef APP -->
-				<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass" :style="`transform: scale(${scaleValue}); opacity: ${opacityValue}; ${pulseStyle}`"></view>
-				<!-- #endif -->
-				<!-- #ifndef APP -->
-				<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass" :style="pulseStyle"></view>
-				<!-- #endif -->
+				<!-- Pulse 动画 -->
+				<!-- <k-loading-pulse v-else-if="type === 'pulse'" :size="size" :color="color" /> -->
 			</view>
 
 			<!-- 加载文本 -->
@@ -559,57 +225,20 @@
 	<!-- 非遮罩模式 -->
 	<view v-else class="k-loading-wrapper" :class="wrapperClass" :style="wrapperStyle">
 		<view class="k-loading-content" :class="loadingClass" :style="loadingStyle">
-			<!-- Spinner 样式 -->
-		<!-- <load-circle v-if="type === 'spinner'" :size="loadingSizeNumber" :color="loadingColor"></load-circle> -->
-		<!-- #ifdef APP -->
-		<view v-if="type === 'spinner'" class="k-loading-spinner" :class="spinnerClass" :style="`transform: rotate(${rotateAngle}deg); ${spinnerStyle}`"></view>
-		<!-- #endif -->
-		<!-- #ifndef APP -->
-		<view v-if="type === 'spinner'" class="k-loading-spinner" :class="spinnerClass" :style="spinnerStyle"></view>
-		<!-- #endif -->
-			<!-- Dots 样式 -->
-			<!-- #ifdef APP -->
-			<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
-				<view class="k-loading-dot" v-for="(state, i) in dotAnimationStates" :key="i" :style="`transform: scale(${state}); ${dotsStyle}`"></view>
-			</view>
-			<!-- #endif -->
-			<!-- #ifndef APP -->
-			<view v-else-if="type === 'dots'" class="k-loading-dots" :class="dotsClass">
-				<view class="k-loading-dot" v-for="i in 3" :key="i" :style="dotsStyle"></view>
-			</view>
-			<!-- #endif -->
+			<!-- Spinner 动画 -->
+			<KLoadSpinner v-if="type === 'spinner'" :size="size" :color="color" />
 
-			<!-- bands 样式 -->
-			<!-- #ifdef APP -->
-			<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
-				<view class="k-loading-bar" v-for="(state, i) in bandsAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${bandsStyle}`"></view>
-			</view>
-			<!-- #endif -->
-			<!-- #ifndef APP -->
-			<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
-				<view class="k-loading-bar" v-for="i in 5" :key="i" :style="bandsStyle"></view>
-			</view>
-			<!-- #endif -->
+			<!-- Dots 动画 -->
+			<KLoadDots v-else-if="type === 'dots'" :size="size" :color="color" />
 
-			<!-- wave 样式 -->
-			<!-- #ifdef APP -->
-			<view v-else-if="type === 'wave'" class="k-loading-wave" :class="waveClass">
-				<view class="k-loading-bar" v-for="(state, i) in waveAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${waveStyle}`"></view>
-			</view>
-			<!-- #endif -->
-			<!-- #ifndef APP -->
-			<view v-else-if="type === 'wave'" class="k-loading-wave" :class="waveClass">
-				<view class="k-loading-bar" v-for="i in 5" :key="i" :style="waveStyle"></view>
-			</view>
-			<!-- #endif -->
+			<!-- Bands 动画 -->
+			<KLoadBands v-else-if="type === 'bands'" :size="size" :color="color" />
 
-			<!-- Pulse 样式 -->
-			<!-- #ifdef APP -->
-			<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass" :style="`transform: scale(${scaleValue}); opacity: ${opacityValue}; ${pulseStyle}`"></view>
-			<!-- #endif -->
-			<!-- #ifndef APP -->
-			<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass" :style="pulseStyle"></view>
-			<!-- #endif -->
+			<!-- Wave 动画 -->
+			<KLoadWave v-else-if="type === 'wave'" :size="size" :color="color" />
+
+			<!-- Pulse 动画 -->
+			<KLoadPulse v-else-if="type === 'pulse'" :size="size" :color="color" />
 		</view>
 
 		<!-- 加载文本 -->

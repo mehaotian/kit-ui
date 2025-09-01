@@ -1,0 +1,132 @@
+<script setup lang="uts">
+	import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+	import { parseLoadingColor, LOADING_COLORS } from './utils.uts'
+
+	// 组件属性定义
+	const props = defineProps({
+		// 尺寸：xs, sm, md, lg, xl 或自定义数值（如 '24', '32px'）
+		size: {
+			type: String,
+			default: 'md'
+		},
+		// 颜色主题：primary, success, warning, danger, info 或自定义颜色值
+		color: {
+			type: String,
+			default: 'primary'
+		}
+	})
+
+	// #ifdef APP
+	// 动画相关变量
+	const scaleValue = ref(1)
+	const opacityValue = ref(1)
+	const animationFrameId = ref<number | null>(null)
+
+	/**
+	 * 停止动画
+	 */
+	function stopAnimation() {
+		if (animationFrameId.value != null) {
+			cancelAnimationFrame(animationFrameId.value)
+			animationFrameId.value = null
+		}
+	}
+
+	/**
+	 * 启动 Pulse 动画
+	 */
+	function startPulseAnimation() {
+		stopAnimation()
+
+		let lastTimestamp = 0
+		const cycleDuration = 1500 // 1.5秒一个周期
+
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				// const deltaTime = timestamp - lastTimestamp
+				const progress = (timestamp % cycleDuration) / cycleDuration
+
+				if (progress < 0.5) {
+					// 0-50%: 缩放从1到1.2，透明度从1到0.7
+					scaleValue.value = 1 + (progress / 0.5) * 0.2
+					opacityValue.value = 1 - (progress / 0.5) * 0.3
+				} else {
+					// 50-100%: 缩放从1.2到1，透明度从0.7到1
+					scaleValue.value = 1.2 - ((progress - 0.5) / 0.5) * 0.2
+					opacityValue.value = 0.7 + ((progress - 0.5) / 0.5) * 0.3
+				}
+			}
+			lastTimestamp = timestamp
+
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	// 生命周期钩子
+	onMounted(() => {
+		startPulseAnimation()
+	})
+
+	onBeforeUnmount(() => {
+		stopAnimation()
+	})
+	// #endif
+
+	// 计算加载器颜色
+	const loadingColor = computed(() : string => {
+		return parseLoadingColor(props.color)
+	})
+
+	// Pulse 样式类
+	const pulseClass = computed(() : string => {
+		let classes = ''
+		// 只有预设尺寸才添加尺寸类
+		if (props.size == 'xs' || props.size == 'sm' || props.size == 'md' || props.size == 'lg' || props.size == 'xl') {
+			classes += `k-loading-pulse--${props.size} `
+		}
+		// 只有预设颜色才添加颜色类
+		if (LOADING_COLORS.has(props.color)) {
+			classes += `k-loading-pulse--${props.color}`
+		}
+		return classes
+	})
+
+	// Pulse 样式
+	const pulseStyle = computed(() : string => {
+		let style = ''
+		// 处理自定义尺寸
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			style += `width: ${sizeValue}; height: ${sizeValue};`
+		}
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `background-color: ${color};`
+		}
+		return style
+	})
+</script>
+
+<template>
+	<!-- #ifdef APP -->
+	<view class="k-loading-pulse" :class="pulseClass" :style="`transform: scale(${scaleValue}); opacity: ${opacityValue}; ${pulseStyle}`"></view>
+	<!-- #endif -->
+	<!-- #ifndef APP -->
+	<view class="k-loading-pulse" :class="pulseClass" :style="pulseStyle"></view>
+	<!-- #endif -->
+</template>
+
+<style lang="scss" scoped>
+	@import './k-loading.scss';
+</style>

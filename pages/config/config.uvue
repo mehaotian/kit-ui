@@ -120,7 +120,7 @@
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	.config-demo {
 		padding: 20px;
 		background-color: #f8f9fa;

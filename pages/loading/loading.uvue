@@ -279,15 +279,16 @@ const hideOverlay = () => {
 }
 
 .page {
-  padding: 20px;
+  padding: 15px;
   background-color: #f5f5f5;
 }
 
 .page-header {
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
+	border-radius: 8px;
 }
 
 .page-title {
@@ -303,7 +304,7 @@ const hideOverlay = () => {
 }
 
 .section {
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   background-color: #fff;
   border-radius: 8px;
   padding: 20px;
@@ -311,24 +312,48 @@ const hideOverlay = () => {
 
 .section-title {
   margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
 }
 
 .title-text {
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 600;
   color: #333;
 }
 
 .demo-row {
   display: flex;
   flex-wrap: wrap;
+  margin: -8px;
+}
+
+.demo-row .demo-item {
+  margin: 8px;
+  flex: 1;
+  min-width: 80px;
+  max-width: calc(20% - 16px);
 }
 
 .demo-column {
   display: flex;
   flex-direction: column;
+}
+
+.demo-column .demo-item-full {
+  margin-bottom: 12px;
+}
+
+.demo-column .demo-item-full:last-child {
+  margin-bottom: 0;
+}
+
+.demo-column .demo-button {
+  margin-bottom: 12px;
+}
+
+.demo-column .demo-button:last-child {
+  margin-bottom: 0;
 }
 
 .demo-item {

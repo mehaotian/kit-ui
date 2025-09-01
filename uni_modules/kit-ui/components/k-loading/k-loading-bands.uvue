@@ -1,0 +1,181 @@
+<script setup lang="uts">
+	import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+	import { parseLoadingColor, LOADING_COLORS } from './utils.uts'
+
+	// 组件属性定义
+	const props = defineProps({
+		// 尺寸：xs, sm, md, lg, xl 或自定义数值（如 '24', '32px'）
+		size: {
+			type: String,
+			default: 'md'
+		},
+		// 颜色主题：primary, success, warning, danger, info 或自定义颜色值
+		color: {
+			type: String,
+			default: 'primary'
+		}
+	})
+
+	// #ifdef APP
+	// 动画相关变量
+	const animationFrameId = ref<number | null>(null)
+	const bandsAnimationStates = ref<number[]>([0, 0, 0, 0, 0]) // bands 动画状态
+
+	/**
+	 * 停止动画
+	 */
+	function stopAnimation() {
+		if (animationFrameId.value != null) {
+			cancelAnimationFrame(animationFrameId.value)
+			animationFrameId.value = null
+		}
+	}
+
+	/**
+	 * 启动 bands 动画（不规律垂直动画）
+	 */
+	function startBandsAnimation() {
+		stopAnimation()
+
+		let lastTimestamp = 0
+		const cycleDuration = 3000 // 3秒一个周期，更长的周期产生不规律效果
+		const delays = [-3000, -2400, -1800, -1200, -600] // 不规律的延迟
+
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				// const deltaTime = timestamp - lastTimestamp
+
+				for (let i = 0; i < 5; i++) {
+					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
+
+					// 使用更复杂的函数产生不规律的垂直动画
+					if (progress < 0.2) {
+						// 0-20%: 高度从0.3到1
+						bandsAnimationStates.value[i] = 0.3 + (progress / 0.2) * 0.7
+					} else if (progress < 0.4) {
+						// 20-40%: 保持1
+						bandsAnimationStates.value[i] = 1
+					} else if (progress < 0.6) {
+						// 40-60%: 高度从1到0.6
+						bandsAnimationStates.value[i] = 1 - ((progress - 0.4) / 0.2) * 0.4
+					} else if (progress < 0.8) {
+						// 60-80%: 高度从0.6到0.8
+						bandsAnimationStates.value[i] = 0.6 + ((progress - 0.6) / 0.2) * 0.2
+					} else {
+						// 80-100%: 高度从0.8到0.3
+						bandsAnimationStates.value[i] = 0.8 - ((progress - 0.8) / 0.2) * 0.5
+					}
+				}
+			}
+			lastTimestamp = timestamp
+
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	// 生命周期钩子
+	onMounted(() => {
+		startBandsAnimation()
+	})
+
+	onBeforeUnmount(() => {
+		stopAnimation()
+	})
+	// #endif
+
+	// 计算加载器颜色
+	const loadingColor = computed(() : string => {
+		return parseLoadingColor(props.color)
+	})
+
+	// bands 样式类
+	const bandsClass = computed(() : string => {
+		let classes = ''
+		// 只有预设尺寸才添加尺寸类
+		if (props.size == 'xs' || props.size == 'sm' || props.size == 'md' || props.size == 'lg' || props.size == 'xl') {
+			classes += `k-loading-bands--${props.size} `
+		}
+		// 只有预设颜色才添加颜色类
+		if (LOADING_COLORS.has(props.color)) {
+			classes += `k-loading-bands--${props.color}`
+		}
+		return classes
+	})
+
+	// bands 样式
+	const bandsStyle = computed(() : string => {
+		let style = ''
+		// 处理自定义尺寸
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			// 解析数值用于计算条带的大小
+			const numericValue = parseFloat(sizeValue)
+			if (!isNaN(numericValue)) {
+				// 条带宽度约为容器尺寸的1/6，最小2px
+				const bandWidth = Math.max(2, numericValue / 6)
+				// 条带之间的间距约为条带宽度的1/2
+				const gap = Math.max(1, bandWidth / 2)
+				style += `width: ${sizeValue}; height: ${sizeValue}; gap: ${gap}px;`
+			}
+		}
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `background-color: ${color};`
+		}
+		return style
+	})
+
+	// 单个条带的样式
+	const bandStyle = computed(() : string => {
+		let style = ''
+		// 处理自定义尺寸的单个条带样式
+		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+			let sizeValue = props.size
+			// 如果是纯数字，添加px单位
+			if (/^\d+$/.test(sizeValue)) {
+				sizeValue += 'px'
+			}
+			// 解析数值用于计算条带的大小
+			const numericValue = parseFloat(sizeValue)
+			if (!isNaN(numericValue)) {
+				// 条带宽度约为容器尺寸的1/6，最小2px
+				const bandWidth = Math.max(2, numericValue / 6)
+				style += `width: ${bandWidth}px; height: ${sizeValue};`
+			}
+		}
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `background-color: ${color};`
+		}
+		return style
+	})
+</script>
+
+<template>
+	<!-- #ifdef APP -->
+	<view class="k-loading-bands" :class="bandsClass" :style="bandsStyle">
+		<view class="k-loading-bar" v-for="(state, i) in bandsAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${bandStyle}`"></view>
+	</view>
+	<!-- #endif -->
+	<!-- #ifndef APP -->
+	<view class="k-loading-bands" :class="bandsClass" :style="bandsStyle">
+		<view class="k-loading-bar" v-for="i in 5" :key="i" :style="bandStyle"></view>
+	</view>
+	<!-- #endif -->
+</template>
+
+<style lang="scss" scoped>
+	@import './k-loading.scss';
+</style>

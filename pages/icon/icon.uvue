@@ -135,7 +135,7 @@
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	.page {
 		flex: 1;
 		background-color: var(--k-color-background, #f8f9fa);
