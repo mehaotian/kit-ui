@@ -77,8 +77,8 @@
 				{ name: 'Text | 文本', path: '/pages/text/text', status: 'completed' },
 				{ name: 'Image', path: '/pages/image/image', status: 'completed' },
 				{ name: 'Layout', path: '/pages/layout/layout', status: 'planning' },
-				{ name: 'Grid', path: '/pages/grid/grid', status: 'planning' },
-				{ name: 'Space', path: '/pages/space/space', status: 'developing' },
+				{ name: 'Grid', path: '/pages/layout/layout', status: 'developing' },
+				{ name: 'Space', path: '/pages/space/space', status: 'planning' },
 				{ name: 'Divider | 分割线', path: '/pages/divider/divider', status: 'completed' }
 			]
 		},

@@ -1,0 +1,130 @@
+<template>
+	<view :class="rowClass" :style="rowStyle">
+		<slot></slot>
+	</view>
+</template>
+
+<script setup lang="uts">
+	// k-row 栅格布局行组件
+	// 提供水平布局容器，支持间距、对齐方式等配置
+	
+	// 对齐方式类型定义
+	type JustifyType = 'start' | 'end' | 'center' | 'space-around' | 'space-between' | 'space-evenly'
+	type AlignType = 'top' | 'middle' | 'bottom' | 'stretch'
+	
+	// 组件属性定义
+	type KRowProps = {
+		// 栅格间隔，单位px
+		gutter?: number
+		// 水平排列方式
+		justify?: JustifyType
+		// 垂直对齐方式
+		align?: AlignType
+		// 是否自动换行
+		wrap?: boolean
+	}
+	
+	// 定义props
+	const props = withDefaults(defineProps<KRowProps>(), {
+		gutter: 0,
+		justify: 'start',
+		align: 'top',
+		wrap: true
+	})
+	
+	// 计算行class
+	const rowClass = computed((): string[] => {
+		const classes = ['k-row']
+		
+		// 添加对齐方式class
+		classes.push(`k-row--justify-${props.justify}`)
+		classes.push(`k-row--align-${props.align}`)
+		
+		// 添加换行控制class
+		if (props.wrap) {
+			classes.push('k-row--wrap')
+		} else {
+			classes.push('k-row--nowrap')
+		}
+		
+		return classes
+	})
+	
+	// 计算行样式
+	const rowStyle = computed((): UTSJSONObject => {
+		const style: UTSJSONObject = {}
+		
+		// 处理gutter间距
+		if (props.gutter > 0) {
+			const halfGutter = props.gutter / 2
+			style['margin-left'] = `-${halfGutter}px`
+			style['margin-right'] = `-${halfGutter}px`
+		}
+		
+		return style
+	})
+	
+	// 提供gutter给子组件
+	provide('k-row-gutter', props.gutter)
+</script>
+
+<style lang="scss">
+	@import "../../theme/index.scss";
+	
+	.k-row {
+		display: flex;
+		flex-direction: row;
+		box-sizing: border-box;
+		
+		// 水平对齐方式
+		&--justify-start {
+			justify-content: flex-start;
+		}
+		
+		&--justify-end {
+			justify-content: flex-end;
+		}
+		
+		&--justify-center {
+			justify-content: center;
+		}
+		
+		&--justify-space-around {
+			justify-content: space-around;
+		}
+		
+		&--justify-space-between {
+			justify-content: space-between;
+		}
+		
+		&--justify-space-evenly {
+			justify-content: space-evenly;
+		}
+		
+		// 垂直对齐方式
+		&--align-top {
+			align-items: flex-start;
+		}
+		
+		&--align-middle {
+			align-items: center;
+		}
+		
+		&--align-bottom {
+			align-items: flex-end;
+		}
+		
+		&--align-stretch {
+			align-items: stretch;
+		}
+		
+		// 换行控制
+		&--wrap {
+			flex-wrap: wrap;
+		}
+		
+		&--nowrap {
+			flex-wrap: nowrap;
+		}
+	}
+</style>

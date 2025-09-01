@@ -1,0 +1,177 @@
+<template>
+	<view class="k-col" :style="colStyle">
+		<slot></slot>
+	</view>
+</template>
+
+<script setup lang="uts">
+	// k-col 栅格布局列组件
+	// 提供栅格列布局，支持span、offset、响应式等配置
+	
+	// 响应式断点类型定义
+	type ResponsiveConfig = {
+		span?: number
+		offset?: number
+		push?: number
+		pull?: number
+	}
+	
+	// 组件属性定义
+	type KColProps = {
+		// 栅格占据的列数（0-24）
+		span?: number
+		// 栅格左侧的间隔格数
+		offset?: number
+		// 栅格向右移动格数
+		push?: number
+		// 栅格向左移动格数
+		pull?: number
+		// 响应式栅格配置
+		xs?: number | ResponsiveConfig
+		sm?: number | ResponsiveConfig
+		md?: number | ResponsiveConfig
+		lg?: number | ResponsiveConfig
+		xl?: number | ResponsiveConfig
+	}
+	
+	// 定义props
+	const props = withDefaults(defineProps<KColProps>(), {
+		span: 24,
+		offset: 0,
+		push: 0,
+		pull: 0
+	})
+	
+	// 获取父组件的gutter
+	const gutter = inject<number>('k-row-gutter', 0)
+	
+	// 获取屏幕信息
+	const windowInfo = ref<any>(null)
+	
+	// 获取当前屏幕宽度
+	const getWindowInfo = () => {
+		windowInfo.value = uni.getWindowInfo()
+	}
+	
+	// 组件挂载时获取屏幕信息
+	onMounted(() => {
+		getWindowInfo()
+	})
+	
+	// 响应式断点定义
+	const breakpoints = {
+		xs: 0,
+		sm: 576,
+		md: 768,
+		lg: 992,
+		xl: 1200
+	}
+	
+	// 获取当前断点
+	const currentBreakpoint = computed((): string => {
+		if (windowInfo.value == null) return 'md'
+		
+		const width = windowInfo.value.windowWidth
+		if (width >= breakpoints.xl) return 'xl'
+		if (width >= breakpoints.lg) return 'lg'
+		if (width >= breakpoints.md) return 'md'
+		if (width >= breakpoints.sm) return 'sm'
+		return 'xs'
+	})
+	
+	// 解析响应式配置
+	const parseResponsiveConfig = (config: number | ResponsiveConfig | undefined): ResponsiveConfig => {
+		if (config == null) return {}
+		if (typeof config == 'number') {
+			return { span: config }
+		}
+		return config
+	}
+	
+	// 获取当前生效的配置
+	const currentConfig = computed((): ResponsiveConfig => {
+		const breakpoint = currentBreakpoint.value
+		let config: ResponsiveConfig = {}
+		
+		// 按优先级合并配置
+		const breakpointOrder = ['xs', 'sm', 'md', 'lg', 'xl']
+		const currentIndex = breakpointOrder.indexOf(breakpoint)
+		
+		for (let i = 0; i <= currentIndex; i++) {
+			const bp = breakpointOrder[i]
+			const bpConfig = parseResponsiveConfig((props as any)[bp])
+			config = { ...config, ...bpConfig }
+		}
+		
+		return config
+	})
+	
+	// 计算最终的span值
+	const finalSpan = computed((): number => {
+		return currentConfig.value.span ?? props.span
+	})
+	
+	// 计算最终的offset值
+	const finalOffset = computed((): number => {
+		return currentConfig.value.offset ?? props.offset
+	})
+	
+	// 计算最终的push值
+	const finalPush = computed((): number => {
+		return currentConfig.value.push ?? props.push
+	})
+	
+	// 计算最终的pull值
+	const finalPull = computed((): number => {
+		return currentConfig.value.pull ?? props.pull
+	})
+	
+	// 计算列样式
+	const colStyle = computed((): UTSJSONObject => {
+		const style: UTSJSONObject = {}
+		
+		// 设置宽度
+		if (finalSpan.value > 0) {
+			const width = (finalSpan.value / 24) * 100
+			style.width = `${width}%`
+		}
+		
+		// 设置左偏移
+		if (finalOffset.value > 0) {
+			const marginLeft = (finalOffset.value / 24) * 100
+			style['margin-left'] = `${marginLeft}%`
+		}
+		
+		// 设置右移
+		if (finalPush.value > 0) {
+			const left = (finalPush.value / 24) * 100
+			style.left = `${left}%`
+			style.position = 'relative'
+		}
+		
+		// 设置左移
+		if (finalPull.value > 0) {
+			const right = (finalPull.value / 24) * 100
+			style.right = `${right}%`
+			style.position = 'relative'
+		}
+		
+		// 处理gutter间距
+		if (gutter > 0) {
+			const halfGutter = gutter / 2
+			style['padding-left'] = `${halfGutter}px`
+			style['padding-right'] = `${halfGutter}px`
+		}
+		
+		return style
+	})
+</script>
+
+<style lang="scss">
+	@import "../../theme/index.scss";
+	
+	.k-col {
+		box-sizing: border-box;
+		flex: 0 0 auto;
+	}
+</style>
