@@ -5,7 +5,7 @@
 
 	// 组件属性定义
 	const props = defineProps({
-		// 加载样式类型：spinner(旋转圆圈)、dots(点状)、bands(带状动画)、pulse(脉冲)
+		// 加载样式类型：spinner(旋转圆圈)、dots(点状)、bands(带状动画)、wave(波浪动画)、pulse(脉冲)
 		type: {
 			type: String,
 			default: 'spinner'
@@ -70,6 +70,7 @@
 	const animationFrameId = ref<number | null>(null)
 	const dotAnimationStates = ref<number[]>([0, 0, 0]) // dots 动画状态
 	const bandsAnimationStates = ref<number[]>([0, 0, 0, 0, 0]) // bands 动画状态
+	const waveAnimationStates = ref<number[]>([0, 0, 0, 0, 0]) // wave 动画状态
 
 	/**
 	 * 停止所有动画
@@ -154,14 +155,62 @@
 	}
 
 	/**
-	 * 启动 bands 动画
+	 * 启动 bands 动画（不规律垂直动画）
 	 */
 	function startBandsAnimation() {
 		stopAllAnimations()
 
 		let lastTimestamp = 0
+		const cycleDuration = 3000 // 3秒一个周期，更长的周期产生不规律效果
+		const delays = [-3000, -2400, -1800, -1200, -600] // 不规律的延迟
+
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				// const deltaTime = timestamp - lastTimestamp
+
+				for (let i = 0; i < 5; i++) {
+					const progress = ((timestamp + delays[i]) % cycleDuration) / cycleDuration
+
+					// 使用更复杂的函数产生不规律的垂直动画
+					if (progress < 0.2) {
+						// 0-20%: 高度从0.3到1
+						bandsAnimationStates.value[i] = 0.3 + (progress / 0.2) * 0.7
+					} else if (progress < 0.4) {
+						// 20-40%: 保持1
+						bandsAnimationStates.value[i] = 1
+					} else if (progress < 0.6) {
+						// 40-60%: 高度从1到0.6
+						bandsAnimationStates.value[i] = 1 - ((progress - 0.4) / 0.2) * 0.4
+					} else if (progress < 0.8) {
+						// 60-80%: 高度从0.6到0.8
+						bandsAnimationStates.value[i] = 0.6 + ((progress - 0.6) / 0.2) * 0.2
+					} else {
+						// 80-100%: 高度从0.8到0.3
+						bandsAnimationStates.value[i] = 0.8 - ((progress - 0.8) / 0.2) * 0.5
+					}
+				}
+			}
+			lastTimestamp = timestamp
+
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+	}
+
+	/**
+	 * 启动 Wave 波浪动画（从右到左的垂直方向动画）
+	 */
+	function startWaveAnimation() {
+		stopAllAnimations()
+
+		let lastTimestamp = 0
 		const cycleDuration = 1200 // 1.2秒一个周期
-		const delays = [-1200, -1100, -1000, -900, -800] // 每个条的延迟
+		const delays = [-1200, -1100, -1000, -900, -800] // 每个条的延迟，从右到左
 
 		function animate(timestamp : number) {
 			if (lastTimestamp != 0) {
@@ -172,10 +221,10 @@
 
 					if (progress < 0.4) {
 						// 0-40%: 高度从0.4到1
-						bandsAnimationStates.value[i] = 0.4 + (progress / 0.4) * 0.6
+						waveAnimationStates.value[i] = 0.4 + (progress / 0.4) * 0.6
 					} else {
 						// 40-100%: 高度从1到0.4
-						bandsAnimationStates.value[i] = 1 - (progress - 0.4) / 0.6 * 0.6
+						waveAnimationStates.value[i] = 1 - (progress - 0.4) / 0.6 * 0.6
 					}
 				}
 			}
@@ -237,6 +286,8 @@
 			startDotsAnimation()
 		} else if (props.type == 'bands') {
 			startBandsAnimation()
+		} else if (props.type == 'wave') {
+			startWaveAnimation()
 		} else if (props.type == 'pulse') {
 			startPulseAnimation()
 		}
@@ -383,6 +434,23 @@
 		return style
 	})
 
+	// wave 样式类
+	const waveClass = computed(() : string => {
+		let classes = `k-loading-wave--${props.size} k-loading-wave--${props.color}`
+		return classes
+	})
+
+	// wave 样式
+	const waveStyle = computed(() : string => {
+		let style = ''
+		// 如果不是预定义颜色，使用自定义颜色
+		if (!LOADING_COLORS.has(props.color)) {
+			const color = loadingColor.value
+			style += `background-color: ${color};`
+		}
+		return style
+	})
+
 	// Pulse 样式类
 	const pulseClass = computed(() : string => {
 		let classes = `k-loading-pulse--${props.size} k-loading-pulse--${props.color}`
@@ -451,18 +519,30 @@
 				<!-- #endif -->
 
 				<!-- bands 样式 -->
-				<!-- #ifdef APP -->
-				<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
-					<view class="k-loading-bar" v-for="(state, i) in bandsAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${bandsStyle}`"></view>
-				</view>
-				<!-- #endif -->
-				<!-- #ifndef APP -->
-				<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
-					<view class="k-loading-bands" v-for="i in 5" :key="i" :style="bandsStyle"></view>
-				</view>
-				<!-- #endif -->
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
+				<view class="k-loading-bar" v-for="(state, i) in bandsAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${bandsStyle}`"></view>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
+			<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
+				<view class="k-loading-bar" v-for="i in 5" :key="i" :style="bandsStyle"></view>
+			</view>
+			<!-- #endif -->
 
-				<!-- Pulse 样式 -->
+			<!-- wave 样式 -->
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'wave'" class="k-loading-wave" :class="waveClass">
+				<view class="k-loading-bar" v-for="(state, i) in waveAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${waveStyle}`"></view>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
+			<view v-else-if="type === 'wave'" class="k-loading-wave" :class="waveClass">
+				<view class="k-loading-bar" v-for="i in 5" :key="i" :style="waveStyle"></view>
+			</view>
+			<!-- #endif -->
+
+			<!-- Pulse 样式 -->
 				<!-- #ifdef APP -->
 				<view v-else-if="type === 'pulse'" class="k-loading-pulse" :class="pulseClass" :style="`transform: scale(${scaleValue}); opacity: ${opacityValue}; ${pulseStyle}`"></view>
 				<!-- #endif -->
@@ -508,6 +588,18 @@
 			<!-- #ifndef APP -->
 			<view v-else-if="type === 'bands'" class="k-loading-bands" :class="bandsClass">
 				<view class="k-loading-bar" v-for="i in 5" :key="i" :style="bandsStyle"></view>
+			</view>
+			<!-- #endif -->
+
+			<!-- wave 样式 -->
+			<!-- #ifdef APP -->
+			<view v-else-if="type === 'wave'" class="k-loading-wave" :class="waveClass">
+				<view class="k-loading-bar" v-for="(state, i) in waveAnimationStates" :key="i" :style="`transform: scaleY(${state}); ${waveStyle}`"></view>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef APP -->
+			<view v-else-if="type === 'wave'" class="k-loading-wave" :class="waveClass">
+				<view class="k-loading-bar" v-for="i in 5" :key="i" :style="waveStyle"></view>
 			</view>
 			<!-- #endif -->
 

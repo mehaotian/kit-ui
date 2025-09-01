@@ -26,6 +26,10 @@
             <text class="demo-label">Bands</text>
           </view>
           <view class="demo-item">
+            <k-loading type="wave" />
+            <text class="demo-label">Wave</text>
+          </view>
+          <view class="demo-item">
             <k-loading type="pulse" />
             <text class="demo-label">Pulse</text>
           </view>
@@ -172,6 +176,9 @@
           </view>
           <view class="demo-item">
             <k-loading type="bands" color="warning" size="sm" text="Bands" />
+          </view>
+          <view class="demo-item">
+            <k-loading type="wave" color="info" size="lg" text="Wave" />
           </view>
           <view class="demo-item">
             <k-loading type="pulse" color="danger" size="xl" text="Pulse" />
