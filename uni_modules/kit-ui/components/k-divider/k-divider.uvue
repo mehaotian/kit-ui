@@ -1,0 +1,251 @@
+<script setup>
+	import {
+		inject,
+		computed,
+		useSlots
+	} from 'vue'
+
+	/**
+	 * k-divider 分割线组件
+	 * 支持水平和垂直方向的分割线，可配置颜色、粗细和文本嵌入
+	 */
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
+
+	// 获取插槽
+	const slots = useSlots()
+
+	// 定义 props
+	const props = defineProps({
+		// 分割线方向: horizontal, vertical
+		direction: {
+			type: String,
+			default: 'horizontal'
+		},
+		// 分割线颜色
+		color: {
+			type: String,
+			default: ''
+		},
+		// 分割线粗细
+		size: {
+			type: [String, Number],
+			default: ''
+		},
+		// 分割线文本
+		text: {
+			type: String,
+			default: ''
+		},
+		// 文本位置: left, center, right
+		textPosition: {
+			type: String,
+			default: 'center'
+		},
+		// 文本颜色
+		textColor: {
+			type: String,
+			default: ''
+		},
+		// 文本大小
+		textSize: {
+			type: [String, Number],
+			default: ''
+		},
+		// 边距
+		margin: {
+			type: [String, Number],
+			default: ''
+		}
+	});
+
+	// 计算是否有文本内容
+	const hasText = computed(() => {
+		return props.text !== '' || (slots['default'] != null)
+	})
+
+	// 计算分割线动态样式
+	const dividerStyle = computed(() => {
+		const styles : string[] = []
+
+		// 如果有注入的主题配置，生成对应的 CSS 变量
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				// 将驼峰命名转换为 kebab-case
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+
+		// 自定义颜色
+		if (typeof props.color == 'string' && props.color != '') {
+			styles.push(`--k-divider-color: ${props.color}`)
+		}
+
+		// 自定义粗细
+		if ((typeof props.size == 'string' && props.size != '') || typeof props.size == 'number') {
+			const sizeValue = typeof props.size == 'number' ? `${props.size}px` : props.size as string
+			styles.push(`--k-divider-size: ${sizeValue}`)
+		}
+
+		// 自定义文本颜色
+		if (typeof props.textColor == 'string' && props.textColor != '') {
+			styles.push(`--k-divider-text-color: ${props.textColor}`)
+		}
+
+		// 自定义文本大小
+		if ((typeof props.textSize == 'string' && props.textSize != '') || typeof props.textSize == 'number') {
+			const textSizeValue = typeof props.textSize == 'number' ? `${props.textSize}px` : props.textSize as string
+			styles.push(`--k-divider-text-size: ${textSizeValue}`)
+		}
+
+		// 自定义边距
+		if ((typeof props.margin == 'string' && props.margin != '') || typeof props.margin == 'number') {
+			const marginValue = typeof props.margin == 'number' ? `${props.margin}px` : props.margin as string
+			if (props.direction == 'horizontal') {
+				styles.push(`--k-divider-margin-vertical: ${marginValue}`)
+			} else {
+				styles.push(`--k-divider-margin-horizontal: ${marginValue}`)
+			}
+		}
+
+		return styles.join('; ')
+	})
+</script>
+
+<template>
+	<view class="kit-ui--root k-divider" :class="[
+			`k-divider--${direction}`,
+			{
+				'k-divider--with-text': hasText,
+				'k-divider--text-left': textPosition == 'left',
+				'k-divider--text-center': textPosition == 'center',
+				'k-divider--text-right': textPosition == 'right'
+			}
+		]" :style="dividerStyle">
+		<!-- 水平分割线 -->
+		<template v-if="direction == 'horizontal'">
+			<!-- 无文本的水平分割线 -->
+			<template v-if="!hasText">
+				<view class="k-divider__line k-divider__line--left"></view>
+				<view class="k-divider__dot"></view>
+				<view class="k-divider__line k-divider__line--right"></view>
+			</template>
+			<!-- 有文本的水平分割线 -->
+			<template v-else>
+				<view class="k-divider__line k-divider__line--left"></view>
+				<view class="k-divider__text">
+					<text class="k-divider__text-content">
+						<slot>{{ text }}</slot>
+					</text>
+				</view>
+				<view class="k-divider__line k-divider__line--right"></view>
+			</template>
+		</template>
+		<!-- 垂直分割线 -->
+		<view v-else class="k-divider__line k-divider__line--vertical"></view>
+	</view>
+</template>
+
+<style lang="scss">
+	@import "../../theme/index.scss";
+
+	.k-divider {
+		display: flex;
+		align-items: center;
+		box-sizing: border-box;
+
+		// 水平分割线
+		&--horizontal {
+			flex-direction: row;
+			width: 100%;
+			margin-top: var(--k-divider-margin-vertical, 16px);
+			margin-bottom: var(--k-divider-margin-vertical, 16px);
+		}
+
+		// 垂直分割线
+		&--vertical {
+			flex-direction: column;
+			height: 100%;
+			margin-left: var(--k-divider-margin-horizontal, 12px);
+			margin-right: var(--k-divider-margin-horizontal, 12px);
+		}
+
+		// 分割线基础样式
+		&__line {
+			background-color: var(--k-divider-color, #d1d5db);
+			height: var(--k-divider-size, 1px);
+			flex: 1;
+
+			// 垂直线
+			&--vertical {
+				width: var(--k-divider-size, 1px);
+				height: auto;
+				flex: 1;
+			}
+
+			// 有文本时的左右分割线
+			&--left,
+			&--right {
+				height: var(--k-divider-size, 1px);
+			}
+		}
+
+		// 圆点装饰
+		&__dot {
+			width: 6px;
+			height: 6px;
+			border-radius: 6px;
+			background-color: var(--k-divider-color, #d1d5db);
+			flex-shrink: 0;
+			margin-left: var(--k-spacing-sm, 8px);
+			margin-right: var(--k-spacing-sm, 8px);
+		}
+
+		// 文本容器
+		&__text {
+			padding-left: var(--k-spacing-md, 12px);
+			padding-right: var(--k-spacing-md, 12px);
+			flex-shrink: 0;
+		}
+
+		// 文本内容
+		&__text-content {
+			color: var(--k-divider-text-color, #6b7280);
+			font-size: var(--k-divider-text-size, 14px);
+			line-height: 1.2;
+			white-space: nowrap;
+		}
+
+		// 文本位置调整
+		&--text-left {
+			.k-divider__line--left {
+				flex: 0.2;
+			}
+
+			.k-divider__line--right {
+				flex: 1;
+			}
+		}
+
+		&--text-center {
+
+			.k-divider__line--left,
+			.k-divider__line--right {
+				flex: 1;
+			}
+		}
+
+		&--text-right {
+			.k-divider__line--left {
+				flex: 1;
+			}
+
+			.k-divider__line--right {
+				flex: 0.2;
+			}
+		}
+	}
+</style>

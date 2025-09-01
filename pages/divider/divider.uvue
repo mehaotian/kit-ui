@@ -1,0 +1,157 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex:1">
+	<!-- #endif -->
+		<view class="page">
+			
+			<view class="page-header">
+				<text class="page-title">k-divider 分割线组件</text>
+				<text class="page-desc">用于分隔内容的分割线</text>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+				</view>
+				<view class="demo-item">
+					<text class="demo-text">上方内容</text>
+					<k-divider />
+					<text class="demo-text">下方内容</text>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">垂直分割线</text>
+				</view>
+				<view class="demo-row" style="height: 30px;border: 1px solid #ccc;">
+					<text class="demo-text">左侧内容</text>
+					<k-divider direction="vertical" />
+					<text class="demo-text">中间内容</text>
+					<k-divider direction="vertical" />
+					<text class="demo-text">右侧内容</text>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">带文字的分割线</text>
+				</view>
+				<view class="demo-item">
+					<text class="demo-text">上方内容</text>
+					<k-divider text="分割线" />
+					<text class="demo-text">中间内容</text>
+					<k-divider text="左侧文字" text-position="left" />
+					<text class="demo-text">中间内容</text>
+					<k-divider text="右侧文字" text-position="right" />
+					<text class="demo-text">下方内容</text>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义颜色</text>
+				</view>
+				<view class="demo-item">
+					<text class="demo-text">默认颜色</text>
+					<k-divider />
+					<text class="demo-text">红色分割线</text>
+					<k-divider color="#ff6b6b" />
+					<text class="demo-text">蓝色分割线</text>
+					<k-divider color="#4dabf7" />
+					<text class="demo-text">绿色分割线</text>
+					<k-divider color="#51cf66" />
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义粗细</text>
+				</view>
+				<view class="demo-item">
+					<text class="demo-text">细线 (1px)</text>
+					<k-divider size="1px" />
+					<text class="demo-text">中等 (2px)</text>
+					<k-divider size="2px" />
+					<text class="demo-text">粗线 (4px)</text>
+					<k-divider size="4px" />
+					<text class="demo-text">超粗 (8px)</text>
+					<k-divider size="8px" />
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义文字样式</text>
+				</view>
+				<view class="demo-item">
+					<text class="demo-text">默认文字</text>
+					<k-divider text="普通文字" />
+					<text class="demo-text">红色文字</text>
+					<k-divider text="红色文字" text-color="#ff6b6b" />
+					<text class="demo-text">大号文字</text>
+					<k-divider text="大号文字" text-size="18px" />
+					<text class="demo-text">组合样式</text>
+					<k-divider 
+						text="重要提示" 
+						color="#ff6b6b" 
+						text-color="#ff6b6b" 
+						text-size="16px" 
+						size="2px" 
+					/>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义边距</text>
+				</view>
+				<view class="demo-item">
+					<text class="demo-text">默认边距</text>
+					<k-divider />
+					<text class="demo-text">小边距</text>
+					<k-divider margin="8px" />
+					<text class="demo-text">大边距</text>
+					<k-divider margin="32px" />
+					<text class="demo-text">结束</text>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">插槽用法</text>
+				</view>
+				<view class="demo-item">
+					<text class="demo-text">上方内容</text>
+					<k-divider>
+						<text style="color: #6366f1; font-weight: bold;">自定义内容</text>
+					</k-divider>
+					<text class="demo-text">下方内容</text>
+				</view>
+			</view>
+
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup>
+	/**
+	 * k-divider 分割线组件演示页面
+	 */
+</script>
+
+<style lang="scss">
+.demo-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.demo-text {
+	font-size: 24rpx;
+	color: #333;
+}
+</style>

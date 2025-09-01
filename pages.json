@@ -46,6 +46,12 @@
 			}
 		},
 		{
+			"path": "pages/divider/divider",
+			"style": {
+				"navigationBarTitleText": "分割线"
+			}
+		},
+		{
 			"path": "pages/image/image",
 			"style": {
 				"navigationBarTitleText": "图片组件"

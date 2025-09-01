@@ -7,11 +7,6 @@
 		onMounted
 	} from 'vue'
 
-	/**
-	 * k-image 图片组件
-	 * 基于原生 image 组件封装，提供更丰富的功能和更好的用户体验
-	 */
-
 	// 注入主题配置
 	const themeConfig = inject('kit-theme', {})
 
