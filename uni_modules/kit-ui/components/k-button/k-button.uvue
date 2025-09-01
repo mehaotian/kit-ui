@@ -98,7 +98,7 @@
 	// 计算按钮动态样式
 	const buttonStyle = computed(() => {
 		// 如果有注入的主题配置，生成对应的 CSS 变量
-		const styles: string[] = []
+		const styles : string[] = []
 		// 遍历主题配置，生成 CSS 变量
 		for (let key in themeConfig) {
 			const value = themeConfig[key]
@@ -116,21 +116,21 @@
 		if (props.disabled || props.loading) {
 			return ''
 		}
-		
+
 		// 根据按钮属性优先级返回最具体的按下状态类名
 		// 优先级：渐变 > 朴素 > 阴影 > 基础
 		if (props.gradient) {
 			return `k-button--gradient--${props.type}--active`
 		}
-		
+
 		if (props.plain) {
 			return `k-button--plain--${props.type}--active`
 		}
-		
+
 		if (props.shadow) {
 			return `k-button--shadow--${props.type}--active`
 		}
-		
+
 		// 基础按下状态
 		return `k-button--${props.type}--active`
 	})
@@ -164,18 +164,18 @@
 		border-bottom-left-radius: var(--k-border-radius-md, 8px);
 		border-bottom-right-radius: var(--k-border-radius-md, 8px);
 		transition: all var(--k-animation-duration-normal, 0.3s) var(--k-animation-timing-ease-out, cubic-bezier(0.25, 0.46, 0.45, 0.94));
+
+		// 默认样式 - 简洁风格
+		background-color: var(--k-bg-color, #ffffff);
+		border-color: var(--k-border-color-light, #e5e7eb);
 		/* #ifdef WEB */
 		will-change: transform, box-shadow, background-color;
 		// web 禁止选中
 		user-select: none;
 		cursor: pointer;
+
 		/* #endif */
-
-
-		// 默认样式 - 简洁风格
-		background-color: var(--k-bg-color, #ffffff);
-		border-color: var(--k-border-color-light, #e5e7eb);
-
+		
 		&__btn {
 			position: absolute;
 			top: 0;
@@ -199,7 +199,7 @@
 			background-color: var(--k-color-primary, #6366f1);
 			border-color: var(--k-color-primary, #6366f1);
 		}
-		
+
 		// 主要按钮按下状态
 		&--primary--active {
 			background-color: var(--k-color-primary-active, #4f46e5);
@@ -211,7 +211,7 @@
 			background-color: var(--k-color-success, #10b981);
 			border-color: var(--k-color-success, #10b981);
 		}
-		
+
 		// 成功按钮按下状态
 		&--success--active {
 			background-color: var(--k-color-success-active, #047857);
@@ -223,7 +223,7 @@
 			background-color: var(--k-color-warning, #f59e0b);
 			border-color: var(--k-color-warning, #f59e0b);
 		}
-		
+
 		// 警告按钮按下状态
 		&--warning--active {
 			background-color: var(--k-color-warning-active, #b45309);
@@ -235,7 +235,7 @@
 			background-color: var(--k-color-error, #ef4444);
 			border-color: var(--k-color-error, #ef4444);
 		}
-		
+
 		// 危险按钮按下状态
 		&--danger--active {
 			background-color: var(--k-color-error-active, #b91c1c);
@@ -268,19 +268,19 @@
 		&--plain--default--active {
 			background-color: var(--k-bg-color-active, #f3f4f6);
 		}
-		
+
 		&--plain--primary--active {
 			background-color: rgba(99, 102, 241, 0.1);
 		}
-		
+
 		&--plain--success--active {
 			background-color: var(--k-color-success-light, rgba(16, 185, 129, 0.1));
 		}
-		
+
 		&--plain--warning--active {
 			background-color: var(--k-color-warning-light, rgba(245, 158, 11, 0.1));
 		}
-		
+
 		&--plain--danger--active {
 			background-color: var(--k-color-danger-light, rgba(239, 68, 68, 0.1));
 		}
@@ -304,6 +304,7 @@
 		}
 
 		&--medium {
+
 			// 默认尺寸，使用基础样式
 			// 圆形按钮
 			&.k-button--circle {
@@ -360,31 +361,26 @@
 				background-image: var(--k-gradient-error);
 			}
 		}
-		
+
 		// 渐变按钮按下状态 - 独立类名
 		&--gradient--default--active {
-			filter: brightness(0.9);
 			transform: translateY(1px);
 			border: 1px red solid;
 		}
-		
+
 		&--gradient--primary--active {
-			filter: brightness(0.9);
 			transform: translateY(1px);
 		}
-		
+
 		&--gradient--success--active {
-			filter: brightness(0.9);
 			transform: translateY(1px);
 		}
-		
+
 		&--gradient--warning--active {
-			filter: brightness(0.9);
 			transform: translateY(1px);
 		}
-		
+
 		&--gradient--danger--active {
-			filter: brightness(0.9);
 			transform: translateY(1px);
 		}
 
@@ -436,8 +432,10 @@
 		// 禁用状态
 		&--disabled {
 			opacity: 0.5;
-			cursor: not-allowed;
 			pointer-events: none;
+			/* #ifdef WEB */
+			cursor: not-allowed;
+			/* #endif */
 		}
 
 		// 加载状态

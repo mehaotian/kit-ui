@@ -121,13 +121,14 @@
 					<k-text format="date" text="2023-05-20"></k-text>
 				</view>
 				<view class="demo-item">
-					<k-text format="date" text="2023-05-20" :formatOptions="{ format: 'YYYY/MM/DD' }"></k-text>
+					<k-text format="date" text="2023-05-20" :formatOptions="dateFormatOptions"></k-text>
+
 				</view>
 				<view class="demo-item">
-					<k-text format="date" text="2023-05-20" :formatOptions="{ format: 'YYYY年MM月DD日' }"></k-text>
+					<k-text format="date" text="2023-05-20" :formatOptions="date1FormatOptions"></k-text>
 				</view>
 				<view class="demo-item">
-					<k-text format="date" text="2023-05-20 12:30:45" :formatOptions="{ format: 'YYYY年MM月DD日 HH时mm分ss秒' }"></k-text>
+					<k-text format="date" text="2023-05-20 12:30:45" :formatOptions="date2FormatOptions"></k-text>
 				</view>
 			</view>
 
@@ -137,29 +138,30 @@
 					<k-text format="price" text="1234.56"></k-text>
 				</view>
 				<view class="demo-item">
-					<k-text format="price" text="1234.56" :formatOptions="{ symbol: '$', digits: 2, thousandsSeparator: true }"></k-text>
+					<k-text format="price" text="1234.56" :formatOptions="priceFormatOptions"></k-text>
 				</view>
 				<view class="demo-item">
-					<k-text format="price" text="1234.56" :formatOptions="{ symbol: '€', digits: 0, thousandsSeparator: false }"></k-text>
+					<k-text format="price" text="1234.56" :formatOptions="price2FormatOptions"></k-text>
 				</view>
 			</view>
 
 			<view class="section">
 				<k-text size="lg" weight="bold">文本脱敏</k-text>
 				<view class="demo-item">
-					<k-text format="mask" text="13812345678" :formatOptions="{ type: 'phone' }"></k-text>
+					<k-text format="mask" text="13812345678" :formatOptions="mask1FormatOptions"></k-text>
 				</view>
 				<view class="demo-item">
-					<k-text format="mask" text="example@email.com" :formatOptions="{ type: 'email' }"></k-text>
+					<k-text format="mask" text="example@email.com" :formatOptions="mask2FormatOptions"></k-text>
 				</view>
 				<view class="demo-item">
-					<k-text format="mask" text="张三" :formatOptions="{ type: 'name' }"></k-text>
+					<k-text format="mask" text="张三" :formatOptions="mask3FormatOptions"></k-text>
 				</view>
 				<view class="demo-item">
-					<k-text format="mask" text="123456789012345678" :formatOptions="{ type: 'idcard' }"></k-text>
+					<k-text format="mask" text="123456789012345678" :formatOptions="mask4FormatOptions"></k-text>
 				</view>
 				<view class="demo-item">
-					<k-text format="mask" text="自定义脱敏文本" :formatOptions="{ type: 'custom', startLen: 2, endLen: 2, maskChar: '#' }"></k-text>
+					<k-text format="mask" text="自定义脱敏文本" :formatOptions="mask5FormatOptions"></k-text>
+
 				</view>
 			</view>
 
@@ -208,6 +210,49 @@
 		colorPrimary: '#ff8c42',
 		colorWarning: '#ffa726',
 	}
+
+	const dateFormatOptions = reactive({
+		format: 'YYYY年MM月DD日',
+	})
+	const date1FormatOptions = reactive({
+		format: 'YYYY年MM月DD日 HH时mm分ss秒',
+	})
+	const date2FormatOptions = reactive({
+		format: 'YYYY-MM-DD HH:mm:ss',
+	})
+
+	const priceFormatOptions = reactive({
+		symbol: '#',
+		digits: 1,
+		thousandsSeparator: true,
+	})
+	const price2FormatOptions = reactive({
+		symbol: '¥',
+		digits: 0,
+		thousandsSeparator: false,
+	})
+	const mask1FormatOptions = reactive({
+		type: 'phone',
+	})
+	const mask2FormatOptions = reactive({
+		type: 'email',
+	})
+	const mask3FormatOptions = reactive({
+		type: 'name',
+	})
+	const mask4FormatOptions = reactive({
+		type: 'idcard',
+	})
+	const mask5FormatOptions = reactive({
+		type: 'custom',
+		startLen: 2,
+		endLen: 2,
+		maskChar: '#',
+	})
+
+
+
+
 </script>
 
 <style lang="scss" scoped>

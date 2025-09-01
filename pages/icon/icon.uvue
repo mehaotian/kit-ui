@@ -2,113 +2,116 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		<view class="page-header">
-			<text class="page-title">k-icon 图标组件</text>
-			<text class="page-desc">轻量、扩展方便、用法简单的图标组件</text>
-		</view>
-
-		<!-- 基础用法 -->
-		<view class="section">
-			<text class="section-title">基础用法</text>
-			<view class="demo-row">
-				<k-icon name="account-box-fill" size="24" />
-				<k-icon name="arrow-down-fill" size="24" />
-				<k-icon name="settings-fill" size="24" />
-				<k-icon name="anticlockwise-2-fill" size="24" />
-				<k-icon name="share-fill" size="24" />
-				<k-icon name="signal-wifi-1-fill" size="24" />
+		<view class="page">
+			
+			<view class="page-header">
+				<text class="page-title">k-icon 图标组件</text>
+				<text class="page-desc">轻量、扩展方便、用法简单的图标组件</text>
 			</view>
-		</view>
-
-		<!-- 图标尺寸 -->
-		<view class="section">
-			<text class="section-title">图标尺寸</text>
-			<view class="demo-row">
-				<k-icon name="account-box-fill" size="xs" />
-				<k-icon name="account-box-fill" size="sm" />
-				<k-icon name="account-box-fill" size="md" />
-				<k-icon name="account-box-fill" size="lg" />
-				<k-icon name="account-box-fill" size="xl" />
-				<k-icon name="account-box-fill" size="2xl" />
+			
+			<!-- 基础用法 -->
+			<view class="section">
+				<text class="section-title">基础用法</text>
+				<view class="demo-row">
+					<k-icon name="account-box-fill" size="24" />
+					<k-icon name="arrow-down-fill" size="24" />
+					<k-icon name="settings-fill" size="24" />
+					<k-icon name="anticlockwise-2-fill" size="24" />
+					<k-icon name="share-fill" size="24" />
+					<k-icon name="signal-wifi-1-fill" size="24" />
+				</view>
 			</view>
-			<view class="demo-row">
-				<k-icon name="account-box-fill" size="16" />
-				<k-icon name="account-box-fill" size="20" />
-				<k-icon name="account-box-fill" size="24" />
-				<k-icon name="account-box-fill" size="32" />
-				<k-icon name="account-box-fill" size="48" />
+			
+			<!-- 图标尺寸 -->
+			<view class="section">
+				<text class="section-title">图标尺寸</text>
+				<view class="demo-row">
+					<k-icon name="account-box-fill" size="xs" />
+					<k-icon name="account-box-fill" size="sm" />
+					<k-icon name="account-box-fill" size="md" />
+					<k-icon name="account-box-fill" size="lg" />
+					<k-icon name="account-box-fill" size="xl" />
+					<k-icon name="account-box-fill" size="2xl" />
+				</view>
+				<view class="demo-row">
+					<k-icon name="account-box-fill" size="16" />
+					<k-icon name="account-box-fill" size="20" />
+					<k-icon name="account-box-fill" size="24" />
+					<k-icon name="account-box-fill" size="32" />
+					<k-icon name="account-box-fill" size="48" />
+				</view>
 			</view>
-		</view>
-
-		<!-- 图标颜色 -->
-		<view class="section">
-			<text class="section-title">图标颜色</text>
-			<view class="demo-row">
-				<k-icon name="account-box-fill" size="24" color="primary" />
-				<k-icon name="arrow-down-fill" size="24" color="success" />
-				<k-icon name="settings-fill" size="24" color="warning" />
-				<k-icon name="anticlockwise-2-fill" size="24" color="danger" />
-				<k-icon name="share-fill" size="24" color="info" />
+			
+			<!-- 图标颜色 -->
+			<view class="section">
+				<text class="section-title">图标颜色</text>
+				<view class="demo-row">
+					<k-icon name="account-box-fill" size="24" color="primary" />
+					<k-icon name="arrow-down-fill" size="24" color="success" />
+					<k-icon name="settings-fill" size="24" color="warning" />
+					<k-icon name="anticlockwise-2-fill" size="24" color="danger" />
+					<k-icon name="share-fill" size="24" color="info" />
+				</view>
+				<view class="demo-row">
+					<k-icon name="account-box-fill" size="24" color="#ff6b6b" />
+					<k-icon name="arrow-down-fill" size="24" color="#4ecdc4" />
+					<k-icon name="settings-fill" size="24" color="#45b7d1" />
+					<k-icon name="anticlockwise-2-fill" size="24" color="#f9ca24" />
+					<k-icon name="share-fill" size="24" color="#6c5ce7" />
+				</view>
 			</view>
-			<view class="demo-row">
-				<k-icon name="account-box-fill" size="24" color="#ff6b6b" />
-				<k-icon name="arrow-down-fill" size="24" color="#4ecdc4" />
-				<k-icon name="settings-fill" size="24" color="#45b7d1" />
-				<k-icon name="anticlockwise-2-fill" size="24" color="#f9ca24" />
-				<k-icon name="share-fill" size="24" color="#6c5ce7" />
+			
+			<!-- 加载状态 -->
+			<view class="section">
+				<text class="section-title">加载状态</text>
+				<view class="demo-row">
+					<k-icon name="settings-line" :spin-speed="3000" size="24" loading />
+					<k-icon name="donut-chart-line" :spin-reverse="true" size="24" spin />
+					<k-icon name="settings-fill" size="24" :loading="isLoading" @click="toggleLoading" />
+				</view>
+				<text class="click-result">点击第三个图标，开始旋转2秒后停止</text>
 			</view>
-		</view>
-
-		<!-- 加载状态 -->
-		<view class="section">
-			<text class="section-title">加载状态</text>
-			<view class="demo-row">
-				<k-icon name="settings-line" :spin-speed="3000" size="24" loading />
-				<k-icon name="donut-chart-line" :spin-reverse="true" size="24" spin />
-				<k-icon name="settings-fill" size="24" :loading="isLoading" @click="toggleLoading" />
+			
+			<!-- 禁用状态 -->
+			<view class="section">
+				<text class="section-title">禁用状态</text>
+				<view class="demo-row">
+					<k-icon name="settings-fill" size="24" disabled @click="handleIconClick('settings-fill')" />
+					<k-icon name="volume-up-line" size="24" disabled @click="handleIconClick('volume-up-line')" />
+					<k-icon name="chat-4-line" size="24" disabled @click="handleIconClick('chat-4-line')" />
+				</view>
+				<text class="click-result">当前图标有点击事件，但是点击不会被触发</text>
 			</view>
-			<text class="click-result">点击第三个图标，开始旋转2秒后停止</text>
-		</view>
-
-		<!-- 禁用状态 -->
-		<view class="section">
-			<text class="section-title">禁用状态</text>
-			<view class="demo-row">
-				<k-icon name="settings-fill" size="24" disabled @click="handleIconClick('settings-fill')" />
-				<k-icon name="volume-up-line" size="24" disabled @click="handleIconClick('volume-up-line')" />
-				<k-icon name="chat-4-line" size="24" disabled @click="handleIconClick('chat-4-line')" />
+			
+			<!-- 图片图标 -->
+			<view class="section">
+				<text class="section-title">图片图标</text>
+				<view class="demo-row">
+					<k-icon name="https://fastly.jsdelivr.net/npm/@vant/assets/icon-demo.png" size="32" />
+					<k-icon name="/static/logo.png" size="32" />
+					<k-icon name="tabler:alarm-plus" size="32" />
+				</view>
 			</view>
-			<text class="click-result">当前图标有点击事件，但是点击不会被触发</text>
-		</view>
-
-		<!-- 图片图标 -->
-		<view class="section">
-			<text class="section-title">图片图标</text>
-			<view class="demo-row">
-				<k-icon name="https://fastly.jsdelivr.net/npm/@vant/assets/icon-demo.png" size="32" />
-				<k-icon name="/static/logo.png" size="32" />
-				<k-icon name="tabler:alarm-plus" size="32" />
+			
+			<!-- 自定义样式 -->
+			<view class="section">
+				<text class="section-title">自定义样式</text>
+				<view class="demo-row">
+					<k-icon name="mic-line" size="32" color="#ff6b6b" custom-style="border: 2px solid #ff6b6b; border-radius: 100px; padding: 8px;" />
+					<k-icon name="music-line" size="32" color="#f9ca24" custom-style="background-image: linear-gradient(45deg, #f9ca24, #f0932b); border-radius: 8px; padding: 6px;" />
+				</view>
 			</view>
-		</view>
-
-		<!-- 自定义样式 -->
-		<view class="section">
-			<text class="section-title">自定义样式</text>
-			<view class="demo-row">
-				<k-icon name="mic-line" size="32" color="#ff6b6b" custom-style="border: 2px solid #ff6b6b; border-radius: 100px; padding: 8px;" />
-				<k-icon name="music-line" size="32" color="#f9ca24" custom-style="background-image: linear-gradient(45deg, #f9ca24, #f0932b); border-radius: 8px; padding: 6px;" />
+			
+			<!-- 点击事件 -->
+			<view class="section">
+				<text class="section-title">点击事件</text>
+				<view class="demo-row">
+					<k-icon name="volume-up-line" size="24" @click="handleIconClick('volume-up-line')" />
+					<k-icon name="chat-3-line" size="24" @click="handleIconClick('chat-3-line')" />
+					<k-icon name="chat-4-line" size="24" @click="handleIconClick('chat-4-line')" />
+				</view>
+				<text class="click-result">{{ clickResult }}</text>
 			</view>
-		</view>
-
-		<!-- 点击事件 -->
-		<view class="section">
-			<text class="section-title">点击事件</text>
-			<view class="demo-row">
-				<k-icon name="volume-up-line" size="24" @click="handleIconClick('volume-up-line')" />
-				<k-icon name="chat-3-line" size="24" @click="handleIconClick('chat-3-line')" />
-				<k-icon name="chat-4-line" size="24" @click="handleIconClick('chat-4-line')" />
-			</view>
-			<text class="click-result">{{ clickResult }}</text>
 		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
@@ -136,10 +139,6 @@
 </script>
 
 <style lang="scss" scoped>
-	.page {
-		flex: 1;
-		background-color: var(--k-color-background, #f8f9fa);
-	}
 
 	.click-result {
 		font-size: 14px;
