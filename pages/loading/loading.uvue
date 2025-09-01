@@ -184,7 +184,7 @@
             <k-loading type="pulse" text="处理中" color="info" :vertical="false" />
           </view>
           <view class="demo-item-full">
-            <k-loading text="自定义文字大小" textSize="18" :vertical="false" color="success" />
+            <k-loading text="自定义文字大小" textSize="26rpx" :vertical="false" color="success" />
           </view>
         </view>
       </view>
