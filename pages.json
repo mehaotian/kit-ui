@@ -44,6 +44,12 @@
 			"style": {
 				"navigationBarTitleText": "加载"
 			}
+		},
+		{
+			"path": "pages/image/image",
+			"style": {
+				"navigationBarTitleText": "图片组件"
+			}
 		}
 	],
 	"globalStyle": {

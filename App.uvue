@@ -94,11 +94,11 @@
   flex-wrap: wrap;
 }
 
-.demo-row .demo-item {
+/* .demo-row .demo-item {
   margin: 8px;
   flex: 1;
   min-width: 80px;
-}
+} */
 
 .demo-column {
   display: flex;

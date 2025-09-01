@@ -172,7 +172,9 @@
 		will-change: transform, box-shadow, background-color;
 		// web 禁止选中
 		user-select: none;
+		/* #ifdef WEB */
 		cursor: pointer;
+		/* #endif */
 
 		/* #endif */
 		

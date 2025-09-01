@@ -75,7 +75,7 @@
 				{ name: 'Icon | 图标', path: '/pages/icon/icon', status: 'completed' },
 				{ name: 'IconList | 图标完整示例', path: '/pages/icon-list/icon-list', status: 'completed' },
 				{ name: 'Text | 文本', path: '/pages/text/text', status: 'developing' },
-				{ name: 'Image', path: '/pages/image/image', status: 'planning' },
+				{ name: 'Image', path: '/pages/image/image', status: 'developing' },
 				{ name: 'Layout', path: '/pages/layout/layout', status: 'planning' },
 				{ name: 'Grid', path: '/pages/grid/grid', status: 'planning' },
 				{ name: 'Space', path: '/pages/space/space', status: 'planning' },

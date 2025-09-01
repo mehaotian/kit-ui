@@ -175,10 +175,12 @@
 		font-size: 14px;
 		transition: all 0.3s ease;
 
+		/* #ifdef WEB */
 		&:hover {
 			border-color: #40a9ff;
 			color: #40a9ff;
 		}
+		/* #endif */
 
 		&:active {
 			transform: scale(0.98);

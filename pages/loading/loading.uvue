@@ -212,17 +212,6 @@
         </view>
       </view>
     </view>
-    
-    <!-- 遮罩加载器 -->
-    <k-loading 
-      v-if="overlayVisible"
-      :overlay="true"
-      :type="overlayType"
-      :color="overlayColor"
-      :text="overlayText"
-      :close-on-click-overlay="true"
-      @close="hideOverlay"
-    />
   <!-- #ifdef APP -->
   </scroll-view>
   <!-- #endif -->

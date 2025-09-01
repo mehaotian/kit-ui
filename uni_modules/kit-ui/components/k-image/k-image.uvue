@@ -1,0 +1,556 @@
+<script setup lang="uts">
+	import {
+		inject,
+		computed,
+		ref,
+		watch,
+		onMounted
+	} from 'vue'
+
+	/**
+	 * k-image 图片组件
+	 * 基于原生 image 组件封装，提供更丰富的功能和更好的用户体验
+	 */
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
+
+	// 定义 props
+	const props = defineProps({
+		// 图片资源地址
+		src: {
+			type: String,
+			default: ''
+		},
+		// 图片裁剪、缩放的模式
+		mode: {
+			type: String,
+			default: 'scaleToFill'
+		},
+		// 图片尺寸
+		width: {
+			type: String,
+			default: null
+		},
+		height: {
+			type: String,
+			default: null
+		},
+		// 图片形状: square, round, circle
+		shape: {
+			type: String,
+			default: 'square'
+		},
+		// 圆角大小（仅在 shape 为 round 时有效）
+		radius: {
+			type: String,
+			default: '8px'
+		},
+		// 是否懒加载
+		lazy: {
+			type: Boolean,
+			default: false
+		},
+		// 是否显示淡入动画
+		fadeShow: {
+			type: Boolean,
+			default: true
+		},
+		// 是否支持 webP 格式
+		webp: {
+			type: Boolean,
+			default: true
+		},
+		// 是否开启长按显示菜单
+		showMenuByLongpress: {
+			type: Boolean,
+			default: false
+		},
+		// 是否可拖拽（仅H5平台）
+		draggable: {
+			type: Boolean,
+			default: false
+		},
+		// 占位符文本
+		placeholderText: {
+			type: String,
+			default: ''
+		},
+		// 占位符图标
+		placeholderIcon: {
+			type: String,
+			default: 'image-line'
+		},
+		// 占位符图标大小
+		placeholderIconSize: {
+			type: String,
+			default: '32'
+		},
+		// 占位符图标颜色
+		placeholderIconColor: {
+			type: String,
+			default: '#c8c9cc'
+		},
+		// 加载状态图标
+		loadingIcon: {
+			type: String,
+			default: 'donut-chart-line'
+		},
+		// 加载状态图标大小
+		loadingIconSize: {
+			type: String,
+			default: "24"
+		},
+		// 加载状态图标颜色
+		loadingIconColor: {
+			type: String,
+			default: '#c8c9cc'
+		},
+		// 加载动画类型（使用 k-loading 组件）
+		loadingType: {
+			type: String,
+			default: ''
+		},
+		// 加载动画大小
+		loadingSize: {
+			type: String,
+			default: '24'
+		},
+		// 加载动画颜色
+		loadingColor: {
+			type: String,
+			default: '#c8c9cc'
+		},
+		// 错误状态文本
+		errorText: {
+			type: String,
+			default: ''
+		},
+		// 错误状态图标
+		errorIcon: {
+			type: String,
+			default: 'finder-fill'
+		},
+		// 错误状态图标大小
+		errorIconSize: {
+			type: String,
+			default: '32'
+		},
+		// 错误状态图标颜色
+		errorIconColor: {
+			type: String,
+			default: '#c8c9cc'
+		},
+		// 备用图片地址列表
+		fallbackSrc: {
+			type: Array,
+			default: () => []
+		},
+		// 是否启用预览功能
+		preview: {
+			type: Boolean,
+			default: false
+		},
+		// 预览图标
+		previewIcon: {
+			type: String,
+			default: 'eye'
+		},
+		// 预览图标大小
+		previewIconSize: {
+			type: String,
+			default: '20'
+		},
+		// 预览图标颜色
+		previewIconColor: {
+			type: String,
+			default: '#ffffff'
+		},
+		// 是否显示遮罩层
+		showMask: {
+			type: Boolean,
+			default: false
+		},
+		// 遮罩层透明度
+		maskOpacity: {
+			type: Number,
+			default: 0.3
+		},
+		// 遮罩层颜色
+		maskColor: {
+			type: String,
+			default: '#000000'
+		},
+		// 是否禁用点击
+		disabled: {
+			type: Boolean,
+			default: false
+		}
+	})
+
+	const emit = defineEmits(['click', 'load', 'error', 'preview'])
+
+	// 响应式状态
+	const isLoading = ref(false)
+	const hasError = ref(false)
+	const currentSrc = ref('')
+	const fallbackIndex = ref(0)
+	const imageInfo = ref(null)
+
+	// 计算属性
+	const showPlaceholder = computed(() => {
+		return currentSrc.value == '' && !isLoading.value && !hasError.value
+	})
+
+	const showLoading = computed(() => {
+		return isLoading.value && currentSrc.value != ''
+	})
+
+	const showError = computed(() => {
+		return hasError.value && !isLoading.value
+	})
+
+	const shouldShowImage = computed(() => {
+		return currentSrc.value != '' && !hasError.value
+	})
+
+	// 容器样式
+	const imageContainerStyle = computed(() => {
+		const styles : string[] = []
+
+		// 设置宽高
+		if (props.width != '') {
+			const width = typeof props.width == 'number' ? `${props.width}px` : props.width
+			styles.push(`width: ${width}`)
+		}
+		if (props.height != '') {
+			const height = typeof props.height == 'number' ? `${props.height}px` : props.height
+			styles.push(`height: ${height}`)
+		}
+
+		// 设置圆角
+		if (props.shape == 'round') {
+			const radius = typeof props.radius == 'number' ? `${props.radius}px` : props.radius
+			styles.push(`border-radius: ${radius}`)
+		}
+
+		// 主题变量
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+
+		return styles.join('; ')
+	})
+
+
+
+	// 遮罩层样式
+	const maskStyle = computed(() => {
+		const styles : string[] = []
+		styles.push(`background-color: ${props.maskColor}`)
+		styles.push(`opacity: ${props.maskOpacity}`)
+		return styles.join('; ')
+	})
+
+	// 事件处理函数
+	const handleClick = () => {
+		if (props.disabled) {
+			return
+		}
+		emit('click')
+	}
+
+	const handleLoad = (event : UniImageLoadEvent) => {
+		isLoading.value = false
+		hasError.value = false
+		// imageInfo.value = event.detail as UniImageErrorEventDetail
+		emit('load', event)
+	}
+
+	const handleError = (event : UniImageErrorEvent) => {
+		isLoading.value = false
+
+		// 尝试使用备用图片
+		if (props.fallbackSrc.length > 0 && fallbackIndex.value < props.fallbackSrc.length) {
+			currentSrc.value = props.fallbackSrc[fallbackIndex.value] as string
+			fallbackIndex.value++
+			isLoading.value = true
+			return
+		}
+
+		hasError.value = true
+		emit('error', event)
+	}
+
+	const handlePreview = () => {
+		if (props.disabled || currentSrc.value == '') {
+			return
+		}
+
+		// 使用 uni.previewImage 预览图片
+		uni.previewImage({
+			current: currentSrc.value,
+			urls: [currentSrc.value],
+			success: () => {
+				emit('preview', currentSrc.value)
+			},
+			fail: (err : any) => {
+				console.error('图片预览失败:', err)
+			}
+		})
+	}
+
+	const onImageClick = () => {
+		if (props.preview) {
+			handlePreview()
+		}
+		emit('click')
+	}
+
+	// 初始化图片源
+	const initSrc = () => {
+		if (props.src != '') {
+			currentSrc.value = props.src
+			isLoading.value = true
+			hasError.value = false
+			fallbackIndex.value = 0
+		} else {
+			currentSrc.value = ''
+			isLoading.value = false
+			hasError.value = false
+		}
+	}
+
+	// 防抖处理图片加载
+	let loadTimer : number | null = null
+
+	const comSrc = computed(() => props.src)
+	// 监听 src 变化
+	watch(comSrc, (newSrc : string) => {
+		if (newSrc != currentSrc.value) {
+			// 清除之前的定时器
+			if (loadTimer != null) {
+				clearTimeout(loadTimer as number)
+			}
+
+			// 防抖处理，避免频繁切换图片源
+			loadTimer = setTimeout(() => {
+				initSrc()
+				loadTimer = null
+			}, 100)
+		}
+	}, { immediate: true })
+
+	// 组件挂载时初始化
+	onMounted(() => {
+		initSrc()
+	})
+
+	// 组件卸载时清理
+	onUnmounted(() => {
+		if (loadTimer != null) {
+			clearTimeout(loadTimer as number)
+			loadTimer = null
+		}
+	})
+</script>
+<template>
+	<view class="kit-ui--root k-image" :class="[
+			`k-image--${shape}`,
+			{
+				'k-image--loading': isLoading,
+				'k-image--error': hasError,
+				'k-image--preview': preview,
+				'k-image--lazy': lazy
+			}
+		]" :style="imageContainerStyle" @click="handleClick">
+		<!-- 占位符 -->
+		<view v-if="showPlaceholder" class="k-image__placeholder">
+			<slot name="placeholder">
+				<k-icon v-if="placeholderIcon" :name="placeholderIcon" :size="placeholderIconSize" :color="placeholderIconColor"></k-icon>
+				<text v-if="placeholderText" class="k-image__placeholder-text">{{ placeholderText }}</text>
+			</slot>
+		</view>
+
+		<!-- 加载状态 -->
+		<view v-if="showLoading" class="k-image__loading">
+			<slot name="loading">
+				<k-loading v-if="loadingType" :type="loadingType" :size="loadingSize" :color="loadingColor"></k-loading>
+				<k-icon v-else :name="loadingIcon" :size="loadingIconSize" loading :color="loadingIconColor"></k-icon>
+			</slot>
+		</view>
+
+		<!-- 错误状态 -->
+		<view v-if="showError" class="k-image__error">
+			<slot name="error">
+				<k-icon v-if="errorIcon" :name="errorIcon" :size="errorIconSize" :color="errorIconColor"></k-icon>
+				<text v-if="errorText" class="k-image__error-text">{{ errorText }}</text>
+			</slot>
+		</view>
+
+		<!-- 图片 -->
+		<image v-if="shouldShowImage" class="k-image__img" :src="currentSrc" :mode="mode" :lazy-load="lazy" :fade-show="fadeShow" :webp="webp" :show-menu-by-longpress="showMenuByLongpress" :draggable="draggable" @load="handleLoad" @error="handleError" @click="() => onImageClick()" />
+
+		<!-- 遮罩层 -->
+		<view v-if="showMask" class="k-image__mask" :style="maskStyle">
+			<slot name="mask"></slot>
+		</view>
+
+		<!-- 预览图标 -->
+		<view v-if="preview && !isLoading && !hasError" class="k-image__preview-icon" @click.stop="handlePreview">
+			<k-icon :name="previewIcon" :size="previewIconSize" :color="previewIconColor"></k-icon>
+		</view>
+	</view>
+</template>
+
+
+
+<style lang="scss">
+	@import "../../theme/index.scss";
+
+	.k-image {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		background-color: var(--k-image-bg-color, #f7f8fa);
+		width: 100px;
+		height: 100px;
+
+		// 形状样式
+		&--square {
+			border-radius: 0;
+		}
+
+		&--round {
+			// 圆角通过内联样式设置
+		}
+
+		&--circle {
+			border-radius: 999px;
+		}
+
+		// 状态样式
+		&--loading {
+			.k-image__img {
+				opacity: 0;
+			}
+		}
+
+		&--error {
+			.k-image__img {
+				display: none;
+			}
+		}
+
+		&--preview {
+			/* #ifdef WEB */
+			cursor: pointer;
+			/* #endif */
+
+			/* #ifdef WEB */
+			&:hover {
+				.k-image__preview-icon {
+					opacity: 1;
+				}
+			}
+
+			/* #endif */
+		}
+
+		// 图片元素
+		&__img {
+			width: 100%;
+			height: 100%;
+			transition: opacity 0.3s ease;
+		}
+
+		// 占位符
+		&__placeholder {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: var(--k-image-placeholder-bg-color, #f7f8fa);
+		}
+
+		&__placeholder-text {
+			color: var(--k-image-error-text-color, #c8c9cc);
+			font-size: var(--k-image-error-font-size, 12px);
+			margin-top: 10rpx;
+		}
+
+		// 加载状态
+		&__loading {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-color: var(--k-image-loading-bg-color, #f7f8fa);
+		}
+
+		// 错误状态
+		&__error {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: var(--k-image-error-bg-color, #f7f8fa);
+		}
+
+		&__error-text {
+			color: var(--k-image-error-text-color, #c8c9cc);
+			font-size: var(--k-image-error-font-size, 12px);
+			margin-top: 10rpx;
+		}
+
+		// 遮罩层
+		&__mask {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			pointer-events: none;
+		}
+
+		// 预览图标
+		&__preview-icon {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 40px;
+			height: 40px;
+			background-color: rgba(0, 0, 0, 0.5);
+			border-radius: 20px;
+			opacity: 0;
+			/* #ifdef WEB */
+			transition: opacity 0.3s ease;
+			cursor: pointer;
+			/* #endif */
+		}
+	}
+</style>

@@ -125,7 +125,12 @@
 				const bandWidth = Math.max(2, numericValue / 6)
 				// 条带之间的间距约为条带宽度的1/2
 				const gap = Math.max(1, bandWidth / 2)
+				// #ifdef WEB
 				style += `width: ${sizeValue}; height: ${sizeValue}; gap: ${gap}px;`
+				// #endif
+				// #ifndef WEB
+				style += `width: ${sizeValue}; height: ${sizeValue};`
+				// #endif
 			}
 		}
 		// 如果不是预定义颜色，使用自定义颜色

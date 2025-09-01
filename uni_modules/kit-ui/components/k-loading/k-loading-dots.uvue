@@ -118,7 +118,12 @@
 				const dotSize = Math.max(4, numericValue / 4)
 				// 点之间的间距约为点大小的1/2
 				const gap = Math.max(2, dotSize / 2)
+				// #ifdef WEB
 				style += `width: ${sizeValue}; height: ${dotSize}px; gap: ${gap}px;`
+				// #endif
+				// #ifndef WEB
+				style += `width: ${sizeValue}; height: ${dotSize}px;`
+				// #endif
 			}
 		}
 		// 如果不是预定义颜色，使用自定义颜色
