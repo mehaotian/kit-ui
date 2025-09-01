@@ -151,6 +151,29 @@
       
       <view class="section">
         <view class="section-title">
+          <text class="title-text">文字大小控制</text>
+        </view>
+        <view class="demo-column">
+          <view class="demo-item-full">
+            <k-loading text="小号文字" textSize="xs" />
+          </view>
+          <view class="demo-item-full">
+            <k-loading text="中号文字" textSize="md" color="success" />
+          </view>
+          <view class="demo-item-full">
+            <k-loading text="大号文字" textSize="xl" color="warning" />
+          </view>
+          <view class="demo-item-full">
+            <k-loading text="自定义14px" textSize="14" color="info" />
+          </view>
+          <view class="demo-item-full">
+            <k-loading text="自定义20px" textSize="20px" color="danger" />
+          </view>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">
           <text class="title-text">水平布局</text>
         </view>
         <view class="demo-column">
@@ -159,6 +182,9 @@
           </view>
           <view class="demo-item-full">
             <k-loading type="pulse" text="处理中" color="info" :vertical="false" />
+          </view>
+          <view class="demo-item-full">
+            <k-loading text="自定义文字大小" textSize="18" :vertical="false" color="success" />
           </view>
         </view>
       </view>
@@ -182,23 +208,6 @@
           </view>
           <view class="demo-item">
             <k-loading type="pulse" color="danger" size="xl" text="Pulse" />
-          </view>
-        </view>
-      </view>
-      
-      <view class="section">
-        <view class="section-title">
-          <text class="title-text">遮罩模式</text>
-        </view>
-        <view class="demo-column">
-          <view class="demo-button" @click="showOverlay">
-            <text class="button-text">显示遮罩加载</text>
-          </view>
-          <view class="demo-button" @click="showOverlayWithText">
-            <text class="button-text">显示带文本遮罩</text>
-          </view>
-          <view class="demo-button" @click="showCustomOverlay">
-            <text class="button-text">自定义遮罩样式</text>
           </view>
         </view>
       </view>

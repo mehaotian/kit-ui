@@ -33,20 +33,10 @@
 			type: String,
 			default: ''
 		},
-		// 是否显示全屏遮罩
-		overlay: {
-			type: Boolean,
-			default: false
-		},
-		// 遮罩背景色
-		overlayColor: {
+		// 文字大小：xs, sm, md, lg, xl 或自定义数值（如 '14', '16px'）
+		textSize: {
 			type: String,
-			default: 'rgba(0, 0, 0, 0.5)'
-		},
-		// 点击遮罩是否可关闭
-		closeOnClickOverlay: {
-			type: Boolean,
-			default: false
+			default: ''
 		},
 		// 自定义样式
 		customStyle: {
@@ -79,12 +69,6 @@
 		return parseInt(mat1)
 	})
 
-
-
-	// 遮罩样式类
-	const overlayClass = computed(() : string => {
-		return 'k-loading-overlay'
-	})
 
 	// 容器样式类
 	const containerClass = computed(() : string => {
@@ -146,9 +130,16 @@
 	// 文本样式类
 	const textClass = computed(() : string => {
 		let classes = 'k-loading-text'
-		// 只有预设尺寸才添加尺寸类
-		if (props.size == 'xs' || props.size == 'sm' || props.size == 'md' || props.size == 'lg' || props.size == 'xl') {
-			classes += ` k-loading-text--${props.size}`
+		// 如果设置了 textSize，优先使用 textSize 的预设尺寸类
+		if (props.textSize != '') {
+			if (props.textSize == 'xs' || props.textSize == 'sm' || props.textSize == 'md' || props.textSize == 'lg' || props.textSize == 'xl') {
+				classes += ` k-loading-text--${props.textSize}`
+			}
+		} else {
+			// 如果没有设置 textSize，使用 size 的预设尺寸类
+			if (props.size == 'xs' || props.size == 'sm' || props.size == 'md' || props.size == 'lg' || props.size == 'xl') {
+				classes += ` k-loading-text--${props.size}`
+			}
 		}
 		// 添加颜色类
 		if (props.color == 'primary' || props.color == 'success' || props.color == 'warning' || props.color == 'danger' || props.color == 'info') {
@@ -164,66 +155,62 @@
 		if (props.color != 'primary' && props.color != 'success' && props.color != 'warning' && props.color != 'danger' && props.color != 'info') {
 			styles += `color: ${props.color};`
 		}
-		// 处理自定义尺寸的文本样式
-		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
-			let sizeValue = props.size
-			// 如果是纯数字，添加px单位
-			if (/^\d+$/.test(sizeValue)) {
-				sizeValue += 'px'
+		
+		// 处理文字大小和间距
+		if (props.textSize != '') {
+			// 如果设置了 textSize，优先使用 textSize
+			if (props.textSize != 'xs' && props.textSize != 'sm' && props.textSize != 'md' && props.textSize != 'lg' && props.textSize != 'xl') {
+				// 自定义文字大小
+				let textSizeValue = props.textSize
+				// 如果是纯数字，添加px单位
+				if (/^\d+$/.test(textSizeValue)) {
+					textSizeValue += 'px'
+				}
+				styles += `font-size: ${textSizeValue};`
+				
+				// 根据文字大小计算间距
+				const numericValue = parseFloat(textSizeValue)
+				if (!isNaN(numericValue)) {
+					// 间距约为文字大小的0.5倍
+					const margin = Math.max(4, numericValue * 0.5)
+					if (props.vertical) {
+						styles += `margin-top: ${margin}px;`
+					} else {
+						styles += `margin-left: ${margin}px;`
+					}
+				}
 			}
-			// 解析数值用于计算文本大小
-			const numericValue = parseFloat(sizeValue)
-			if (!isNaN(numericValue)) {
-				// 文本大小约为加载器尺寸的0.6倍
-				const fontSize = Math.max(12, numericValue * 0.6)
-				// 间距约为加载器尺寸的0.3倍
-				const margin = Math.max(4, numericValue * 0.3)
-				styles += `font-size: ${fontSize}px;`
-				if (props.vertical) {
-					styles += `margin-top: ${margin}px;`
-				} else {
-					styles += `margin-left: ${margin}px;`
+		} else {
+			// 如果没有设置 textSize，使用原有的基于 size 的计算逻辑
+			if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
+				let sizeValue = props.size
+				// 如果是纯数字，添加px单位
+				if (/^\d+$/.test(sizeValue)) {
+					sizeValue += 'px'
+				}
+				// 解析数值用于计算文本大小
+				const numericValue = parseFloat(sizeValue)
+				if (!isNaN(numericValue)) {
+					// 文本大小约为加载器尺寸的0.6倍
+					const fontSize = Math.max(12, numericValue * 0.6)
+					// 间距约为加载器尺寸的0.3倍
+					const margin = Math.max(4, numericValue * 0.3)
+					styles += `font-size: ${fontSize}px;`
+					if (props.vertical) {
+						styles += `margin-top: ${margin}px;`
+					} else {
+						styles += `margin-left: ${margin}px;`
+					}
 				}
 			}
 		}
 		return styles
 	})
 
-	// 处理遮罩点击事件
-	const handleOverlayClick = () => {
-		if (props.closeOnClickOverlay) {
-			emit('close')
-		}
-	}
 </script>
 
 <template>
-	<view v-if="overlay" class="k-loading-overlay" :class="overlayClass" @click="handleOverlayClick">
-		<view class="k-loading-container" :class="containerClass" :style="containerStyle">
-			<view class="k-loading-content" :class="loadingClass" :style="loadingStyle">
-				<!-- Spinner 动画 -->
-				<!-- <KLoadSpinner v-if="type === 'spinner'" :size="size" :color="color" /> -->
-
-				<!-- Dots 动画 -->
-				<!-- <k-loading-dots v-else-if="type === 'dots'" :size="size" :color="color" /> -->
-
-				<!-- Bands 动画 -->
-				<!-- <k-loading-bands v-else-if="type === 'bands'" :size="size" :color="color" /> -->
-
-				<!-- Wave 动画 -->
-				<!-- <k-loading-wave v-else-if="type === 'wave'" :size="size" :color="color" /> -->
-
-				<!-- Pulse 动画 -->
-				<!-- <k-loading-pulse v-else-if="type === 'pulse'" :size="size" :color="color" /> -->
-			</view>
-
-			<!-- 加载文本 -->
-			<text v-if="text" class="k-loading-text" :class="textClass" :style="textStyle">{{ text }}</text>
-		</view>
-	</view>
-
-	<!-- 非遮罩模式 -->
-	<view v-else class="k-loading-wrapper" :class="wrapperClass" :style="wrapperStyle">
+	<view  class="k-loading-wrapper" :class="wrapperClass" :style="wrapperStyle">
 		<view class="k-loading-content" :class="loadingClass" :style="loadingStyle">
 			<!-- Spinner 动画 -->
 			<KLoadSpinner v-if="type === 'spinner'" :size="size" :color="color" />
@@ -240,7 +227,6 @@
 			<!-- Pulse 动画 -->
 			<KLoadPulse v-else-if="type === 'pulse'" :size="size" :color="color" />
 		</view>
-
 		<!-- 加载文本 -->
 		<text v-if="text" class="k-loading-text" :class="textClass" :style="textStyle">{{ text }}</text>
 	</view>
