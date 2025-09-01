@@ -11,7 +11,7 @@
 				'k-button--gradient': gradient,
 				'k-button--shadow': shadow
 			}
-		]" :style="buttonStyle" @click="handleClick">
+		]" :style="buttonStyle" :hover-class="hoverClass" @click="handleClick">
 		<text class="k-button__text">
 			<slot>{{ text }}</slot>
 		</text>
@@ -111,6 +111,30 @@
 		return styles.join('; ')
 	})
 
+	// 计算按下状态的类名 - 返回单一最具体的类名
+	const hoverClass = computed(() => {
+		if (props.disabled || props.loading) {
+			return ''
+		}
+		
+		// 根据按钮属性优先级返回最具体的按下状态类名
+		// 优先级：渐变 > 朴素 > 阴影 > 基础
+		if (props.gradient) {
+			return `k-button--gradient--${props.type}--active`
+		}
+		
+		if (props.plain) {
+			return `k-button--plain--${props.type}--active`
+		}
+		
+		if (props.shadow) {
+			return `k-button--shadow--${props.type}--active`
+		}
+		
+		// 基础按下状态
+		return `k-button--${props.type}--active`
+	})
+
 	// 点击处理函数
 	const handleClick = () => {
 		if (props.disabled || props.loading) {
@@ -164,12 +188,9 @@
 			opacity: 0;
 		}
 
-		&:hover {
-			background-color: var(--k-bg-color-hover, #f9fafb);
-			border-color: var(--k-border-color, #d1d5db);
-		}
-
-		&:active {
+		// 按下状态样式
+		// 默认按钮按下状态
+		&--default--active {
 			background-color: var(--k-bg-color-active, #f3f4f6);
 		}
 
@@ -177,64 +198,48 @@
 		&--primary {
 			background-color: var(--k-color-primary, #6366f1);
 			border-color: var(--k-color-primary, #6366f1);
-
-			&:hover {
-				background-color: var(--k-color-primary-hover, #5855eb);
-				border-color: var(--k-color-primary-hover, #5855eb);
-			}
-
-			&:active {
-				background-color: var(--k-color-primary-active, #4f46e5);
-				border-color: var(--k-color-primary-active, #4f46e5);
-			}
+		}
+		
+		// 主要按钮按下状态
+		&--primary--active {
+			background-color: var(--k-color-primary-active, #4f46e5);
+			border-color: var(--k-color-primary-active, #4f46e5);
 		}
 
 		// 成功按钮 - 纯色背景
 		&--success {
 			background-color: var(--k-color-success, #10b981);
 			border-color: var(--k-color-success, #10b981);
-
-			&:hover {
-				background-color: var(--k-color-success-hover, #059669);
-				border-color: var(--k-color-success-hover, #059669);
-			}
-
-			&:active {
-				background-color: var(--k-color-success-active, #047857);
-				border-color: var(--k-color-success-active, #047857);
-			}
+		}
+		
+		// 成功按钮按下状态
+		&--success--active {
+			background-color: var(--k-color-success-active, #047857);
+			border-color: var(--k-color-success-active, #047857);
 		}
 
 		// 警告按钮 - 纯色背景
 		&--warning {
 			background-color: var(--k-color-warning, #f59e0b);
 			border-color: var(--k-color-warning, #f59e0b);
-
-			&:hover {
-				background-color: var(--k-color-warning-hover, #d97706);
-				border-color: var(--k-color-warning-hover, #d97706);
-			}
-
-			&:active {
-				background-color: var(--k-color-warning-active, #b45309);
-				border-color: var(--k-color-warning-active, #b45309);
-			}
+		}
+		
+		// 警告按钮按下状态
+		&--warning--active {
+			background-color: var(--k-color-warning-active, #b45309);
+			border-color: var(--k-color-warning-active, #b45309);
 		}
 
 		// 危险按钮 - 纯色背景
 		&--danger {
 			background-color: var(--k-color-error, #ef4444);
 			border-color: var(--k-color-error, #ef4444);
-
-			&:hover {
-				background-color: var(--k-color-error-hover, #dc2626);
-				border-color: var(--k-color-error-hover, #dc2626);
-			}
-
-			&:active {
-				background-color: var(--k-color-error-active, #b91c1c);
-				border-color: var(--k-color-error-active, #b91c1c);
-			}
+		}
+		
+		// 危险按钮按下状态
+		&--danger--active {
+			background-color: var(--k-color-error-active, #b91c1c);
+			border-color: var(--k-color-error-active, #b91c1c);
 		}
 
 		// 朴素按钮 - 透明背景 + 柔和边框
@@ -244,39 +249,40 @@
 
 			&.k-button--primary {
 				border-color: var(--k-color-primary, #6366f1);
-
-				&:hover {
-					background-color: rgba(99, 102, 241, 0.08);
-					box-shadow: var(--k-box-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
-				}
 			}
 
 			&.k-button--success {
 				border-color: var(--k-color-success, #10b981);
-
-				&:hover {
-					background-color: rgba(16, 185, 129, 0.08);
-					box-shadow: var(--k-box-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
-				}
 			}
 
 			&.k-button--warning {
 				border-color: var(--k-color-warning, #f59e0b);
-
-				&:hover {
-					background-color: rgba(245, 158, 11, 0.08);
-					box-shadow: var(--k-box-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
-				}
 			}
 
 			&.k-button--error {
 				border-color: var(--k-color-error, #ef4444);
-
-				&:hover {
-					background-color: rgba(239, 68, 68, 0.08);
-					box-shadow: var(--k-box-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
-				}
 			}
+		}
+
+		// 朴素按钮按下状态 - 独立类名
+		&--plain--default--active {
+			background-color: var(--k-bg-color-active, #f3f4f6);
+		}
+		
+		&--plain--primary--active {
+			background-color: rgba(99, 102, 241, 0.1);
+		}
+		
+		&--plain--success--active {
+			background-color: var(--k-color-success-light, rgba(16, 185, 129, 0.1));
+		}
+		
+		&--plain--warning--active {
+			background-color: var(--k-color-warning-light, rgba(245, 158, 11, 0.1));
+		}
+		
+		&--plain--danger--active {
+			background-color: var(--k-color-danger-light, rgba(239, 68, 68, 0.1));
 		}
 
 		// 尺寸变体
@@ -298,7 +304,6 @@
 		}
 
 		&--medium {
-
 			// 默认尺寸，使用基础样式
 			// 圆形按钮
 			&.k-button--circle {
@@ -338,7 +343,6 @@
 
 		// 渐变效果 - 通过属性控制
 		&--gradient {
-
 			&.k-button--primary {
 				// background-image: var(--k-gradient-primary, linear-gradient(to bottom right, #667eea, #764ba2));
 				background-image: var(--k-gradient-primary);
@@ -356,88 +360,84 @@
 				background-image: var(--k-gradient-error);
 			}
 		}
+		
+		// 渐变按钮按下状态 - 独立类名
+		&--gradient--default--active {
+			filter: brightness(0.9);
+			transform: translateY(1px);
+			border: 1px red solid;
+		}
+		
+		&--gradient--primary--active {
+			filter: brightness(0.9);
+			transform: translateY(1px);
+		}
+		
+		&--gradient--success--active {
+			filter: brightness(0.9);
+			transform: translateY(1px);
+		}
+		
+		&--gradient--warning--active {
+			filter: brightness(0.9);
+			transform: translateY(1px);
+		}
+		
+		&--gradient--danger--active {
+			filter: brightness(0.9);
+			transform: translateY(1px);
+		}
 
 		// 阴影效果 - 通过属性控制
 		&--shadow {
 			&.k-button--default {
 				box-shadow: var(--k-shadow-neumorphism-flat, 3px 3px 6px rgba(163, 177, 198, 0.4), -3px -3px 6px rgba(255, 255, 255, 0.3));
-
-				&:hover {
-					transform: translateY(-1px);
-					box-shadow: var(--k-shadow-neumorphism-raised, 6px 6px 12px rgba(163, 177, 198, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.5));
-				}
-
-				&:active {
-					transform: translateY(0);
-					box-shadow: var(--k-shadow-neumorphism-inset, inset 6px 6px 12px rgba(163, 177, 198, 0.6), inset -6px -6px 12px rgba(255, 255, 255, 0.5));
-				}
 			}
 
 			&.k-button--primary {
 				box-shadow: var(--k-shadow-primary, 0 8px 25px rgba(99, 102, 241, 0.15));
-
-				&:hover {
-					transform: translateY(-2px);
-					box-shadow: var(--k-shadow-primary, 0 8px 25px rgba(99, 102, 241, 0.15)), var(--k-box-shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
-				}
-
-				&:active {
-					transform: translateY(-1px);
-				}
 			}
 
 			&.k-button--success {
 				box-shadow: var(--k-shadow-success, 0 8px 25px rgba(16, 185, 129, 0.15));
-
-				&:hover {
-					transform: translateY(-2px);
-					box-shadow: var(--k-shadow-success, 0 8px 25px rgba(16, 185, 129, 0.15)), var(--k-box-shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
-				}
-
-				&:active {
-					transform: translateY(-1px);
-				}
 			}
 
 			&.k-button--warning {
 				box-shadow: var(--k-shadow-warning, 0 8px 25px rgba(245, 158, 11, 0.15));
-
-				&:hover {
-					transform: translateY(-2px);
-					box-shadow: var(--k-shadow-warning, 0 8px 25px rgba(245, 158, 11, 0.15)), var(--k-box-shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
-				}
-
-				&:active {
-					transform: translateY(-1px);
-				}
 			}
 
 			&.k-button--danger {
 				box-shadow: var(--k-shadow-error, 0 8px 25px rgba(239, 68, 68, 0.15));
-
-				&:hover {
-					transform: translateY(-2px);
-					box-shadow: var(--k-shadow-error, 0 8px 25px rgba(239, 68, 68, 0.15)), var(--k-box-shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
-				}
-
-				&:active {
-					transform: translateY(-1px);
-				}
 			}
+		}
+
+		// 阴影按钮按下状态 - 独立类名
+		&--shadow--default--active {
+			transform: translateY(0);
+			box-shadow: var(--k-shadow-neumorphism-inset, inset 6px 6px 12px rgba(163, 177, 198, 0.6), inset -6px -6px 12px rgba(255, 255, 255, 0.5));
+		}
+
+		&--shadow--primary--active {
+			transform: translateY(-1px);
+		}
+
+		&--shadow--success--active {
+			transform: translateY(-1px);
+		}
+
+		&--shadow--warning--active {
+			transform: translateY(-1px);
+		}
+
+		&--shadow--danger--active {
+			transform: translateY(-1px);
 		}
 
 		// 禁用状态
 		&--disabled {
 			opacity: 0.5;
-			// cursor: not-allowed;
-
-			&:hover {
-				transform: none;
-			}
-
-			&:active {
-				transform: none;
-			}
+			cursor: not-allowed;
+			pointer-events: none;
 		}
 
 		// 加载状态
