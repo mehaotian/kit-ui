@@ -62,6 +62,11 @@
 			"style": {
 				"navigationBarTitleText": "徽标"
 			}
+		}, {
+			"path": "pages/tag/tag",
+			"style": {
+				"navigationBarTitleText": "标签"
+			}
 		}
 	],
 	"globalStyle": {

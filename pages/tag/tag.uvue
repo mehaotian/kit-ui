@@ -1,0 +1,313 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view class="container">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<k-text size="24" weight="bold" align="center">Tag 标签组件</k-text>
+				<k-text class="page-desc" size="14" align="center">用于标记和选择的标签组件</k-text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<k-text size="16">基础用法</k-text>
+				<k-text class="demo-desc" size="12" color="#999">基础的标签用法</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="默认标签" />
+						<k-tag class="tag" text="主要标签" type="primary" />
+						<k-tag class="tag" text="成功标签" type="success" />
+						<k-tag class="tag" text="警告标签" type="warning" />
+						<k-tag class="tag" text="错误标签" type="error" />
+						<k-tag class="tag" text="信息标签" type="info" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 不同尺寸 -->
+			<view class="section">
+				<k-text size="16">不同尺寸</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持小、中、大三种尺寸</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="小标签" size="small" type="primary" />
+						<k-tag class="tag" text="中标签" size="medium" type="primary" />
+						<k-tag class="tag" text="大标签" size="large" type="primary" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 自定义尺寸 -->
+			<view class="section">
+				<k-text size="16">自定义尺寸</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持自定义数值尺寸</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="10px" size="10" type="success" />
+						<k-tag class="tag" text="16px" size="16" type="success" />
+						<k-tag class="tag" text="20px" size="20" type="success" />
+						<k-tag class="tag" text="24px" size="24" type="success" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 不同形状 -->
+			<view class="section">
+				<k-text size="16">不同形状</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持方形、圆角、圆形三种形状</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="方形" shape="square" size="small" type="warning" />
+						<k-tag class="tag" text="圆角" shape="round" size="small" type="warning" />
+						<k-tag class="tag" text="99" shape="circle" size="small" type="warning" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 不同变体 -->
+			<view class="section">
+				<k-text size="16">不同变体</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持填充、描边、文本、渐变四种变体</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="填充" variant="filled" type="error" size="small" />
+						<k-tag class="tag" text="描边" variant="outlined" type="error" size="small" />
+						<k-tag class="tag" text="文本" variant="text" type="error" size="small" />
+						<k-tag class="tag" text="渐变" variant="gradient" type="error" size="small" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 渐变背景展示 -->
+			<view class="section">
+				<k-text size="16">渐变背景</k-text>
+				<k-text class="demo-desc" size="12" color="#999">gradient 变体支持各种类型的渐变效果</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="Default" type="default" variant="gradient" size="small" />
+						<k-tag class="tag" text="Primary" type="primary" variant="gradient" size="small" />
+						<k-tag class="tag" text="Success" type="success" variant="gradient" size="small" />
+						<k-tag class="tag" text="Warning" type="warning" variant="gradient" size="small" />
+						<k-tag class="tag" text="Error" type="error" variant="gradient" size="small" />
+						<k-tag class="tag" text="Info" type="info" variant="gradient" size="small" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 带图标 -->
+			<view class="section">
+				<k-text size="16">带图标</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持左右两侧添加图标</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="左图标" icon="download-cloud-line" icon-position="left" type="info" />
+						<k-tag class="tag" text="右图标" icon="lock-unlock-line" icon-position="right" type="info" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 可关闭 -->
+			<view class="section">
+				<k-text size="16">可关闭</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持关闭功能的标签</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" v-for="(tag, index) in closableTags" :key="index" :text="tag.text" :type="tag.type" closable @close="handleTagClose(index)" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 自定义颜色 -->
+			<view class="section">
+				<k-text size="16">自定义颜色</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持自定义文字、背景、边框颜色</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="自定义文字" color="#FF6B6B" />
+						<k-tag class="tag" text="自定义背景" background-color="#FFE66D" color="#333" />
+						<k-tag class="tag" text="自定义边框" variant="outlined" border-color="#4ECDC4" color="#4ECDC4" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 禁用状态 -->
+			<view class="section">
+				<k-text size="16">禁用状态</k-text>
+				<k-text class="demo-desc" size="12" color="#999">禁用状态的标签</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="禁用标签" type="primary" disabled />
+						<k-tag class="tag" text="禁用关闭" type="success" closable disabled />
+					</view>
+				</view>
+			</view>
+
+			<!-- 插槽用法 -->
+			<view class="section">
+				<k-text size="16">插槽用法</k-text>
+				<k-text class="demo-desc" size="12" color="#999">使用插槽自定义标签内容</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" type="primary">
+							<k-text size="12">自定义内容</k-text>
+						</k-tag>
+						<k-tag class="tag" type="success" closable>
+							<k-text size="12">插槽 + 关闭</k-text>
+						</k-tag>
+					</view>
+				</view>
+			</view>
+
+			<!-- 主题注入 -->
+			<view class="section">
+				<k-text size="16">主题注入</k-text>
+				<k-text class="demo-desc" size="12" color="#999">通过k-config组件注入自定义主题</k-text>
+				<view class="demo-block">
+					<!-- 默认主题 -->
+					<view class="demo-row">
+						<k-text size="14" weight="medium">默认主题：</k-text>
+					</view>
+					<view class="demo-row">
+						<k-tag class="tag" text="Primary" type="primary" size="small" />
+						<k-tag class="tag" text="Success" type="success" size="small" />
+						<k-tag class="tag" text="Warning" type="warning" size="small" />
+						<k-tag class="tag" text="Error" type="error" size="small" />
+					</view>
+
+					<!-- 橙色主题 -->
+					<view class="demo-row">
+						<k-text size="14" weight="medium">橙色主题：</k-text>
+					</view>
+					<k-config :theme="orangeTheme">
+						<view class="demo-row">
+							<k-tag class="tag" text="Primary" type="primary" size="small" />
+							<k-tag class="tag" text="Success" type="success" size="small" />
+							<k-tag class="tag" text="Warning" type="warning" size="small" />
+							<k-tag class="tag" text="Error" type="error" size="small" />
+						</view>
+					</k-config>
+
+					<!-- 紫色主题 -->
+					<view class="demo-row">
+						<k-text size="14" weight="medium">紫色主题：</k-text>
+					</view>
+					<k-config :theme="purpleTheme">
+						<view class="demo-row">
+							<k-tag class="tag" text="Primary" type="primary" size="small" />
+							<k-tag class="tag" text="Success" type="success" size="small" />
+							<k-tag class="tag" text="Warning" type="warning" size="small" />
+							<k-tag class="tag" text="Error" type="error" size="small" />
+						</view>
+					</k-config>
+				</view>
+			</view>
+
+			<!-- 点击事件 -->
+			<view class="section">
+				<k-text size="16">点击事件</k-text>
+				<k-text class="demo-desc" size="12" color="#999">点击标签触发事件</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-tag class="tag" text="点击我" type="primary" @click="handleTagClick" />
+						<k-tag class="tag" :text="`点击计数,点击了${clickCount}次`" type="success" @click="handleCountClick" />
+					</view>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	import { ref } from 'vue'
+
+	type ClosableTagsType = {
+		text : string
+		type : string
+	}
+	// 可关闭标签数据
+	const closableTags = ref<ClosableTagsType[]>([
+		{ text: '标签一', type: 'default' },
+		{ text: '标签二', type: 'primary' },
+		{ text: '标签三', type: 'success' },
+		{ text: '标签四', type: 'warning' },
+		{ text: '标签五', type: 'error' }
+	])
+
+	// 点击计数
+	const clickCount = ref(0)
+
+	// 橙色主题配置
+	const orangeTheme = {
+		colorPrimary: '#FF8C00',
+		colorSuccess: '#32CD32',
+		colorWarning: '#FFD700',
+		colorError: '#FF6347'
+	}
+
+	// 紫色主题配置
+	const purpleTheme = {
+		colorPrimary: '#9370DB',
+		colorSuccess: '#98FB98',
+		colorWarning: '#DDA0DD',
+		colorError: '#F0A0A0'
+	}
+
+	/**
+	 * 处理标签关闭事件
+	 * @param index 标签索引
+	 */
+	const handleTagClose = (index : number) : void => {
+		closableTags.value.splice(index, 1)
+		uni.showToast({
+			title: '标签已关闭',
+			icon: 'success',
+			duration: 1500
+		})
+	}
+
+	/**
+	 * 处理标签点击事件
+	 */
+	const handleTagClick = () : void => {
+		uni.showToast({
+			title: '标签被点击了',
+			icon: 'none',
+			duration: 1500
+		})
+	}
+
+	/**
+	 * 处理计数点击事件
+	 */
+	const handleCountClick = () : void => {
+		clickCount.value++
+	}
+</script>
+
+<style>
+	.container {
+		flex: 1;
+		background-color: #f5f5f5;
+	}
+
+	.demo-block {
+		background-color: #fff;
+		/* padding: 20px; */
+		margin-top: 12px;
+	}
+
+	.demo-row {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12px;
+	}
+
+	.tag {
+		margin: 10rpx;
+	}
+</style>

@@ -205,15 +205,3 @@ k-badge 组件支持通过 `k-config` 组件进行主题注入，可以自定义
     colorInfo: '#87ceeb'        // 信息色
   }
 </script>
-```
-
-### 支持的主题变量
-
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| `colorPrimary` | 主色调 | `#007AFF` |
-| `colorSuccess` | 成功色 | `#34C759` |
-| `colorWarning` | 警告色 | `#FF9500` |
-| `colorError` | 错误色 | `#FF3B30` |
-| `colorInfo` | 信息色 | `#5AC8FA` |
-| `textColorInverse` | 反色文字 | `#FFFFFF` |

@@ -1,0 +1,552 @@
+<script setup lang="uts">
+	import { computed, inject } from 'vue'
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
+
+	// 定义 props
+	const props = defineProps({
+		// 标签文本内容
+		text: {
+			type: String,
+			default: ''
+		},
+		// 标签类型: default, primary, success, warning, error, info
+		type: {
+			type: String,
+			default: 'default'
+		},
+		// 标签大小: small, medium, large 或具体数值（如 '16', '18px'）
+		size: {
+			type: String,
+			default: 'medium'
+		},
+		// 标签形状: square, round, circle
+		shape: {
+			type: String,
+			default: 'square'
+		},
+		// 标签变体: filled, outlined, text, gradient
+		variant: {
+			type: String,
+			default: 'filled'
+		},
+		// 自定义颜色
+		color: {
+			type: String,
+			default: ''
+		},
+		// 自定义背景色
+		backgroundColor: {
+			type: String,
+			default: ''
+		},
+		// 自定义边框色
+		borderColor: {
+			type: String,
+			default: ''
+		},
+		// 是否可关闭
+		closable: {
+			type: Boolean,
+			default: false
+		},
+		// 是否禁用
+		disabled: {
+			type: Boolean,
+			default: false
+		},
+		// 图标名称
+		icon: {
+			type: String,
+			default: ''
+		},
+		// 图标位置: left, right
+		iconPosition: {
+			type: String,
+			default: 'left'
+		},
+		// 自定义样式
+		customStyle: {
+			type: String,
+			default: ''
+		},
+		// 自定义类名
+		customClass: {
+			type: String,
+			default: ''
+		}
+	})
+
+	// 定义事件
+	const emit = defineEmits<{
+		click : [event: Event]
+		close : [event: Event]
+	}>()
+
+	/**
+	 * 解析尺寸值
+	 * @param size 尺寸字符串
+	 * @returns 解析后的尺寸对象
+	 */
+	const parseSize = (size : string) : UTSJSONObject => {
+		// 预设尺寸映射
+		const sizeMap : UTSJSONObject = {
+			small: {
+				height: '24px',
+				padding: '0 8px',
+				fontSize: '12px',
+				iconSize: '12px',
+				closeIconSize: '10px'
+			},
+			medium: {
+				height: '32px',
+				padding: '0 12px',
+				fontSize: '14px',
+				iconSize: '14px',
+				closeIconSize: '12px'
+			},
+			large: {
+				height: '40px',
+				padding: '0 16px',
+				fontSize: '16px',
+				iconSize: '16px',
+				closeIconSize: '14px'
+			}
+		}
+
+		// 如果是预设尺寸，直接返回
+		if (sizeMap[size] != null) {
+			return sizeMap[size] as UTSJSONObject
+		}
+
+		// 自定义尺寸处理
+		const numericSize = parseFloat(size)
+		if (!isNaN(numericSize)) {
+			let unit = size.replace(numericSize.toString(), '') ?? 'px'
+			if(unit == '') unit = 'px'
+			const height = `${numericSize + 8}${unit}`
+			const padding = `0 ${numericSize * 0.75}${unit}`
+			const fontSize = `${numericSize}${unit}`
+			const iconSize = `${numericSize}${unit}`
+			const closeIconSize = `${numericSize * 0.8}${unit}`
+
+			return {
+				height,
+				padding,
+				fontSize,
+				iconSize,
+				closeIconSize
+			}
+		}
+
+		// 默认返回 medium 尺寸
+		return sizeMap['medium'] as UTSJSONObject
+	}
+
+	/**
+	 * 获取主题颜色
+	 * @param type 颜色类型
+	 * @returns CSS变量字符串
+	 */
+	const getThemeColor = (type : string) : string => {
+		const colorMap : UTSJSONObject = {
+			default: 'var(--k-color-text-secondary, #666666)',
+			primary: 'var(--k-color-primary, #007AFF)',
+			success: 'var(--k-color-success, #34C759)',
+			warning: 'var(--k-color-warning, #FF9500)',
+			error: 'var(--k-color-error, #FF3B30)',
+			info: 'var(--k-color-info, #5AC8FA)'
+		}
+		return colorMap[type] as string ?? colorMap['default'] as string
+	}
+
+	/**
+	 * 获取渐变背景
+	 * @param type 颜色类型
+	 * @returns CSS渐变字符串
+	 */
+	const getGradientBackground = (type : string) : string => {
+		const gradientMap : UTSJSONObject = {
+			default: 'linear-gradient(to bottom right, #667eea , #764ba2)',
+			primary: 'linear-gradient(to bottom right, var(--k-color-primary, #007AFF), rgba(0, 122, 255, 0.7) )',
+			success: 'linear-gradient(to bottom right, var(--k-color-success, #34C759), rgba(52, 199, 89, 0.7) )',
+			warning: 'linear-gradient(to bottom right, var(--k-color-warning, #FF9500), rgba(255, 149, 0, 0.7) )',
+			error: 'linear-gradient(to bottom right, var(--k-color-error, #FF3B30), rgba(255, 59, 48, 0.7) )',
+			info: 'linear-gradient(to bottom right, var(--k-color-info, #5AC8FA), rgba(90, 200, 250, 0.7) )'
+		}
+		return gradientMap[type] as string ?? gradientMap['default'] as string
+	}
+
+	/**
+	 * 获取背景颜色
+	 * @param type 颜色类型
+	 * @param variant 变体类型
+	 * @returns CSS变量字符串
+	 */
+	const getBackgroundColor = (type : string, variant : string) : string => {
+		if (variant == 'text') {
+			return 'transparent'
+		}
+
+		if (variant == 'outlined') {
+			return 'transparent'
+		}
+
+		if (variant == 'gradient') {
+			return 'transparent' // 渐变背景通过 background-image 实现
+		}
+
+		// filled 变体的背景色
+		const backgroundMap : UTSJSONObject = {
+			default: 'var(--k-color-fill-light, #F2F2F7)',
+			primary: 'var(--k-color-primary-light, rgba(0, 122, 255, 0.1))',
+			success: 'var(--k-color-success-light, rgba(52, 199, 89, 0.1))',
+			warning: 'var(--k-color-warning-light, rgba(255, 149, 0, 0.1))',
+			error: 'var(--k-color-error-light, rgba(255, 59, 48, 0.1))',
+			info: 'var(--k-color-info-light, rgba(90, 200, 250, 0.1))'
+		}
+		return backgroundMap[type] as string ?? backgroundMap['default'] as string
+	}
+
+	/**
+	 * 获取文本颜色
+	 * @param type 颜色类型
+	 * @param variant 变体类型
+	 * @returns CSS变量字符串
+	 */
+	const getTextColor = (type : string, variant : string) : string => {
+		if (variant == 'text') {
+			return getThemeColor(type)
+		}
+
+		if (variant == 'outlined') {
+			return getThemeColor(type)
+		}
+
+		if (variant == 'gradient') {
+			return '#FFFFFF' // 渐变背景使用白色文字
+		}
+
+		// filled 变体的文本色
+		const textColorMap : UTSJSONObject = {
+			default: 'var(--k-color-text-primary, #333333)',
+			primary: 'var(--k-color-primary, #007AFF)',
+			success: 'var(--k-color-success, #34C759)',
+			warning: 'var(--k-color-warning, #FF9500)',
+			error: 'var(--k-color-error, #FF3B30)',
+			info: 'var(--k-color-info, #5AC8FA)'
+		}
+		return textColorMap[type] as string ?? textColorMap['default'] as string
+	}
+
+	/**
+	 * 获取边框颜色
+	 * @param type 颜色类型
+	 * @param variant 变体类型
+	 * @returns CSS变量字符串
+	 */
+	const getBorderColor = (type : string, variant : string) : string => {
+		if (variant == 'text') {
+			return 'transparent'
+		}
+
+		if (variant == 'outlined') {
+			return getThemeColor(type)
+		}
+
+		if (variant == 'gradient') {
+			return 'transparent'
+		}
+
+		// filled 变体的边框色
+		return 'transparent'
+	}
+
+	// 计算尺寸信息
+	const sizeInfo = computed(() : UTSJSONObject => {
+		return parseSize(props.size)
+	})
+
+	// 计算标签类名
+	const tagClass = computed(() : string => {
+		const classes : string[] = ['k-tag', 'kit-ui--root']
+
+		// 添加类型类名
+		classes.push(`k-tag--${props.type}`)
+
+		// 添加尺寸类名
+		classes.push(`k-tag--${props.size}`)
+
+		// 添加形状类名
+		classes.push(`k-tag--${props.shape}`)
+
+		// 添加变体类名
+		classes.push(`k-tag--${props.variant}`)
+
+		// 添加禁用状态类名
+		if (props.disabled) {
+			classes.push('k-tag--disabled')
+		}
+
+		// 添加可关闭类名
+		if (props.closable) {
+			classes.push('k-tag--closable')
+		}
+
+		// 添加自定义类名
+		if (props.customClass != '') {
+			classes.push(props.customClass)
+		}
+
+		return classes.join(' ')
+	})
+
+	// 计算标签样式
+	const tagStyle = computed(() : string => {
+		const styles : string[] = []
+
+		// 主题注入
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				// 将驼峰命名转换为 kebab-case
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+
+		// 基础尺寸样式
+		const size = sizeInfo.value
+		styles.push(`height: ${size['height']}`)
+		styles.push(`padding: ${size['padding']}`)
+		// styles.push(`font-size: ${size['fontSize']}`)
+
+		// 颜色样式
+		// if (props.color != '') {
+		// 	styles.push(`color: ${props.color}`)
+		// } else {
+		// 	styles.push(`color: ${getTextColor(props.type, props.variant)}`)
+		// }
+
+		if (props.backgroundColor != '') {
+			styles.push(`background-color: ${props.backgroundColor}`)
+		} else {
+			styles.push(`background-color: ${getBackgroundColor(props.type, props.variant)}`)
+		}
+
+		// 渐变背景处理
+		if (props.variant == 'gradient') {
+			styles.push(`background-image: ${getGradientBackground(props.type)}`)
+		}
+
+		if (props.borderColor != '') {
+			styles.push(`border-color: ${props.borderColor}`)
+		} else {
+			styles.push(`border-color: ${getBorderColor(props.type, props.variant)}`)
+		}
+
+		// 边框样式
+		if (props.variant == 'outlined') {
+			styles.push('border-width: 1px')
+			styles.push('border-style: solid')
+		}
+
+		// 圆角样式
+		if (props.shape == 'round') {
+			styles.push(`border-radius: ${size['height']}`)
+		} else if (props.shape == 'circle') {
+			styles.push(`border-radius: 999px`)
+			styles.push(`width: ${size['height']}`)
+			styles.push('padding: 0')
+		} else {
+			styles.push('border-radius: 4px')
+		}
+
+		// 禁用状态样式
+		if (props.disabled) {
+			styles.push('opacity: 0.5')
+			// #ifdef WEB
+			styles.push('cursor: not-allowed')
+			// #endif
+		}
+
+		// 自定义样式
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+
+		return styles.join('; ')
+	})
+
+	// 计算文本样式
+	const textStyle = computed(() : string => {
+		const styles : string[] = []
+
+		// 圆形标签文本居中
+		if (props.shape == 'circle') {
+			styles.push('text-align: center')
+		}
+
+		// 基础尺寸样式
+		const size = sizeInfo.value
+		styles.push(`font-size: ${size['fontSize']}`)
+
+		// 颜色样式
+		if (props.color != '') {
+			styles.push(`color: ${props.color}`)
+		} else {
+			styles.push(`color: ${getTextColor(props.type, props.variant)}`)
+		}
+
+		// 禁用状态样式
+		if (props.disabled) {
+			styles.push('opacity: 0.5')
+			// #ifdef WEB
+			styles.push('cursor: not-allowed')
+			// #endif
+		}
+
+		return styles.join('; ')
+	})
+
+	// 计算图标尺寸
+	const iconSize = computed(() : string => {
+		const size = sizeInfo.value
+		return size['iconSize'] as string
+	})
+
+	// 计算图标颜色
+	const iconColor = computed(() : string => {
+		if (props.color != '') {
+			return props.color
+		}
+		return getTextColor(props.type, props.variant)
+	})
+
+	// 计算关闭图标尺寸
+	const closeIconSize = computed(() : string => {
+		const size = sizeInfo.value
+		return size['closeIconSize'] as string
+	})
+
+	// 计算关闭图标颜色
+	const closeIconColor = computed(() : string => {
+		if (props.color != '') {
+			return props.color
+		}
+		return getTextColor(props.type, props.variant)
+	})
+
+	/**
+	 * 处理点击事件
+	 * @param event 点击事件
+	 */
+	const handleClick = (event : Event) : void => {
+		if (props.disabled) {
+			return
+		}
+		emit('click', event)
+	}
+
+	/**
+	 * 处理关闭事件
+	 * @param event 点击事件
+	 */
+	const handleClose = (event : Event) : void => {
+		if (props.disabled) {
+			return
+		}
+		emit('close', event)
+	}
+</script>
+
+<template>
+	<view :class="tagClass" :style="tagStyle" @click="handleClick">
+		<!-- 左侧图标 -->
+		<k-icon v-if="icon != '' && iconPosition == 'left'" :name="icon" :size="iconSize" :color="iconColor" class="k-tag__icon k-tag__icon--left" />
+
+		<!-- 标签内容 -->
+		<text class="k-tag__text" :style="textStyle">
+			<slot>{{ text }}</slot>
+		</text>
+
+		<!-- 右侧图标 -->
+		<k-icon v-if="icon != '' && iconPosition == 'right'" :name="icon" :size="iconSize" :color="iconColor" class="k-tag__icon k-tag__icon--right" />
+
+		<!-- 关闭按钮 -->
+		<k-icon v-if="closable" name="close-line" :size="closeIconSize" :color="closeIconColor" class="k-tag__close" @click.stop="handleClose" />
+	</view>
+</template>
+
+<style>
+	.k-tag {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		position: relative;
+		transition: all 0.2s ease;
+	}
+
+	.k-tag__text {
+		flex: 1;
+		line-height: 1.2;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.k-tag__icon {
+		flex-shrink: 0;
+	}
+
+	.k-tag__icon--left {
+		margin-right: 4px;
+	}
+
+	.k-tag__icon--right {
+		margin-left: 4px;
+	}
+
+	.k-tag__close {
+		flex-shrink: 0;
+		margin-left: 4px;
+		/* #ifdef WEB */
+		cursor: pointer;
+		/* #endif */
+		transition: opacity 0.2s ease;
+	}
+
+	.k-tag__close:hover {
+		opacity: 0.7;
+	}
+
+	/* 圆形标签样式 */
+	.k-tag--circle .k-tag__text {
+		flex: none;
+		width: 100%;
+	}
+
+	/* 禁用状态 */
+	.k-tag--disabled {
+		/* #ifdef WEB */
+		cursor: not-allowed;
+		/* #endif */
+	}
+
+	.k-tag--disabled .k-tag__close {
+		/* #ifdef WEB */
+		cursor: not-allowed;
+		/* #endif */
+		/* #ifdef APP */
+		margin-top: 2rpx;
+		/* #endif */
+	}
+
+	/* 可关闭标签 */
+	.k-tag--closable {
+		padding-right: 4px;
+	}
+</style>

@@ -78,7 +78,7 @@
 				{ name: 'Image | 图片', path: '/pages/image/image', status: 'completed' },
 				{ name: 'Layout ｜ 布局', path: '/pages/layout/layout', status: 'completed' },
 				{ name: 'Space | 间隔', path: '/pages/space/space', status: 'planning' },
-				{ name: 'Tag ｜ 标签', path: '/pages/tag/tag', status: 'planning' },
+				{ name: 'Tag ｜ 标签', path: '/pages/tag/tag', status: 'developing' },
 				{ name: 'Badge ｜ 徽标', path: '/pages/badge/badge', status: 'developing' },
 				{ name: 'Divider | 分割线', path: '/pages/divider/divider', status: 'completed' },
 				{ name: 'Cell | 单元格', path: '/pages/divider/divider', status: 'planning' },
