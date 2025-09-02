@@ -57,6 +57,11 @@
 			"style": {
 				"navigationBarTitleText": "布局"
 			}
+		}, {
+			"path": "pages/badge/badge",
+			"style": {
+				"navigationBarTitleText": "徽标"
+			}
 		}
 	],
 	"globalStyle": {

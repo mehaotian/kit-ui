@@ -1,0 +1,298 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view class="container">
+	<!-- #endif -->
+
+		<view class="page">
+			<view class="page-header">
+				<k-text size="24" weight="bold" align="center">Badge 徽标组件</k-text>
+				<k-text class="page-desc" size="14" align="center">用于显示数字、文字或圆点形式的徽标</k-text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<k-text size="16">基础用法</k-text>
+				<k-text class="demo-desc" size="12" color="#999">独立显示的徽标</k-text>
+				<view class="demo-row">
+					<k-badge :value="5" />
+					<k-badge value="New" />
+					<k-badge :dot="true" />
+				</view>
+			</view>
+
+			<!-- 不同类型 -->
+			<view class="section">
+				<k-text size="16">不同类型</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持多种预设类型</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="5" type="primary" />
+						<k-badge :value="5" type="success" />
+						<k-badge :value="5" type="warning" />
+						<k-badge :value="5" type="error" />
+						<k-badge :value="5" type="info" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 不同尺寸 -->
+			<view class="section">
+				<k-text size="16">不同尺寸</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持小、中、大三种尺寸</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="5" size="small" />
+						<k-badge :value="5" size="medium" />
+						<k-badge :value="5" size="large" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 自定义尺寸 -->
+			<view class="section">
+				<k-text size="16">自定义尺寸</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持数字形式的自定义尺寸</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="5" :size="16" />
+						<k-badge :value="5" :size="24" />
+						<k-badge :value="5" :size="32" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 圆点徽标 -->
+			<view class="section">
+				<k-text size="16">圆点徽标</k-text>
+				<k-text class="demo-desc" size="12" color="#999">不显示具体数字，只显示圆点</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :dot="true" type="primary" />
+						<k-badge :dot="true" type="success" />
+						<k-badge :dot="true" type="warning" />
+						<k-badge :dot="true" type="error" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 最大值 -->
+			<view class="section">
+				<k-text size="16">最大值</k-text>
+				<k-text class="demo-desc" size="12" color="#999">超过最大值时显示为 max+</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="99" />
+						<k-badge :value="100" />
+						<k-badge :value="200" :max="99" />
+						<k-badge :value="1000" :max="999" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 自定义颜色 -->
+			<view class="section">
+				<k-text size="16">自定义颜色</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持自定义背景色和文字颜色</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="5" background-color="#f56c6c" />
+						<k-badge :value="5" background-color="#67c23a" />
+						<k-badge :value="5" background-color="#909399" color="#f56c6c" />
+						<k-badge :value="5" background-color="#e6a23c" border-color="#f56c6c" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 嵌套使用 -->
+			<view class="section">
+				<k-text size="16">嵌套使用</k-text>
+				<k-text class="demo-desc" size="12" color="#999">徽标可以嵌套在其他元素上</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="5">
+							<view class="demo-target">
+								<k-text size="12">消息</k-text>
+							</view>
+						</k-badge>
+						<k-badge :value="99">
+							<view class="demo-target">
+								<k-text size="12">通知</k-text>
+							</view>
+						</k-badge>
+						<k-badge :dot="true">
+							<view class="demo-target">
+								<k-text size="12">邮件</k-text>
+							</view>
+						</k-badge>
+					</view>
+				</view>
+			</view>
+
+			<!-- 不同位置 -->
+			<view class="section">
+				<k-text size="16">不同位置</k-text>
+				<k-text class="demo-desc" size="12" color="#999">支持四个角的位置设置</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="5" position="top-right">
+							<view class="demo-target">
+								<k-text size="12">右上</k-text>
+							</view>
+
+						</k-badge>
+						<k-badge :value="5" position="top-left">
+							<view class="demo-target">
+								<k-text size="12">左上</k-text>
+							</view>
+						</k-badge>
+						<k-badge :value="5" position="bottom-right">
+							<view class="demo-target">
+								<k-text size="12">右下</k-text>
+							</view>
+						</k-badge>
+						<k-badge :value="5" position="bottom-left">
+							<view class="demo-target">
+								<k-text size="12">左下</k-text>
+							</view>
+						</k-badge>
+					</view>
+				</view>
+			</view>
+
+			<!-- 偏移量 -->
+			<view class="section">
+				<k-text size="16">偏移量</k-text>
+				<k-text class="demo-desc" size="12" color="#999">通过offset属性设置徽标偏移</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="5" :offset="[10,10]">
+							<view class="demo-target">
+								<k-text size="12">偏移</k-text>
+							</view>
+						</k-badge>
+						<k-badge :value="5" :offset="[-5,5]">
+							<view class="demo-target"><k-text size="12">偏移</k-text></view>
+						</k-badge>
+					</view>
+				</view>
+			</view>
+
+			<!-- 显示控制 -->
+			<view class="section">
+				<k-text size="16">显示控制</k-text>
+				<k-text class="demo-desc" size="12" color="#999">控制徽标的显示和隐藏</k-text>
+				<view class="demo-block">
+					<view class="demo-row">
+						<k-badge :value="0" :show-zero="false">
+							<view class="demo-target"><k-text size="12">不显示0</k-text></view>
+						</k-badge>
+						<k-badge :value="0" :show-zero="true">
+							<view class="demo-target"><k-text size="12">显示0</k-text></view>
+						</k-badge>
+						<k-badge :value="5" :show="showBadge">
+							<view class="demo-target" @click="toggleShow"><k-text size="12">点击切换</k-text></view>
+						</k-badge>
+					</view>
+				</view>
+			</view>
+
+			<!-- 主题注入演示 -->
+			<view class="section">
+				<k-text size="16">主题注入演示</k-text>
+				<k-text class="demo-desc" size="12" color="#999">通过k-config组件注入自定义主题</k-text>
+
+				<!-- 默认主题 -->
+				<view class="demo-block">
+					<k-text size="14" color="#666">默认主题</k-text>
+					<view class="demo-row">
+						<k-badge :value="5" type="primary" />
+						<k-badge :value="8" type="success" />
+						<k-badge :value="3" type="warning" />
+						<k-badge :value="2" type="error" />
+					</view>
+				</view>
+
+				<!-- 橙色主题 -->
+				<view class="demo-block">
+					<k-text size="14" color="#666">橙色主题</k-text>
+					<k-config :theme="orangeTheme">
+						<view class="demo-row">
+							<k-badge :value="5" type="primary" />
+							<k-badge :value="8" type="success" />
+							<k-badge :value="3" type="warning" />
+							<k-badge :value="2" type="error" />
+						</view>
+					</k-config>
+				</view>
+
+				<!-- 紫色主题 -->
+				<view class="demo-block">
+					<k-text size="14" color="#666">紫色主题</k-text>
+					<k-config :theme="purpleTheme">
+						<view class="demo-row">
+							<k-badge :value="5" type="primary" />
+							<k-badge :value="8" type="success" />
+							<k-badge :value="3" type="warning" />
+							<k-badge :value="2" type="error" />
+						</view>
+					</k-config>
+				</view>
+			</view>
+		</view>
+
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	// Badge 徽标组件演示页面
+
+	// 响应式数据
+	const showBadge = ref<boolean>(true)
+
+	// 主题配置
+	const orangeTheme = {
+		colorPrimary: '#ff8c00',
+		colorSuccess: '#ffa500',
+		colorWarning: '#ff7f50',
+		colorError: '#ff6347'
+	}
+
+	const purpleTheme = {
+		colorPrimary: '#8a2be2',
+		colorSuccess: '#9370db',
+		colorWarning: '#ba55d3',
+		colorError: '#da70d6'
+	}
+
+	// 切换显示状态
+	const toggleShow = () : void => {
+		showBadge.value = !showBadge.value
+	}
+</script>
+
+<style lang="scss" scoped>
+	.container {
+		flex: 1;
+	}
+
+	.demo-block {
+		margin-top: 15px;
+	}
+
+	.demo-row {
+		padding: 20px 10px;
+	}
+
+	.demo-target {
+		width: 60px;
+		height: 60px;
+		background-color: #f5f5f5;
+		border-radius: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid #e0e0e0;
+	}
+</style>

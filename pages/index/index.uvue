@@ -75,11 +75,32 @@
 				{ name: 'Icon | 图标', path: '/pages/icon/icon', status: 'completed' },
 				{ name: 'IconList | 图标完整示例', path: '/pages/icon-list/icon-list', status: 'completed' },
 				{ name: 'Text | 文本', path: '/pages/text/text', status: 'completed' },
-				{ name: 'Image', path: '/pages/image/image', status: 'completed' },
-				{ name: 'Layout', path: '/pages/layout/layout', status: 'developing' },
+				{ name: 'Image | 图片', path: '/pages/image/image', status: 'completed' },
+				{ name: 'Layout ｜ 布局', path: '/pages/layout/layout', status: 'completed' },
+				{ name: 'Space | 间隔', path: '/pages/space/space', status: 'planning' },
+				{ name: 'Tag ｜ 标签', path: '/pages/tag/tag', status: 'planning' },
+				{ name: 'Badge ｜ 徽标', path: '/pages/badge/badge', status: 'developing' },
+				{ name: 'Divider | 分割线', path: '/pages/divider/divider', status: 'completed' },
+				{ name: 'Cell | 单元格', path: '/pages/divider/divider', status: 'planning' },
+			]
+		},
+		{
+			name: '展示组件',
+			description: '数据展示和内容呈现',
+			icon: 'layout-3-line',
+			color: 'linear-gradient(to bootom right, #43e97b, #38f9d7)',
+			count: 10,
+			path: '/pages/category/display',
+			components: [
+				{ name: 'List', path: '/pages/list/list', status: 'planning' },
+				{ name: 'Card', path: '/pages/card/card', status: 'planning' },
 				{ name: 'Grid', path: '/pages/grid/grid', status: 'planning' },
-				{ name: 'Space', path: '/pages/space/space', status: 'planning' },
-				{ name: 'Divider | 分割线', path: '/pages/divider/divider', status: 'completed' }
+				{ name: 'Table', path: '/pages/table/table', status: 'planning' },
+				{ name: 'Avatar', path: '/pages/avatar/avatar', status: 'planning' },
+				{ name: 'Collapse', path: '/pages/collapse/collapse', status: 'planning' },
+				{ name: 'Timeline', path: '/pages/timeline/timeline', status: 'planning' },
+				{ name: 'Swiper', path: '/pages/swiper/swiper', status: 'planning' },
+				{ name: 'Calendar', path: '/pages/calendar/calendar', status: 'planning' }
 			]
 		},
 		{
@@ -138,26 +159,7 @@
 				{ name: 'Breadcrumb', path: '/pages/breadcrumb/breadcrumb', status: 'planning' }
 			]
 		},
-		{
-			name: '展示组件',
-			description: '数据展示和内容呈现',
-			icon: 'layout-3-line',
-			color: 'linear-gradient(to bootom right, #43e97b, #38f9d7)',
-			count: 10,
-			path: '/pages/category/display',
-			components: [
-				{ name: 'List', path: '/pages/list/list', status: 'planning' },
-				{ name: 'Card', path: '/pages/card/card', status: 'planning' },
-				{ name: 'Table', path: '/pages/table/table', status: 'planning' },
-				{ name: 'Tag', path: '/pages/tag/tag', status: 'planning' },
-				{ name: 'Badge', path: '/pages/badge/badge', status: 'planning' },
-				{ name: 'Avatar', path: '/pages/avatar/avatar', status: 'planning' },
-				{ name: 'Collapse', path: '/pages/collapse/collapse', status: 'planning' },
-				{ name: 'Timeline', path: '/pages/timeline/timeline', status: 'planning' },
-				{ name: 'Swiper', path: '/pages/swiper/swiper', status: 'planning' },
-				{ name: 'Calendar', path: '/pages/calendar/calendar', status: 'planning' }
-			]
-		},
+		
 		{
 			name: '业务组件',
 			description: '常见业务场景组件',

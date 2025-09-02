@@ -1,0 +1,408 @@
+<script setup lang="uts">
+	import { inject, computed, useSlots } from 'vue'
+
+	/**
+	 * k-badge 徽标组件
+	 * 支持数字、文字、圆点形态，独立和嵌套模式
+	 */
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
+
+	const props = defineProps({
+		// 显示内容
+		value: {
+			type: [String, Number],
+			default: ''
+		},
+		// 最大值，超出显示++ ，value 数字时生效
+		max: {
+			type: Number,
+			default: 99
+		},
+		// 类型 'primary' | 'success' | 'warning' | 'error' | 'info'
+		type: {
+			type: String,
+			default: 'primary'
+		},
+		// 徽标大小  'small' | 'medium' | 'large'
+		size: {
+			type: [String, Number],
+			default: 'medium'
+		},
+		// 如果嵌套内容时 ，徽标位置  'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
+		position: {
+			type: String,
+			default: 'top-right'
+		},
+		// 是否显示徽标
+		show: {
+			type: Boolean,
+			default: true
+		},
+		// 是否显示圆点，如果显示圆点则 value 内容不显示
+		dot: {
+			type: Boolean,
+			default: false
+		},
+		// 是否显示 0  ，如果为 false ，当徽标为0时自动隐藏
+		showZero: {
+			type: Boolean,
+			default: false
+		},
+		// 自定义背景色
+		backgroundColor: {
+			type: String,
+			default: ''
+		},
+		// 自定义颜色
+		color: {
+			type: String,
+			default: ''
+		},
+		// 边框颜色
+		borderColor: {
+			type: String,
+			default: ''
+		},
+		// 偏移量 {}
+		offset: {
+			type: Array as PropType<number[]>,
+			default: () => {
+				return []
+			}
+		},
+	})
+
+	// 获取插槽内容
+	const slots = useSlots()
+
+	// 判断是否有内容插槽
+	const hasSlot = computed(() : boolean => {
+		return slots['default'] != null
+	})
+
+	// 判断是否为圆点模式
+	const isDot = computed(() : boolean => {
+		return props.dot
+	})
+
+	// 计算显示值
+	const displayValue = computed(() : string => {
+		if (isDot.value) return ''
+
+		const value = props.value
+		if (value == '') return ''
+
+		// 处理数字类型
+		if (typeof value == 'number') {
+			// 不显示0的情况
+			if (value == 0 && !props.showZero) return ''
+
+			if (typeof props.max == 'number') {
+				// 处理最大值
+				if (value > props.max) {
+					return `${props.max}+`
+				}
+			}
+
+			return value.toString()
+		}
+
+		// 处理字符串类型
+		if (typeof value == 'string') {
+			return value
+		}
+		return value.toString()
+	})
+
+	// 判断是否应该显示
+	const shouldShow = computed(() : boolean => {
+		if (!props.show) return false
+		if (isDot.value) return true
+		return displayValue.value != ''
+	})
+
+	// 计算包装器类名
+	const wrapperClass = computed(() : string[] => {
+		const classes = ['k-badge-wrapper']
+
+		if (hasSlot.value) {
+			classes.push('k-badge-wrapper--relative')
+		}
+
+		return classes
+	})
+
+	// 计算徽标类名
+	const badgeClass = computed(() : string[] => {
+		const classes = ['k-badge']
+
+		// 添加类型样式
+		classes.push(`k-badge--${props.type}`)
+
+		// 添加尺寸样式
+		if (typeof props.size == 'string') {
+			classes.push(`k-badge--${props.size}`)
+		}
+
+		// 添加圆点样式
+		if (isDot.value) {
+			classes.push('k-badge--dot')
+		}
+
+		// 添加位置样式（嵌套模式）
+		if (hasSlot.value) {
+			classes.push('k-badge--absolute')
+			classes.push(`k-badge--${props.position}`)
+		}
+
+		return classes
+	})
+
+	// 计算徽标样式
+	const badgeStyle = computed(() : string => {
+		const styles : string[] = []
+
+		// 注入主题变量
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				// 将驼峰命名转换为 kebab-case
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+
+		// 自定义尺寸
+		if (typeof props.size == 'number') {
+			const badgeSize = props.size as number
+			const size = `${badgeSize}px`
+			styles.push(`width: ${size}`)
+			styles.push(`height: ${size}`)
+			styles.push(`min-width: ${size}`)
+		}
+
+		// 自定义背景色
+		if (props.backgroundColor != '') {
+			styles.push(`background-color: ${props.backgroundColor}`)
+		}
+
+		// 自定义边框色
+		if (props.borderColor != '') {
+			styles.push(`border-color: ${props.borderColor}`)
+			styles.push(`border-width: 1px`)
+			styles.push(`border-style: solid`)
+		}
+
+		// 处理偏移量（嵌套模式）
+		if (hasSlot.value && props.offset.length >= 2) {
+			let x = props.offset[0] ?? 0
+			let y = props.offset[1] ?? 0
+
+			// 根据位置调整偏移方向
+			if (props.position == 'top-right') {
+				styles.push(`top: ${y}px`)
+				styles.push(`right: ${-x}px`)
+			} else if (props.position == 'top-left') {
+				styles.push(`top: ${y}px`)
+				styles.push(`left: ${x}px`)
+			} else if (props.position == 'bottom-right') {
+				styles.push(`bottom: ${-y}px`)
+				styles.push(`right: ${-x}px`)
+			} else if (props.position == 'bottom-left') {
+				styles.push(`bottom: ${-y}px`)
+				styles.push(`left: ${x}px`)
+			}
+		}
+
+		return styles.join('; ')
+	})
+
+	// 计算徽标文本样式
+	const badgeTextStyle = computed(() : UTSJSONObject => {
+		const style : UTSJSONObject = {}
+
+		// 自定义尺寸
+		if (typeof props.size == 'number') {
+			const badgeSize = props.size as number
+			style['font-size'] = `${badgeSize * 0.6}px`
+		}
+
+		// 自定义颜色
+		if (props.color != '') {
+			style['color'] = props.color
+		}
+		return style
+	})
+</script>
+
+<template>
+	<view class="k-badge-wrapper" :class="wrapperClass">
+		<!-- 内容插槽 -->
+		<slot></slot>
+
+		<!-- 徽标元素 -->
+		<view v-if="shouldShow" class="kit-ui--root" :class="badgeClass" :style="badgeStyle">
+			<text v-if="!isDot" class="k-badge-text" :style="badgeTextStyle">{{ displayValue }}</text>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	.k-badge-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: visible;
+
+		&--relative {
+			position: relative;
+		}
+	}
+
+	.k-badge {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		border-radius: 50px;
+		flex-shrink: 0;
+
+		// 绝对定位（嵌套模式）
+		&--absolute {
+			position: absolute;
+			transform: translate(50%, -50%);
+			z-index: 10;
+		}
+
+		// 位置样式
+		&--top-right {
+			top: 0;
+			right: 0;
+		}
+
+		&--top-left {
+			top: 0;
+			left: 0;
+			transform: translate(-50%, -50%);
+		}
+
+		&--bottom-right {
+			bottom: 0;
+			right: 0;
+			transform: translate(50%, 50%);
+		}
+
+		&--bottom-left {
+			bottom: 0;
+			left: 0;
+			transform: translate(-50%, 50%);
+		}
+
+		// 尺寸样式
+		&--small {
+			height: 16px;
+			min-width: 16px;
+			padding: 0 4px;
+
+			&.k-badge--dot {
+				width: 6px;
+				height: 6px;
+				min-width: 6px;
+				padding: 0;
+			}
+		}
+
+		&--medium {
+			height: 20px;
+			min-width: 20px;
+			padding: 0 6px;
+
+			&.k-badge--dot {
+				width: 8px;
+				height: 8px;
+				min-width: 8px;
+				padding: 0;
+			}
+		}
+
+		&--large {
+			height: 24px;
+			min-width: 24px;
+			padding: 0 8px;
+
+			&.k-badge--dot {
+				width: 10px;
+				height: 10px;
+				min-width: 10px;
+				padding: 0;
+			}
+		}
+
+		// 圆点样式
+		&--dot {
+			padding: 0;
+		}
+
+		// 类型样式 - 支持主题注入
+		&--primary {
+			background-color: var(--k-color-primary, #007AFF);
+
+			.k-badge-text {
+				color: var(--k-text-color-inverse, #FFFFFF);
+			}
+		}
+
+		&--success {
+			background-color: var(--k-color-success, #34C759);
+
+			.k-badge-text {
+				color: var(--k-text-color-inverse, #FFFFFF);
+			}
+		}
+
+		&--warning {
+			background-color: var(--k-color-warning, #FF9500);
+
+			.k-badge-text {
+				color: var(--k-text-color-inverse, #FFFFFF);
+			}
+		}
+
+		&--error {
+			background-color: var(--k-color-error, #FF3B30);
+
+			.k-badge-text {
+				color: var(--k-text-color-inverse, #FFFFFF);
+			}
+		}
+
+		&--info {
+			background-color: var(--k-color-info, #5AC8FA);
+
+			.k-badge-text {
+				color: var(--k-text-color-inverse, #FFFFFF);
+			}
+		}
+	}
+
+	.k-badge-text {
+		line-height: 1;
+		white-space: nowrap;
+		// text-align: center;
+	}
+
+	// 不同尺寸的文字样式
+	.k-badge--small .k-badge-text {
+		font-size: 10px;
+	}
+
+	.k-badge--medium .k-badge-text {
+		font-size: 12px;
+	}
+
+	.k-badge--large .k-badge-text {
+		font-size: 14px;
+	}
+</style>
