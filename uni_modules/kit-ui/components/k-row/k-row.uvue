@@ -5,8 +5,6 @@
 </template>
 
 <script setup lang="uts">
-	// k-row 栅格布局行组件
-	// 提供水平布局容器，支持间距、对齐方式等配置
 	
 	// 对齐方式类型定义
 	type JustifyType = 'start' | 'end' | 'center' | 'space-around' | 'space-between' | 'space-evenly'
@@ -69,8 +67,6 @@
 </script>
 
 <style lang="scss">
-	@import "../../theme/index.scss";
-	
 	.k-row {
 		display: flex;
 		flex-direction: row;

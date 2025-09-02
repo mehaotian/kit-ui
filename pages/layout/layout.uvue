@@ -2,173 +2,243 @@
 	<!-- #ifdef APP -->
 	<scroll-view class="container">
 	<!-- #endif -->
+
 		<view class="page">
 			<view class="page-header">
-				<text class="page-title">Layout 布局组件</text>
-				<text class="page-desc">最简单的栅格布局，24栅格系统</text>
+				<k-text size="24" weight="bold" align="center">Layout 布局组件</k-text>
+				<k-text class="page-desc" size="14"  align="center">最简单的栅格布局，24栅格系统</k-text>
 			</view>
 			<view class="section">
-				<k-text class="demo-title">基础用法</k-text>
+				<k-text size="16" >基础用法</k-text>
+				<k-text class="demo-desc" size="12" color="#999">24栅格基础用法</k-text>
 				<view class="demo-block">
 					<k-row>
 						<k-col :span="24">
-							<view class="demo-col demo-col-dark">col-24</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-24</text>
+							</view>
 						</k-col>
 					</k-row>
 					<k-row>
 						<k-col :span="12">
-							<view class="demo-col demo-col-light">col-12</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-12</text>
+							</view>
 						</k-col>
 						<k-col :span="12">
-							<view class="demo-col demo-col-dark">col-12</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-12</text>
+							</view>
 						</k-col>
 					</k-row>
 					<k-row>
 						<k-col :span="8">
-							<view class="demo-col demo-col-light">col-8</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-8</text>
+							</view>
 						</k-col>
 						<k-col :span="8">
-							<view class="demo-col demo-col-dark">col-8</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-8</text>
+							</view>
 						</k-col>
 						<k-col :span="8">
-							<view class="demo-col demo-col-light">col-8</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-8</text>
+							</view>
 						</k-col>
 					</k-row>
 					<k-row>
 						<k-col :span="6">
-							<view class="demo-col demo-col-light">col-6</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-6</text>
+							</view>
 						</k-col>
 						<k-col :span="6">
-							<view class="demo-col demo-col-dark">col-6</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-6</text>
+							</view>
 						</k-col>
 						<k-col :span="6">
-							<view class="demo-col demo-col-light">col-6</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-6</text>
+							</view>
 						</k-col>
 						<k-col :span="6">
-							<view class="demo-col demo-col-dark">col-6</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-6</text>
+							</view>
 						</k-col>
 					</k-row>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text class="demo-title">区块间隔</k-text>
-				<k-text class="demo-desc">通过gutter属性设置栅格间隔</k-text>
+				<k-text size="16" >区块间隔</k-text>
+				<k-text class="demo-desc" size="12" color="#999">通过gutter属性设置栅格间隔</k-text>
 				<view class="demo-block">
 					<k-row :gutter="10">
 						<k-col :span="6">
-							<view class="demo-col demo-col-light">col-6</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-6</text>
+							</view>
 						</k-col>
 						<k-col :span="6">
-							<view class="demo-col demo-col-dark">col-6</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-6</text>
+							</view>
 						</k-col>
 						<k-col :span="6">
-							<view class="demo-col demo-col-light">col-6</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-6</text>
+							</view>
 						</k-col>
 						<k-col :span="6">
-							<view class="demo-col demo-col-dark">col-6</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-6</text>
+							</view>
 						</k-col>
 					</k-row>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text class="demo-title">左右偏移</k-text>
-				<k-text class="demo-desc">通过offset属性设置栅格左侧间隔</k-text>
+				<k-text size="16" >左右偏移</k-text>
+				<k-text class="demo-desc" size="12" color="#999">通过offset属性设置栅格左侧间隔</k-text>
 				<view class="demo-block">
 					<k-row>
 						<k-col :span="8">
-							<view class="demo-col demo-col-light">col-8</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-8</text>
+							</view>
 						</k-col>
 						<k-col :span="8" :offset="8">
-							<view class="demo-col demo-col-dark">col-8 offset-8</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-8 offset-8</text>
+							</view>
 						</k-col>
 					</k-row>
 					<k-row>
 						<k-col :span="6" :offset="6">
-							<view class="demo-col demo-col-light">col-6 offset-6</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-6 offset-6</text>
+							</view>
 						</k-col>
 						<k-col :span="6" :offset="6">
-							<view class="demo-col demo-col-dark">col-6 offset-6</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-6 offset-6</text>
+							</view>
 						</k-col>
 					</k-row>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text class="demo-title">对齐方式</k-text>
-				<k-text class="demo-desc">通过justify和align属性设置水平和垂直对齐</k-text>
+				<k-text size="16" >对齐方式</k-text>
+				<k-text class="demo-desc" size="12" color="#999">通过justify和align属性设置水平和垂直对齐</k-text>
 				<view class="demo-block">
-					<k-text class="demo-subtitle">水平居左</k-text>
+					<k-text class="demo-subtitle" align="center">水平居左</k-text>
 					<k-row justify="start">
 						<k-col :span="4">
-							<view class="demo-col demo-col-light">col-4</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 						<k-col :span="4">
-							<view class="demo-col demo-col-dark">col-4</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 						<k-col :span="4">
-							<view class="demo-col demo-col-light">col-4</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 					</k-row>
 
-					<k-text class="demo-subtitle">水平居中</k-text>
+					<k-text class="demo-subtitle" align="center">水平居中</k-text>
 					<k-row justify="center">
 						<k-col :span="4">
-							<view class="demo-col demo-col-light">col-4</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 						<k-col :span="4">
-							<view class="demo-col demo-col-dark">col-4</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 						<k-col :span="4">
-							<view class="demo-col demo-col-light">col-4</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 					</k-row>
 
-					<k-text class="demo-subtitle">水平居右</k-text>
+					<k-text class="demo-subtitle" align="center">水平居右</k-text>
 					<k-row justify="end">
 						<k-col :span="4">
-							<view class="demo-col demo-col-light">col-4</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 						<k-col :span="4">
-							<view class="demo-col demo-col-dark">col-4</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 						<k-col :span="4">
-							<view class="demo-col demo-col-light">col-4</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 					</k-row>
 
-					<k-text class="demo-subtitle">等间距分布</k-text>
+					<k-text class="demo-subtitle" align="center">等间距分布</k-text>
 					<k-row justify="space-between">
 						<k-col :span="4">
-							<view class="demo-col demo-col-light">col-4</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 						<k-col :span="4">
-							<view class="demo-col demo-col-dark">col-4</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 						<k-col :span="4">
-							<view class="demo-col demo-col-light">col-4</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">col-4</text>
+							</view>
 						</k-col>
 					</k-row>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text class="demo-title">响应式布局</k-text>
-				<k-text class="demo-desc">根据屏幕尺寸自动调整布局</k-text>
+				<k-text size="16">响应式布局</k-text>
+				<k-text class="demo-desc" size="12" color="#999">根据屏幕尺寸自动调整布局</k-text>
 				<view class="demo-block">
 					<k-row>
 						<k-col :xs="24" :sm="12" :md="8" :lg="6">
-							<view class="demo-col demo-col-light">响应式</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">响应式</text>
+							</view>
 						</k-col>
 						<k-col :xs="24" :sm="12" :md="8" :lg="6">
-							<view class="demo-col demo-col-dark">响应式</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">响应式</text>
+							</view>
 						</k-col>
 						<k-col :xs="24" :sm="12" :md="8" :lg="6">
-							<view class="demo-col demo-col-light">响应式</view>
+							<view class="demo-col demo-col-light">
+								<text class="demo-col-text">响应式</text>
+							</view>
 						</k-col>
 						<k-col :xs="24" :sm="12" :md="8" :lg="6">
-							<view class="demo-col demo-col-dark">响应式</view>
+							<view class="demo-col demo-col-dark">
+								<text class="demo-col-text">响应式</text>
+							</view>
 						</k-col>
 					</k-row>
 				</view>
@@ -183,49 +253,28 @@
 	// Layout 布局组件演示页面
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	.container {
 		flex: 1;
 	}
 
-	.demo-section {
-		margin-bottom: 32px;
-	}
-
-	.demo-title {
-		font-size: 18px;
-		font-weight: 600;
-		color: #1f2937;
+	.demo-col {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		padding: 12px 0;
+		border-radius: 10px;
 		margin-bottom: 8px;
-	}
-
-	.demo-desc {
-		font-size: 14px;
-		color: #6b7280;
-		margin-bottom: 16px;
-	}
-
-	.demo-subtitle {
-		font-size: 14px;
-		font-weight: 500;
-		color: #1f2937;
-		margin: 16px 0 8px 0;
 	}
 
 	.demo-block {
-		background-color: #f9fafb;
-		border-radius: 8px;
-		padding: 10px;
-		border: 1px solid #f3f4f6;
+		margin-top: 15px;
 	}
-
-	.demo-col {
-		padding: 12px 0;
-		text-align: center;
-		border-radius: 4px;
-		margin-bottom: 8px;
-		font-size: 14px;
-		color: #fff;
+	
+	.demo-subtitle {
+		margin-top: 10rpx ;
+		margin-bottom: 20rpx ;
 	}
 
 	.demo-col-light {
@@ -234,5 +283,11 @@
 
 	.demo-col-dark {
 		background-color: #3b82f6;
+	}
+
+	.demo-col-text {
+		color: #fff;
+		text-align: center;
+		font-size: 20rpx;
 	}
 </style>
