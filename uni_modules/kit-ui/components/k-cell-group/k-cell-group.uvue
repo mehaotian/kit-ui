@@ -1,0 +1,145 @@
+<template>
+	<view :class="groupClass" :style="groupStyle">
+		<!-- 分组标题 -->
+		<view v-if="props.title != ''" class="k-cell-group__title">
+			<text class="k-cell-group__title-text">{{ props.title }}</text>
+		</view>
+
+		<!-- 单元格容器 -->
+		<view class="k-cell-group__wrapper">
+			<slot></slot>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	// 组件属性类型定义
+	type KCellGroupProps = {
+		// 分组标题
+		title ?: string
+		// 是否为圆角卡片模式
+		inset ?: boolean
+		// 是否显示边框
+		border ?: boolean
+		// 自定义类名
+		customClass ?: string
+	}
+
+	defineOptions({
+		name: "KCellGroup"
+	})
+
+	// 定义 props
+	const props = withDefaults(defineProps<KCellGroupProps>(), {
+		title: '',
+		inset: false,
+		border: true,
+		customClass: ''
+	})
+
+	// 主题注入
+	const themeConfig = inject('kit-theme', {})
+
+	// 向子组件提供配置
+	const cellGroupConfig = {
+		border: props.border,
+		inset: props.inset
+	}
+
+	provide('k-cell-group', cellGroupConfig)
+
+	let childs : KCellComponentPublicInstance[] = []
+
+	// 计算分组容器类名
+	const groupClass = computed(() : string[] => {
+		const classes = ['k-cell-group']
+
+		// inset 圆角卡片模式
+		if (props.inset) {
+			classes.push('k-cell-group--inset')
+		}
+		
+		// 自定义类名
+		if (props.customClass != '') {
+			classes.push(props.customClass)
+		}
+		return classes
+	})
+
+	// 计算分组容器样式
+	const groupStyle = computed(() : string => {
+		const styles : string[] = []
+
+		// 主题变量注入
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				// 将驼峰命名转换为 kebab-case
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+
+		return styles.join('; ')
+	})
+
+	function childInit(child : KCellComponentPublicInstance) : string {
+		childs.push(child)
+		return ''
+	}
+
+	provide('k-cell-group-child-init', childInit)
+
+	onMounted(() => {
+		if (childs.length > 0) {
+			const lastChild = childs[childs.length - 1]
+			console.log(lastChild)
+			lastChild.initBorder()
+		}
+	})
+	defineExpose({
+		childInit
+	})
+</script>
+
+<style lang="scss">
+	.k-cell-group {
+		background-color: var(--k-cell-background-color, #ffffff);
+
+		// 分组标题样式
+		&__title {
+			padding: 16px 16px 8px 16px;
+			display: flex;
+
+			&-text {
+				font-size: 14px;
+				color: var(--k-cell-label-color, #969799);
+				line-height: 20px;
+			}
+		}
+
+		// 单元格容器
+		&__wrapper {
+			position: relative;
+
+			// 最后一个单元格不显示边框
+			// .k-cell:last-child.k-cell--border::after {
+			// 	display: none;
+			// }
+		}
+
+		// inset 圆角卡片模式
+		&--inset {
+			margin: 0 16px;
+			border-radius: 8px;
+			overflow: hidden;
+			border: 1px #f1f3f5 solid;
+
+			.k-cell-group__title {
+				padding-left: 0;
+				padding-right: 0;
+				margin-left: 20rpx;
+			}
+		}
+	}
+</style>

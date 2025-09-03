@@ -106,14 +106,14 @@
 				}
 			}
 
-			return value.toString()
+			return (value as number).toString()
 		}
 
 		// 处理字符串类型
 		if (typeof value == 'string') {
 			return value
 		}
-		return value.toString()
+		return value as string
 	})
 
 	// 判断是否应该显示

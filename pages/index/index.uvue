@@ -81,7 +81,7 @@
 				{ name: 'Tag ｜ 标签', path: '/pages/tag/tag', status: 'developing' },
 				{ name: 'Badge ｜ 徽标', path: '/pages/badge/badge', status: 'developing' },
 				{ name: 'Divider | 分割线', path: '/pages/divider/divider', status: 'completed' },
-				{ name: 'Cell | 单元格', path: '/pages/divider/divider', status: 'planning' },
+				{ name: 'Cell | 单元格', path: '/pages/cell/cell', status: 'completed' },
 			]
 		},
 		{

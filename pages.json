@@ -67,6 +67,11 @@
 			"style": {
 				"navigationBarTitleText": "标签"
 			}
+		}, {
+			"path": "pages/cell/cell",
+			"style": {
+				"navigationBarTitleText": "单元格"
+			}
 		}
 	],
 	"globalStyle": {

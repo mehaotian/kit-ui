@@ -1,0 +1,163 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex:1">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-cell 单元格组件</text>
+				<text class="page-desc">单元格为列表中的单个展示项</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+				</view>
+				<view class="demo-block">
+					<k-cell title="单元格" right-text="内容" />
+					<k-cell title="单元格" right-text="内容" label="描述信息" />
+				</view>
+			</view>
+
+			<!-- 单元格大小 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">单元格大小</text>
+				</view>
+				<view class="demo-block">
+					<k-cell title="大号单元格" right-text="内容" size="large" />
+					<k-cell title="默认单元格" right-text="内容" />
+					<k-cell title="小号单元格" right-text="内容" size="small" />
+				</view>
+			</view>
+
+			<!-- 展示图标 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">展示图标/箭头</text>
+				</view>
+				<view class="demo-block">
+					<k-cell title="单元格" is-link />
+					<k-cell title="单元格" right-text="详细信息" is-link />
+					<k-cell title="单元格" right-text="内容" icon="account-box-line" />
+					<k-cell title="单元格" label="描述文本" is-link right-text="内容" icon="share-forward-line" />
+				</view>
+			</view>
+
+			<!-- 页面跳转 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">页面跳转</text>
+				</view>
+				<view class="demo-block">
+					<k-cell title="跳转到按钮页面" is-link url="/pages/button/button" />
+					<k-cell title="跳转到布局页面" is-link url="/pages/layout/layout" />
+				</view>
+			</view>
+
+			<!-- 分组标题 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">分组标题</text>
+				</view>
+				<k-cell-group title="分组1">
+					<k-cell title="单元格" value="内容" />
+					<k-cell title="单元格" value="内容" />
+				</k-cell-group>
+				<view class="group-spacing"></view>
+				<k-cell-group title="分组2">
+					<k-cell title="单元格" value="内容" />
+					<k-cell title="单元格" value="内容" />
+				</k-cell-group>
+			</view>
+
+			<!-- 卡片风格 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">卡片风格</text>
+				</view>
+				<k-cell-group title="卡片分组" inset>
+					<k-cell title="单元格" value="内容" />
+					<k-cell title="单元格" value="内容" />
+					<k-cell title="单元格" value="内容" />
+				</k-cell-group>
+			</view>
+
+			<!-- 自定义插槽 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义插槽</text>
+				</view>
+				<view class="demo-block">
+					<k-cell title="自定义右侧内容" is-link>
+						<template #extra>
+							<k-badge :value="99" />
+						</template>
+					</k-cell>
+					<k-cell right-icon>
+						<template #title>
+							<view style="display: flex;flex-direction: row;">
+								<k-text style="color: #1989fa; margin-right: 5px;">自定义标题</k-text>
+								<k-tag text="SVIP" type="warning" size="12"></k-tag> 
+							</view>
+						</template>
+						<template #extra>
+							<k-text style="color: #1989fa; margin-right: 5px;">自定义标题</k-text>
+						</template>
+					</k-cell>
+				</view>
+			</view>
+
+			<!-- 点击事件 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">点击事件</text>
+				</view>
+				<view class="demo-block">
+					<k-cell title="点击单元格" clickable @click="handleCellClick" />
+					<k-cell title="禁用状态" disabled />
+				</view>
+			</view>
+
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	/**
+	 * Cell 单元格组件演示页面
+	 */
+	
+	/**
+	 * 处理单元格点击事件
+	 */
+	const handleCellClick = () => {
+		uni.showToast({
+			title: '单元格被点击',
+			icon: 'none'
+		})
+	}
+</script>
+
+<style lang="scss" scoped>
+	.section {
+		padding: 15px 0;
+	}
+	
+	.section-title {
+		margin-top: 20px;
+	  display: flex;
+	  align-items: center;
+	}
+	
+	.demo-block {
+		background-color: #fff;
+		overflow: hidden;
+	}
+	
+	.group-spacing {
+		height: 16px;
+	}
+</style>

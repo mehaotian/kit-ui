@@ -1,0 +1,522 @@
+<template>
+	<view :class="cellClass" :style="cellStyle" @click="handleClick">
+		<!-- 左侧图标 -->
+		<view v-if="showLeftIcon" class="k-cell__left-icon">
+			<slot name="icon">
+				<k-icon v-if="props.icon != ''" :name="props.icon" size="16" />
+			</slot>
+		</view>
+
+		<!-- 主体内容 -->
+		<view class="k-cell__body">
+			<!-- 标题区域 -->
+			<view class="k-cell__title">
+				<slot name="title">
+					<view v-if="props.title != ''" class="k-cell__title-wrapper">
+						<text class="k-cell__title-text">{{ props.title }}</text>
+						<!-- <text v-if="props.required" class="k-cell__required">*</text> -->
+					</view>
+				</slot>
+				<!-- 描述信息 -->
+				<view v-if="showLabel" class="k-cell__label">
+					<slot name="label">
+						<text class="k-cell__label-text">{{ props.label }}</text>
+					</slot>
+				</view>
+			</view>
+			<!-- 内容值 -->
+			<!-- <text v-if="props.value != '' && !hasDefaultSlot" class="k-cell__value-text">{{ props.value }}</text> -->
+
+			<!-- 默认插槽内容 -->
+			<!-- <view v-if="hasDefaultSlot" class="k-cell__content">
+				<slot></slot>
+			</view> -->
+		</view>
+
+		<!-- 右侧内容 -->
+		<view class="k-cell__right">
+			<!-- 右侧文本 -->
+			<view v-if="props.rightText != ''" class="k-cell__right-text">
+				<text class="k-cell__right-text-content">{{ props.rightText }}</text>
+			</view>
+
+			<!-- 右侧额外内容插槽 -->
+			<view v-if="hasExtraSlot" class="k-cell__extra">
+				<slot name="extra"></slot>
+			</view>
+
+			<!-- 右侧图标 -->
+			<view v-if="hasRightIconSlot" class="k-cell__right-icon">
+				<slot name="right-icon"></slot>
+			</view>
+
+			<!-- 箭头图标 -->
+			<view v-if="showArrow" class="k-cell__arrow">
+				<k-icon name="arrow-right-s-line" size="16" color="#c8c9cc" />
+			</view>
+		</view>
+		<view :class="{'k-cell--border':showBorder}"></view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { onMounted } from 'vue'
+	// 尺寸类型定义
+	type SizeType = 'small' | 'medium' | 'large'
+
+	// 组件属性类型定义
+	type KCellProps = {
+		// 单元格标题
+		title ?: string
+		// 单元格内容
+		value ?: string
+		// 标题下方的描述信息
+		label ?: string
+		// 单元格大小 'small' | 'medium' | 'large'
+		size ?: string
+		// 左侧图标名称
+		icon ?: string
+		// 右侧文本
+		rightText ?: string
+		// 是否显示右侧箭头
+		isLink ?: boolean
+		// 是否可点击
+		clickable ?: boolean
+		// 是否显示边框
+		border ?: boolean
+		// 是否禁用
+		disabled ?: boolean
+		// 跳转链接
+		url ?: string
+		// 链接跳转类型'navigateTo' | 'redirectTo' | 'reLaunch' | 'switchTab'
+		linkType ?: string
+		// 是否必填（显示红色星号）
+		required ?: boolean
+		// 自定义类名
+		customClass ?: string
+	}
+
+	type SzieItem = {
+		height : string
+		padding : string
+		fontSize : string
+	}
+	type SizeMapType = {
+		small : SzieItem
+		medium : SzieItem
+		large : SzieItem
+	}
+
+	// 组件属性定义
+	const props = withDefaults(defineProps<KCellProps>(), {
+		title: '',
+		value: '',
+		label: '',
+		size: 'medium',
+		icon: '',
+		rightText: '',
+		isLink: false,
+		clickable: false,
+		border: null,
+		disabled: false,
+		url: '',
+		linkType: 'navigateTo',
+		required: false,
+		customClass: ''
+	})
+
+	defineOptions({
+		name: "KCell"
+	})
+
+	// 定义事件
+	const emit = defineEmits<{
+		click : [event: any]
+	}>()
+
+	// 获取插槽
+	const slots = useSlots()
+
+	// 主题注入
+	const themeConfig = inject('kit-theme', {})
+
+	// 获取父组件配置
+	// <{ border : boolean, inset : boolean } | null>
+	type InjectType = {
+		border : boolean
+		inset : boolean
+	}
+	const cellGroupConfig = inject('k-cell-group', {})
+
+	const instance = getCurrentInstance()!.proxy! as KCellComponentPublicInstance
+
+	const cellChild = inject < ((child : KCellComponentPublicInstance) => string) | null > ('k-cell-group-child-init', null)
+
+	const groupsData : InjectType = {
+		inset: false,
+		border: true
+	}
+	// 遍历主题配置，生成 CSS 变量
+	for (let key in cellGroupConfig) {
+		const value = cellGroupConfig[key]
+		groupsData[key] = value
+	}
+
+	// 判断是否有默认插槽
+	const hasDefaultSlot = computed(() : boolean => {
+		return slots['default'] != null
+	})
+
+	// 判断是否有额外内容插槽
+	const hasExtraSlot = computed(() : boolean => {
+		return slots['extra'] != null
+	})
+
+	// 判断是否有右侧图标插槽
+	const hasRightIconSlot = computed(() : boolean => {
+		return slots['right-icon'] != null
+	})
+
+	// 判断是否显示左侧图标
+	const showLeftIcon = computed(() : boolean => {
+		return props.icon != '' || slots['icon'] != null
+	})
+
+	// 判断是否显示描述信息
+	const showLabel = computed(() : boolean => {
+		return props.label != '' || slots['label'] != null
+	})
+
+	// 判断是否显示箭头
+	const showArrow = computed(() : boolean => {
+		return props.isLink || (props.clickable && !props.disabled)
+	})
+
+
+	let isBorder = ref(true)
+
+	// 判断是否显示边框
+	const showBorder = computed(() : boolean => {
+		// 优先判断是否最后一个，最后一个不允许显示标框
+		if (!isBorder.value) {
+			return false
+		}
+		// 优先使用组件自身的 border 属性
+		if (props.border != null) {
+			return props.border
+		}
+
+		// 其次使用父组件的 border 配置
+		return groupsData.border
+
+	})
+
+
+	// 获取尺寸信息
+	const getSizeInfo = (size : string) : SzieItem => {
+
+		const sizeMap : SizeMapType = {
+			small: {
+				height: '44px',
+				padding: '8px 16px',
+				fontSize: '14px'
+			},
+			medium: {
+				height: '50px',
+				padding: '12px 16px',
+				fontSize: '16px'
+			},
+			large: {
+				height: '56px',
+				padding: '12px 16px',
+				fontSize: '16px'
+			}
+		}
+		let data = sizeMap[size] as SzieItem
+		return data
+	}
+
+	// 计算尺寸信息
+	const sizeInfo = computed(() => {
+		return getSizeInfo(props.size)
+	})
+
+	// 计算单元格类名
+	const cellClass = computed(() : string[] => {
+		const classes = ['k-cell']
+
+		// 添加尺寸样式
+		classes.push(`k-cell--${props.size}`)
+
+		// 添加可点击样式
+		if ((props.clickable || props.isLink) && !props.disabled) {
+			classes.push('k-cell--clickable')
+		}
+
+		// 添加禁用样式
+		if (props.disabled) {
+			classes.push('k-cell--disabled')
+		}
+
+		// // 添加边框样式
+		// if (showBorder.value) {
+		// 	classes.push('k-cell--border')
+		// }
+
+		// 自定义类名
+		if (props.customClass != '') {
+			classes.push(props.customClass)
+		}
+
+		return classes
+	})
+
+	// 计算单元格样式
+	const cellStyle = computed(() : string => {
+		const styles : string[] = []
+
+		// 主题变量注入
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				// 将驼峰命名转换为 kebab-case
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+
+		// 尺寸样式
+		const size = sizeInfo.value
+		// styles.push(`min-height: ${size['height']}`)
+		styles.push(`padding: ${size['padding']}`)
+
+		return styles.join('; ')
+	})
+
+	// 点击事件处理
+	const handleClick = (event : any) => {
+		if (props.disabled) {
+			return
+		}
+
+		if (props.clickable || props.isLink) {
+			emit('click', event)
+		}
+
+		// 处理 URL 跳转
+		if (props.url != '') {
+			switch (props.linkType) {
+				case 'navigateTo':
+					uni.navigateTo({ url: props.url })
+					break
+				case 'redirectTo':
+					uni.redirectTo({ url: props.url })
+					break
+				case 'reLaunch':
+					uni.reLaunch({ url: props.url })
+					break
+				case 'switchTab':
+					uni.switchTab({ url: props.url })
+					break
+			}
+		}
+	}
+
+	onMounted(() => {
+		// 与父组件交互，
+		if (cellChild != null) {
+			cellChild(instance)
+		}
+	})
+
+	function initBorder() {
+		// 这是最后一个不显示 边框
+		isBorder.value = false
+	}
+	defineExpose({
+		initBorder
+	})
+</script>
+
+<style lang="scss">
+	.k-cell {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		background-color: var(--k-cell-background-color, #ffffff);
+		position: relative;
+		box-sizing: border-box;
+		// 左侧图标
+		&__left-icon {
+			margin-right: 8px;
+			display: flex;
+			align-items: center;
+		}
+
+		// 主体内容
+		&__body {
+			flex: 1;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			// min-height: 24px;
+		}
+
+		// 标题
+		&__title {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+
+			&-wrapper {
+				flex: 1;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+			}
+
+			&-text {
+				font-size: 26rpx;
+				color: var(--k-cell-text-color, #323233);
+				line-height: 1.2;
+			}
+		}
+
+		// 描述信息
+		&__label {
+			margin-top: 4px;
+			display: flex;
+
+			&-text {
+				font-size: 12px;
+				color: var(--k-cell-label-color, #969799);
+				line-height: 18px;
+			}
+		}
+
+		// 必填标识
+		&__required {
+			font-size: 16px;
+			color: #ee0a24;
+			margin-left: 2px;
+		}
+
+		// 内容值
+		// &__value-text {
+		// 	font-size: 24rpx;
+		// 	color: var(--k-cell-text-color, #323233);
+		// 	line-height: 24px;
+		// 	margin-left: 8px;
+		// }
+
+
+
+		// 默认内容
+		// &__content {
+		// 	margin-top: 4px;
+		// 	display: flex;
+		// }
+
+		// 右侧内容
+		&__right {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			flex-shrink: 0;
+		}
+
+		// 右侧文本
+		&__right-text {
+			margin-right: 4px;
+			display: flex;
+			align-items: center;
+
+			&-content {
+				// font-size: 16px;
+				// color: var(--k-cell-label-color, #969799);
+				// line-height: 24px;
+				font-size: 26rpx;
+				color: var(--k-cell-text-color, #969799);
+				line-height: 24px;
+				margin-left: 8px;
+			}
+		}
+
+		// 额外内容
+		&__extra {
+			margin-right: 4px;
+			display: flex;
+			align-items: center;
+		}
+
+		// 右侧图标
+		&__right-icon {
+			margin-right: 4px;
+			display: flex;
+			align-items: center;
+		}
+
+		// 箭头
+		&__arrow {
+			display: flex;
+			align-items: center;
+		}
+
+		// 边框
+		&--border {
+			position: absolute;
+			bottom: 0;
+			left: 16px;
+			right: 0;
+			border-bottom: 1rpx #ebedf0 solid;
+			// &::after {
+			// 	content: '';
+			// 	position: absolute;
+			// 	bottom: 0;
+			// 	left: 16px;
+			// 	right: 0;
+			// 	height: 1px;
+			// 	background-color: var(--k-cell-border-color, #ebedf0);
+			// }
+		}
+
+		// 可点击状态
+		&--clickable {
+			&:active {
+				background-color: var(--k-cell-active-color, #f2f3f5);
+			}
+		}
+
+		// 禁用状态
+		&--disabled {
+			opacity: 0.6;
+
+			.k-cell__title-text,
+			.k-cell__right-text-content {
+				color: var(--k-cell-disabled-color, #c8c9cc);
+			}
+		}
+
+		// 尺寸变体
+		&--small {
+			.k-cell__title-text {
+				font-size: 24rpx;
+			}
+
+			.k-cell__right-text-content {
+				font-size: 24rpx;
+			}
+		}
+
+		&--large {
+			.k-cell__title-text {
+				font-size: 28rpx;
+			}
+
+			.k-cell__right-text-content {
+				font-size: 28rpx;
+			}
+		}
+	}
+</style>
