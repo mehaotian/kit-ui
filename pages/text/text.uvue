@@ -8,30 +8,14 @@
 				<text class="page-desc">功能丰富的文本组件，支持多种类型、尺寸和状态的文本显示，并提供文本溢出处理、格式化和装饰等功能</text>
 			</view>
 			<view class="section">
-				<k-text size="lg" weight="bold">基础用法</k-text>
-				<view class="demo-item">
-					<k-text>默认文本</k-text>
+				<view class="section-title">
+					<k-text size="md" weight="bold">基础用法</k-text>
 				</view>
-				<view class="demo-item">
-					<k-text type="primary">主要文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text type="success">成功文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text type="warning">警告文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text type="danger">危险文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text type="info">信息文本</k-text>
-				</view>
-			</view>
 
-			<k-config :theme="orangeTheme">
-				<view class="section">
-					<k-text size="lg" weight="bold">自定义主题颜色</k-text>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text>默认文本</k-text>
+					</view>
 					<view class="demo-item">
 						<k-text type="primary">主要文本</k-text>
 					</view>
@@ -41,160 +25,227 @@
 					<view class="demo-item">
 						<k-text type="warning">警告文本</k-text>
 					</view>
+					<view class="demo-item">
+						<k-text type="danger">危险文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text type="info">信息文本</k-text>
+					</view>
 				</view>
+			</view>
+
+			<k-config :theme="orangeTheme">
+				<view class="section">
+					<view class="section-title">
+						<k-text size="md" weight="bold">自定义主题颜色</k-text>
+					</view>
+					<view class="demo-content">
+						<view class="demo-item">
+								<k-text type="primary">主要文本</k-text>
+							</view>
+							<view class="demo-item">
+								<k-text type="success">成功文本</k-text>
+							</view>
+							<view class="demo-item">
+								<k-text type="warning">警告文本</k-text>
+							</view>
+						</view>
+					</view>
 			</k-config>
 
 			<view class="section">
-				<k-text size="lg" weight="bold">文本尺寸</k-text>
-				<view class="demo-item">
-					<k-text size="xs">超小号文本</k-text>
+				<view class="section-title">
+					<k-text size="md" weight="bold">文本尺寸</k-text>
 				</view>
-				<view class="demo-item">
-					<k-text size="sm">小号文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="base">基础文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="md">中号文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="lg">大号文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="xl">超大号文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="xxl">特大号文本</k-text>
-				</view>
-			</view>
-
-			<view class="section">
-				<k-text size="lg" weight="bold">自定义尺寸（数值和单位）</k-text>
-				<view class="demo-item">
-					<k-text size="12">12px 文本（纯数字）</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="15px">15px 文本（带px单位）</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="30rpx">30rpx 文本（rpx单位）</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="22px">22px 文本（大尺寸）</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text size="28">28px 文本（大数值）</k-text>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text size="xs">超小号文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="sm">小号文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="base">基础文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="md">中号文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="lg">大号文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="xl">超大号文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="xxl">特大号文本</k-text>
+					</view>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text size="lg" weight="bold">文本粗细</k-text>
-				<view class="demo-item">
-					<k-text weight="light">细体文本</k-text>
+				<view class="section-title">
+					<k-text size="md" weight="bold">自定义尺寸（数值和单位）</k-text>
 				</view>
-				<view class="demo-item">
-					<k-text weight="normal">常规文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text weight="medium">中粗文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text weight="bold">粗体文本</k-text>
-				</view>
-			</view>
-
-			<view class="section">
-				<k-text size="lg" weight="bold">文本溢出</k-text>
-				<view class="demo-item">
-					<k-text ellipsis>这是一段很长的文本，超出部分将显示省略号，这是一段很长的文本，超出部分将显示省略号，这是一段很长的文本，超出部分将显示省略号。</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text ellipsis :lines="3">这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号。</k-text>
-					<!-- <text style="text-overflow: ellipsis; lines: 2;">这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号。</text> -->
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text size="12">12px 文本（纯数字）</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="15px">15px 文本（带px单位）</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="30rpx">30rpx 文本（rpx单位）</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="22px">22px 文本（大尺寸）</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text size="28">28px 文本（大数值）</k-text>
+					</view>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text size="lg" weight="bold">日期格式化</k-text>
-				<view class="demo-item">
-					<k-text format="date" text="2023-05-20"></k-text>
+				<view class="section-title">
+					<k-text size="md" weight="bold">文本粗细</k-text>
 				</view>
-				<view class="demo-item">
-					<k-text format="date" text="2023-05-20" :formatOptions="dateFormatOptions"></k-text>
-
-				</view>
-				<view class="demo-item">
-					<k-text format="date" text="2023-05-20" :formatOptions="date1FormatOptions"></k-text>
-				</view>
-				<view class="demo-item">
-					<k-text format="date" text="2023-05-20 12:30:45" :formatOptions="date2FormatOptions"></k-text>
-				</view>
-			</view>
-
-			<view class="section">
-				<k-text size="lg" weight="bold">金额格式化</k-text>
-				<view class="demo-item">
-					<k-text format="price" text="1234.56"></k-text>
-				</view>
-				<view class="demo-item">
-					<k-text format="price" text="1234.56" :formatOptions="priceFormatOptions"></k-text>
-				</view>
-				<view class="demo-item">
-					<k-text format="price" text="1234.56" :formatOptions="price2FormatOptions"></k-text>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text weight="light">细体文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text weight="normal">常规文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text weight="medium">中粗文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text weight="bold">粗体文本</k-text>
+					</view>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text size="lg" weight="bold">文本脱敏</k-text>
-				<view class="demo-item">
-					<k-text format="mask" text="13812345678" :formatOptions="mask1FormatOptions"></k-text>
+				<view class="section-title">
+					<k-text size="md" weight="bold">文本溢出</k-text>
 				</view>
-				<view class="demo-item">
-					<k-text format="mask" text="example@email.com" :formatOptions="mask2FormatOptions"></k-text>
-				</view>
-				<view class="demo-item">
-					<k-text format="mask" text="张三" :formatOptions="mask3FormatOptions"></k-text>
-				</view>
-				<view class="demo-item">
-					<k-text format="mask" text="123456789012345678" :formatOptions="mask4FormatOptions"></k-text>
-				</view>
-				<view class="demo-item">
-					<k-text format="mask" text="自定义脱敏文本" :formatOptions="mask5FormatOptions"></k-text>
-
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text ellipsis>这是一段很长的文本，超出部分将显示省略号，这是一段很长的文本，超出部分将显示省略号，这是一段很长的文本，超出部分将显示省略号。</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text :lines="2" ellipsis>这是一段很长的文本，超出部分将显示省略号，这是一段很长的文本，超出部分将显示省略号，这是一段很长的文本，超出部分将显示省略号。</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text ellipsis :lines="3">这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号，这是一段很长的文本，将在第二行结束时显示省略号。</k-text>
+					</view>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text size="lg" weight="bold">文本装饰</k-text>
-				<view class="demo-item">
-					<k-text decoration="underline">下划线文本</k-text>
+				<view class="section-title">
+					<k-text size="md" weight="bold">日期格式化</k-text>
 				</view>
-				<view class="demo-item">
-					<k-text decoration="line-through">删除线文本</k-text>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text format="date" text="2023-05-20"></k-text>
+					</view>
+					<view class="demo-item">
+						<k-text format="date" text="2023-05-20" :formatOptions="dateFormatOptions"></k-text>
+
+					</view>
+					<view class="demo-item">
+						<k-text format="date" text="2023-05-20" :formatOptions="date1FormatOptions"></k-text>
+					</view>
+					<view class="demo-item">
+						<k-text format="date" text="2023-05-20 12:30:45" :formatOptions="date2FormatOptions"></k-text>
+					</view>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text size="lg" weight="bold">文本对齐</k-text>
-				<view class="demo-item">
-					<k-text align="left">左对齐文本</k-text>
+				<view class="section-title">
+					<k-text size="md" weight="bold">金额格式化</k-text>
 				</view>
-				<view class="demo-item">
-					<k-text align="center">居中对齐文本</k-text>
-				</view>
-				<view class="demo-item">
-					<k-text align="right">右对齐文本</k-text>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text format="price" text="1234.56"></k-text>
+					</view>
+					<view class="demo-item">
+						<k-text format="price" text="1234.56" :formatOptions="priceFormatOptions"></k-text>
+					</view>
+					<view class="demo-item">
+						<k-text format="price" text="1234.56" :formatOptions="price2FormatOptions"></k-text>
+					</view>
 				</view>
 			</view>
 
 			<view class="section">
-				<k-text size="lg" weight="bold">自定义颜色和样式</k-text>
-				<view class="demo-item">
-					<k-text color="#8a2be2">自定义颜色文本</k-text>
+				<view class="section-title">
+					<k-text size="md" weight="bold">文本脱敏</k-text>
 				</view>
-				<view class="demo-item">
-					<k-text customStyle="letter-spacing: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">自定义样式文本</k-text>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text format="mask" text="13812345678" :formatOptions="mask1FormatOptions"></k-text>
+					</view>
+					<view class="demo-item">
+						<k-text format="mask" text="example@email.com" :formatOptions="mask2FormatOptions"></k-text>
+					</view>
+					<view class="demo-item">
+						<k-text format="mask" text="张三" :formatOptions="mask3FormatOptions"></k-text>
+					</view>
+					<view class="demo-item">
+						<k-text format="mask" text="123456789012345678" :formatOptions="mask4FormatOptions"></k-text>
+					</view>
+					<view class="demo-item">
+						<k-text format="mask" text="自定义脱敏文本" :formatOptions="mask5FormatOptions"></k-text>
+
+					</view>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="md" weight="bold">文本装饰</k-text>
+				</view>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text decoration="underline">下划线文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text decoration="line-through">删除线文本</k-text>
+					</view>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="md" weight="bold">文本对齐</k-text>
+				</view>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text align="left">左对齐文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text align="center">居中对齐文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text align="right">右对齐文本</k-text>
+					</view>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="md" weight="bold">自定义颜色和样式</k-text>
+				</view>
+				<view class="demo-content">
+					<view class="demo-item">
+						<k-text color="#8a2be2">自定义颜色文本</k-text>
+					</view>
+					<view class="demo-item">
+						<k-text customStyle="letter-spacing: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">自定义样式文本</k-text>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -249,16 +300,9 @@
 		endLen: 2,
 		maskChar: '#',
 	})
-
-
-
-
 </script>
 
 <style lang="scss" scoped>
-	.section {
-		margin-bottom: 30px;
-	}
 	.demo-item {
 		margin-top: 10px;
 		padding: 10px;

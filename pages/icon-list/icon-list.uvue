@@ -2,21 +2,21 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1;height: 2000px;">
 	<!-- #endif -->
-		<view class="page-header">
-			<text class="page-title">k-icon 图标组件</text>
-			<text class="page-desc">轻量、扩展方便、用法简单的图标组件</text>
-		</view>
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-icon 图标组件</text>
+				<text class="page-desc">轻量、扩展方便、用法简单的图标组件</text>
+			</view>
 
-		<!-- 基础用法 -->
-		<view class="section">
-			<text class="section-title">完整示例</text>
-			<view class="icon-demo-row">
-				<template v-for="(item,index) in allFillIcons">
-					<view class="icon-demo-item">
+			<view class="section">
+				<text class="section-title">完整示例</text>
+				<view class="demo-content demo-row">
+					<view v-for="(item,index) in allFillIcons" :key="index" class="icon-demo-item">
 						<k-icon :name="item" size="24" @click="handleIconClick(item)" />
 					</view>
-				</template>
+				</view>
 			</view>
+
 		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
@@ -49,50 +49,6 @@
 </script>
 
 <style lang="scss" scoped>
-	.page {
-		flex: 1;
-		background-color: var(--k-color-background, #f8f9fa);
-	}
-
-	.page-header {
-		padding: 20px;
-		background-color: var(--k-color-white, #ffffff);
-		border-bottom: 1px solid var(--k-color-border, #ebeef5);
-		margin-bottom: 12px;
-	}
-
-	.page-title {
-		font-size: 24px;
-		font-weight: 400;
-		color: var(--k-color-text-primary, #303133);
-		margin-bottom: 8px;
-	}
-
-	.page-desc {
-		font-size: 14px;
-		color: var(--k-color-text-secondary, #606266);
-	}
-
-	.section {
-		margin-bottom: 12px;
-		background-color: var(--k-color-white, #ffffff);
-		padding: 16px;
-	}
-
-	.section-title {
-		font-size: 16px;
-		font-weight: 400;
-		color: var(--k-color-text-primary, #303133);
-		margin-bottom: 12px;
-	}
-
-	.icon-demo-row {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-wrap: wrap;
-	}
-
 	.icon-demo-item {
 		display: flex;
 		align-items: center;

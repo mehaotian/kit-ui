@@ -1,9 +1,13 @@
 <template>
 	<view :class="groupClass" :style="groupStyle">
 		<!-- 分组标题 -->
-		<view v-if="props.title != ''" class="k-cell-group__title">
-			<text class="k-cell-group__title-text">{{ props.title }}</text>
-		</view>
+
+		<slot name="group-title">
+			<view v-if="props.title != ''" class="k-cell-group__title">
+				<text class="k-cell-group__title-text">{{ props.title }}</text>
+			</view>
+		</slot>
+
 
 		<!-- 单元格容器 -->
 		<view class="k-cell-group__wrapper">
@@ -33,7 +37,6 @@
 	const props = withDefaults(defineProps<KCellGroupProps>(), {
 		title: '',
 		inset: false,
-		border: true,
 		customClass: ''
 	})
 
@@ -58,7 +61,14 @@
 		if (props.inset) {
 			classes.push('k-cell-group--inset')
 		}
-		
+
+		if (props.border != null) {
+			const border = props.border as boolean
+			if (border) {
+				classes.push('k-cell-group--border')
+			}
+		}
+
 		// 自定义类名
 		if (props.customClass != '') {
 			classes.push(props.customClass)
@@ -82,20 +92,41 @@
 
 		return styles.join('; ')
 	})
+	
+	// const slots = useSlots()
+	// // 判断是否有标题插槽
+	// const hasExtraSlot = computed(() : boolean => {
+	// 	return slots['group-title'] != null
+	// })
+
+
+	function handleChild() {
+		if (childs.length > 0) {
+			// 先清空所有 border 属性
+			childs.forEach(item => {
+				item.initBorderNull()
+			})
+			// 在设置最后一个border为false，避免border设置冲突
+			const lastChild = childs[childs.length - 1]
+			lastChild.initBorder()
+		}
+	}
 
 	function childInit(child : KCellComponentPublicInstance) : string {
 		childs.push(child)
+		handleChild()
 		return ''
 	}
 
 	provide('k-cell-group-child-init', childInit)
 
 	onMounted(() => {
-		if (childs.length > 0) {
-			const lastChild = childs[childs.length - 1]
-			console.log(lastChild)
-			lastChild.initBorder()
-		}
+		// // #ifdef MP-WEIXIN
+		// handleChild()
+		// // #endif
+		// // #ifndef MP-WEIXIN
+		// setTimeout(() => handleChild(), 1000)
+		// // #endif
 	})
 	defineExpose({
 		childInit
@@ -133,13 +164,21 @@
 			margin: 0 16px;
 			border-radius: 8px;
 			overflow: hidden;
-			border: 1px #f1f3f5 solid;
+			box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.05);
 
 			.k-cell-group__title {
 				padding-left: 0;
 				padding-right: 0;
 				margin-left: 20rpx;
 			}
+
+			&.k-cell-group--border {
+				border: 1px #ebedf0 solid;
+			}
 		}
+
+		// &--border {
+		// 	border: 1px #ebedf0 solid;
+		// }
 	}
 </style>

@@ -6,12 +6,14 @@
 		<view class="page">
 			<view class="page-header">
 				<k-text size="24" weight="bold" align="center">Layout 布局组件</k-text>
-				<k-text class="page-desc" size="14"  align="center">最简单的栅格布局，24栅格系统</k-text>
+				<k-text class="page-desc" size="14" align="center">最简单的栅格布局，24栅格系统</k-text>
 			</view>
 			<view class="section">
-				<k-text size="16" >基础用法</k-text>
-				<k-text class="demo-desc" size="12" color="#999">24栅格基础用法</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">基础用法</k-text>
+					<k-text class="demo-desc" size="12" color="#999">24栅格基础用法</k-text>
+				</view>
+				<view class="demo-content demo-block">
 					<k-row>
 						<k-col :span="24">
 							<view class="demo-col demo-col-dark">
@@ -74,9 +76,11 @@
 			</view>
 
 			<view class="section">
-				<k-text size="16" >区块间隔</k-text>
-				<k-text class="demo-desc" size="12" color="#999">通过gutter属性设置栅格间隔</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">区块间隔</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过gutter属性设置栅格间隔</k-text>
+				</view>
+				<view class="demo-content demo-block">
 					<k-row :gutter="10">
 						<k-col :span="6">
 							<view class="demo-col demo-col-light">
@@ -103,9 +107,11 @@
 			</view>
 
 			<view class="section">
-				<k-text size="16" >左右偏移</k-text>
-				<k-text class="demo-desc" size="12" color="#999">通过offset属性设置栅格左侧间隔</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">左右偏移</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过offset属性设置栅格左侧间隔</k-text>
+				</view>
+				<view class="demo-content demo-block">
 					<k-row>
 						<k-col :span="8">
 							<view class="demo-col demo-col-light">
@@ -134,9 +140,11 @@
 			</view>
 
 			<view class="section">
-				<k-text size="16" >对齐方式</k-text>
-				<k-text class="demo-desc" size="12" color="#999">通过justify和align属性设置水平和垂直对齐</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">对齐方式</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过justify和align属性设置水平和垂直对齐</k-text>
+				</view>
+				<view class="demo-content demo-block">
 					<k-text class="demo-subtitle" align="center">水平居左</k-text>
 					<k-row justify="start">
 						<k-col :span="4">
@@ -216,9 +224,11 @@
 			</view>
 
 			<view class="section">
-				<k-text size="16">响应式布局</k-text>
-				<k-text class="demo-desc" size="12" color="#999">根据屏幕尺寸自动调整布局</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">响应式布局</k-text>
+					<k-text class="demo-desc" size="12" color="#999">根据屏幕尺寸自动调整布局</k-text>
+				</view>
+				<view class="demo-content demo-block">
 					<k-row>
 						<k-col :xs="24" :sm="12" :md="8" :lg="6">
 							<view class="demo-col demo-col-light">
@@ -254,10 +264,6 @@
 </script>
 
 <style lang="scss" scoped>
-	.container {
-		flex: 1;
-	}
-
 	.demo-col {
 		display: flex;
 		flex-direction: column;
@@ -265,16 +271,12 @@
 		align-items: center;
 		padding: 12px 0;
 		border-radius: 10px;
-		margin-bottom: 8px;
+		margin: 8px 0;
 	}
 
-	.demo-block {
-		margin-top: 15px;
-	}
-	
 	.demo-subtitle {
-		margin-top: 10rpx ;
-		margin-bottom: 20rpx ;
+		margin-top: 10rpx;
+		margin-bottom: 20rpx;
 	}
 
 	.demo-col-light {

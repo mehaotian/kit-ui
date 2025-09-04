@@ -141,20 +141,17 @@
 	const themeConfig = inject('kit-theme', {})
 
 	// 获取父组件配置
-	// <{ border : boolean, inset : boolean } | null>
 	type InjectType = {
 		border : boolean
 		inset : boolean
 	}
 	const cellGroupConfig = inject('k-cell-group', {})
 
-	const instance = getCurrentInstance()!.proxy! as KCellComponentPublicInstance
-
-	const cellChild = inject < ((child : KCellComponentPublicInstance) => string) | null > ('k-cell-group-child-init', null)
+	const cellChild = inject<((child : KCellComponentPublicInstance) => string) | null>('k-cell-group-child-init', null)
 
 	const groupsData : InjectType = {
 		inset: false,
-		border: true
+		border: false
 	}
 	// 遍历主题配置，生成 CSS 变量
 	for (let key in cellGroupConfig) {
@@ -193,13 +190,13 @@
 	})
 
 
-	let isBorder = ref(true)
+	let isBorder = ref<boolean | null>(null)
 
 	// 判断是否显示边框
 	const showBorder = computed(() : boolean => {
 		// 优先判断是否最后一个，最后一个不允许显示标框
-		if (!isBorder.value) {
-			return false
+		if (isBorder.value != null) {
+			return isBorder.value
 		}
 		// 优先使用组件自身的 border 属性
 		if (props.border != null) {
@@ -208,7 +205,6 @@
 
 		// 其次使用父组件的 border 配置
 		return groupsData.border
-
 	})
 
 
@@ -323,6 +319,15 @@
 	}
 
 	onMounted(() => {
+		let instance : KCellComponentPublicInstance
+		// 只能在 onMounted 后获取 exposed , 确保获取时机
+		// #ifdef APP
+		instance = getCurrentInstance()!.proxy! as KCellComponentPublicInstance
+		// #endif
+		// #ifndef APP
+		instance = getCurrentInstance()!.exposed! as KCellComponentPublicInstance
+		// #endif
+
 		// 与父组件交互，
 		if (cellChild != null) {
 			cellChild(instance)
@@ -333,8 +338,12 @@
 		// 这是最后一个不显示 边框
 		isBorder.value = false
 	}
+	function initBorderNull() {
+		isBorder.value = null
+	}
 	defineExpose({
-		initBorder
+		initBorder,
+		initBorderNull
 	})
 </script>
 
@@ -346,6 +355,7 @@
 		background-color: var(--k-cell-background-color, #ffffff);
 		position: relative;
 		box-sizing: border-box;
+
 		// 左侧图标
 		&__left-icon {
 			margin-right: 8px;

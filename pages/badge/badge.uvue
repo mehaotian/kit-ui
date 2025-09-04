@@ -11,9 +11,12 @@
 
 			<!-- 基础用法 -->
 			<view class="section">
-				<k-text size="16">基础用法</k-text>
-				<k-text class="demo-desc" size="12" color="#999">独立显示的徽标</k-text>
-				<view class="demo-row">
+				<view class="section-title">
+					<k-text size="16">基础用法</k-text>
+					<k-text class="demo-desc" size="12" color="#999">独立显示的徽标</k-text>
+				</view>
+			
+				<view class="demo-content demo-row">
 					<k-badge :value="5" />
 					<k-badge value="New" />
 					<k-badge :dot="true" />
@@ -22,9 +25,12 @@
 
 			<!-- 不同类型 -->
 			<view class="section">
-				<k-text size="16">不同类型</k-text>
-				<k-text class="demo-desc" size="12" color="#999">支持多种预设类型</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">不同类型</k-text>
+					<k-text class="demo-desc" size="12" color="#999">支持多种预设类型</k-text>
+				</view>
+			
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="5" type="primary" />
 						<k-badge :value="5" type="success" />
@@ -37,9 +43,12 @@
 
 			<!-- 不同尺寸 -->
 			<view class="section">
-				<k-text size="16">不同尺寸</k-text>
-				<k-text class="demo-desc" size="12" color="#999">支持小、中、大三种尺寸</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">不同尺寸</k-text>
+					<k-text class="demo-desc" size="12" color="#999">支持小、中、大三种尺寸</k-text>
+				</view>
+				
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="5" size="small" />
 						<k-badge :value="5" size="medium" />
@@ -50,9 +59,12 @@
 
 			<!-- 自定义尺寸 -->
 			<view class="section">
-				<k-text size="16">自定义尺寸</k-text>
-				<k-text class="demo-desc" size="12" color="#999">支持数字形式的自定义尺寸</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">自定义尺寸</k-text>
+					<k-text class="demo-desc" size="12" color="#999">支持数字形式的自定义尺寸</k-text>
+				</view>
+			
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="5" :size="16" />
 						<k-badge :value="5" :size="24" />
@@ -63,9 +75,12 @@
 
 			<!-- 圆点徽标 -->
 			<view class="section">
-				<k-text size="16">圆点徽标</k-text>
-				<k-text class="demo-desc" size="12" color="#999">不显示具体数字，只显示圆点</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">圆点徽标</k-text>
+					<k-text class="demo-desc" size="12" color="#999">不显示具体数字，只显示圆点</k-text>
+				</view>
+			
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :dot="true" type="primary" />
 						<k-badge :dot="true" type="success" />
@@ -77,9 +92,12 @@
 
 			<!-- 最大值 -->
 			<view class="section">
-				<k-text size="16">最大值</k-text>
-				<k-text class="demo-desc" size="12" color="#999">超过最大值时显示为 max+</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">最大值</k-text>
+					<k-text class="demo-desc" size="12" color="#999">超过最大值时显示为 max+</k-text>
+				</view>
+				
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="99" />
 						<k-badge :value="100" />
@@ -91,9 +109,12 @@
 
 			<!-- 自定义颜色 -->
 			<view class="section">
-				<k-text size="16">自定义颜色</k-text>
-				<k-text class="demo-desc" size="12" color="#999">支持自定义背景色和文字颜色</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">自定义颜色</k-text>
+					<k-text class="demo-desc" size="12" color="#999">支持自定义背景色和文字颜色</k-text>
+				</view>
+			
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="5" background-color="#f56c6c" />
 						<k-badge :value="5" background-color="#67c23a" />
@@ -105,9 +126,12 @@
 
 			<!-- 嵌套使用 -->
 			<view class="section">
-				<k-text size="16">嵌套使用</k-text>
-				<k-text class="demo-desc" size="12" color="#999">徽标可以嵌套在其他元素上</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">嵌套使用</k-text>
+					<k-text class="demo-desc" size="12" color="#999">徽标可以嵌套在其他元素上</k-text>
+				</view>
+			
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="5">
 							<view class="demo-target">
@@ -130,9 +154,12 @@
 
 			<!-- 不同位置 -->
 			<view class="section">
-				<k-text size="16">不同位置</k-text>
-				<k-text class="demo-desc" size="12" color="#999">支持四个角的位置设置</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">不同位置</k-text>
+					<k-text class="demo-desc" size="12" color="#999">支持四个角的位置设置</k-text>
+				</view>
+				
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="5" position="top-right">
 							<view class="demo-target">
@@ -161,9 +188,12 @@
 
 			<!-- 偏移量 -->
 			<view class="section">
-				<k-text size="16">偏移量</k-text>
-				<k-text class="demo-desc" size="12" color="#999">通过offset属性设置徽标偏移</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">偏移量</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过offset属性设置徽标偏移</k-text>
+				</view>
+				
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="5" :offset="[10,10]">
 							<view class="demo-target">
@@ -179,9 +209,12 @@
 
 			<!-- 显示控制 -->
 			<view class="section">
-				<k-text size="16">显示控制</k-text>
-				<k-text class="demo-desc" size="12" color="#999">控制徽标的显示和隐藏</k-text>
-				<view class="demo-block">
+				<view class="section-title">
+					<k-text size="16">显示控制</k-text>
+					<k-text class="demo-desc" size="12" color="#999">控制徽标的显示和隐藏</k-text>
+				</view>
+			
+				<view class="demo-content demo-block">
 					<view class="demo-row">
 						<k-badge :value="0" :show-zero="false">
 							<view class="demo-target"><k-text size="12">不显示0</k-text></view>
@@ -198,11 +231,13 @@
 
 			<!-- 主题注入演示 -->
 			<view class="section">
-				<k-text size="16">主题注入演示</k-text>
-				<k-text class="demo-desc" size="12" color="#999">通过k-config组件注入自定义主题</k-text>
+				<view class="section-title">
+					<k-text size="16">主题注入演示</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过k-config组件注入自定义主题</k-text>
+				</view>
 
 				<!-- 默认主题 -->
-				<view class="demo-block">
+				<view class="demo-content demo-block">
 					<k-text size="14" color="#666">默认主题</k-text>
 					<view class="demo-row">
 						<k-badge :value="5" type="primary" />
@@ -213,7 +248,7 @@
 				</view>
 
 				<!-- 橙色主题 -->
-				<view class="demo-block">
+				<view class="demo-content demo-block">
 					<k-text size="14" color="#666">橙色主题</k-text>
 					<k-config :theme="orangeTheme">
 						<view class="demo-row">
@@ -226,7 +261,7 @@
 				</view>
 
 				<!-- 紫色主题 -->
-				<view class="demo-block">
+				<view class="demo-content demo-block">
 					<k-text size="14" color="#666">紫色主题</k-text>
 					<k-config :theme="purpleTheme">
 						<view class="demo-row">
@@ -273,16 +308,10 @@
 </script>
 
 <style lang="scss" scoped>
-	.container {
-		flex: 1;
-	}
-
-	.demo-block {
-		margin-top: 15px;
-	}
+	
 
 	.demo-row {
-		padding: 20px 10px;
+		overflow: visible;
 	}
 
 	.demo-target {

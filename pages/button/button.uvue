@@ -13,7 +13,7 @@
 				<view class="section-title">
 					<text class="title-text">基础用法</text>
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-button class="k-btn" type="default" text="默认按钮" @click="handleClick('default')"></k-button>
 					<k-button class="k-btn" type="primary" text="主要按钮" @click="handleClick('primary')"></k-button>
 					<k-button class="k-btn" type="success" text="成功按钮" @click="handleClick('success')"></k-button>
@@ -26,7 +26,7 @@
 				<view class="section-title">
 					<text class="title-text">朴素按钮</text>
 				</view>
-				<view class="demo-column">
+				<view class="demo-content demo-column">
 					<k-button class="k-btn" plain text="默认按钮" @click="handleClick('plain-primary')"></k-button>
 					<k-button class="k-btn" type="primary" plain text="朴素主要" @click="handleClick('plain-primary')"></k-button>
 					<k-button class="k-btn" type="success" plain text="朴素成功" @click="handleClick('plain-success')"></k-button>
@@ -40,7 +40,7 @@
 				<view class="section-title">
 					<text class="title-text">渐变按钮</text>
 				</view>
-				<view class="demo-column">
+				<view class="demo-content demo-column">
 					<k-button class="k-btn" type="primary" gradient>渐变主要</k-button>
 					<k-button class="k-btn" type="success" gradient>渐变成功</k-button>
 					<k-button class="k-btn" type="warning" gradient>渐变警告</k-button>
@@ -52,7 +52,7 @@
 				<view class="section-title">
 					<text class="title-text">按钮尺寸</text>
 				</view>
-				<view class="demo-column">
+				<view class="demo-content demo-column">
 					<k-button class="k-btn" type="primary" size="small" text="小按钮" @click="handleClick('small')"></k-button>
 					<k-button class="k-btn" type="primary" size="medium" text="中按钮" @click="handleClick('medium')"></k-button>
 					<k-button class="k-btn" type="primary" size="large" text="大按钮" @click="handleClick('large')"></k-button>
@@ -64,7 +64,7 @@
 				<view class="section-title">
 					<text class="title-text">特殊形状</text>
 				</view>
-				<view class="demo-column">
+				<view class="demo-content demo-column">
 					<k-button class="k-btn" type="primary" round size="small" text="圆角按钮" @click="handleClick('round')"></k-button>
 					<k-button class="k-btn" type="primary" round text="圆角按钮" @click="handleClick('round')"></k-button>
 					<k-button class="k-btn" type="primary" round size="large" text="圆角按钮" @click="handleClick('round')"></k-button>
@@ -82,7 +82,7 @@
 				<view class="section-title">
 					<text class="title-text">按钮状态</text>
 				</view>
-				<view class="demo-column">
+				<view class="demo-content demo-column">
 					<k-button class="k-btn" disabled>禁用按钮</k-button>
 					<k-button class="k-btn" type="primary" disabled>禁用按钮</k-button>
 					<k-button class="k-btn" type="success" disabled gradient>禁用渐变</k-button>

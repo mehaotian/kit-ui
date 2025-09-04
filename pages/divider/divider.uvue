@@ -13,7 +13,7 @@
 				<view class="section-title">
 					<text class="title-text">基础用法</text>
 				</view>
-				<view class="demo-item">
+				<view class="demo-content demo-item">
 					<text class="demo-text">上方内容</text>
 					<k-divider />
 					<text class="demo-text">下方内容</text>
@@ -24,7 +24,7 @@
 				<view class="section-title">
 					<text class="title-text">垂直分割线</text>
 				</view>
-				<view class="demo-row" style="height: 30px;border: 1px solid #ccc;">
+				<view class="demo-content demo-row">
 					<text class="demo-text">左侧内容</text>
 					<k-divider direction="vertical" />
 					<text class="demo-text">中间内容</text>
@@ -37,7 +37,7 @@
 				<view class="section-title">
 					<text class="title-text">带文字的分割线</text>
 				</view>
-				<view class="demo-item">
+				<view class="demo-content demo-item">
 					<text class="demo-text">上方内容</text>
 					<k-divider text="分割线" />
 					<text class="demo-text">中间内容</text>
@@ -52,7 +52,7 @@
 				<view class="section-title">
 					<text class="title-text">自定义颜色</text>
 				</view>
-				<view class="demo-item">
+				<view class="demo-content demo-item">
 					<text class="demo-text">默认颜色</text>
 					<k-divider />
 					<text class="demo-text">红色分割线</text>
@@ -68,7 +68,7 @@
 				<view class="section-title">
 					<text class="title-text">自定义粗细</text>
 				</view>
-				<view class="demo-item">
+				<view class="demo-content demo-item">
 					<text class="demo-text">细线 (1px)</text>
 					<k-divider size="1px" />
 					<text class="demo-text">中等 (2px)</text>
@@ -84,7 +84,7 @@
 				<view class="section-title">
 					<text class="title-text">自定义文字样式</text>
 				</view>
-				<view class="demo-item">
+				<view class="demo-content demo-item">
 					<text class="demo-text">默认文字</text>
 					<k-divider text="普通文字" />
 					<text class="demo-text">红色文字</text>
@@ -106,7 +106,7 @@
 				<view class="section-title">
 					<text class="title-text">自定义边距</text>
 				</view>
-				<view class="demo-item">
+				<view class="demo-content demo-item">
 					<text class="demo-text">默认边距</text>
 					<k-divider />
 					<text class="demo-text">小边距</text>
@@ -121,7 +121,7 @@
 				<view class="section-title">
 					<text class="title-text">插槽用法</text>
 				</view>
-				<view class="demo-item">
+				<view class="demo-content demo-item">
 					<text class="demo-text">上方内容</text>
 					<k-divider>
 						<text style="color: #6366f1; font-weight: bold;">自定义内容</text>

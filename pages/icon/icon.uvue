@@ -14,7 +14,7 @@
 				<view class="section-title">
 					<text class="title-text">基础用法</text>
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="account-box-fill" size="24" />
 					<k-icon name="arrow-down-fill" size="24" />
 					<k-icon name="settings-fill" size="24" />
@@ -30,7 +30,7 @@
 				<view class="section-title">
 					<text class="title-text">图标尺寸</text>
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="account-box-fill" size="xs" />
 					<k-icon name="account-box-fill" size="sm" />
 					<k-icon name="account-box-fill" size="md" />
@@ -38,7 +38,7 @@
 					<k-icon name="account-box-fill" size="xl" />
 					<k-icon name="account-box-fill" size="2xl" />
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="account-box-fill" size="16" />
 					<k-icon name="account-box-fill" size="20" />
 					<k-icon name="account-box-fill" size="24" />
@@ -52,14 +52,14 @@
 				<view class="section-title">
 					<text class="title-text">图标颜色</text>
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="account-box-fill" size="24" color="primary" />
 					<k-icon name="arrow-down-fill" size="24" color="success" />
 					<k-icon name="settings-fill" size="24" color="warning" />
 					<k-icon name="anticlockwise-2-fill" size="24" color="danger" />
 					<k-icon name="share-fill" size="24" color="info" />
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="account-box-fill" size="24" color="#ff6b6b" />
 					<k-icon name="arrow-down-fill" size="24" color="#4ecdc4" />
 					<k-icon name="settings-fill" size="24" color="#45b7d1" />
@@ -74,7 +74,7 @@
 					<text class="title-text">加载状态</text>
 				</view>
 				
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="settings-line" :spin-speed="3000" size="24" loading />
 					<k-icon name="donut-chart-line" :spin-reverse="true" size="24" spin />
 					<k-icon name="settings-fill" size="24" :loading="isLoading" @click="toggleLoading" />
@@ -89,7 +89,7 @@
 					<text class="title-text">禁用状态</text>
 				</view>
 				
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="settings-fill" size="24" disabled @click="handleIconClick('settings-fill')" />
 					<k-icon name="volume-up-line" size="24" disabled @click="handleIconClick('volume-up-line')" />
 					<k-icon name="chat-4-line" size="24" disabled @click="handleIconClick('chat-4-line')" />
@@ -103,7 +103,7 @@
 				<view class="section-title">
 					<text class="title-text">图片图标</text>
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="https://fastly.jsdelivr.net/npm/@vant/assets/icon-demo.png" size="32" />
 					<k-icon name="/static/logo.png" size="32" />
 					<k-icon name="tabler:alarm-plus" size="32" />
@@ -116,7 +116,7 @@
 				<view class="section-title">
 					<text class="title-text">自定义样式</text>
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="mic-line" size="32" color="#ff6b6b" custom-style="border: 2px solid #ff6b6b; border-radius: 100px; padding: 8px;" />
 					<k-icon name="music-line" size="32" color="#f9ca24" custom-style="background-image: linear-gradient(45deg, #f9ca24, #f0932b); border-radius: 8px; padding: 6px;" />
 				</view>
@@ -128,7 +128,7 @@
 				<view class="section-title">
 					<text class="title-text">点击事件</text>
 				</view>
-				<view class="demo-row">
+				<view class="demo-content demo-row">
 					<k-icon name="volume-up-line" size="24" @click="handleIconClick('volume-up-line')" />
 					<k-icon name="chat-3-line" size="24" @click="handleIconClick('chat-3-line')" />
 					<k-icon name="chat-4-line" size="24" @click="handleIconClick('chat-4-line')" />
@@ -165,7 +165,8 @@
 	.click-result {
 		font-size: 14px;
 		color: var(--k-color-text-secondary, #606266);
-		margin-top: 8px;
+		// margin-top: 8px;
+		margin-left: 15px;
 	}
 
 	// 自定义字体示例 (实际使用时需要引入真实字体文件)
