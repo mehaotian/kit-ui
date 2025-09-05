@@ -1,0 +1,156 @@
+<template>
+	<view :id="elId" :class="gridClass" :style="gridStyle">
+		<slot></slot>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { computed, provide, ref, onMounted } from 'vue'
+
+	// 组件属性类型定义
+	type KGridProps = {
+		// 列数
+		column ?: number
+		// 是否显示边框
+		border ?: boolean
+		borderColor ?: string
+		// 格子间距，单位px
+		gutter ?: number
+		// 是否将格子固定为正方形
+		square ?: boolean
+		// 是否开启格子点击反馈
+		clickable ?: boolean
+		// 格子内容排列的方向 'vertical' | 'horizontal'
+		direction ?: string
+		// 是否将格子内容居中显示
+		center ?: boolean
+		// 图标大小，默认单位为px
+		iconSize ?: string
+		// 背景颜色
+		bgColor ?: string
+		// 是否调换图标和文本的位置
+		reverse ?: boolean
+		// 自定义类名
+		customClass ?: string
+		customStyle ?: string
+	}
+
+	// 组件属性定义
+	const props = withDefaults(defineProps<KGridProps>(), {
+		column: 4,
+		border: true,
+		borderColor: '#ebedf0',
+		gutter: 0,
+		square: false,
+		clickable: false,
+		direction: 'vertical',
+		center: true,
+		iconSize: '28px',
+		bgColor: '',
+		reverse: false,
+		customClass: ''
+	})
+
+	defineOptions({
+		name: "KGrid"
+	})
+
+	// 定义事件
+	const emit = defineEmits<{
+		click : [index: number, event: any]
+	}>()
+
+	// 主题注入
+	const themeConfig = inject('kit-theme', {})
+
+	let gridWidth = ref<number | null>(null)
+
+	const elId = ref(`Kit_${Math.ceil(Math.random() * 10e5).toString(36)}`)
+
+	// 向子组件提供配置
+	provide('k-grid', {
+		column: props.column,
+		border: props.border,
+		borderColor: props.borderColor,
+		gutter: props.gutter,
+		square: props.square,
+		clickable: props.clickable,
+		direction: props.direction,
+		center: props.center,
+		iconSize: props.iconSize,
+		bgColor: props.bgColor,
+		reverse: props.reverse,
+	})
+
+	// 向子组件提供配置
+	provide('k-grid-width', gridWidth)
+
+	// 计算样式类名
+	const gridClass = computed(() : string => {
+		const classes : string[] = ['k-grid']
+
+		if (props.border) {
+			// 如果没有间隔的时候 ，设置歪边框
+			if (props.gutter == 0) {
+				classes.push('k-grid--border')
+			}
+		}
+
+		if (props.customClass != '') {
+			classes.push(props.customClass)
+		}
+
+		return classes.join(' ')
+	})
+
+	// 计算样式
+	const gridStyle = computed(() : UTSJSONObject => {
+		const styles : UTSJSONObject = {}
+
+		if (props.bgColor != '') {
+			styles['background-color'] = props.bgColor
+		}
+		
+		if(props.borderColor != '') {
+			styles['border-color'] = props.borderColor
+		}
+		
+		// 设置间距
+		if (props.gutter > 0) {
+			const gutterValue = `${props.gutter}px`
+			styles['padding-left'] = gutterValue
+			styles['padding-top'] = gutterValue
+		}
+
+		return styles
+	})
+
+	onMounted(() => {
+		if (props.square) {
+			const instance = getCurrentInstance()!.proxy!
+			uni.createSelectorQuery().in(instance).select(`#${elId.value}`).boundingClientRect().exec((ret) => {
+				const nodeInfo = ret as NodeInfo[]
+				if (nodeInfo.length > 0) {
+					if (nodeInfo[0].width != null) {
+						gridWidth.value = nodeInfo[0].width
+					}
+				}
+			})
+		}
+	})
+</script>
+
+<style lang="scss" scoped>
+	.k-grid {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		// background-color: #fff;
+		box-sizing: border-box;
+
+		&--border {
+			border-top: 1px solid #ebedf0;
+			border-left: 1px solid #ebedf0;
+		}
+	}
+</style>

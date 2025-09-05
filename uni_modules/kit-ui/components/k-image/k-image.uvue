@@ -414,8 +414,8 @@
 		justify-content: center;
 		overflow: hidden;
 		background-color: var(--k-image-bg-color, #f7f8fa);
-		width: 100px;
-		height: 100px;
+		width: 100%;
+		height: 100%;
 
 		// 形状样式
 		&--square {

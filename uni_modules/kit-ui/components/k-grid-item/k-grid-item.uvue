@@ -1,0 +1,396 @@
+<template>
+	<view :class="itemClass" :style="itemStyle" @click="handleClick">
+		<view class="k-grid-item__content" :class="contentClass" :style="contentStyle">
+			<view v-if=" showIcon" class="k-grid-item__icon">
+				<slot name="icon">
+					<k-icon v-if="props.icon != ''" :name="props.icon" :size="gridConfigData.iconSize" :color="props.iconColor" />
+				</slot>
+			</view>
+
+			<view v-if="showText" class="k-grid-item__text">
+				<slot name="text">
+					<text class="k-grid-item__text-content">{{ props.text }}</text>
+				</slot>
+			</view>
+
+			<slot></slot>
+			
+			<view v-if="showBadge" class="k-grid-item__badge">
+				<k-badge v-if="props.badge != '' || props.dot" :value="props.badge" :dot="props.dot" />
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { computed, inject, ref } from 'vue'
+
+	// 组件属性类型定义
+	type KGridItemProps = {
+		// 文字
+		text ?: string
+		// 图标名称
+		icon ?: string
+		// 图标颜色
+		iconColor ?: string
+		// 是否显示图标右上角小红点
+		dot ?: boolean
+		// 图标右上角徽标的内容
+		badge ?: string
+		// 点击后跳转的链接地址
+		url ?: string
+		// 点击后跳转的目标路由对象
+		to ?: string
+		// 是否在跳转时替换当前页面历史
+		replace ?: boolean
+		// 链接跳转类型
+		linkType ?: string
+		// 格子名称标识
+		name ?: string
+		// 自定义样式
+		customStyle ?: string
+	}
+
+	// 组件属性定义
+	const props = withDefaults(defineProps<KGridItemProps>(), {
+		text: '',
+		icon: '',
+		iconColor: '',
+		dot: false,
+		badge: '',
+		url: '',
+		to: '',
+		replace: false,
+		linkType: 'navigateTo',
+		name: '',
+		customStyle: ''
+	})
+
+	defineOptions({
+		name: "KGridItem"
+	})
+
+	// 定义事件
+	const emit = defineEmits<{
+		click : [name: string, event: any]
+	}>()
+
+	// 获取插槽
+	const slots = useSlots()
+	type GridWidth = {
+		value : number | null
+	}
+
+	// 获取父组件配置
+	type GridConfigType = {
+		column : number
+		border : boolean
+		borderColor : string
+		gutter : number
+		square : boolean
+		clickable : boolean
+		direction : string
+		center : boolean
+		iconSize : string
+		bgColor : string
+		reverse : boolean
+	}
+	const gridConfig = inject('k-grid', {})
+	const gridWidth = inject<Ref<number | null>>('k-grid-width')
+
+	// 父组件配置
+	let gridConfigData = reactive<GridConfigType>({
+		column: 4,
+		border: true,
+		borderColor: '#ebedf0',
+		gutter: 0,
+		square: false,
+		clickable: false,
+		direction: 'vertical',
+		center: true,
+		iconSize: '28px',
+		bgColor: '',
+		reverse: false
+	})
+
+	for (let key in gridConfig) {
+		const grid = gridConfig[key]
+		gridConfigData[key] = grid
+	}
+
+	// 计算是否显示图标
+	const showIcon = computed(() : boolean => {
+		return props.icon != '' || slots['icon'] != null
+	})
+
+	// 计算是否显示文字
+	const showText = computed(() : boolean => {
+		return props.text != '' || slots['text'] != null
+	})
+
+	// 计算是否显示徽标
+	const showBadge = computed(() : boolean => {
+		return props.dot || props.badge != ''
+	})
+
+	// 计算样式类名
+	const itemClass = computed(() : string => {
+		const classes : string[] = ['k-grid-item']
+
+		if (gridConfigData.border) {
+			if (gridConfigData.gutter == 0) {
+				classes.push('k-grid-item--border')
+			}
+		}
+
+		if (gridConfigData.clickable) {
+			classes.push('k-grid-item--clickable')
+		}
+
+		if (gridConfigData.square) {
+			classes.push('k-grid-item--square')
+		}
+
+		if (gridConfigData.center) {
+			classes.push('k-grid-item--center')
+		}
+
+		if (gridConfigData.direction == 'horizontal') {
+			classes.push('k-grid-item--horizontal')
+		}
+
+		if (gridConfigData.reverse) {
+			classes.push('k-grid-item--reverse')
+		}
+
+		// if (props.customClass != '') {
+		// 	classes.push(props.customClass)
+		// }
+
+		return classes.join(' ')
+	})
+
+	// 计算内部类名
+	const contentClass = computed(() : string => {
+		const classes : string[] = []
+
+		if (gridConfigData.border) {
+			if (gridConfigData.gutter > 0) {
+				classes.push('k-grid-item--border-full')
+			}
+		}
+
+		return classes.join(' ')
+	})
+
+	// 计算内部样式
+	const contentStyle = computed(() : string => {
+		const styles : string[] = []
+		
+
+		if (gridConfigData.gutter > 0) {
+			// 设置边框颜色
+			if (gridConfigData.borderColor != '') {
+				// styles['border-color'] = gridConfigData.borderColor
+				styles.push(`border-color:${gridConfigData.borderColor}`)
+			}
+		}
+		
+		// 自定义样式，需要覆盖边框颜色
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+
+
+		return styles.join('; ')
+	})
+
+	// 计算样式
+	const itemStyle = computed(() : UTSJSONObject => {
+		const styles : UTSJSONObject = {}
+
+		// 设置宽度
+		const width = 100 / gridConfigData.column
+		styles['width'] = `${width}%`
+
+		// 设置间距
+		if (gridConfigData.gutter > 0) {
+			const gutterValue = `${gridConfigData.gutter}px`
+			styles['padding-right'] = gutterValue
+			styles['padding-bottom'] = gutterValue
+		} else {
+			// 设置边框颜色
+			if (gridConfigData.borderColor != '') {
+				styles['border-color'] = gridConfigData.borderColor
+			}
+		}
+
+
+
+		// 设置宽高
+		if (gridWidth?.value != null) {
+			const gridWidthData = gridWidth?.value
+			// 是否方形
+			if (gridConfigData.square) {
+				let width : number
+				if (gridConfigData.gutter > 0) {
+					// 如果方形有间隔，需要减去一个间隔，这个间隔是父组件的左侧的间隔
+					width = gridWidthData - 1 - gridConfigData.gutter
+				} else {
+					width = gridWidthData - 1
+				}
+				styles['width'] = width / gridConfigData.column + 'px'
+				styles['height'] = width / gridConfigData.column + 'px'
+			}
+		}
+
+		// 设置背景色
+		if (gridConfigData.bgColor != '') {
+			styles['background-color'] = gridConfigData.bgColor
+		}
+
+		return styles
+	})
+
+	// 点击事件处理
+	const handleClick = (event : any) => {
+		// 发送点击事件
+		emit('click', props.name, event)
+
+		// 处理页面跳转
+		if (props.url != '') {
+			uni.navigateTo({
+				url: props.url
+			})
+		} else if (props.to != '') {
+			const linkType = props.linkType as 'navigateTo' | 'redirectTo' | 'reLaunch' | 'switchTab'
+			switch (linkType) {
+				case 'navigateTo':
+					uni.navigateTo({ url: props.to })
+					break
+				case 'redirectTo':
+					uni.redirectTo({ url: props.to })
+					break
+				case 'reLaunch':
+					uni.reLaunch({ url: props.to })
+					break
+				case 'switchTab':
+					uni.switchTab({ url: props.to })
+					break
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.k-grid-item {
+		display: flex;
+		flex-direction: column;
+		position: relative;
+		box-sizing: border-box;
+		// background-color: #fff;
+
+		&--border {
+			border-right: 1px solid #ebedf0;
+			border-bottom: 1px solid #ebedf0;
+
+		}
+
+		&--border-full {
+			border: 1px solid #ebedf0;
+		}
+
+		&--clickable {
+			&:active {
+				background-color: #f2f3f5;
+			}
+		}
+
+		&--square {
+			// &::after {
+			// 	content: '';
+			// 	display: block;
+			// 	margin-top: 100%;
+			// }
+			box-sizing: border-box;
+		}
+
+		&--center {
+			.k-grid-item__content {
+				align-items: center;
+				justify-content: center;
+			}
+		}
+
+		&--horizontal {
+			.k-grid-item__content {
+				flex-direction: row;
+				align-items: center;
+			}
+
+			.k-grid-item__text {
+				margin-top: 0;
+				margin-left: 8px;
+			}
+
+			.k-grid-item__icon {
+				margin: 0;
+			}
+		}
+
+		&--reverse {
+			.k-grid-item__content {
+				flex-direction: column-reverse;
+			}
+
+			.k-grid-item__icon {
+				margin-bottom: 0;
+				margin-top: 8px;
+			}
+
+			.k-grid-item__text {
+				margin-top: 0;
+				// margin-bottom: 8px;
+			}
+		}
+
+		&__content {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			padding: 12px 8px;
+			position: relative;
+			background-color: #fff;
+		}
+
+		&__icon {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 8px;
+		}
+
+		&__text {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			// margin-top: 8px;
+		}
+
+		&__text-content {
+			color: #646566;
+			font-size: 12px;
+			line-height: 1.2;
+			text-align: center;
+			/* #ifdef WEB */
+			word-wrap: break-word;
+			/* #endif */
+		}
+
+		&__badge {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+		}
+	}
+</style>

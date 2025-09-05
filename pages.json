@@ -72,6 +72,11 @@
 			"style": {
 				"navigationBarTitleText": "单元格"
 			}
+		}, {
+			"path": "pages/grid/grid",
+			"style": {
+				"navigationBarTitleText": "宫格"
+			}
 		}
 	],
 	"globalStyle": {

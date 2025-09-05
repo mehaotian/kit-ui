@@ -1,0 +1,234 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+
+		<view class="page">
+			<view class="page-header">
+				<k-text size="24" weight="bold" align="center">Grid 宫格组件</k-text>
+				<k-text class="page-desc" size="14" align="center">宫格可以在水平方向上把页面分隔成等宽度的区块</k-text>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">基础用法</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过icon和text属性设置格子内容</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid>
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+					</k-grid>
+					
+				</view>
+			</view>
+			
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">不显示边框</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过border控制边框显示</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid :border="false">
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+					</k-grid>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">自定义列数</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过column属性自定义列数</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid :column="3">
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+					</k-grid>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">正方形格子</k-text>
+					<k-text class="demo-desc" size="12" color="#999">设置square属性后，格子的高度会和宽度保持一致</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid square>
+						<k-grid-item icon="image-line" text="收藏" />
+						<k-grid-item icon="image-line" text="喜欢" />
+						<k-grid-item icon="image-line" text="书签" />
+						<k-grid-item icon="image-line" text="分享" />
+					</k-grid>
+				</view>
+			</view>
+
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">格子间距</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过gutter属性设置格子之间的距离</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid :gutter="10">
+						<k-grid-item icon="image-line" text="邮件" />
+						<k-grid-item icon="image-line" text="电话" />
+						<k-grid-item icon="image-line" text="消息" />
+						<k-grid-item icon="image-line" text="通知" />
+					</k-grid>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">内容横排</k-text>
+					<k-text class="demo-desc" size="12" color="#999">将direction属性设置为horizontal，可以让宫格的内容呈横向排列</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid direction="horizontal" :column="2">
+						<k-grid-item icon="image-line" text="购物车" />
+						<k-grid-item icon="image-line" text="钱包" />
+					</k-grid>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">调换图标和文本位置</k-text>
+					<k-text class="demo-desc" size="12" color="#999">设置reverse属性后，图标和文本的位置会调换</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid reverse>
+						<k-grid-item icon="image-line" text="相机" />
+						<k-grid-item icon="image-line" text="相册" />
+						<k-grid-item icon="image-line" text="编辑" />
+						<k-grid-item icon="image-line" text="删除" />
+					</k-grid>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">页面导航</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过to属性设置跳转链接</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid clickable :column="2">
+						<k-grid-item icon="image-line" text="首页" to="/pages/index/index" />
+						<k-grid-item icon="image-line" text="个人中心" url="/pages/user/user" />
+					</k-grid>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">徽标提示</k-text>
+					<k-text class="demo-desc" size="12" color="#999">设置dot或badge属性后，会在图标右上角展示徽标</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid :column="2">
+						<k-grid-item icon="image-line" text="消息" dot />
+						<k-grid-item icon="image-line" text="通知" badge="99+" />
+					</k-grid>
+				</view>
+			</view>
+			
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">自定义样式</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过customStyle 自定义格子样式</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid style="background-color: deepskyblue; border-radius: 10px;" :column="3" :gutter="12" iconSize="40px">
+						<k-grid-item customStyle="border:1px red solid;border-radius: 10px; background:#eee;"  icon="image-line" text="描述文本" dot />
+						<k-grid-item customStyle="border:1px red solid;border-radius: 10px; background:#eee;" icon="image-line" text="描述文本" dot />
+						<k-grid-item customStyle="border:1px red solid;border-radius: 10px; background:#eee;" icon="image-line" text="描述文本" dot />
+					</k-grid>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">自定义内容</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过插槽可以自定义格子展示的内容</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid :column="3" square >
+						<k-grid-item>
+							<k-image src="https://picsum.photos/200/200?random=8" height="100px"/>
+						</k-grid-item>
+						<k-grid-item>
+							<k-image src="https://picsum.photos/200/200?random=7" height="100px"/>
+						</k-grid-item>
+						<k-grid-item>
+							<k-image src="https://picsum.photos/200/200?random=6" height="100px"/>
+						</k-grid-item>
+					</k-grid>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">点击事件</k-text>
+					<k-text class="demo-desc" size="12" color="#999">监听格子的点击事件</k-text>
+				</view>
+				<view class="demo-content">
+					<k-grid clickable @click="onGridClick">
+						<k-grid-item icon="image-line" text="添加" name="add" @click="onItemClick" />
+						<k-grid-item icon="image-line" text="减少" name="minus" @click="onItemClick" />
+						<k-grid-item icon="image-line" text="关闭" name="close" @click="onItemClick" />
+						<k-grid-item icon="image-line" text="确认" name="check" @click="onItemClick" />
+					</k-grid>
+				</view>
+			</view>
+		</view>
+
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	defineOptions({
+		name: "GridDemo"
+	})
+
+	// 格子点击事件
+	const onGridClick = (index : number, event : any) => {
+		console.log('Grid clicked:', index, event)
+		uni.showToast({
+			title: `点击了第${index + 1}个格子`,
+			icon: 'none'
+		})
+	}
+
+	// 格子项点击事件
+	const onItemClick = (name : string, event : any) => {
+		console.log('Grid item clicked:', name, event)
+		uni.showToast({
+			title: `点击了${name}`,
+			icon: 'none'
+		})
+	}
+</script>
+
+<style lang="scss" scoped>
+	.group-spacing {
+		height: 16px;
+	}
+
+	.demo-content {
+		padding: 0;
+		background-color: transparent;
+		border-radius: 0;
+	}
+</style>
