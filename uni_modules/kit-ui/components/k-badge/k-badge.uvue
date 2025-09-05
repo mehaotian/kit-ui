@@ -92,7 +92,7 @@
 		if (isDot.value) return ''
 
 		const value = props.value
-		if (value == '') return ''
+		if (typeof value == 'string' && value == '') return ''
 
 		// 处理数字类型
 		if (typeof value == 'number') {
@@ -197,8 +197,8 @@
 
 		// 处理偏移量（嵌套模式）
 		if (hasSlot.value && props.offset.length >= 2) {
-			let x = props.offset[0] ?? 0
-			let y = props.offset[1] ?? 0
+			let x = props.offset[0]
+			let y = props.offset[1]
 
 			// 根据位置调整偏移方向
 			if (props.position == 'top-right') {
@@ -347,7 +347,7 @@
 
 		// 类型样式 - 支持主题注入
 		&--primary {
-			background-color: var(--k-color-primary, #007AFF);
+			background-color: var(--k-color-primary, #6366f1);
 
 			.k-badge-text {
 				color: var(--k-text-color-inverse, #FFFFFF);
@@ -355,7 +355,7 @@
 		}
 
 		&--success {
-			background-color: var(--k-color-success, #34C759);
+			background-color: var(--k-color-success, #10b981);
 
 			.k-badge-text {
 				color: var(--k-text-color-inverse, #FFFFFF);
@@ -363,7 +363,7 @@
 		}
 
 		&--warning {
-			background-color: var(--k-color-warning, #FF9500);
+			background-color: var(--k-color-warning, #f59e0b);
 
 			.k-badge-text {
 				color: var(--k-text-color-inverse, #FFFFFF);
@@ -371,7 +371,7 @@
 		}
 
 		&--error {
-			background-color: var(--k-color-error, #FF3B30);
+			background-color: var(--k-color-error, #ef4444);
 
 			.k-badge-text {
 				color: var(--k-text-color-inverse, #FFFFFF);
@@ -379,7 +379,7 @@
 		}
 
 		&--info {
-			background-color: var(--k-color-info, #5AC8FA);
+			background-color: var(--k-color-info, #06b6d4);
 
 			.k-badge-text {
 				color: var(--k-text-color-inverse, #FFFFFF);

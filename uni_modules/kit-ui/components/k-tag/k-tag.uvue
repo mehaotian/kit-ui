@@ -123,8 +123,8 @@
 		// 自定义尺寸处理
 		const numericSize = parseFloat(size)
 		if (!isNaN(numericSize)) {
-			let unit = size.replace(numericSize.toString(), '') ?? 'px'
-			if(unit == '') unit = 'px'
+			let unit = size.replace(numericSize.toString(), '')
+			if (unit == '') unit = 'px'
 			const height = `${numericSize + 8}${unit}`
 			const padding = `0 ${numericSize * 0.75}${unit}`
 			const fontSize = `${numericSize}${unit}`
@@ -151,14 +151,14 @@
 	 */
 	const getThemeColor = (type : string) : string => {
 		const colorMap : UTSJSONObject = {
-			default: 'var(--k-color-text-secondary, #666666)',
-			primary: 'var(--k-color-primary, #007AFF)',
-			success: 'var(--k-color-success, #34C759)',
-			warning: 'var(--k-color-warning, #FF9500)',
-			error: 'var(--k-color-error, #FF3B30)',
-			info: 'var(--k-color-info, #5AC8FA)'
+			default: 'var(--k-text-color-secondary, #4b5563)',
+			primary: 'var(--k-color-primary, #6366f1)',
+			success: 'var(--k-color-success, #10b981)',
+			warning: 'var(--k-color-warning, #f59e0b)',
+			error: 'var(--k-color-error, #ef4444)',
+			info: 'var(--k-color-info, #06b6d4)'
 		}
-		return colorMap[type] as string ?? colorMap['default'] as string
+		return colorMap[type] as string
 	}
 
 	/**
@@ -168,14 +168,14 @@
 	 */
 	const getGradientBackground = (type : string) : string => {
 		const gradientMap : UTSJSONObject = {
-			default: 'linear-gradient(to bottom right, #667eea , #764ba2)',
-			primary: 'linear-gradient(to bottom right, var(--k-color-primary, #007AFF), rgba(0, 122, 255, 0.7) )',
-			success: 'linear-gradient(to bottom right, var(--k-color-success, #34C759), rgba(52, 199, 89, 0.7) )',
-			warning: 'linear-gradient(to bottom right, var(--k-color-warning, #FF9500), rgba(255, 149, 0, 0.7) )',
-			error: 'linear-gradient(to bottom right, var(--k-color-error, #FF3B30), rgba(255, 59, 48, 0.7) )',
-			info: 'linear-gradient(to bottom right, var(--k-color-info, #5AC8FA), rgba(90, 200, 250, 0.7) )'
+			default: 'linear-gradient(to bottom right, #eef2ff, #F2F2F7)',
+			primary: 'linear-gradient(to bottom right, var(--k-color-primary, #6366f1), rgba(0, 122, 255, 0.7) )',
+			success: 'linear-gradient(to bottom right, var(--k-color-success, #10b981), rgba(52, 199, 89, 0.7) )',
+			warning: 'linear-gradient(to bottom right, var(--k-color-warning, #f59e0b), rgba(255, 149, 0, 0.7) )',
+			error: 'linear-gradient(to bottom right, var(--k-color-error, #ef4444), rgba(255, 59, 48, 0.7) )',
+			info: 'linear-gradient(to bottom right, var(--k-color-info, #06b6d4), rgba(90, 200, 250, 0.7) )'
 		}
-		return gradientMap[type] as string ?? gradientMap['default'] as string
+		return gradientMap[type] as string
 	}
 
 	/**
@@ -200,13 +200,13 @@
 		// filled 变体的背景色
 		const backgroundMap : UTSJSONObject = {
 			default: 'var(--k-color-fill-light, #F2F2F7)',
-			primary: 'var(--k-color-primary-light, rgba(0, 122, 255, 0.1))',
-			success: 'var(--k-color-success-light, rgba(52, 199, 89, 0.1))',
-			warning: 'var(--k-color-warning-light, rgba(255, 149, 0, 0.1))',
-			error: 'var(--k-color-error-light, rgba(255, 59, 48, 0.1))',
-			info: 'var(--k-color-info-light, rgba(90, 200, 250, 0.1))'
+			primary: 'var(--k-color-primary-bg, rgba(165,180,252,0.1))',
+			success: 'var(--k-color-success-bg, rgba(52, 199, 89, 0.1))',
+			warning: 'var(--k-color-warning-bg, rgba(255, 149, 0, 0.1))',
+			error: 'var(--k-color-error-bg, rgba(255, 59, 48, 0.1))',
+			info: 'var(--k-color-info-bg, rgba(90, 200, 250, 0.1))'
 		}
-		return backgroundMap[type] as string ?? backgroundMap['default'] as string
+		return backgroundMap[type] as string
 	}
 
 	/**
@@ -231,13 +231,13 @@
 		// filled 变体的文本色
 		const textColorMap : UTSJSONObject = {
 			default: 'var(--k-color-text-primary, #333333)',
-			primary: 'var(--k-color-primary, #007AFF)',
-			success: 'var(--k-color-success, #34C759)',
-			warning: 'var(--k-color-warning, #FF9500)',
-			error: 'var(--k-color-error, #FF3B30)',
-			info: 'var(--k-color-info, #5AC8FA)'
+			primary: 'var(--k-color-primary, #6366f1)',
+			success: 'var(--k-color-success, #10b981)',
+			warning: 'var(--k-color-warning, #f59e0b)',
+			error: 'var(--k-color-error, #ef4444)',
+			info: 'var(--k-color-info, #06b6d4)'
 		}
-		return textColorMap[type] as string ?? textColorMap['default'] as string
+		return textColorMap[type] as string
 	}
 
 	/**
@@ -271,7 +271,6 @@
 	// 计算标签类名
 	const tagClass = computed(() : string => {
 		const classes : string[] = ['k-tag', 'kit-ui--root']
-
 		// 添加类型类名
 		classes.push(`k-tag--${props.type}`)
 
@@ -328,7 +327,6 @@
 		// } else {
 		// 	styles.push(`color: ${getTextColor(props.type, props.variant)}`)
 		// }
-
 		if (props.backgroundColor != '') {
 			styles.push(`background-color: ${props.backgroundColor}`)
 		} else {
@@ -464,7 +462,8 @@
 <template>
 	<view :class="tagClass" :style="tagStyle" @click="handleClick">
 		<!-- 左侧图标 -->
-		<k-icon v-if="icon != '' && iconPosition == 'left'" :name="icon" :size="iconSize" :color="iconColor" class="k-tag__icon k-tag__icon--left" />
+		<k-icon v-if="icon != '' && iconPosition == 'left'" :name="icon" :size="iconSize" :color="iconColor"
+			class="k-tag__icon k-tag__icon--left" />
 
 		<!-- 标签内容 -->
 		<text class="k-tag__text" :style="textStyle">
@@ -472,14 +471,16 @@
 		</text>
 
 		<!-- 右侧图标 -->
-		<k-icon v-if="icon != '' && iconPosition == 'right'" :name="icon" :size="iconSize" :color="iconColor" class="k-tag__icon k-tag__icon--right" />
+		<k-icon v-if="icon != '' && iconPosition == 'right'" :name="icon" :size="iconSize" :color="iconColor"
+			class="k-tag__icon k-tag__icon--right" />
 
 		<!-- 关闭按钮 -->
-		<k-icon v-if="closable" name="close-line" :size="closeIconSize" :color="closeIconColor" class="k-tag__close" @click.stop="handleClose" />
+		<k-icon v-if="closable" name="close-line" :size="closeIconSize" :color="closeIconColor" class="k-tag__close"
+			@click.stop="handleClose" />
 	</view>
 </template>
 
-<style>
+<style scoped>
 	.k-tag {
 		display: flex;
 		flex-direction: row;
@@ -515,13 +516,17 @@
 		margin-left: 4px;
 		/* #ifdef WEB */
 		cursor: pointer;
-		/* #endif */
 		transition: opacity 0.2s ease;
+		/* #endif */
 	}
 
+	/* #ifdef WEB */
 	.k-tag__close:hover {
 		opacity: 0.7;
 	}
+
+	/* #endif */
+
 
 	/* 圆形标签样式 */
 	.k-tag--circle .k-tag__text {

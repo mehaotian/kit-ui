@@ -1,0 +1,293 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex:1">
+	<!-- #endif -->
+		<view class="page">
+			<!-- 页面头部 -->
+			<view class="page-header">
+				<text class="page-title">Card 卡片</text>
+				<text class="page-desc">卡片组件用于承载信息，支持标题、内容、操作区域等功能</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">基础用法</k-text>
+					<k-text size="12" color="#999">最简单的卡片用法</k-text>
+				</view>
+
+				<view class="demo-content">
+					<k-card title="基础卡片">
+						<k-text>这是一个基础的卡片内容，展示了卡片的基本用法。</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 带副标题的卡片 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">带副标题</k-text>
+					<k-text size="12" color="#999">卡片可以包含主标题和副标题</k-text>
+				</view>
+
+				<view class="demo-content">
+					<k-card title="主标题" subtitle="这是副标题">
+						<k-text>卡片内容区域，可以放置任意内容。</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 阴影效果 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">阴影效果</k-text>
+					<k-text size="12" color="#999">属性添加阴影效果</k-text>
+				</view>
+				<view class="demo-content">
+					<k-card title="阴影卡片" shadow>
+						<k-text>带有阴影效果的卡片，看起来更有层次感。</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 无边框卡片 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">无边框</k-text>
+					<k-text size="12" color="#999">通过 bordered 属性控制边框显示</k-text>
+				</view>
+				<view class="demo-content">
+					<k-card title="无边框卡片" :bordered="false">
+						<k-text>没有边框的卡片，适合在有背景色的容器中使用。</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 圆角变体 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">圆角变体</k-text>
+					<k-text size="12" color="#999">不同的圆角大小</k-text>
+				</view>
+				<view class="demo-content">
+					<k-card title="小圆角" radius="small" class="demo-card">
+						<k-text>小圆角卡片</k-text>
+					</k-card>
+
+					<k-card title="中等圆角" radius="medium" class="demo-card">
+						<k-text>中等圆角卡片</k-text>
+					</k-card>
+
+					<k-card title="大圆角" radius="large" class="demo-card">
+						<k-text>大圆角卡片</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 内边距变体 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">内边距变体</k-text>
+					<k-text size="12" color="#999">不同的内边距大小</k-text>
+				</view>
+				<view class="demo-content">
+					<k-card title="小内边距" padding="small" class="demo-card">
+						<k-text>小内边距卡片</k-text>
+					</k-card>
+					<k-card title="默认边距" class="demo-card">
+						<k-text>默认边距卡片</k-text>
+					</k-card>
+					<k-card title="大内边距" padding="large" class="demo-card">
+						<k-text>大内边距卡片</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 可点击卡片 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">可点击</k-text>
+					<k-text size="12" color="#999">设置 clickable 属性使卡片可点击</k-text>
+				</view>
+
+				<view class="demo-content">
+					<k-card title="可点击卡片" clickable @click="handleCardClick">
+						<k-text>点击这个卡片试试看！</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 禁用状态 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">禁用状态</k-text>
+					<k-text size="12" color="#999">禁用的卡片</k-text>
+				</view>
+				<view class="demo-content">
+					<k-card title="禁用卡片" disabled clickable>
+						<k-text>这是一个禁用状态的卡片。</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 自定义头部 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">自定义头部</k-text>
+					<k-text size="12" color="#999">使用 header 插槽自定义头部内容</k-text>
+				</view>
+
+				<view class="demo-content">
+					<k-card>
+						<template #header>
+							<view class="custom-header">
+								<view class="header-left">
+									<k-text size="14px" weight="bold">自定义头部</k-text>
+									<k-text size="12px" color="#999">完全自定义的头部内容</k-text>
+								</view>
+								<view class="header-right">
+									<k-button type="primary" size="small">操作</k-button>
+								</view>
+							</view>
+						</template>
+						<k-text>这个卡片使用了自定义的头部内容。</k-text>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 带底部操作 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">底部操作</k-text>
+					<k-text size="12" color="#999">使用 footer 插槽添加底部操作按钮</k-text>
+				</view>
+				<view class="demo-content">
+					<k-card title="操作卡片" subtitle="带有底部操作按钮">
+						<k-text>这个卡片在底部有操作按钮，可以进行相关操作。</k-text>
+						<template #footer>
+							<k-button type="default" size="small" class="footer-btn">取消</k-button>
+							<k-button type="primary" size="small">确认</k-button>
+						</template>
+					</k-card>
+				</view>
+			</view>
+
+			<!-- 复杂内容 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">复杂内容</k-text>
+					<k-text size="12" color="#999">卡片可以承载复杂的内容结构</k-text>
+				</view>
+				<view class="demo-content">
+					<k-card title="产品信息" shadow>
+						<view class="product-info">
+							<k-image src="https://picsum.photos/200/200?random=1" class="product-image" width="80px" height="80px"></k-image>
+							<view class="product-details">
+								<k-text size="16px" weight="bold">Kit-UI 组件库</k-text>
+								<k-text>基于 uni-app x 的高质量组件库</k-text>
+								<view class="product-tags">
+									<!-- <k-tag type="primary" size="small">Vue3</k-tag>
+									<k-tag type="success" size="small">TypeScript</k-tag>
+									<k-tag type="warning" size="small">跨平台</k-tag> -->
+									<k-tag class="tag" text="默认标签" />
+									<k-tag class="tag" text="主要标签" type="primary" />
+									<k-tag class="tag" text="成功标签" type="success" />
+									<k-tag class="tag" text="警告标签" type="warning" />
+									<k-tag class="tag" text="错误标签" type="error" />
+									<k-tag class="tag" text="信息标签" type="info" />
+								</view>
+							</view>
+						</view>
+
+						<template #footer>
+							<k-button type="default" size="small" class="footer-btn">收藏</k-button>
+							<k-button type="primary" size="small">立即使用</k-button>
+						</template>
+					</k-card>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup>
+	import { ref } from 'vue'
+
+	/**
+	 * 卡片点击处理
+	 */
+	const handleCardClick = () => {
+		uni.showToast({
+			title: '卡片被点击了！',
+			icon: 'none'
+		})
+	}
+</script>
+
+<style lang="scss">
+	.demo-content {
+		padding: 0;
+		background-color: transparent;
+		overflow: visible;
+	}
+
+	.demo-card {
+		margin: 5px 0;
+	}
+
+	// 自定义头部样式
+	.custom-header {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.header-left {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.header-right {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	// 底部按钮样式
+	.footer-btn {
+		margin-right: 8px;
+	}
+
+	// 产品信息样式
+	.product-info {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+	}
+
+	.product-image {
+		border-radius: 8px;
+		margin-right: 12px;
+	}
+
+	.product-details {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+
+	.product-tags {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.product-tags .k-tag {
+		margin-top: 5px;
+		margin-right: 4px;
+	}
+</style>

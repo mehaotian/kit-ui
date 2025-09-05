@@ -1,0 +1,113 @@
+// 颜色算法函数文件
+@use 'sass:color';
+@use 'sass:math';
+
+/**
+ * 调整颜色亮度
+ * @param {Color} $color - 基础颜色
+ * @param {Number} $amount - 调整量 (-100% 到 100%)
+ * @return {Color} 调整后的颜色
+ */
+@function adjust-lightness($color, $amount) {
+  @return color.adjust($color, $lightness: $amount);
+}
+
+/**
+ * 调整颜色饱和度
+ * @param {Color} $color - 基础颜色
+ * @param {Number} $amount - 调整量 (-100% 到 100%)
+ * @return {Color} 调整后的颜色
+ */
+@function adjust-saturation($color, $amount) {
+  @return color.adjust($color, $saturation: $amount);
+}
+
+/**
+ * 生成浅色变体
+ * @param {Color} $color - 基础颜色
+ * @param {Number} $lightness - 亮度调整 (默认 20%)
+ * @param {Number} $saturation - 饱和度调整 (默认 -10%)
+ * @return {Color} 浅色变体
+ */
+@function generate-light-color($color, $lightness: 20%, $saturation: -10%) {
+  $adjusted-color: adjust-lightness($color, $lightness);
+  @return adjust-saturation($adjusted-color, $saturation);
+}
+
+/**
+ * 生成深色变体
+ * @param {Color} $color - 基础颜色
+ * @param {Number} $lightness - 亮度调整 (默认 -25%)
+ * @param {Number} $saturation - 饱和度调整 (默认 5%)
+ * @return {Color} 深色变体
+ */
+@function generate-dark-color($color, $lightness: -25%, $saturation: 5%) {
+  $adjusted-color: adjust-lightness($color, $lightness);
+  @return adjust-saturation($adjusted-color, $saturation);
+}
+
+/**
+ * 智能颜色变体生成器
+ * 根据颜色的HSL值智能调整参数
+ * @param {Color} $color - 基础颜色
+ * @param {String} $variant - 变体类型 ('light' 或 'dark')
+ * @return {Color} 生成的颜色变体
+ */
+@function smart-color-variant($color, $variant) {
+  $hue: color.hue($color);
+  $saturation: color.saturation($color);
+  $lightness: color.lightness($color);
+
+  @if $variant =='light' {
+    // 根据原色亮度智能调整
+    // $lightness-adjust: 20%;
+    // $saturation-adjust: -10%;
+	$lightness-adjust: 15%;
+	$saturation-adjust: -10%;
+
+    // 如果原色已经很亮，减少亮度调整
+    @if $lightness >70% {
+      $lightness-adjust: 10%;
+    }
+
+    // 如果原色饱和度很低，减少饱和度调整
+    @if $saturation < 30% {
+      $saturation-adjust: -5%;
+    }
+
+    @return generate-light-color($color, $lightness-adjust, $saturation-adjust);
+  }
+
+  @else if $variant =='dark' {
+    // 根据原色亮度智能调整
+    // $lightness-adjust: -25%;
+    // $saturation-adjust: 5%;
+	$lightness-adjust: -10%;
+	$saturation-adjust: 5%;
+
+    // 如果原色已经很暗，减少亮度调整
+    @if $lightness < 30% {
+      $lightness-adjust: -15%;
+    }
+
+    // 如果原色饱和度很高，减少饱和度调整
+    @if $saturation >80% {
+      $saturation-adjust: 0%;
+    }
+
+    @return generate-dark-color($color, $lightness-adjust, $saturation-adjust);
+  }
+
+  @return $color;
+}
+
+// /**
+//  * 批量生成颜色变体的混合器
+//  * @param {String} $prefix - 变量前缀
+//  * @param {Color} $color - 基础颜色
+//  */
+// @mixin generate-color-variants($prefix, $color) {
+//   #{$prefix}: #{$color} !default;
+//   #{$prefix}-light: #{smart-color-variant($color, 'light')} !default;
+//   #{$prefix}-dark: #{smart-color-variant($color, 'dark')} !default;
+// }

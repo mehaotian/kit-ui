@@ -1,0 +1,228 @@
+@import "../../theme/index.scss";
+
+.k-card {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	box-sizing: border-box;
+	background-color: var(--k-bg-color, #ffffff);
+	transition: all var(--k-transition-duration-base, 0.3s) ease;
+
+	/* #ifdef WEB */
+	will-change: transform, box-shadow, background-color;
+	/* #endif */
+
+	// 边框样式
+	&--bordered {
+		border: var(--k-border-width-base, 1px) solid var(--k-border-color-light, #e5e7eb);
+	}
+
+	// 阴影样式
+	&--shadow {
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		/* #ifdef WEB */
+		&:hover {
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+		}
+		/* #endif */
+
+	}
+
+	// 圆角变体
+	&--radius-none {
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	&--radius-small {
+		border-top-left-radius: var(--k-border-radius-sm, 6px);
+		border-top-right-radius: var(--k-border-radius-sm, 6px);
+		border-bottom-left-radius: var(--k-border-radius-sm, 6px);
+		border-bottom-right-radius: var(--k-border-radius-sm, 6px);
+	}
+
+	&--radius-medium {
+		border-top-left-radius: var(--k-border-radius-md, 8px);
+		border-top-right-radius: var(--k-border-radius-md, 8px);
+		border-bottom-left-radius: var(--k-border-radius-md, 8px);
+		border-bottom-right-radius: var(--k-border-radius-md, 8px);
+	}
+
+	&--radius-large {
+		border-top-left-radius: var(--k-border-radius-lg, 12px);
+		border-top-right-radius: var(--k-border-radius-lg, 12px);
+		border-bottom-left-radius: var(--k-border-radius-lg, 12px);
+		border-bottom-right-radius: var(--k-border-radius-lg, 12px);
+	}
+
+	// 内边距变体
+	&--padding-none {
+		padding: 0;
+
+		.k-card__header {
+			margin-bottom: 0;
+		}
+
+		.k-card__footer {
+			margin-top: 0;
+		}
+	}
+
+	&--padding-small {
+		padding: var(--k-spacing-sm, 8px);
+	}
+
+	&--padding-medium {
+		padding: var(--k-spacing-base, 12px);
+	}
+
+	&--padding-large {
+		padding: var(--k-spacing-lg, 16px);
+	}
+
+	// 可点击状态
+	&--clickable {
+		/* #ifdef WEB */
+		cursor: pointer;
+		/* #endif */
+
+		&:hover {
+			/* #ifdef WEB */
+			background-color: var(--k-bg-color-hover, #f9fafb);
+			/* #endif */
+		}
+	}
+
+	// 禁用状态
+	&--disabled {
+		opacity: 0.6;
+		/* #ifdef WEB */
+		cursor: not-allowed;
+		/* #endif */
+
+		&:hover {
+			/* #ifdef WEB */
+			background-color: var(--k-bg-color, #ffffff);
+			/* #endif */
+		}
+	}
+
+	// 按下状态
+	&--active {
+		background-color: var(--k-bg-color-active, #f3f4f6);
+		transform: scale(0.98);
+	}
+
+	// 卡片头部
+	&__header {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: var(--k-spacing-sm, 8px);
+
+		// 当没有内容时，移除底部边距
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	&__title-wrapper {
+		display: flex;
+		flex-direction: column;
+	}
+
+	&__title {
+		font-size: var(--k-font-size-lg, 18px);
+		font-weight: 600;
+		color: var(--k-text-color-primary, #1f2937);
+		line-height: 1.4;
+		margin-bottom: var(--k-spacing-xs, 4px);
+
+		// 当没有副标题时，移除底部边距
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	&__subtitle {
+		font-size: var(--k-font-size-sm, 14px);
+		color: var(--k-text-color-secondary, #6b7280);
+		line-height: 1.4;
+	}
+
+	// 卡片内容
+	&__content {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+
+		// 当没有底部时，移除底部边距
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	// 卡片底部
+	&__footer {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-end;
+		margin-top: var(--k-spacing-sm, 8px);
+
+		// 底部按钮间距
+		.k-button+.k-button {
+			margin-left: var(--k-spacing-xs, 4px);
+		}
+	}
+
+	// 响应式设计
+	/* #ifdef WEB */
+	@media (max-width: 768px) {
+		&__footer {
+			flex-direction: column;
+			align-items: stretch;
+
+			.k-button+.k-button {
+				margin-left: 0;
+				margin-top: var(--k-spacing-xs, 4px);
+			}
+		}
+	}
+
+	/* #endif */
+
+	// 特殊主题变体
+	&--theme-primary {
+		border-color: var(--k-color-primary, #6366f1);
+
+		.k-card__title {
+			color: var(--k-color-primary, #6366f1);
+		}
+	}
+
+	&--theme-success {
+		border-color: var(--k-color-success, #10b981);
+
+		.k-card__title {
+			color: var(--k-color-success, #10b981);
+		}
+	}
+
+	&--theme-warning {
+		border-color: var(--k-color-warning, #f59e0b);
+
+		.k-card__title {
+			color: var(--k-color-warning, #f59e0b);
+		}
+	}
+
+	&--theme-error {
+		border-color: var(--k-color-error, #ef4444);
+
+		.k-card__title {
+			color: var(--k-color-error, #ef4444);
+		}
+	}
+}

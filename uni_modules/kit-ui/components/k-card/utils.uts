@@ -1,0 +1,192 @@
+/**
+ * k-card 卡片组件工具函数
+ * 提供卡片相关的工具方法
+ */
+
+/**
+ * 卡片主题类型
+ */
+export type CardTheme = 'default' | 'primary' | 'success' | 'warning' | 'error'
+
+/**
+ * 卡片圆角大小类型
+ */
+export type CardRadius = 'none' | 'small' | 'medium' | 'large'
+
+/**
+ * 卡片内边距大小类型
+ */
+export type CardPadding = 'none' | 'small' | 'medium' | 'large'
+
+/**
+ * 卡片配置接口
+ */
+export type CardConfig = {
+	title?: string
+	subtitle?: string
+	bordered?: boolean
+	shadow?: boolean
+	radius?: CardRadius
+	padding?: CardPadding
+	clickable?: boolean
+	disabled?: boolean
+	theme?: CardTheme
+	customStyle?: string
+}
+
+/**
+ * 获取卡片主题类名
+ * @param theme 主题类型
+ * @returns 主题类名
+ */
+export function getCardThemeClass(theme: CardTheme): string {
+	if (theme == 'default') {
+		return ''
+	}
+	return `k-card--theme-${theme}`
+}
+
+/**
+ * 获取卡片圆角类名
+ * @param radius 圆角大小
+ * @returns 圆角类名
+ */
+export function getCardRadiusClass(radius: CardRadius): string {
+	return `k-card--radius-${radius}`
+}
+
+/**
+ * 获取卡片内边距类名
+ * @param padding 内边距大小
+ * @returns 内边距类名
+ */
+export function getCardPaddingClass(padding: CardPadding): string {
+	return `k-card--padding-${padding}`
+}
+
+/**
+ * 验证卡片配置
+ * @param config 卡片配置
+ * @returns 验证结果
+ */
+export function validateCardConfig(config: CardConfig): boolean {
+	// 验证圆角配置
+	if (config.radius != null) {
+		const validRadius: CardRadius[] = ['none', 'small', 'medium', 'large']
+		if (!validRadius.includes(config.radius)) {
+			console.warn(`Invalid card radius: ${config.radius}. Valid values are: ${validRadius.join(', ')}`)
+			return false
+		}
+	}
+	
+	// 验证内边距配置
+	if (config.padding != null) {
+		const validPadding: CardPadding[] = ['none', 'small', 'medium', 'large']
+		if (!validPadding.includes(config.padding)) {
+			console.warn(`Invalid card padding: ${config.padding}. Valid values are: ${validPadding.join(', ')}`)
+			return false
+		}
+	}
+	
+	// 验证主题配置
+	if (config.theme != null) {
+		const validTheme: CardTheme[] = ['default', 'primary', 'success', 'warning', 'error']
+		if (!validTheme.includes(config.theme)) {
+			console.warn(`Invalid card theme: ${config.theme}. Valid values are: ${validTheme.join(', ')}`)
+			return false
+		}
+	}
+	
+	return true
+}
+
+/**
+ * 合并卡片配置
+ * @param defaultConfig 默认配置
+ * @param userConfig 用户配置
+ * @returns 合并后的配置
+ */
+export function mergeCardConfig(defaultConfig: CardConfig, userConfig: CardConfig): CardConfig {
+	return {
+		...defaultConfig,
+		...userConfig
+	}
+}
+
+/**
+ * 生成卡片样式字符串
+ * @param config 卡片配置
+ * @returns 样式字符串
+ */
+export function generateCardStyle(config: CardConfig): string {
+	const styles: string[] = []
+	
+	// 添加自定义样式
+	if (config.customStyle) {
+		styles.push(config.customStyle)
+	}
+	
+	return styles.join('; ')
+}
+
+/**
+ * 生成卡片类名数组
+ * @param config 卡片配置
+ * @returns 类名数组
+ */
+export function generateCardClasses(config: CardConfig): string[] {
+	const classes: string[] = ['k-card']
+	
+	// 添加圆角类名
+	if (config.radius) {
+		classes.push(getCardRadiusClass(config.radius))
+	}
+	
+	// 添加内边距类名
+	if (config.padding) {
+		classes.push(getCardPaddingClass(config.padding))
+	}
+	
+	// 添加主题类名
+	if (config.theme) {
+		const themeClass = getCardThemeClass(config.theme)
+		if (themeClass) {
+			classes.push(themeClass)
+		}
+	}
+	
+	// 添加状态类名
+	if (config.bordered) {
+		classes.push('k-card--bordered')
+	}
+	
+	if (config.shadow) {
+		classes.push('k-card--shadow')
+	}
+	
+	if (config.clickable) {
+		classes.push('k-card--clickable')
+	}
+	
+	if (config.disabled) {
+		classes.push('k-card--disabled')
+	}
+	
+	return classes
+}
+
+/**
+ * 默认卡片配置
+ */
+export const DEFAULT_CARD_CONFIG: CardConfig = {
+	title: '',
+	subtitle: '',
+	bordered: true,
+	shadow: false,
+	radius: 'medium',
+	padding: 'medium',
+	clickable: false,
+	disabled: false,
+	theme: 'default',
+	customStyle: ''
+}

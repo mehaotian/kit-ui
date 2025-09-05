@@ -7,10 +7,6 @@
 	import KLoadWave from './k-loading-wave.uvue'
 	import KLoadPulse from './k-loading-pulse.uvue'
 
-
-
-
-
 	// 组件属性定义
 	const props = defineProps({
 		// 加载样式类型：spinner(旋转圆圈)、dots(点状)、bands(带状动画)、wave(波浪动画)、pulse(脉冲)

@@ -4,14 +4,14 @@
  * 这里整合了 uni-app 内置变量和 kit-ui 组件库的主题系统
  * 提供统一的设计令牌和主题定制能力
  */
-// $k-color-primary: red;
 // 引入 kit-ui 主题系统
-@import "@/uni_modules/kit-ui/theme/index.scss";
+// @import "@/uni_modules/kit-ui/theme/variables.scss";
 
-/**
- * uni-app 内置样式变量（保持兼容性）
- * 同时与 kit-ui 主题系统进行映射
- */
+// /**
+//  * uni-app 内置样式变量（保持兼容性）
+//  * 同时与 kit-ui 主题系统进行映射
+//  */
+// $k-color-primary: red;
 
 // .kit-ui--root {
 //   /* 主色调 */

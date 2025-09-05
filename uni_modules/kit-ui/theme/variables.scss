@@ -1,22 +1,49 @@
 /**
  * kit-ui 主题变量系统
  * 基于 CSS Variables 和 SCSS 变量的双重主题系统
- * 支持亮色/暗色主题切换和自定义主题
  */
-
+@import './color-function.scss';
 /* ==================== 基础色彩系统 ==================== */
 
 /* 主色调 - 优雅紫蓝渐变系 */
 $k-color-primary: #6366f1 !default;        // 现代紫蓝色，低饱和度
-$k-color-primary-light: #a5b4fc !default;  // 柔和浅紫
-$k-color-primary-dark: #4338ca !default;   // 深邃紫蓝
-$k-color-primary-gradient: linear-gradient(to bottom right, #667eea, #764ba2) !default;
+$k-color-primary-light: #{smart-color-variant($k-color-primary, 'light')} !default;  // 柔和浅紫
+$k-color-primary-dark: #{smart-color-variant($k-color-primary, 'dark')} !default;   // 深邃紫蓝
+$k-color-primary-gradient: linear-gradient(to bottom right, $k-color-primary, $k-color-primary-dark) !default;
+$k-color-primary-active: #4f46e5 !default;
+$k-color-primary-bg: rgba($k-color-primary, 0.1) !default;
 
 /* 功能色彩 - 自然呼吸色系 */
 $k-color-success: #10b981 !default;        // 翡翠绿，温和自然
+$k-color-success-light: #{smart-color-variant($k-color-success, 'light')} !default;  // 浅绿色，柔和成功
+$k-color-success-dark: #{smart-color-variant($k-color-success, 'dark')} !default;   // 深绿，深度成功
+$k-color-success-gradient: linear-gradient(to bottom right, $k-color-success, $k-color-success-dark) !default;
+$k-color-success-active: #047857 !default;
+$k-color-success-bg: rgba($k-color-success, 0.1) !default;
+
+/* 警告色彩 - 温暖舒适系 */
 $k-color-warning: #f59e0b !default;        // 琥珀橙，温暖舒适
+$k-color-warning-light: #{smart-color-variant($k-color-warning, 'light')} !default;  // 浅黄色，柔和警告
+$k-color-warning-dark: #{smart-color-variant($k-color-warning, 'dark')} !default;   // 深橙，深度警告
+$k-color-warning-gradient: linear-gradient(to bottom right, $k-color-warning, $k-color-warning-dark) !default;
+$k-color-warning-active: #b45309 !default;
+$k-color-warning-bg: rgba($k-color-warning, 0.1) !default;
+
+/* 错误色彩 - 柔和警示系 */
 $k-color-error: #ef4444 !default;          // 珊瑚红，柔和警示
+$k-color-error-light: #{smart-color-variant($k-color-error, 'light')} !default;    // 浅红色，柔和错误
+$k-color-error-dark: #{smart-color-variant($k-color-error, 'dark')} !default;     // 深红，深度错误
+$k-color-error-gradient: linear-gradient(to bottom right, $k-color-error, $k-color-error-dark) !default;
+$k-color-error-active: #991b1b !default;
+$k-color-error-bg: rgba($k-color-error, 0.1) !default;
+
+/* 信息色彩 - 清新淡雅系 */
 $k-color-info: #06b6d4 !default;           // 青蓝色，清新淡雅
+$k-color-info-light: #{smart-color-variant($k-color-info, 'light')} !default;     // 浅绿色，柔和信息
+$k-color-info-dark: #{smart-color-variant($k-color-info, 'dark')} !default;      // 深青蓝色，深度信息
+$k-color-info-gradient: linear-gradient(to bottom right, $k-color-info, $k-color-info-dark) !default;
+$k-color-info-active: #0891b2 !default;
+$k-color-info-bg: rgba($k-color-info, 0.1) !default;
 
 /* 渐变色彩组合 */
 $k-gradient-primary: linear-gradient(to bottom left, #667eea, #764ba2) !default;
@@ -30,7 +57,69 @@ $k-color-white: #ffffff !default;
 $k-color-black: #000000 !default;
 $k-color-transparent: transparent !default;
 
-/* 灰度色阶 - 温润呼吸感 */
+/* 主色色阶 */
+$k-color-primary-50: #eef2ff !default;
+$k-color-primary-100: #e0e7ff !default;
+$k-color-primary-200: #c7d2fe !default;
+$k-color-primary-300: #a5b4fc !default;
+$k-color-primary-400: #819af9 !default;
+$k-color-primary-500: #6366f1 !default;
+$k-color-primary-600: #4f46e5 !default;
+$k-color-primary-700: #4338ca !default;
+$k-color-primary-800: #3730a3 !default;
+$k-color-primary-900: #312e81 !default;
+
+/* 成功色色阶 */
+$k-color-success-50: #f0fdf4 !default;
+$k-color-success-100: #dcfce7 !default;
+$k-color-success-200: #bbf7d0 !default;
+$k-color-success-300: #86efac !default;
+$k-color-success-400: #4ade80 !default;
+$k-color-success-500: #22c55e !default;
+$k-color-success-600: #16a34a !default;
+$k-color-success-700: #15803d !default;
+$k-color-success-800: #166534 !default;
+$k-color-success-900: #14532d !default;
+
+/* 警告色色阶 */
+$k-color-warning-50: #fffbeb !default;
+$k-color-warning-100: #fef3c7 !default;
+$k-color-warning-200: #fde68a !default;
+$k-color-warning-300: #fcd34d !default;
+$k-color-warning-400: #fbbf24 !default;
+$k-color-warning-500: #f59e0b !default;
+$k-color-warning-600: #d97706 !default;
+$k-color-warning-700: #b45309 !default;
+$k-color-warning-800: #92400e !default;
+$k-color-warning-900: #78350f !default;
+
+/* 错误色色阶 */
+$k-color-error-50: #fee2e2 !default;
+$k-color-error-100: #fecaca !default;
+$k-color-error-200: #fca5a5 !default;
+$k-color-error-300: #f87171 !default;
+$k-color-error-400: #ef4444 !default;
+$k-color-error-500: #dc2626 !default;
+$k-color-error-600: #b91c1c !default;
+$k-color-error-700: #991b1b !default;
+$k-color-error-800: #7f1d1d !default;
+$k-color-error-900: #671d1d !default;
+
+/* 信息色色阶 */
+$k-color-info-50: #e7f5ff !default;
+$k-color-info-100: #d0f4fe !default;
+$k-color-info-200: #a5e6fc !default;
+$k-color-info-300: #67c1f5 !default;
+$k-color-info-400: #3bc9db !default;
+$k-color-info-500: #22a8c4 !default;
+$k-color-info-600: #158091 !default;
+$k-color-info-700: #10607a !default;
+$k-color-info-800: #0c4a60 !default;
+$k-color-info-900: #083346 !default;
+
+
+
+/* 灰度色阶 */
 $k-color-gray-50: #fafbfc !default;   // 云白色，极致纯净
 $k-color-gray-100: #f7f8fa !default; // 晨雾色，轻盈透明
 $k-color-gray-200: #f1f3f5 !default; // 月光色，柔和宁静

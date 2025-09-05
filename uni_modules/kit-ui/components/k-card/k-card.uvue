@@ -1,0 +1,376 @@
+<script setup>
+	import {
+		inject,
+		computed
+	} from 'vue'
+
+	/**
+	 * k-card 卡片组件
+	 * 支持标题、内容、操作区域等功能
+	 */
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
+
+	// 定义 props
+	const props = defineProps({
+		// 卡片标题
+		title: {
+			type: String,
+			default: ''
+		},
+		// 卡片副标题
+		subtitle: {
+			type: String,
+			default: ''
+		},
+		// 是否显示边框
+		bordered: {
+			type: Boolean,
+			default: true
+		},
+		// 是否显示阴影
+		shadow: {
+			type: Boolean,
+			default: false
+		},
+		// 卡片圆角大小: none, small, medium, large
+		radius: {
+			type: String,
+			default: 'medium'
+		},
+		// 内边距大小: none, small, medium, large
+		padding: {
+			type: String,
+			default: 'medium'
+		},
+		// 是否可点击
+		clickable: {
+			type: Boolean,
+			default: false
+		},
+		// 是否禁用
+		disabled: {
+			type: Boolean,
+			default: false
+		},
+		// 自定义样式
+		customStyle: {
+			type: String,
+			default: ''
+		}
+	})
+
+	const slots = useSlots()
+	// 是否有默认插槽
+	const isDefaultSolot = computed(() => {
+		return slots['default'] != null
+	})
+
+	// 是否有header插槽
+	const isHeaderSlot = computed(() => {
+		return slots['header'] != null
+	})
+
+	// 是否footer 插槽
+	const isFooterSlot = computed(() => {
+		return slots['footer'] != null
+	})
+
+	const emit = defineEmits(['click'])
+
+	// 计算卡片动态样式
+	const cardStyle = computed(() => {
+		// 如果有注入的主题配置，生成对应的 CSS 变量
+		const styles : string[] = []
+		// 遍历主题配置，生成 CSS 变量
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				// 将驼峰命名转换为 kebab-case
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+
+		// 添加自定义样式
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+
+		return styles.join('; ')
+	})
+
+	// 计算按下状态的类名
+	const hoverClass = computed(() => {
+		if (props.disabled || !props.clickable) {
+			return ''
+		}
+		return 'k-card--active'
+	})
+
+	// 点击处理函数
+	const handleClick = () => {
+		if (props.disabled || !props.clickable) {
+			return
+		}
+		emit('click')
+	}
+</script>
+
+<template>
+	<!-- 'k-card--clickable': clickable, -->
+	<view class="kit-ui--root k-card" :class="[
+			`k-card--radius-${radius}`,
+			`k-card--padding-${padding}`,
+			{
+				'k-card--bordered': bordered,
+				'k-card--shadow': shadow,
+				'k-card--disabled': disabled
+			}
+		]" :style="cardStyle" :hover-class="hoverClass" @click="handleClick">
+		<!-- 卡片头部 -->
+		<view v-if="title != '' || subtitle != '' || isHeaderSlot" class="k-card__header">
+			<slot name="header">
+				<view v-if="title != '' || subtitle !=''" class="k-card__title-wrapper">
+					<text v-if="title != ''" class="k-card__title">{{ title }}</text>
+					<text v-if="subtitle != ''" class="k-card__subtitle">{{ subtitle }}</text>
+				</view>
+			</slot>
+		</view>
+
+		<!-- 卡片内容 -->
+		<view v-if="isDefaultSolot" class="k-card__content">
+			<slot></slot>
+		</view>
+
+		<!-- 卡片底部 -->
+		<view v-if="isFooterSlot" class="k-card__footer">
+			<slot name="footer"></slot>
+		</view>
+	</view>
+</template>
+
+<style lang="scss" scoped>
+	@import "../../theme/index.scss";
+
+	.k-card {
+		display: flex;
+		flex-direction: column;
+		position: relative;
+		box-sizing: border-box;
+		background-color: var(--k-bg-color, #ffffff);
+		transition: all var(--k-transition-duration-base, 0.3s) ease;
+
+		/* #ifdef WEB */
+		will-change: transform, box-shadow, background-color;
+		/* #endif */
+
+		// 边框样式
+		&--bordered {
+			border: 1px solid var(--k-border-color-light, #f3f4f6);
+		}
+
+		// 阴影样式
+		&--shadow {
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+			/* #ifdef WEB */
+			&:hover {
+				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+			}
+
+			/* #endif */
+
+		}
+
+		// 圆角变体
+		&--radius-none {
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+			border-bottom-left-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+
+		&--radius-small {
+			border-top-left-radius: var(--k-border-radius-sm, 6px);
+			border-top-right-radius: var(--k-border-radius-sm, 6px);
+			border-bottom-left-radius: var(--k-border-radius-sm, 6px);
+			border-bottom-right-radius: var(--k-border-radius-sm, 6px);
+		}
+
+		&--radius-medium {
+			border-top-left-radius: var(--k-border-radius-md, 8px);
+			border-top-right-radius: var(--k-border-radius-md, 8px);
+			border-bottom-left-radius: var(--k-border-radius-md, 8px);
+			border-bottom-right-radius: var(--k-border-radius-md, 8px);
+		}
+
+		&--radius-large {
+			border-top-left-radius: var(--k-border-radius-lg, 12px);
+			border-top-right-radius: var(--k-border-radius-lg, 12px);
+			border-bottom-left-radius: var(--k-border-radius-lg, 12px);
+			border-bottom-right-radius: var(--k-border-radius-lg, 12px);
+		}
+
+		// 内边距变体
+		&--padding-none {
+			padding: 0;
+
+			.k-card__header {
+				margin-bottom: 0;
+			}
+
+			.k-card__footer {
+				margin-top: 0;
+			}
+		}
+
+		&--padding-small {
+			padding-top: var(--k-spacing-sm, 8px);
+			padding-bottom: var(--k-spacing-sm, 8px);
+			padding-left: var(--k-spacing-sm, 8px);
+			padding-right: var(--k-spacing-sm, 8px);
+		}
+
+		&--padding-medium {
+			padding-top: var(--k-spacing-base, 12px);
+			padding-bottom: var(--k-spacing-base, 12px);
+			padding-left: var(--k-spacing-base, 12px);
+			padding-right: var(--k-spacing-base, 12px);
+		}
+
+		&--padding-large {
+			padding-top: var(--k-spacing-lg, 16px);
+			padding-bottom: var(--k-spacing-lg, 16px);
+			padding-left: var(--k-spacing-lg, 16px);
+			padding-right: var(--k-spacing-lg, 16px);
+		}
+
+		// 可点击状态
+		&--clickable {
+			/* #ifdef WEB */
+			cursor: pointer;
+
+			&:hover {
+				background-color: var(--k-bg-color-hover, #f9fafb);
+			}
+
+			/* #endif */
+		}
+
+		// 禁用状态
+		&--disabled {
+			opacity: 0.6;
+			/* #ifdef WEB */
+			cursor: not-allowed;
+
+			&:hover {
+				background-color: var(--k-bg-color, #ffffff);
+			}
+
+			/* #endif */
+		}
+
+		// 按下状态
+		&--active {
+			background-color: var(--k-bg-color-active, #f3f4f6);
+			transform: scale(0.98);
+		}
+
+		// 卡片头部
+		&__header {
+			display: flex;
+			flex-direction: column;
+			margin-bottom: var(--k-spacing-sm, 8px);
+
+			// 当没有内容时，移除底部边距
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+
+		&__title-wrapper {
+			display: flex;
+			flex-direction: column;
+		}
+
+		&__title {
+			font-size: var(--k-font-size-md, 14px);
+			font-weight: bold;
+			color: var(--k-text-color-primary, #1f2937);
+			line-height: 1.4;
+			margin-bottom: var(--k-spacing-xs, 4px);
+
+			// 当没有副标题时，移除底部边距
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+
+		&__subtitle {
+			font-size: var(--k-font-size-sm, 14px);
+			color: var(--k-text-color-secondary, #6b7280);
+			line-height: 1.4;
+		}
+
+		// 卡片内容
+		&__content {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+
+			// 当没有底部时，移除底部边距
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+
+		// 卡片底部
+		&__footer {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: flex-end;
+			margin-top: var(--k-spacing-sm, 8px);
+
+			// 底部按钮间距
+			.k-button+.k-button {
+				margin-left: var(--k-spacing-xs, 4px);
+			}
+		}
+
+		// 特殊主题变体
+		&--theme-primary {
+			border-color: var(--k-color-primary, #6366f1);
+
+			.k-card__title {
+				color: var(--k-color-primary, #6366f1);
+			}
+		}
+
+		&--theme-success {
+			border-color: var(--k-color-success, #10b981);
+
+			.k-card__title {
+				color: var(--k-color-success, #10b981);
+			}
+		}
+
+		&--theme-warning {
+			border-color: var(--k-color-warning, #f59e0b);
+
+			.k-card__title {
+				color: var(--k-color-warning, #f59e0b);
+			}
+		}
+
+		&--theme-error {
+			border-color: var(--k-color-error, #ef4444);
+
+			.k-card__title {
+				color: var(--k-color-error, #ef4444);
+			}
+		}
+	}
+</style>

@@ -271,19 +271,19 @@
 		}
 
 		&--plain--primary--active {
-			background-color: rgba(99, 102, 241, 0.1);
+			background-color: var(--k-color-primary-bg, rgba(99, 102, 241, 0.1));
 		}
 
 		&--plain--success--active {
-			background-color: var(--k-color-success-light, rgba(16, 185, 129, 0.1));
+			background-color: var(--k-color-success-bg, rgba(16, 185, 129, 0.1));
 		}
 
 		&--plain--warning--active {
-			background-color: var(--k-color-warning-light, rgba(245, 158, 11, 0.1));
+			background-color: var(--k-color-warning-bg, rgba(245, 158, 11, 0.1));
 		}
 
 		&--plain--danger--active {
-			background-color: var(--k-color-danger-light, rgba(239, 68, 68, 0.1));
+			background-color: var(--k-color-danger-bg, rgba(239, 68, 68, 0.1));
 		}
 
 		// 尺寸变体
