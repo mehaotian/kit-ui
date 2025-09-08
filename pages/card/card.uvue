@@ -165,8 +165,10 @@
 					<k-card title="操作卡片" subtitle="带有底部操作按钮">
 						<k-text>这个卡片在底部有操作按钮，可以进行相关操作。</k-text>
 						<template #footer>
-							<k-button type="default" size="small" class="footer-btn">取消</k-button>
-							<k-button type="primary" size="small">确认</k-button>
+							<view  style="display: flex;flex-direction: row;">
+								<k-button type="default" size="small" class="footer-btn">取消</k-button>
+								<k-button type="primary" size="small">确认</k-button>
+							</view>
 						</template>
 					</k-card>
 				</view>
@@ -186,22 +188,18 @@
 								<k-text size="16px" weight="bold">Kit-UI 组件库</k-text>
 								<k-text>基于 uni-app x 的高质量组件库</k-text>
 								<view class="product-tags">
-									<!-- <k-tag type="primary" size="small">Vue3</k-tag>
+									<k-tag type="primary" size="small">Vue3</k-tag>
 									<k-tag type="success" size="small">TypeScript</k-tag>
-									<k-tag type="warning" size="small">跨平台</k-tag> -->
-									<k-tag class="tag" text="默认标签" />
-									<k-tag class="tag" text="主要标签" type="primary" />
-									<k-tag class="tag" text="成功标签" type="success" />
-									<k-tag class="tag" text="警告标签" type="warning" />
-									<k-tag class="tag" text="错误标签" type="error" />
-									<k-tag class="tag" text="信息标签" type="info" />
+									<k-tag type="warning" size="small">跨平台</k-tag>
 								</view>
 							</view>
 						</view>
 
 						<template #footer>
-							<k-button type="default" size="small" class="footer-btn">收藏</k-button>
-							<k-button type="primary" size="small">立即使用</k-button>
+							<view style="display: flex;flex-direction: row;">
+								<k-button type="default" size="small" class="footer-btn">收藏</k-button>
+								<k-button type="primary" size="small">立即使用</k-button>
+							</view>
 						</template>
 					</k-card>
 				</view>

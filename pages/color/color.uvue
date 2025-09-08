@@ -18,20 +18,6 @@
 		</view>
 
 		<view class="row">
-			<view class="box primary">主色</view>
-			<view class="row-box">
-				<view class="primary-box primary-9"></view>
-				<view class="primary-box primary-8"></view>
-				<view class="primary-box primary-7"></view>
-				<view class="primary-box primary-6"></view>
-				<view class="primary-box primary-5"></view>
-				<view class="primary-box primary-4"></view>
-				<view class="primary-box primary-3"></view>
-				<view class="primary-box primary-2"></view>
-				<view class="primary-box primary-1"></view>
-			</view>
-		</view>
-		<!-- <view class="row">
 			<view class="box warning">警告色</view>
 			<view class="row-box">
 				<view class="primary-box warning-900"></view>
@@ -87,7 +73,7 @@
 				<view class="primary-box success-200"></view>
 				<view class="primary-box success-100"></view>
 			</view>
-		</view> -->
+		</view>
 		
 		
 	<!-- #ifdef APP -->
@@ -109,7 +95,8 @@
 </script>
 
 <style lang="scss">
-// @import "@/uni_modules/kit-ui/theme/index.scss";
+	// 感觉上是有点bug ，按说不用引入 ，app。vue 引入即可 ，但是现在不引入会报错找不到变量，需要排查一下原因
+@import "@/uni_modules/kit-ui/theme/index.scss";
 .box {
 	width: 100%;
 	height: 100px;
@@ -285,35 +272,5 @@
 .success-100 {
 	background-color: $k-color-success-100;
 }
-
-.primary-9{
-	background-color: $k-color-primary-900;
-}
-.primary-8{
-	background-color: rgba($color:$k-color-primary-800, $alpha: 0.9);
-}
-.primary-7{
-	background-color: rgba($color:$k-color-primary-700, $alpha: 0.8);
-}
-.primary-6{
-	background-color: rgba($color:$k-color-primary-600, $alpha: 0.7);
-}
-.primary-5{
-	background-color: rgba($color:$k-color-primary-500, $alpha: 0.6);
-}
-.primary-4{
-	background-color: rgba($color:$k-color-primary-400, $alpha: 0.5);
-}
-.primary-3{
-	background-color: rgba($color:$k-color-primary-300, $alpha: 0.4);
-}
-.primary-2{
-	background-color: rgba($color:$k-color-primary-200, $alpha: 0.3);
-}
-.primary-1{
-	background-color: rgba($color:$k-color-primary-100, $alpha: 0.2);
-}
-
-
 
 </style>

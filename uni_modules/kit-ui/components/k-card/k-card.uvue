@@ -335,9 +335,9 @@
 			margin-top: var(--k-spacing-sm, 8px);
 
 			// 底部按钮间距
-			.k-button+.k-button {
-				margin-left: var(--k-spacing-xs, 4px);
-			}
+			// .k-button+.k-button {
+			// 	margin-left: var(--k-spacing-xs, 4px);
+			// }
 		}
 
 		// 特殊主题变体

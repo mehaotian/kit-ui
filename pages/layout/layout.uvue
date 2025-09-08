@@ -1,6 +1,6 @@
 <template>
 	<!-- #ifdef APP -->
-	<scroll-view class="container">
+	<scroll-view style="flex: 1;">
 	<!-- #endif -->
 
 		<view class="page">
