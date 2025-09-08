@@ -21,7 +21,6 @@
 						<k-grid-item icon="image-line" text="描述文本" />
 						<k-grid-item icon="image-line" text="描述文本" />
 					</k-grid>
-					
 				</view>
 			</view>
 			
@@ -64,10 +63,14 @@
 				</view>
 				<view class="demo-content">
 					<k-grid square>
-						<k-grid-item icon="image-line" text="收藏" />
-						<k-grid-item icon="image-line" text="喜欢" />
-						<k-grid-item icon="image-line" text="书签" />
-						<k-grid-item icon="image-line" text="分享" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
+						<k-grid-item icon="image-line" text="描述文本" />
 					</k-grid>
 				</view>
 			</view>
