@@ -1,0 +1,220 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1">
+	<!-- #endif -->
+		<view class="page">
+			<!-- 页面头部 -->
+			<view class="page-header">
+				<text class="page-title">k-avatar 头像组件</text>
+				<text class="page-desc">用于展示用户头像，支持图片、文字、图标等多种形式</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">基础用法</k-text>
+					<k-text class="demo-desc" size="12" color="#999">显示标准的图片，文字和图标头像</k-text>
+				</view>
+				<view class="demo-content demo-row">
+					<k-avatar shape="circle" src="https://picsum.photos/200/200?random=1" />
+					<k-avatar text="张三" />
+					<k-avatar icon="user-line" />
+				</view>
+			</view>
+
+			<!-- 头像尺寸 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">头像尺寸</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过size来控制头像尺寸</k-text>
+				</view>
+				<view class="demo-content demo-row">
+					<view class="size-item">
+						<k-avatar size="small" text="小" />
+						<text class="text-label">小号</text>
+					</view>
+					<view class="size-item">
+						<k-avatar size="medium" text="中" />
+						<text class="text-label">中号</text>
+					</view>
+					<view class="size-item">
+						<k-avatar size="large" text="大" />
+						<text class="text-label">大号</text>
+					</view>
+					<view class="size-item">
+						<k-avatar :size="80" text="自" />
+						<text class="text-label">自定义</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 头像形状 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">头像形状</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过shape来控制头像形状</k-text>
+				</view>
+				<view class="demo-content demo-row">
+					<view class="size-item">
+						<k-avatar customStyle="border:1px #409eff solid" src="https://picsum.photos/200/200?random=11" shape="circle" />
+						<text class="text-label">圆形</text>
+					</view>
+					<view class="size-item">
+						<k-avatar  customStyle="border:1px #409eff solid" shape="square"  src="https://picsum.photos/200/200?random=12"/>
+						<text class="text-label">方形</text>
+					</view>
+					<view class="size-item">
+						<k-avatar  customStyle="border:1px #409eff solid" shape="rounded"  src="https://picsum.photos/200/200?random=13" radius="12px" />
+						<text class="text-label">圆角</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 带徽标的头像 -->
+			<view class="demo-section">
+				<view class="section-title">
+					<k-text size="16">带徽标的头像</k-text>
+					<k-text class="demo-desc" size="12" color="#999">添加dot属性，控制头像显示徽标</k-text>
+				</view>
+				<view class="demo-content demo-row">
+					<k-avatar src="https://picsum.photos/200/200?random=1" :dot="true" />
+					<k-avatar text="张" badge="5" bg-color="#409eff" text-color="#fff" />
+					<k-avatar icon="user-line" badge="99+" bg-color="#67c23a" icon-color="#fff" />
+				</view>
+			</view>
+
+			<!-- 可点击头像 -->
+			<view class="demo-section">
+				<view class="section-title">
+					<k-text size="16">可点击头像</k-text>
+					<k-text class="demo-desc" size="12" color="#999">添加clickable属性，使头像可点击</k-text>
+				</view>
+				<view class="demo-content demo-row">
+					<k-avatar src="https://picsum.photos/200/200?random=1" :clickable="true" @click="handleAvatarClick('图片头像')" />
+					<k-avatar text="张三" :clickable="true" bg-color="#409eff" text-color="#fff" @click="handleAvatarClick('文字头像')" />
+					<k-avatar icon="user-line" :clickable="true" bg-color="#67c23a" icon-color="#fff" @click="handleAvatarClick('图标头像')" />
+				</view>
+				<text class="click-tip">点击提示：{{ clickMessage }}</text>
+			</view>
+
+			<!-- 头像组 -->
+			<view class="demo-section">
+				<view class="section-title">
+					<k-text size="16">头像组</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过样式实现头像组</k-text>
+				</view>
+				<view class="demo-content avatar-group">
+					<k-avatar v-for="(user, index) in userList" :key="index" :src="user.avatar" :text="user.name" :bg-color="user.bgColor" text-color="#fff" size="small" shape="circle" class="avatar-group-item" />
+					<k-avatar text="+12" bg-color="#ddd" text-color="#666" size="small" shape="circle" class="avatar-group-item" />
+				</view>
+			</view>
+
+			<!-- 自定义内容 -->
+			<view class="demo-section">
+				<view class="section-title">
+					<k-text size="16">自定义内容</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过插槽实现自定义内容</k-text>
+				</view>
+				<view class="demo-content demo-row">
+					<k-avatar bg-color="#f0f0f0">
+						<k-icon name="user-line" size="20" color="#666666" />
+					</k-avatar>
+					<k-avatar bg-color="#fff5f5">
+						<k-icon name="heart-fill" size="20" color="#f56c6c" />
+					</k-avatar>
+					<k-avatar bg-color="#f0f9ff">
+						<k-icon name="star-fill" size="20" color="#409eff" />
+					</k-avatar>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	import { ref } from 'vue'
+
+	/**
+	 * Avatar 头像组件演示页面
+	 */
+
+	// 点击提示消息
+	const clickMessage = ref('暂无点击')
+
+	// 用户数据类型定义
+	type UserItem = {
+		avatar : string
+		name : string
+		bgColor : string
+	}
+
+	// 用户列表数据
+	const userList = ref<UserItem[]>([
+		{
+			avatar: 'https://picsum.photos/200/200?random=1',
+			name: '张三',
+			bgColor: '#409eff'
+		},
+		{
+			avatar: '',
+			name: '李四',
+			bgColor: '#67c23a'
+		},
+		{
+			avatar: 'https://picsum.photos/200/200?random=1',
+			name: '王五',
+			bgColor: '#e6a23c'
+		},
+		{
+			avatar: '',
+			name: '赵六',
+			bgColor: '#f56c6c'
+		}
+	])
+
+	/**
+	 * 处理头像点击事件
+	 * @param type 头像类型
+	 */
+	const handleAvatarClick = (type : string) => {
+		clickMessage.value = `点击了${type}`
+		uni.showToast({
+			title: `点击了${type}`,
+			icon: 'none'
+		})
+	}
+</script>
+
+<style lang="scss" scoped>
+	.size-item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.text-label {
+		font-size: 12px;
+		color: #666;
+		margin-top: 5px;
+	}
+
+	.click-tip {
+		font-size: 14px;
+		color: #409eff;
+		margin-left: 15px;
+	}
+
+	.avatar-group {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.avatar-group-item {
+		margin-right: -12px;
+		border: 2px solid #fff;
+		box-sizing: border-box;
+	}
+</style>

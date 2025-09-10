@@ -1,0 +1,378 @@
+<template>
+	<view :class="avatarClass" :style="avatarStyle" @click="handleClick">
+		<!-- 图片头像 -->
+		<view v-if="showImage" class="k-avatar-image" :style="imageStyle">
+			<!-- :width="computedSize" :height="computedSize" -->
+			<k-image :src="src" :shape="shape == 'circle' ? 'circle' : 'round'" radius="0" :mode="fit" @error="handleImageError" @load="handleImageLoad" />
+		</view>
+
+		<!-- 文字头像 -->
+		<text v-else-if="showText" :class="textClass" :style="textStyle">
+			{{ displayText }}
+		</text>
+
+		<!-- 图标头像 -->
+		<k-icon v-else-if="showIcon" :name="icon" :size="iconSize" :color="iconColor" />
+
+		<!-- 默认插槽 -->
+		<slot v-else></slot>
+
+		<!-- 徽标 -->
+		<view v-if="showBadge" class="k-avatar__badge" >
+			<k-badge  :dot="dot" :value="badge" :max="badgeMax" :color="badgeColor" />
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import {
+		inject,
+		computed,
+		ref
+	} from 'vue'
+
+	/**
+	 * k-avatar 头像组件
+	 * 支持图片、文字、图标等多种展示形式
+	 */
+
+	// 头像组件Props类型定义
+	type KAvatarProps = {
+		// 头像类型：image, text, icon
+		type ?: string
+		// 图片地址
+		src ?: string
+		// 文字内容
+		text ?: string
+		// 图标名称
+		icon ?: string
+		// 头像尺寸：small, medium, large 或具体数值
+		size ?: string | number
+		// 头像形状：circle, square, rounded
+		shape ?: string
+		// 圆角大小（仅在shape为rounded时有效）
+		radius ?: string
+		// 图片裁剪模式
+		fit ?: string
+		// 背景色
+		bgColor ?: string
+		// 文字颜色
+		textColor ?: string
+		// 图标颜色
+		iconColor ?: string
+		// 图标大小
+		iconSize ?: string | number
+		// 是否显示徽标小红点
+		dot ?: boolean
+		// 徽标内容
+		badge ?: string | number
+		// 徽标最大值
+		badgeMax ?: number
+		// 徽标颜色
+		badgeColor ?: string
+		// 是否可点击
+		clickable ?: boolean
+		// 自定义样式
+		customStyle ?: string
+	}
+
+	// 尺寸映射类型
+	type SizeMapType = {
+		small : string
+		medium : string
+		large : string
+	}
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
+
+	// 定义组件属性
+	const props = withDefaults(defineProps<KAvatarProps>(), {
+		type: '',
+		src: '',
+		text: '',
+		icon: '',
+		size: 'medium',
+		shape: 'rounded',
+		radius: '8px',
+		fit: 'scaleToFill',
+		bgColor: '',
+		textColor: '',
+		iconColor: '',
+		iconSize: 0,
+		dot: false,
+		badge: '',
+		badgeMax: 99,
+		badgeColor: '',
+		clickable: false,
+		customStyle: ''
+	})
+
+	// 定义事件
+	const emit = defineEmits<{
+		click : [event: any]
+		imageError : [event: any]
+		imageLoad : [event: any]
+	}>()
+
+	// 图片加载状态
+	const imageLoaded = ref(false)
+	const imageError = ref(false)
+
+	// 尺寸映射
+	const sizeMap : SizeMapType = {
+		small: '32px',
+		medium: '40px',
+		large: '56px'
+	}
+
+	// 计算实际尺寸
+	const computedSize = computed(() : string => {
+		if (typeof props.size == 'number') {
+			return `${props.size}px`
+		}
+		const size = sizeMap[props.size] as string
+		return size ?? props.size
+	})
+
+	// 计算图标尺寸
+	const iconSize = computed(() : string => {
+		if (typeof props.iconSize == 'number' && props.iconSize > 0) {
+			return `${props.iconSize}px`
+		}
+		// 根据头像尺寸自动计算图标尺寸
+		const size = parseInt(computedSize.value)
+		return `${Math.floor(size * 0.5)}px`
+	})
+
+	// 计算显示的文字
+	const displayText = computed(() : string => {
+		if (props.text.length == 0) {
+			return ''
+		}
+		// 如果是中文，取前两个字符；如果是英文，取首字母
+		const text = props.text.trim()
+		if (/[\u4e00-\u9fa5]/.test(text)) {
+			// 中文取第一个字符
+			return text.substring(0, 2)
+		} else {
+			// 英文取首字母，最多两个
+			const words = text.split(' ')
+			if (words.length >= 2) {
+				return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase()
+			} else {
+				return text.substring(0, 2).toUpperCase()
+			}
+		}
+	})
+
+	// 判断是否显示图片
+	const showImage = computed(() : boolean => {
+		return (props.type == 'image' || props.src.length > 0) && !imageError.value
+	})
+
+	// 判断是否显示文字
+	const showText = computed(() : boolean => {
+		return (props.type == 'text' || props.text.length > 0) && !showImage.value
+	})
+
+	// 判断是否显示图标
+	const showIcon = computed(() : boolean => {
+		return (props.type == 'icon' || props.icon.length > 0) && !showImage.value && !showText.value
+	})
+
+	// 判断是否显示徽标
+	const showBadge = computed(() : boolean => {
+		return props.dot || (props.badge != '')
+	})
+
+	// 计算头像容器类名
+	const avatarClass = computed(() : string => {
+		const classes : string[] = ['k-avatar']
+		const size = sizeMap[props.size]
+		// 尺寸类名
+		if (typeof props.size == 'string' && size != null) {
+			classes.push(`k-avatar--${props.size}`)
+		}
+
+		// 形状类名
+		classes.push(`k-avatar--${props.shape}`)
+
+		// 可点击类名
+		if (props.clickable) {
+			classes.push('k-avatar--clickable')
+		}
+
+		// // 自定义类名
+		// if (props.customClass.length > 0) {
+		// 	classes.push(props.customClass)
+		// }
+
+		return classes.join(' ')
+	})
+
+	// 计算头像容器样式
+	const avatarStyle = computed(() : string => {
+		const styles : string[] = []
+
+		// 尺寸样式
+		styles.push(`width: ${computedSize.value}`)
+		styles.push(`height: ${computedSize.value}`)
+
+		// 背景色
+		if (props.bgColor.length > 0) {
+			styles.push(`background-color: ${props.bgColor}`)
+		}
+
+		// 圆角样式
+		if (props.shape == 'rounded') {
+			styles.push(`border-radius: ${props.radius}`)
+		}
+
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+
+		// 主题配置样式
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key !== 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		console.log(styles.join('; '))
+		return styles.join('; ')
+	})
+
+	const imageStyle = computed(() => {
+		const styles : string[] = []
+		// // 尺寸样式
+		// styles.push(`width: ${computedSize.value}`)
+		// styles.push(`height: ${computedSize.value}`)
+		// 圆角样式
+		if (props.shape == 'rounded') {
+			styles.push(`border-radius: ${props.radius}`)
+		}
+		return styles.join('; ')
+	})
+
+	// 计算文字类名
+	const textClass = computed(() : string => {
+		return 'k-avatar__text'
+	})
+
+	// 计算文字样式
+	const textStyle = computed(() : string => {
+		const styles : string[] = []
+
+		// 文字颜色
+		if (props.textColor.length > 0) {
+			styles.push(`color: ${props.textColor}`)
+		}
+
+		// 根据头像尺寸计算字体大小
+		const size = parseInt(computedSize.value)
+		const fontSize = Math.floor(size * 0.4)
+		styles.push(`font-size: ${fontSize}px`)
+
+		return styles.join('; ')
+	})
+
+	// 点击事件处理
+	const handleClick = (event : any) => {
+		if (props.clickable) {
+			emit('click', event)
+		}
+	}
+
+	// 图片加载错误处理
+	const handleImageError = (event : any) => {
+		imageError.value = true
+		emit('imageError', event)
+	}
+
+	// 图片加载成功处理
+	const handleImageLoad = (event : any) => {
+		imageLoaded.value = true
+		imageError.value = false
+		emit('imageLoad', event)
+	}
+</script>
+
+<style lang="scss" scoped>
+	.k-avatar {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		background-color: var(--k-avatar-bg-color, #f5f5f5);
+		// color: var(--k-avatar-text-color, #666);
+		overflow: visible;
+		box-sizing: border-box;
+
+		.k-avatar-image {
+			width: 100%;
+			height: 100%;
+			box-sizing: border-box;
+			overflow: hidden;
+		}
+
+		// 形状样式
+		&--circle {
+			// app不支持百分比，使用大数字构成圆形
+			border-radius: 100px;
+		}
+
+		&--square {
+			border-radius: 0;
+		}
+
+		&--rounded {
+			// 圆角大小由内联样式控制
+		}
+
+		// 尺寸样式
+		&--small {
+			width: 32px;
+			height: 32px;
+		}
+
+		&--medium {
+			width: 40px;
+			height: 40px;
+		}
+
+		&--large {
+			width: 56px;
+			height: 56px;
+		}
+
+		// 可点击样式
+		&--clickable {
+			/* #ifdef WEB */
+			cursor: pointer;
+			/* #endif */
+			transition: opacity 0.2s;
+
+			&:active {
+				opacity: 0.7;
+			}
+		}
+	}
+
+	.k-avatar__text {
+		// font-weight: bold;
+		line-height: 1.2;
+		white-space: nowrap;
+		font-size: 14px;
+	}
+
+	.k-avatar__badge {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		transform: translate(50%, -50%);
+		z-index: 1;
+	}
+</style>

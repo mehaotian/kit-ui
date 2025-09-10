@@ -77,6 +77,12 @@
 			"style": {
 				"navigationBarTitleText": "宫格"
 			}
+		},
+		{
+			"path": "pages/avatar/avatar",
+			"style": {
+				"navigationBarTitleText": "头像"
+			}
 		}, {
 			"path": "pages/card/card",
 			"style": {
