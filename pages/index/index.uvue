@@ -97,7 +97,7 @@
 				{ name: 'Card｜卡片', path: '/pages/card/card', status: 'completed' },
 				{ name: 'Grid | 宫格', path: '/pages/grid/grid', status: 'completed' },
 				{ name: 'Avatar | 头像', path: '/pages/avatar/avatar', status: 'completed' },
-				{ name: 'Collapse', path: '/pages/collapse/collapse', status: 'planning' },
+				{ name: 'Collapse | 折叠面板', path: '/pages/collapse/collapse', status: 'completed' },
 				{ name: 'Timeline', path: '/pages/timeline/timeline', status: 'planning' },
 				{ name: 'Swiper', path: '/pages/swiper/swiper', status: 'planning' },
 				{ name: 'Calendar｜暂不实现', path: '/pages/calendar/calendar', status: 'planning' },

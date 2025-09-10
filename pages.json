@@ -79,11 +79,17 @@
 			}
 		},
 		{
-			"path": "pages/avatar/avatar",
-			"style": {
-				"navigationBarTitleText": "头像"
-			}
-		}, {
+				"path": "pages/avatar/avatar",
+				"style": {
+					"navigationBarTitleText": "头像"
+				}
+			},
+			{
+				"path": "pages/collapse/collapse",
+				"style": {
+					"navigationBarTitleText": "折叠面板"
+				}
+			}, {
 			"path": "pages/card/card",
 			"style": {
 				"navigationBarTitleText": "卡片"
