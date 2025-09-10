@@ -183,7 +183,7 @@
 				<view class="demo-content">
 					<k-card title="产品信息" shadow>
 						<view class="product-info">
-							<k-image src="https://picsum.photos/200/200?random=1" class="product-image" width="80px" height="80px"></k-image>
+							<k-image src="https://picsum.photos/200/200?random=2" class="product-image" width="80px" height="80px"></k-image>
 							<view class="product-details">
 								<k-text size="16px" weight="bold">Kit-UI 组件库</k-text>
 								<k-text>基于 uni-app x 的高质量组件库</k-text>
@@ -201,6 +201,29 @@
 								<k-button type="primary" size="small">立即使用</k-button>
 							</view>
 						</template>
+					</k-card>
+				</view>
+			</view>
+			
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">常用布局</k-text>
+					<k-text size="12" color="#999">比较常用的布局方式</k-text>
+				</view>
+				<view class="demo-content">
+					<k-card title="产品信息" shadow custom-style="padding:0;">
+						<template #header>
+							<k-cell title="Kit-UI" right-text="10小时前">
+								<template #icon>
+									<image style="width: 25px;height: 25px;border-radius: 5px;" src="https://picsum.photos/200/200?random=1" mode="widthFix"></image>
+								</template>
+							</k-cell>
+						</template>
+						<k-image src="https://picsum.photos/200/200?random=3" height="200px"></k-image>
+						<view class="bottom-mask">
+							<k-text color="#fff" size="12px">kit-ui 是一个基于 uni-app x 框架的跨端 UI 组件库，旨在为开发者提供高质量、易用性强的移动端组件解决方案。组件库支持 H5、小程序、App 等多个平台，具备统一的设计语言和开发规范。</k-text>
+						</view>
+					
 					</k-card>
 				</view>
 			</view>
@@ -287,5 +310,13 @@
 	.product-tags .k-tag {
 		margin-top: 5px;
 		margin-right: 4px;
+	}
+	
+	.bottom-mask {
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		background-color: rgba(0, 0, 0, 0.6);
+		padding: 8px;
 	}
 </style>

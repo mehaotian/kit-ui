@@ -52,6 +52,23 @@
 					<k-cell title="单元格" label="描述文本" right-text="内容" icon="share-forward-line" />
 				</view>
 			</view>
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义图标</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-cell title="单元格" label="描述文本"  is-link >
+						<template #icon>
+							<image class="image-icon" src="https://picsum.photos/200/200?random=1" mode="widthFix"></image>
+						</template>
+					</k-cell>
+					<k-cell title="单元格" label="描述文本描述文本描述文本描述文本描述文本描述文本描述文本描述文本描述文本"  is-link >
+						<template #icon>
+							<image class="image-icon" src="https://picsum.photos/200/200?random=1" mode="widthFix"></image>
+						</template>
+					</k-cell>
+				</view>
+			</view>
 
 			<view class="section">
 				<view class="section-title">
@@ -169,5 +186,11 @@
 
 	.group-spacing {
 		height: 16px;
+	}
+	
+	.image-icon {
+		width: 50px;
+		height: 50px;
+		border-radius: 5px;
 	}
 </style>

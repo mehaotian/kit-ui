@@ -401,7 +401,7 @@
 			&-text {
 				font-size: 12px;
 				color: var(--k-cell-label-color, #969799);
-				line-height: 18px;
+				line-height: 1.2;
 			}
 		}
 
@@ -411,22 +411,6 @@
 			color: #ee0a24;
 			margin-left: 2px;
 		}
-
-		// 内容值
-		// &__value-text {
-		// 	font-size: 24rpx;
-		// 	color: var(--k-cell-text-color, #323233);
-		// 	line-height: 24px;
-		// 	margin-left: 8px;
-		// }
-
-
-
-		// 默认内容
-		// &__content {
-		// 	margin-top: 4px;
-		// 	display: flex;
-		// }
 
 		// 右侧内容
 		&__right {
@@ -443,12 +427,9 @@
 			align-items: center;
 
 			&-content {
-				// font-size: 16px;
-				// color: var(--k-cell-label-color, #969799);
-				// line-height: 24px;
-				font-size: 26rpx;
+				font-size: 25rpx;
 				color: var(--k-cell-text-color, #969799);
-				line-height: 24px;
+				line-height: 1.2;
 				margin-left: 8px;
 			}
 		}
@@ -480,15 +461,6 @@
 			left: 16px;
 			right: 0;
 			border-bottom: 1rpx #ebedf0 solid;
-			// &::after {
-			// 	content: '';
-			// 	position: absolute;
-			// 	bottom: 0;
-			// 	left: 16px;
-			// 	right: 0;
-			// 	height: 1px;
-			// 	background-color: var(--k-cell-border-color, #ebedf0);
-			// }
 		}
 
 		// 可点击状态
@@ -515,7 +487,7 @@
 			}
 
 			.k-cell__right-text-content {
-				font-size: 24rpx;
+				font-size: 22rpx;
 			}
 		}
 
@@ -525,7 +497,7 @@
 			}
 
 			.k-cell__right-text-content {
-				font-size: 28rpx;
+				font-size: 26rpx;
 			}
 		}
 	}
