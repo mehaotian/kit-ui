@@ -1,9 +1,3 @@
-<template>
-	<view class="k-col" :style="colStyle">
-		<slot></slot>
-	</view>
-</template>
-
 <script setup lang="uts">
 	// 响应式断点类型定义
 	type ResponsiveConfig = {
@@ -188,7 +182,11 @@
 		return style
 	})
 </script>
-
+<template>
+	<view class="k-col" :style="colStyle">
+		<slot></slot>
+	</view>
+</template>
 <style lang="scss">
 	.k-col {
 		box-sizing: border-box;

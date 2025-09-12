@@ -1,14 +1,10 @@
 <script setup lang="uts">
-	/**
-	 * k-collapse 折叠面板组件
-	 * 支持展开/收起、动画效果、禁用状态等功能
-	 */
-
 	import { onMounted } from 'vue'
 
 	defineOptions({
 		name: "KCollapseItem"
 	})
+	const elId = ref(`Kit_collapse_item_${Math.ceil(Math.random() * 10e5).toString(36)}`)
 	let collapseInstance = null as KCollapseComponentPublicInstance | null
 	// 注入主题配置
 	const themeConfig = inject('kit-theme', {})
@@ -57,8 +53,12 @@
 		}
 	})
 
+	const collapseConfig = inject('k-collapse', {
+		accordion: false
+	})
+
 	const collapseChild = inject<((child : KCollapseComponentPublicInstance) => string) | null>('k-collapse-child-init', null)
-	const collapseToggle = inject<(() => string) | null>('k-collapse-child-toggle', null)
+	const collapseToggle = inject<((elId : string) => string) | null>('k-collapse-child-toggle', null)
 
 	const slots = useSlots()
 
@@ -78,7 +78,6 @@
 		return true
 	})
 
-
 	// 是否有默认插槽
 	const hasDefaultSlot = computed(() => {
 		return slots['default'] != null
@@ -97,7 +96,7 @@
 	const emit = defineEmits(['update:expanded', 'change', 'click'])
 
 	// 内部展开状态
-	const isExpanded = ref(props.expanded)
+	const isExpanded = ref(false)
 
 	// 内容元素引用
 	const contentRef = ref<UniElement | null>(null)
@@ -156,7 +155,8 @@
 	const expanded = computed(() => props.expanded)
 
 	watch(expanded, (newVal : boolean) => {
-		if (wrapperRef.value == null || contentRef.value == null) return
+		const accordion = collapseConfig.accordion
+		if (wrapperRef.value == null || contentRef.value == null || accordion) return
 		isExpanded.value = newVal
 		if (isExpanded.value) {
 			animateContent(true)
@@ -183,14 +183,21 @@
 
 	// 组件挂载后初始化
 	onMounted(() => {
+
+		const accordion = collapseConfig.accordion
+		// 只有非手风琴模式，组件的 expanded 才会生效
 		if (wrapperRef.value != null && contentRef.value != null) {
 			// const currentRect = wrapperRef.value.getBoundingClientRect()
 			const contentRect = contentRef.value.getBoundingClientRect()
 			lastContentHeight.value = contentRect.height
-			// 初始化打开状态
-			isExpanded.value = props.expanded
-			if (isExpanded.value) {
-				animateContent(true)
+			if (!accordion) {
+				// 初始化打开状态
+				isExpanded.value = props.expanded
+				if (isExpanded.value) {
+					animateContent(true)
+				}
+			} else {
+				isExpanded.value = false
 			}
 		}
 
@@ -213,9 +220,8 @@
 			return
 		}
 		if (collapseToggle != null) {
-			collapseToggle()
+			collapseToggle(elId.value)
 		}
-
 		isExpanded.value = !isExpanded.value
 		animateContent(isExpanded.value)
 		emit('click')
@@ -234,12 +240,13 @@
 		initBorderNull,
 		animateContent,
 		isExpanded,
-		name: props.name
+		name: props.name,
+		elId: elId.value
 	})
 </script>
 
 <template>
-	<view class="kit-ui--root k-collapse" :class="[
+	<view :id="elId" class="kit-ui--root k-collapse" :class="[
 			{
 				'k-collapse--expanded': isExpanded,
 				'k-collapse--disabled': disabled,

@@ -84,10 +84,12 @@
 					<k-text class="demo-desc" size="12" color="#999">同时只允许打开一个</k-text>
 				</view>
 				<view class="demo-content">
-					<!--  -->
-					<k-collapse v-model="value" accordion>
-						<k-collapse-item v-for="(item, index) in collapseList" :key="index" :expanded="item.expanded" :title="item.title" @change="onCollapseChange(index, $event)">
-							<text class="collapse-text">{{ item.content }}</text>
+					<!-- accordion accordion-->
+					<k-collapse v-model:list="value">
+						<!-- :name="index" -->
+						<k-collapse-item v-for="(item, index) in collapseList" :name="item.name" :key="index" :expanded="item.expanded" :title="item.title" @change="onCollapseChange(index, $event)">
+							<!-- <text class="collapse-text">{{ item.content }}</text> -->
+							<k-text>{{item.name}}{{item.content}}</k-text>
 						</k-collapse-item>
 					</k-collapse>
 				</view>
@@ -100,7 +102,7 @@
 
 <script setup lang="uts">
 	import { ref } from 'vue'
-	let value = ref('')
+	let value = ref(['1', '2', '3'])
 	// 基础用法状态
 	const basicExpanded = ref(false)
 	const onBasicChange = (expanded : boolean) => {
@@ -126,6 +128,7 @@
 
 	// 多个面板数据
 	type CollapseItem = {
+		name : string
 		title : string
 		content : string
 		expanded : boolean
@@ -133,16 +136,19 @@
 
 	const collapseList = ref<CollapseItem[]>([
 		{
+			name: '1',
 			title: '面板 1',
 			content: '这是第一个面板的内容，包含一些基础信息和说明文字。',
 			expanded: false
 		},
 		{
+			name: '2',
 			title: '面板 2',
 			content: '这是第二个面板的内容，展示了更多详细的功能介绍。',
 			expanded: true
 		},
 		{
+			name: '3',
 			title: '面板 3',
 			content: '这是第三个面板的内容，提供了额外的配置选项和使用说明。',
 			expanded: false

@@ -9,17 +9,53 @@
 	defineOptions({
 		name: "KCollapse"
 	})
+
 	const props = defineProps({
-		// // 是否开启手风琴模式
+		// 手风琴模式下的值 v-model
+		modelValue: {
+			type: [String, Number],
+			default: ''
+		},
+		// 非手风琴下的值 v-model:list
+		list: {
+			type: Array as PropType<string[]>,
+			default: () : Array<string> => {
+				return []
+			}
+		},
+		// 是否开启手风琴模式
 		accordion: {
 			type: Boolean,
 			default: false
 		}
 	})
 
+	const emit = defineEmits<{
+		(e : 'update:modelValue', value : string) : void
+		(e : 'change', value : string) : void
+		(e : 'update:list', value : string[]) : void
+		(e : 'listChange', value : string[]) : void
+	}>()
+
+
+	const model = computed({
+		get: () => props.modelValue,
+		set: (value) => emit('update:modelValue', value)
+	})
+
+	const models = computed({
+		get: () => props.list,
+		set: (value) => emit('update:list', value)
+	})
+
+
+	provide('k-collapse', {
+		accordion: props.accordion
+	})
+
 	// 子组件实例
 	let childs : KCollapseItemComponentPublicInstance[] = []
-
+	let childIndex = 0
 	/**
 	 * 子组件边框调整
 	 */
@@ -38,30 +74,68 @@
 	/**
 	 * 初始化子组件
 	 */
-	function childInit(child : KCollapseItemComponentPublicInstance) : string {
+	function registerItem(child : KCollapseItemComponentPublicInstance) : string {
+		// 是否需要打开面板
+		const accordion = props.accordion
+		// 手风琴模式下 ，v-model 必须为 number(索引) 或者  string (name)
+		if (accordion) {
+			let modelValue = model.value
+			if (modelValue != null) {
+				// 如果name是空，则使用索引
+				if (child.name == '') {
+					if (typeof modelValue == 'number') {
+						if (modelValue == childIndex) {
+							child.isExpanded.value = true
+							child.animateContent(true)
+						}
+					}
+				} else {
+					if (typeof modelValue == 'string') {
+						if (modelValue == child.name) {
+							child.isExpanded.value = true
+							child.animateContent(true)
+						}
+					}
+				}
+			}
+		} else {
+			let modelList = models.value
+			modelList.forEach((item : string) => {
+				if (item == child.name) {
+					child.isExpanded.value = true
+					child.animateContent(true)
+				}
+			})
+		}
+
 		childs.push(child)
 		handleChild()
+		childIndex++
 		return ''
 	}
 
 	/**
 	 * 手风琴切换效果
 	 */
-	function toggle() {
-		const accordion = props.accordion as boolean
+	function toggle(elId : string) {
+		const accordion = props.accordion
 		if (!accordion) return
 		// 为了节省性能，只需要查找已经打开的子组件，将其关闭
 		childs.forEach((child : KCollapseItemComponentPublicInstance) => {
 			const isShow = child.isExpanded.value
-			// 如果打开了，需要关闭
-			if (isShow) {
+			// 如果打开了，需要关闭 ,如果点击的就是当前item，则不做操作，使用默认行为
+			if (isShow && child.elId != elId) {
 				child.isExpanded.value = false
 				child.animateContent(false)
 			}
 		})
 	}
 
-	provide('k-collapse-child-init', childInit)
+	onMounted(() => {
+		console.log('model', model.value, typeof model.value);
+	})
+
+	provide('k-collapse-child-init', registerItem)
 	provide('k-collapse-child-toggle', toggle)
 </script>
 
