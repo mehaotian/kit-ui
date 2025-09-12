@@ -5,7 +5,7 @@
 
 		<view class="page">
 			<view class="page-header">
-				<k-text size="24" weight="bold" align="center">Badge 徽标组件</k-text>
+				<k-text size="24" weight="bold" align="center">k-badge 徽标组件</k-text>
 				<k-text class="page-desc" size="14" align="center">用于显示数字、文字或圆点形式的徽标</k-text>
 			</view>
 

@@ -8,7 +8,6 @@
 			</view>
 		</slot>
 
-
 		<!-- 单元格容器 -->
 		<view class="k-cell-group__wrapper">
 			<slot></slot>

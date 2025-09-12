@@ -1,94 +1,94 @@
 <template>
 	<!-- #ifdef APP -->
-	<scroll-view  style="flex: 1;">
+	<scroll-view style="flex: 1;">
 	<!-- #endif -->
 		<view class="page">
-			<!-- 页面标题 -->
 			<view class="page-header">
-				<text class="page-title">Collapse 折叠面板</text>
-				<text class="page-desc">可以折叠/展开的内容区域</text>
+				<k-text size="24" weight="bold" align="center">k-collapse-item 折叠面板</k-text>
+				<k-text class="page-desc" size="14" align="center">可以折叠/展开的内容区域</k-text>
 			</view>
 
-			<!-- 基础用法 -->
-			<view class="section">
-				<text class="section-title">基础用法</text>
+			<!-- <view class="section">
+				<view class="section-title">
+					<k-text size="16">基础用法</k-text>
+				</view>
 				<view class="demo-content">
-					<k-collapse title="这是一个折叠面板" :expanded="basicExpanded" @change="onBasicChange">
-						<text class="collapse-text">这里是折叠面板的内容。可以放置任意的内容，包括文字、图片、其他组件等。当点击标题时，内容会展开或收起。</text>
-					</k-collapse>
+					<k-collapse-item title="这是一个折叠面板" :expanded="basicExpanded" @change="onBasicChange">
+						<k-text>这里是折叠面板的内容。可以放置任意的内容，包括文字、图片、其他组件等。当点击标题时，内容会展开或收起。</k-text>
+					</k-collapse-item>
 				</view>
 			</view>
 
-			<!-- 默认展开 -->
 			<view class="section">
-				<text class="section-title">默认展开</text>
-				<text class="demo-desc">通过 expanded 属性控制默认展开状态</text>
+				<view class="section-title">
+					<k-text size="16">默认展开</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过 expanded 属性控制默认展开状态</k-text>
+				</view>
 				<view class="demo-content">
-					<k-collapse title="默认展开的面板" :expanded="true">
-						<text class="collapse-text">这个面板默认是展开状态。你可以通过设置 expanded 属性为 true 来实现默认展开。</text>
-					</k-collapse>
+					<k-collapse-item title="默认展开的面板" :expanded="true">
+						<k-text>这个面板默认是展开状态。你可以通过设置 expanded 属性为 true 来实现默认展开。</k-text>
+					</k-collapse-item>
 				</view>
 			</view>
 
-			<!-- 禁用状态 -->
 			<view class="section">
-				<text class="section-title">禁用状态</text>
-				<text class="demo-desc">通过 disabled 属性禁用折叠面板</text>
+				<view class="section-title">
+					<k-text size="16">禁用状态</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过 disabled 属性禁用折叠面板</k-text>
+				</view>
 				<view class="demo-content">
-					<k-collapse title="禁用的折叠面板" :disabled="true">
-						<text class="collapse-text">这个面板被禁用了，无法点击展开或收起。</text>
-					</k-collapse>
+					<k-collapse-item title="禁用的折叠面板" :disabled="true">
+						<k-text>这个面板被禁用了，无法点击展开或收起。</k-text>
+					</k-collapse-item>
 				</view>
 			</view>
 
-			<!-- 自定义图标位置 -->
 			<view class="section">
-				<text class="section-title">自定义图标位置</text>
-				<text class="demo-desc">通过 icon-position 属性设置图标位置</text>
+				<view class="section-title">
+					<k-text size="16">自定义图标位置</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过 icon-position 属性设置图标位置</k-text>
+				</view>
 				<view class="demo-content">
-					<k-collapse title="图标在左侧" icon-position="left" :expanded="leftIconExpanded" @change="onLeftIconChange">
-						<text class="collapse-text">这个面板的图标位置在左侧。</text>
-					</k-collapse>
+					<k-collapse-item title="图标在左侧" icon-position="left" :expanded="leftIconExpanded" @change="onLeftIconChange">
+						<k-text>这个面板的图标位置在左侧。</k-text>
+					</k-collapse-item>
 					<view class="demo-gap"></view>
-					<k-collapse title="图标在右侧" icon-position="right" :expanded="rightIconExpanded" @change="onRightIconChange">
-						<text class="collapse-text">这个面板的图标位置在右侧（默认）。</text>
-					</k-collapse>
+					<k-collapse-item title="图标在右侧" icon-position="right" :expanded="rightIconExpanded" @change="onRightIconChange">
+						<k-text>这个面板的图标位置在右侧（默认）。</k-text>
+					</k-collapse-item>
 				</view>
 			</view>
 
-			<!-- 自定义标题 -->
 			<view class="section">
-				<text class="section-title">自定义标题</text>
-				<text class="demo-desc">通过 title 插槽自定义标题内容</text>
+				<view class="section-title">
+					<k-text size="16">自定义标题</k-text>
+					<k-text class="demo-desc" size="12" color="#999">通过 title 插槽自定义标题内容</k-text>
+				</view>
 				<view class="demo-content">
-					<k-collapse :expanded="customTitleExpanded" @change="onCustomTitleChange">
+					<k-collapse-item :expanded="customTitleExpanded" @change="onCustomTitleChange">
 						<template #title>
-							<view class="custom-title">
-								<text class="custom-title-text">🎉 自定义标题</text>
-								<view class="custom-badge">
-									<text class="custom-badge-text">NEW</text>
-								</view>
-							</view>
+							<k-cell title='自定义标题' label="测试标题" right-text="点击切换" custom-style="padding-right:0;">
+								<template #icon>
+									<k-image shape="round" class="image-icon"  src="https://picsum.photos/200/200?random=1" width="35px" height="35px"></k-image>
+								</template>
+							</k-cell>
 						</template>
-						<text class="collapse-text">这里使用了自定义的标题插槽，可以添加图标、徽章等元素。</text>
-					</k-collapse>
+						<k-text>这里使用了自定义的标题插槽，可以添加图标、徽章等元素。</k-text>
+					</k-collapse-item>
 				</view>
-			</view>
+			</view> -->
 
-			<!-- 多个面板 -->
 			<view class="section">
-				<text class="section-title">多个面板</text>
-				<text class="demo-desc">多个折叠面板组合使用</text>
+				<view class="section-title">
+					<k-text size="16">手风琴模式</k-text>
+					<k-text class="demo-desc" size="12" color="#999">同时只允许打开一个</k-text>
+				</view>
 				<view class="demo-content">
-					<k-collapse 
-						v-for="(item, index) in collapseList" 
-						:key="index"
-						:title="item.title"
-						:expanded="item.expanded"
-						@change="onCollapseChange(index, $event)"
-						:class="{ 'collapse-item': true, 'collapse-item-last': index === collapseList.length - 1 }"
-					>
-						<text class="collapse-text">{{ item.content }}</text>
+					<!--  -->
+					<k-collapse v-model="value" accordion>
+						<k-collapse-item v-for="(item, index) in collapseList" :key="index" :expanded="item.expanded" :title="item.title" @change="onCollapseChange(index, $event)">
+							<text class="collapse-text">{{ item.content }}</text>
+						</k-collapse-item>
 					</k-collapse>
 				</view>
 			</view>
@@ -100,10 +100,10 @@
 
 <script setup lang="uts">
 	import { ref } from 'vue'
-
+	let value = ref('')
 	// 基础用法状态
 	const basicExpanded = ref(false)
-	const onBasicChange = (expanded: boolean) => {
+	const onBasicChange = (expanded : boolean) => {
 		basicExpanded.value = expanded
 		console.log('基础面板状态:', expanded)
 	}
@@ -111,24 +111,24 @@
 	// 图标位置状态
 	const leftIconExpanded = ref(false)
 	const rightIconExpanded = ref(false)
-	const onLeftIconChange = (expanded: boolean) => {
+	const onLeftIconChange = (expanded : boolean) => {
 		leftIconExpanded.value = expanded
 	}
-	const onRightIconChange = (expanded: boolean) => {
+	const onRightIconChange = (expanded : boolean) => {
 		rightIconExpanded.value = expanded
 	}
 
 	// 自定义标题状态
 	const customTitleExpanded = ref(false)
-	const onCustomTitleChange = (expanded: boolean) => {
+	const onCustomTitleChange = (expanded : boolean) => {
 		customTitleExpanded.value = expanded
 	}
 
 	// 多个面板数据
 	type CollapseItem = {
-		title: string
-		content: string
-		expanded: boolean
+		title : string
+		content : string
+		expanded : boolean
 	}
 
 	const collapseList = ref<CollapseItem[]>([
@@ -149,7 +149,7 @@
 		}
 	])
 
-	const onCollapseChange = (index: number, expanded: boolean) => {
+	const onCollapseChange = (index : number, expanded : boolean) => {
 		collapseList.value[index].expanded = expanded
 		console.log(`面板 ${index + 1} 状态:`, expanded)
 	}
@@ -157,10 +157,10 @@
 	// 动画时长状态
 	const fastExpanded = ref(false)
 	const slowExpanded = ref(false)
-	const onFastChange = (expanded: boolean) => {
+	const onFastChange = (expanded : boolean) => {
 		fastExpanded.value = expanded
 	}
-	const onSlowChange = (expanded: boolean) => {
+	const onSlowChange = (expanded : boolean) => {
 		slowExpanded.value = expanded
 	}
 </script>
@@ -168,7 +168,11 @@
 <style>
 	.demo-content {
 		padding: 0;
+		background: none;
+		/* border-radius: 0; */
+
 	}
+
 	.custom-title {
 		display: flex;
 		align-items: center;

@@ -1,359 +1,70 @@
-<script setup>
-	/**
-	 * k-collapse 折叠面板组件
-	 * 支持展开/收起、动画效果、禁用状态等功能
-	 */
-
-	// 注入主题配置
-	const themeConfig = inject('kit-theme', {})
-
-	// 定义 props
-	const props = defineProps({
-		// 面板标题
-		title: {
-			type: String,
-			default: ''
-		},
-		// 是否展开
-		expanded: {
-			type: Boolean,
-			default: false
-		},
-		// 是否禁用
-		disabled: {
-			type: Boolean,
-			default: false
-		},
-		// 是否显示边框
-		border: {
-			type: Boolean,
-			default: true
-		},
-		// 展开图标
-		expandIcon: {
-			type: String,
-			default: 'arrow-down-s-line'
-		},
-		// 图标位置: left, right
-		iconPosition: {
-			type: String,
-			default: 'right'
-		},
-		// 动画持续时间(ms)
-		animationDuration: {
-			type: Number,
-			default: 200
-		},
-		// 自定义样式
-		customStyle: {
-			type: String,
-			default: ''
-		}
-	})
-
-	const slots = useSlots()
-
-	// 是否有默认插槽
-	const hasDefaultSlot = computed(() => {
-		return slots['default'] != null
-	})
-
-	// 是否有标题插槽
-	const hasTitleSlot = computed(() => {
-		return slots['title'] != null
-	})
-
-	// 是否有图标插槽
-	const hasIconSlot = computed(() => {
-		return slots['icon'] != null
-	})
-
-	const emit = defineEmits(['update:expanded', 'change', 'click'])
-
-	// 内部展开状态
-	const isExpanded = ref(props.expanded)
-
-	// 内容元素引用
-	const contentRef = ref<UniElement | null>(null)
-	const wrapperRef = ref<UniElement | null>(null)
-
-	const lastContentHeight = ref<number>(0)
-
-	// 动画内容展开/收起
-	const animateContent = () => {
-		// 检查元素是否存在
-		if (wrapperRef.value == null || contentRef.value == null) {
-			console.warn('k-collapse: 动画元素未找到')
-			return
-		}
-
-		// 获取当前和目标高度
-		const height = lastContentHeight.value
-		const cNode = wrapperRef.value?.style!;
-		console.log(isExpanded.value, height);
-		if (isExpanded.value) {
-			cNode.setProperty('height', height + 'px')
-		} else {
-			cNode.setProperty('height', 0 + 'px')
-		}
-	}
-
-	// 计算折叠面板动态样式
-	const collapseStyle = computed(() => {
-		// 如果有注入的主题配置，生成对应的 CSS 变量
-		const styles : string[] = []
-		// 遍历主题配置，生成 CSS 变量
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				// 将驼峰命名转换为 kebab-case
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-
-		// 添加动画持续时间
-		styles.push(`--k-collapse-duration: ${props.animationDuration}ms`)
-
-		// 添加自定义样式
-		if (props.customStyle != '') {
-			styles.push(props.customStyle)
-		}
-
-		return styles.join('; ')
-	})
-
-	// 计算图标旋转角度
-	const iconRotation = computed(() => {
-		return isExpanded.value ? 180 : 0
-	})
-
-	// 防抖定时器
-	const debounceTimer = ref<number | null>(null)
-
-	// // 切换展开状态（带防抖）
-	// const toggle = () => {
-	// 	if (props.disabled) {
-	// 		return
-	// 	}
-	// 	animateContent()
-	// }
-
-	const expanded = computed(() => props.expanded)
-
-	watch(expanded, (newVal : boolean) => {
-		if (wrapperRef.value == null || contentRef.value == null) return
-		isExpanded.value = newVal
-		if (isExpanded.value) {
-			animateContent()
-		}
-	}, {
-		immediate: true
-	})
-	// watchEffect(() => {
-	// 	console.log('newVal', expanded.value);
-	// 	isExpanded.value = props.expanded
-	// 	if (isExpanded.value) {
-	// 		animateContent()
-	// 	}
-	// })
-
-	// 组件挂载后初始化
-	onMounted(async () => {
-		await nextTick()
-		if (wrapperRef.value != null && contentRef.value != null) {
-			// const currentRect = wrapperRef.value.getBoundingClientRect()
-			const contentRect = contentRef.value.getBoundingClientRect()
-			lastContentHeight.value = contentRect.height
-			// 初始化打开状态
-			isExpanded.value = props.expanded
-			if (isExpanded.value) {
-				animateContent()
-			}
-		}
-	})
-
-	// 组件销毁时清理
-	onUnmounted(() => { })
-
-	// 点击头部处理函数
-	const handleHeaderClick = () => {
-		if (props.disabled) {
-			return
-		}
-		isExpanded.value = !isExpanded.value
-		animateContent()
-		emit('click')
-	}
-</script>
-
 <template>
-	<view class="kit-ui--root k-collapse" :class="[
-			{
-				'k-collapse--expanded': isExpanded,
-				'k-collapse--disabled': disabled,
-				'k-collapse--bordered': border
-			}
-		]" :style="collapseStyle">
-		<!-- 折叠面板头部 -->
-		<view class="k-collapse__header" :class="{ 
-				'k-collapse__header--disabled': props.disabled,
-				'k-collapse__header--expanded': isExpanded
-			}" @click="handleHeaderClick">
-			<!-- 左侧图标 -->
-			<view v-if="iconPosition === 'left'" class="k-collapse__icon k-collapse__icon--left">
-				<slot name="icon">
-					<k-icon :name="expandIcon" size="16" color="var(--k-text-color-secondary, #6b7280)" :style="`transform: rotate(${iconRotation}deg); transition: transform var(--k-collapse-duration, 300ms) ease;`" />
-				</slot>
-			</view>
-
-			<!-- 标题内容 -->
-			<view class="k-collapse__title">
-				<slot name="title">
-					<text class="k-collapse__title-text">{{ props.title }}</text>
-				</slot>
-			</view>
-			<!-- 右侧图标 -->
-			<view v-if="iconPosition === 'right'" class="k-collapse__icon k-collapse__icon--right">
-				<slot name="icon">
-					<k-icon :name="expandIcon" size="16" color="var(--k-text-color-secondary, #6b7280)" :style="`transform: rotate(${iconRotation}deg); transition: transform var(--k-collapse-duration, 300ms) ease;`" />
-				</slot>
-			</view>
-		</view>
-
-		<!-- 折叠面板内容 -->
-		<view ref="wrapperRef" class="k-collapse__content-wrapper">
-			<view ref="contentRef" class="k-collapse__content">
-				<slot></slot>
-			</view>
-		</view>
+	<view>
+		{{model}}
+		<slot></slot>
 	</view>
 </template>
 
-<style lang="scss" scoped>
-	@import "../../theme/index.scss";
-
-	.k-collapse {
-		display: flex;
-		flex-direction: column;
-		position: relative;
-		box-sizing: border-box;
-		background-color: var(--k-bg-color, #ffffff);
-		overflow: hidden;
-
-		// 边框样式
-		&--bordered {
-			// border: 1px solid var(--k-border-color-light, #f3f4f6);
-			// border-top-left-radius: var(--k-border-radius-md, 8px);
-			// border-top-right-radius: var(--k-border-radius-md, 8px);
-			// border-bottom-left-radius: var(--k-border-radius-md, 8px);
-			// border-bottom-right-radius: var(--k-border-radius-md, 8px);
+<script setup lang="uts">
+	defineOptions({
+		name: "KCollapse"
+	})
+	const props = defineProps({
+		// // 是否开启手风琴模式
+		accordion: {
+			type: Boolean,
+			default: false
 		}
+	})
 
-		// 展开状态
-		&--expanded {
-			.k-collapse__header {
-				border-bottom: 1px solid var(--k-border-color-light, #f3f4f6);
-			}
-		}
+	// 子组件实例
+	let childs : KCollapseItemComponentPublicInstance[] = []
 
-		// 禁用状态
-		&--disabled {
-			opacity: 0.6;
-
-			.k-collapse__header {
-				/* #ifdef WEB */
-				cursor: not-allowed;
-				/* #endif */
-			}
-		}
-
-		// 折叠面板头部
-		&__header {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			padding-top: var(--k-spacing-base, 12px);
-			padding-bottom: var(--k-spacing-base, 12px);
-			padding-left: var(--k-spacing-base, 12px);
-			padding-right: var(--k-spacing-base, 12px);
-			background-color: var(--k-bg-color, #ffffff);
-			transition: all var(--k-transition-duration-base, 0.3s) ease;
-			border: 1px transparent solid;
-			/* #ifdef WEB */
-			cursor: pointer;
-			/* #endif */
-
-			/* 禁用状态 */
-			&--disabled {
-				/* #ifdef WEB */
-				cursor: not-allowed;
-				/* #endif */
-				opacity: 0.6;
-				background-color: var(--k-collapse-header-disabled-bg, #f5f5f5);
-			}
-
-			/* 展开状态 */
-			// &--expanded {
-			// 	background-color: var(--k-collapse-header-active-bg, #f0f0f0);
-			// }
-		}
-
-		// 标题
-		&__title {
-			display: flex;
-			flex-direction: column;
-			flex: 1;
-			min-width: 0;
-		}
-
-		&__title-text {
-			font-size: 14px;
-			color: var(--k-text-color-primary, #1f2937);
-			line-height: 1.4;
-		}
-
-		// 图标
-		&__icon {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 24px;
-			height: 24px;
-
-			&--left {
-				margin-right: var(--k-spacing-sm, 8px);
-			}
-
-			&--right {
-				margin-left: var(--k-spacing-sm, 8px);
-			}
-		}
-
-		// 内容包装器
-		&__content-wrapper {
-			overflow: hidden;
-			height: 0;
-			// transition: height var(--k-collapse-duration, 300ms) ease;
-			transition-property: height;
-			transition-duration: .3s;
-			will-change: height;
-
-			// 展开状态的内容包装器
-			&--expanded {
-				height: auto;
-			}
-		}
-
-		// 内容区域
-		&__content {
-			padding-top: var(--k-spacing-base, 12px);
-			padding-bottom: var(--k-spacing-base, 12px);
-			padding-left: var(--k-spacing-base, 12px);
-			padding-right: var(--k-spacing-base, 12px);
-			color: var(--k-text-color-regular, #374151);
-			font-size: var(--k-font-size-sm, 12px);
-			line-height: 1.5;
+	/**
+	 * 子组件边框调整
+	 */
+	function handleChild() {
+		if (childs.length > 0) {
+			// 先清空所有 border 属性
+			childs.forEach((item : KCollapseItemComponentPublicInstance) => {
+				item.initBorderNull()
+			})
+			// 在设置最后一个border为false，避免border设置冲突
+			const lastChild = childs[childs.length - 1]
+			lastChild.initBorder()
 		}
 	}
+
+	/**
+	 * 初始化子组件
+	 */
+	function childInit(child : KCollapseItemComponentPublicInstance) : string {
+		childs.push(child)
+		handleChild()
+		return ''
+	}
+
+	/**
+	 * 手风琴切换效果
+	 */
+	function toggle() {
+		const accordion = props.accordion as boolean
+		if (!accordion) return
+		// 为了节省性能，只需要查找已经打开的子组件，将其关闭
+		childs.forEach((child : KCollapseItemComponentPublicInstance) => {
+			const isShow = child.isExpanded.value
+			// 如果打开了，需要关闭
+			if (isShow) {
+				child.isExpanded.value = false
+				child.animateContent(false)
+			}
+		})
+	}
+
+	provide('k-collapse-child-init', childInit)
+	provide('k-collapse-child-toggle', toggle)
+</script>
+
+<style>
+
 </style>
