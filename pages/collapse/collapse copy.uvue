@@ -13,7 +13,7 @@
 					<k-text size="16">基础用法</k-text>
 				</view>
 				<view class="demo-content">
-					<k-collapse-item title="这是一个折叠面板">
+					<k-collapse-item title="这是一个折叠面板" :expanded="basicExpanded" @change="onBasicChange">
 						<k-text>这里是折叠面板的内容。可以放置任意的内容，包括文字、图片、其他组件等。当点击标题时，内容会展开或收起。</k-text>
 					</k-collapse-item>
 				</view>
@@ -49,11 +49,11 @@
 					<k-text class="demo-desc" size="12" color="#999">通过 icon-position 属性设置图标位置</k-text>
 				</view>
 				<view class="demo-content">
-					<k-collapse-item title="图标在左侧" icon-position="left" >
+					<k-collapse-item title="图标在左侧" icon-position="left" :expanded="leftIconExpanded" @change="onLeftIconChange">
 						<k-text>这个面板的图标位置在左侧。</k-text>
 					</k-collapse-item>
 					<view class="demo-gap"></view>
-					<k-collapse-item title="图标在右侧" icon-position="right">
+					<k-collapse-item title="图标在右侧" icon-position="right" :expanded="rightIconExpanded" @change="onRightIconChange">
 						<k-text>这个面板的图标位置在右侧（默认）。</k-text>
 					</k-collapse-item>
 				</view>
@@ -65,7 +65,7 @@
 					<k-text class="demo-desc" size="12" color="#999">通过 title 插槽自定义标题内容</k-text>
 				</view>
 				<view class="demo-content">
-					<k-collapse-item >
+					<k-collapse-item :expanded="customTitleExpanded" @change="onCustomTitleChange">
 						<template #title>
 							<k-cell title='自定义标题' label="测试标题" right-text="点击切换" custom-style="padding-right:0;">
 								<template #icon>
@@ -84,11 +84,15 @@
 					<k-text class="demo-desc" size="12" color="#999">同时只允许打开一个</k-text>
 				</view>
 				<view class="demo-content">
-					<k-collapse accordion @change="change">
-						<k-collapse-item v-for="item in collapseList" :name="item.name" :key="item.name" :expanded="item.expanded" :title="item.title">
+					<!-- accordion -->
+					<k-collapse @change="change" accordion>
+						<!-- @change="onCollapseChange(index, $event)" :name="item.name"-->
+						<k-collapse-item v-for="(item, index) in collapseList" :name="item.name" :key="item.name" :expanded="item.expanded" :title="item.title" @change="change">
 							<k-text>{{item.name}}{{item.content}}</k-text>
+							<button @click="delColl(index)">删除当前面板</button>
 						</k-collapse-item>
 					</k-collapse>
+					<!-- <button @click="add">添加一个</button> -->
 				</view>
 			</view>
 		</view>
@@ -100,6 +104,32 @@
 <script setup lang="uts">
 	import { ref } from 'vue'
 	let value = ref('1')
+	// 基础用法状态
+	const basicExpanded = ref(false)
+	const onBasicChange = (event : UTSJSONObject) => {
+		const expanded = event.detail.expanded
+		basicExpanded.value = expanded
+		console.log('基础面板状态:', expanded)
+	}
+
+	// 图标位置状态
+	const leftIconExpanded = ref(false)
+	const rightIconExpanded = ref(false)
+	const onLeftIconChange = (event : UTSJSONObject) => {
+		const expanded = event.detail?.expanded
+		leftIconExpanded.value = expanded
+	}
+	const onRightIconChange = (event : UTSJSONObject) => {
+		const expanded = event.detail?.expanded
+		rightIconExpanded.value = expanded
+	}
+
+	// 自定义标题状态
+	const customTitleExpanded = ref(false)
+	const onCustomTitleChange = (event : UTSJSONObject) => {
+		const expanded = event.detail?.expanded
+		customTitleExpanded.value = expanded
+	}
 
 	// 多个面板数据
 	type CollapseItem = {
@@ -135,6 +165,15 @@
 		console.log(`面板 ${index + 1} 状态:`, expanded)
 	}
 
+	// 动画时长状态
+	const fastExpanded = ref(false)
+	const slowExpanded = ref(false)
+	const onFastChange = (expanded : boolean) => {
+		fastExpanded.value = expanded
+	}
+	const onSlowChange = (expanded : boolean) => {
+		slowExpanded.value = expanded
+	}
 	const delColl = (index : number) => {
 		collapseList.value.splice(index, 1)
 	}

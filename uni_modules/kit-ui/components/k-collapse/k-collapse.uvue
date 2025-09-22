@@ -1,27 +1,21 @@
 <template>
 	<view>
-		{{model}}
 		<slot></slot>
 	</view>
 </template>
 
 <script setup lang="uts">
+	import { ItemChildType } from '../k-collapse-item/item.type.uts'
 	defineOptions({
 		name: "KCollapse"
 	})
 
 	const props = defineProps({
-		// 手风琴模式下的值 v-model
+		// 手风琴模式下的值 v-model , Array<string>
 		modelValue: {
-			type: [String, Number],
+			type: [String, Number, Array<string>],
+			// type: String,
 			default: ''
-		},
-		// 非手风琴下的值 v-model:list
-		list: {
-			type: Array as PropType<string[]>,
-			default: () : Array<string> => {
-				return []
-			}
 		},
 		// 是否开启手风琴模式
 		accordion: {
@@ -32,29 +26,11 @@
 
 	const emit = defineEmits<{
 		(e : 'update:modelValue', value : string) : void
-		(e : 'change', value : string) : void
-		(e : 'update:list', value : string[]) : void
-		(e : 'listChange', value : string[]) : void
+		(e : 'change', value : any) : void
 	}>()
 
-
-	const model = computed({
-		get: () => props.modelValue,
-		set: (value) => emit('update:modelValue', value)
-	})
-
-	const models = computed({
-		get: () => props.list,
-		set: (value) => emit('update:list', value)
-	})
-
-
-	provide('k-collapse', {
-		accordion: props.accordion
-	})
-
 	// 子组件实例
-	let childs : KCollapseItemComponentPublicInstance[] = []
+	let childs : ItemChildType[] = []
 	let childIndex = 0
 	/**
 	 * 子组件边框调整
@@ -62,7 +38,7 @@
 	function handleChild() {
 		if (childs.length > 0) {
 			// 先清空所有 border 属性
-			childs.forEach((item : KCollapseItemComponentPublicInstance) => {
+			childs.forEach((item : ItemChildType) => {
 				item.initBorderNull()
 			})
 			// 在设置最后一个border为false，避免border设置冲突
@@ -74,44 +50,56 @@
 	/**
 	 * 初始化子组件
 	 */
-	function registerItem(child : KCollapseItemComponentPublicInstance) : string {
+	function registerItem(child : ItemChildType) {
 		// 是否需要打开面板
 		const accordion = props.accordion
+
+		const modelVal = props.modelValue
+		let isArr = Array.isArray(props.modelValue)
 		// 手风琴模式下 ，v-model 必须为 number(索引) 或者  string (name)
 		if (accordion) {
-			let modelValue = model.value
-			if (modelValue != null) {
+			if (!isArr) {
 				// 如果name是空，则使用索引
 				if (child.name == '') {
-					if (typeof modelValue == 'number') {
-						if (modelValue == childIndex) {
-							child.isExpanded.value = true
+					if (typeof modelVal == 'number') {
+						if (modelVal == childIndex) {
+							child.isExpanded!.value = true
 							child.animateContent(true)
 						}
 					}
 				} else {
-					if (typeof modelValue == 'string') {
-						if (modelValue == child.name) {
-							child.isExpanded.value = true
+					if (typeof modelVal == 'string') {
+						if (modelVal == child.name) {
+							child.isExpanded!.value = true
 							child.animateContent(true)
 						}
 					}
 				}
 			}
 		} else {
-			let modelList = models.value
-			modelList.forEach((item : string) => {
-				if (item == child.name) {
-					child.isExpanded.value = true
-					child.animateContent(true)
-				}
-			})
+			// 非手风琴下，必须为数组
+			if (isArr) {
+				let modelList = modelVal as string[]
+				modelList.forEach((item : string) => {
+					if (item == child.name) {
+						child.isExpanded!.value = true
+						child.animateContent(true)
+					}
+				})
+			}
 		}
 
 		childs.push(child)
 		handleChild()
 		childIndex++
-		return ''
+	}
+
+	/**
+	 * 卸载组件
+	 */
+	function unregisterItem(elId : string) {
+		const index = childs.findIndex(item => item.elId == elId)
+		childs.splice(index, 1)
 	}
 
 	/**
@@ -121,7 +109,7 @@
 		const accordion = props.accordion
 		if (!accordion) return
 		// 为了节省性能，只需要查找已经打开的子组件，将其关闭
-		childs.forEach((child : KCollapseItemComponentPublicInstance) => {
+		childs.forEach((child : ItemChildType) => {
 			const isShow = child.isExpanded.value
 			// 如果打开了，需要关闭 ,如果点击的就是当前item，则不做操作，使用默认行为
 			if (isShow && child.elId != elId) {
@@ -131,12 +119,55 @@
 		})
 	}
 
+
+	type Params = {
+		name : string
+		index : number
+	}
+
+
+	/**
+	 * 面板返返回数据处理 ，
+	 * 因为类型原因，需要声明 UTSJSONObject ,无法明确具体属性
+	 */
+	function childChange(elId : string, value : any, name : string) {
+		const accordion = props.accordion
+		if (accordion) {
+			const index = childs.findIndex(v => v.elId == elId)
+			emit('change', {
+				detail: {
+					name: name,
+					index: index,
+					expanded: value
+				}
+
+			})
+		} else {
+			let arr : Params[] = []
+			childs.forEach((item : ItemChildType, index : number) => {
+				if (item.isExpanded.value) {
+					arr.push({
+						name: item.name,
+						index
+					})
+				}
+			})
+
+			emit('change', {
+				detail: arr
+			})
+		}
+	}
+
 	onMounted(() => {
-		console.log('model', model.value, typeof model.value);
+		// console.log('model', model.value, typeof model.value);
 	})
 
-	provide('k-collapse-child-init', registerItem)
+	provide('k-collapse-accordion', props.accordion)
+	provide('k-collapse-register-child', registerItem)
 	provide('k-collapse-child-toggle', toggle)
+	provide('k-collapse-unregister-child', unregisterItem)
+	provide('k-collapse-change', childChange)
 </script>
 
 <style>

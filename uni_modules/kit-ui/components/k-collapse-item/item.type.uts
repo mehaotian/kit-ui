@@ -1,0 +1,8 @@
+export type ItemChildType = {
+	initBorder : () => void
+	initBorderNull : () => void
+	animateContent : (show : boolean) => void
+	isExpanded : Ref<boolean>,
+	name : string
+	elId : string
+}
