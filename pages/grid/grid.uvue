@@ -167,13 +167,13 @@
 				<view class="demo-content">
 					<k-grid :column="3" square >
 						<k-grid-item>
-							<k-image src="https://picsum.photos/200/200?random=8" height="100px"/>
+							<k-image src="https://picsum.photos/200/200?random=8" width="100px" height="100px"/>
 						</k-grid-item>
 						<k-grid-item>
-							<k-image src="https://picsum.photos/200/200?random=7" height="100px"/>
+							<k-image src="https://picsum.photos/200/200?random=7" width="100px" height="100px"/>
 						</k-grid-item>
 						<k-grid-item>
-							<k-image src="https://picsum.photos/200/200?random=6" height="100px"/>
+							<k-image src="https://picsum.photos/200/200?random=6" width="100px" height="100px"/>
 						</k-grid-item>
 					</k-grid>
 				</view>

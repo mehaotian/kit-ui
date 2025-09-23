@@ -241,7 +241,6 @@
 				styles.push(`--k-${cssVar}: ${value}`)
 			}
 		}
-		console.log(styles.join('; '))
 		return styles.join('; ')
 	})
 

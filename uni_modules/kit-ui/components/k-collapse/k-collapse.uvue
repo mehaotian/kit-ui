@@ -125,7 +125,6 @@
 		index : number
 	}
 
-
 	/**
 	 * 面板返返回数据处理 ，
 	 * 因为类型原因，需要声明 UTSJSONObject ,无法明确具体属性
@@ -158,10 +157,6 @@
 			})
 		}
 	}
-
-	onMounted(() => {
-		// console.log('model', model.value, typeof model.value);
-	})
 
 	provide('k-collapse-accordion', props.accordion)
 	provide('k-collapse-register-child', registerItem)

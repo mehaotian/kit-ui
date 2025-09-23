@@ -16,6 +16,7 @@
 </template>
 
 <script setup lang="uts">
+	import { ItemChildType } from '../k-cell/item.type.uts'
 	// 组件属性类型定义
 	type KCellGroupProps = {
 		// 分组标题
@@ -50,7 +51,7 @@
 
 	provide('k-cell-group', cellGroupConfig)
 
-	let childs : KCellComponentPublicInstance[] = []
+	let childs : ItemChildType[] = []
 
 	// 计算分组容器类名
 	const groupClass = computed(() : string[] => {
@@ -91,13 +92,6 @@
 
 		return styles.join('; ')
 	})
-	
-	// const slots = useSlots()
-	// // 判断是否有标题插槽
-	// const hasExtraSlot = computed(() : boolean => {
-	// 	return slots['group-title'] != null
-	// })
-
 
 	function handleChild() {
 		if (childs.length > 0) {
@@ -111,25 +105,14 @@
 		}
 	}
 
-	function childInit(child : KCellComponentPublicInstance) : string {
+	function registerItem(child : ItemChildType) : string {
 		childs.push(child)
 		handleChild()
 		return ''
 	}
 
-	provide('k-cell-group-child-init', childInit)
+	provide('k-collapse-register-child', registerItem)
 
-	onMounted(() => {
-		// // #ifdef MP-WEIXIN
-		// handleChild()
-		// // #endif
-		// // #ifndef MP-WEIXIN
-		// setTimeout(() => handleChild(), 1000)
-		// // #endif
-	})
-	defineExpose({
-		childInit
-	})
 </script>
 
 <style lang="scss">
