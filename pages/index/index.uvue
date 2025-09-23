@@ -17,7 +17,7 @@
 					<view class="category-header">
 						<view class="category-icon">
 							<!-- <text class="icon-text">{{ category.icon }}</text> -->
-							<k-icon :name="category.icon" color="#000" :custom-style="`background-image: ${category.color}; border-radius: 10px; padding: 10px;border：1px red solid;`"></k-icon>
+							<k-icon :name="category.icon" color="#fff" :custom-style="`background-image: ${category.color}; border-radius: 10px; padding: 10px;border：1px red solid;`"></k-icon>
 						</view>
 						<view class="category-info">
 							<text class="category-title">{{ category.name }}</text>
@@ -33,9 +33,6 @@
 						<view v-for="(component, compIndex) in category.components" :key="compIndex" class="component-tag" :class="'status-' + component.status" @click="navigateToComponent(component)">
 							<text class="component-name">{{ component.name }}</text>
 						</view>
-						<!-- <view v-if="category.components.length > 6" class="more-components">
-							<text class="more-text">+{{ category.components.length - 6 }}</text>
-						</view> -->
 					</view>
 				</view>
 			</view>
@@ -67,7 +64,7 @@
 			name: '基础组件',
 			description: '构建界面的基础元素',
 			icon: 'ball-pen-fill',
-			color: 'linear-gradient(to bootom right, #667eea 0%, #764ba2 100%)',
+			color: 'linear-gradient(to bootom right, #667eea, #764ba2)',
 			count: 8,
 			path: '/pages/category/basic',
 			components: [
@@ -109,7 +106,7 @@
 			name: '表单组件',
 			description: '数据录入和交互组件',
 			icon: 'calendar-todo-line',
-			color: 'linear-gradient(to bootom right, #fa709a 0%, #fee140 100%)',
+			color: 'linear-gradient(to bootom right, #fa709a, #fee140)',
 			count: 12,
 			path: '/pages/category/form',
 			components: [
@@ -131,7 +128,7 @@
 			name: '反馈组件',
 			description: '用户操作反馈和提示',
 			icon: 'mail-line',
-			color: 'linear-gradient(to bootom right, #a8edea 0%, #fed6e3 100%)',
+			color: 'linear-gradient(to bootom right, #a8edea, #fed6e3)',
 			count: 8,
 			path: '/pages/category/feedback',
 			components: [
