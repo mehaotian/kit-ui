@@ -1,0 +1,898 @@
+---
+alwaysApply: true
+description: "kit-ui 样式系统和样式覆盖规范"
+---
+
+# kit-ui 样式系统和样式覆盖规范
+
+## 样式系统架构
+
+kit-ui 采用基于 CSS Variables 和 SCSS 变量的双重主题系统，支持动态主题切换和样式定制。
+
+### 1. 主题系统文件结构
+
+```text
+uni_modules/kit-ui/theme/
+├── index.scss              # 主题系统入口文件
+├── variables.scss          # SCSS 变量定义
+├── color-function.scss     # 颜色处理函数
+└── mixins.scss            # SCSS 混入函数
+```
+
+### 2. 主题变量层次结构
+
+```scss
+// 第一层：SCSS 变量（编译时确定）
+$k-color-primary: #6366f1 !default;
+
+// 第二层：CSS 变量（运行时可变）
+.kit-ui--root {
+    --k-color-primary: #{$k-color-primary};
+}
+
+// 第三层：组件使用
+.k-button {
+    background-color: var(--k-color-primary, #6366f1);
+}
+```
+
+## CSS 变量系统规范
+
+### 1. 变量命名规范
+
+```scss
+// 颜色变量
+--k-color-primary: #6366f1;
+--k-color-primary-light: #a5b4fc;
+--k-color-primary-dark: #4f46e5;
+
+// 功能色彩
+--k-color-success: #10b981;
+--k-color-warning: #f59e0b;
+--k-color-error: #ef4444;
+--k-color-info: #06b6d4;
+
+// 文本颜色
+--k-text-color-primary: #1f2937;
+--k-text-color-secondary: #4b5563;
+--k-text-color-tertiary: #6b7280;
+
+// 背景颜色
+--k-bg-color: #ffffff;
+--k-bg-color-page: #fafbfc;
+--k-bg-color-overlay: rgba(15, 23, 42, 0.6);
+
+// 边框颜色
+--k-border-color: #e5e7eb;
+--k-border-color-light: #f3f4f6;
+--k-border-color-dark: #d1d5db;
+
+// 间距系统
+--k-spacing-xs: 4px;
+--k-spacing-sm: 8px;
+--k-spacing-base: 12px;
+--k-spacing-md: 16px;
+--k-spacing-lg: 20px;
+--k-spacing-xl: 24px;
+
+// 圆角系统
+--k-border-radius-xs: 2px;
+--k-border-radius-sm: 4px;
+--k-border-radius-base: 6px;
+--k-border-radius-md: 8px;
+--k-border-radius-lg: 12px;
+
+// 字体大小
+--k-font-size-xs: 10px;
+--k-font-size-sm: 12px;
+--k-font-size-base: 14px;
+--k-font-size-md: 16px;
+--k-font-size-lg: 18px;
+
+// 组件尺寸
+--k-component-size-xs: 24px;
+--k-component-size-sm: 32px;
+--k-component-size-base: 40px;
+--k-component-size-md: 48px;
+--k-component-size-lg: 56px;
+
+// 阴影系统
+--k-box-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+--k-box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+--k-box-shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+// 动画系统
+--k-transition-duration-fast: 0.2s;
+--k-transition-duration-base: 0.3s;
+--k-transition-duration-slow: 0.5s;
+```
+
+### 2. 动态主题注入
+
+```typescript
+// 组件中动态注入主题变量
+const componentStyle = computed(() => {
+    const styles: string[] = []
+    
+    // 遍历主题配置，生成 CSS 变量
+    for (let key in themeConfig) {
+        const value = themeConfig[key]
+        if (key != 'mode' && value != null) {
+            // 将驼峰命名转换为 kebab-case
+            const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+            styles.push(`--k-${cssVar}: ${value}`)
+        }
+    }
+    
+    return styles.join('; ')
+})
+```
+
+### 3. 主题变量使用
+
+```scss
+// 组件样式使用 CSS 变量
+.k-button {
+    // 使用主题变量，提供回退值
+    background-color: var(--k-color-primary, #6366f1);
+    color: var(--k-text-color-inverse, #ffffff);
+    border-color: var(--k-color-primary, #6366f1);
+    
+    // 间距使用主题变量
+    padding: var(--k-spacing-base, 12px) var(--k-spacing-xl, 24px);
+    
+    // 圆角使用主题变量
+    border-radius: var(--k-border-radius-md, 8px);
+    
+    // 字体使用主题变量
+    font-size: var(--k-font-size-base, 14px);
+    
+    // 动画使用主题变量
+    transition: all var(--k-transition-duration-base, 0.3s) ease;
+}
+```
+
+## SCSS 变量系统规范
+
+### 1. 变量定义规范
+
+```scss
+// variables.scss
+
+/* ==================== 基础色彩系统 ==================== */
+
+/* 主色调 - 优雅紫蓝渐变系 */
+$k-color-primary: #6366f1 !default;
+$k-color-primary-light: #{smart-color-variant($k-color-primary, 'light')} !default;
+$k-color-primary-dark: #{smart-color-variant($k-color-primary, 'dark')} !default;
+$k-color-primary-active: #4f46e5 !default;
+$k-color-primary-bg: rgba($k-color-primary, 0.1) !default;
+
+/* 功能色彩 - 自然呼吸色系 */
+$k-color-success: #10b981 !default;
+$k-color-success-light: #{smart-color-variant($k-color-success, 'light')} !default;
+$k-color-success-dark: #{smart-color-variant($k-color-success, 'dark')} !default;
+$k-color-success-active: #047857 !default;
+$k-color-success-bg: rgba($k-color-success, 0.1) !default;
+
+/* 灰度色阶 */
+$k-color-gray-50: #fafbfc !default;
+$k-color-gray-100: #f7f8fa !default;
+$k-color-gray-200: #f1f3f5 !default;
+$k-color-gray-300: #e9ecef !default;
+$k-color-gray-400: #ced4da !default;
+$k-color-gray-500: #adb5bd !default;
+$k-color-gray-600: #6c757d !default;
+$k-color-gray-700: #495057 !default;
+$k-color-gray-800: #343a40 !default;
+$k-color-gray-900: #212529 !default;
+
+/* ==================== 语义化颜色 ==================== */
+
+/* 文本颜色 - 层次分明的阅读体验 */
+$k-text-color-primary: #1f2937 !default;
+$k-text-color-secondary: #4b5563 !default;
+$k-text-color-tertiary: #6b7280 !default;
+$k-text-color-quaternary: #9ca3af !default;
+$k-text-color-inverse: #ffffff !default;
+$k-text-color-placeholder: #d1d5db !default;
+$k-text-color-disabled: #d1d5db !default;
+
+/* 背景颜色 - 简约留白设计 */
+$k-bg-color: #ffffff !default;
+$k-bg-color-page: #fafbfc !default;
+$k-bg-color-overlay: rgba(15, 23, 42, 0.6) !default;
+$k-bg-color-mask: rgba(15, 23, 42, 0.3) !default;
+$k-bg-color-disabled: #f8fafc !default;
+$k-bg-color-hover: rgba(99, 102, 241, 0.04) !default;
+$k-bg-color-active: rgba(99, 102, 241, 0.08) !default;
+
+/* ==================== 尺寸系统 ==================== */
+
+/* 字体大小 */
+$k-font-size-xs: 10px !default;
+$k-font-size-sm: 12px !default;
+$k-font-size-base: 14px !default;
+$k-font-size-md: 16px !default;
+$k-font-size-lg: 18px !default;
+$k-font-size-xl: 20px !default;
+$k-font-size-xxl: 24px !default;
+
+/* 间距系统 */
+$k-spacing-xs: 4px !default;
+$k-spacing-sm: 8px !default;
+$k-spacing-base: 12px !default;
+$k-spacing-md: 16px !default;
+$k-spacing-lg: 20px !default;
+$k-spacing-xl: 24px !default;
+$k-spacing-xxl: 32px !default;
+
+/* 圆角 */
+$k-border-radius-xs: 2px !default;
+$k-border-radius-sm: 4px !default;
+$k-border-radius-base: 6px !default;
+$k-border-radius-md: 8px !default;
+$k-border-radius-lg: 12px !default;
+$k-border-radius-xl: 16px !default;
+$k-border-radius-round: 50% !default;
+$k-border-radius-circle: 50% !default;
+
+/* ==================== 组件尺寸 ==================== */
+
+/* 组件高度 */
+$k-component-size-xs: 24px !default;
+$k-component-size-sm: 32px !default;
+$k-component-size-base: 40px !default;
+$k-component-size-md: 48px !default;
+$k-component-size-lg: 56px !default;
+$k-component-size-xl: 64px !default;
+```
+
+### 2. 颜色处理函数
+
+```scss
+// color-function.scss
+
+/**
+ * 智能颜色变体生成函数
+ * @param $color 基础颜色
+ * @param $variant 变体类型：light, dark
+ */
+@function smart-color-variant($color, $variant: 'light') {
+    @if $variant == 'light' {
+        @return lighten($color, 20%);
+    } @else if $variant == 'dark' {
+        @return darken($color, 15%);
+    }
+    @return $color;
+}
+
+/**
+ * 颜色透明度处理
+ * @param $color 基础颜色
+ * @param $opacity 透明度 (0-1)
+ */
+@function color-with-opacity($color, $opacity) {
+    @return rgba($color, $opacity);
+}
+
+/**
+ * 对比色计算
+ * @param $color 基础颜色
+ */
+@function contrast-color($color) {
+    $lightness: lightness($color);
+    @if $lightness > 50% {
+        @return #000000;
+    } @else {
+        @return #ffffff;
+    }
+}
+```
+
+### 3. SCSS 混入函数
+
+```scss
+// mixins.scss
+
+/**
+ * 清除浮动
+ */
+@mixin clearfix {
+    &::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+
+/**
+ * 文本省略
+ * @param $lines 行数
+ */
+@mixin text-ellipsis($lines: 1) {
+    @if $lines == 1 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    } @else {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: $lines;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/**
+ * 居中布局
+ * @param $direction 方向：horizontal, vertical, both
+ */
+@mixin center($direction: both) {
+    @if $direction == horizontal {
+        display: flex;
+        justify-content: center;
+    } @else if $direction == vertical {
+        display: flex;
+        align-items: center;
+    } @else if $direction == both {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+/**
+ * 响应式断点
+ * @param $breakpoint 断点名称
+ */
+@mixin respond-to($breakpoint) {
+    @if $breakpoint == mobile {
+        @media (max-width: 767px) {
+            @content;
+        }
+    } @else if $breakpoint == tablet {
+        @media (min-width: 768px) and (max-width: 1023px) {
+            @content;
+        }
+    } @else if $breakpoint == desktop {
+        @media (min-width: 1024px) {
+            @content;
+        }
+    }
+}
+```
+
+## 组件样式规范
+
+### 1. 组件样式结构
+
+```scss
+// 组件基础样式
+.k-component-name {
+    // 基础布局
+    display: flex;
+    position: relative;
+    box-sizing: border-box;
+    
+    // 使用主题变量
+    background-color: var(--k-bg-color, #ffffff);
+    color: var(--k-text-color-primary, #1f2937);
+    border: var(--k-border-width-base, 1px) solid var(--k-border-color, #e5e7eb);
+    border-radius: var(--k-border-radius-md, 8px);
+    
+    // 间距
+    padding: var(--k-spacing-base, 12px);
+    margin: var(--k-spacing-xs, 4px);
+    
+    // 字体
+    font-size: var(--k-font-size-base, 14px);
+    font-weight: var(--k-font-weight-normal, 400);
+    line-height: var(--k-line-height-base, 1.5);
+    
+    // 动画
+    transition: all var(--k-transition-duration-base, 0.3s) ease;
+    
+    // 状态样式
+    &--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+    
+    &--loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    // 尺寸变体
+    &--small {
+        padding: var(--k-spacing-xs, 4px) var(--k-spacing-sm, 8px);
+        font-size: var(--k-font-size-sm, 12px);
+    }
+    
+    &--medium {
+        // 默认尺寸
+    }
+    
+    &--large {
+        padding: var(--k-spacing-sm, 8px) var(--k-spacing-lg, 20px);
+        font-size: var(--k-font-size-lg, 18px);
+    }
+    
+    // 类型变体
+    &--primary {
+        background-color: var(--k-color-primary, #6366f1);
+        color: var(--k-text-color-inverse, #ffffff);
+        border-color: var(--k-color-primary, #6366f1);
+    }
+    
+    &--success {
+        background-color: var(--k-color-success, #10b981);
+        color: var(--k-text-color-inverse, #ffffff);
+        border-color: var(--k-color-success, #10b981);
+    }
+    
+    // 子元素样式
+    &__element {
+        // 子元素基础样式
+        
+        &--modifier {
+            // 子元素修饰符样式
+        }
+    }
+}
+```
+
+### 2. 交互状态样式
+
+```scss
+.k-component-name {
+    // 可点击状态
+    &--clickable {
+        cursor: pointer;
+        
+        &:hover {
+            background-color: var(--k-bg-color-hover, #f9fafb);
+        }
+        
+        &:active {
+            background-color: var(--k-bg-color-active, #f3f4f6);
+            transform: scale(0.98);
+        }
+    }
+    
+    // 按下状态（uni-app x 使用 hover-class）
+    &--active {
+        background-color: var(--k-bg-color-active, #f3f4f6);
+        transform: scale(0.98);
+    }
+    
+    // 焦点状态
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--k-color-primary, #6366f1);
+    }
+}
+```
+
+### 3. 动画样式
+
+```scss
+.k-component-name {
+    // 基础动画
+    transition: all var(--k-transition-duration-base, 0.3s) ease;
+    
+    // 悬停动画
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--k-box-shadow-md, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+    }
+    
+    // 加载动画
+    &--loading {
+        position: relative;
+        
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: k-loading-spin 1s linear infinite;
+        }
+    }
+}
+
+@keyframes k-loading-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+```
+
+## 样式覆盖规范
+
+### 1. 样式优先级管理
+
+```scss
+// 1. 基础样式（最低优先级）
+.k-button {
+    background-color: var(--k-color-primary, #6366f1);
+}
+
+// 2. 状态样式（中等优先级）
+.k-button--disabled {
+    background-color: var(--k-bg-color-disabled, #f8fafc);
+}
+
+// 3. 类型样式（高优先级）
+.k-button--primary {
+    background-color: var(--k-color-primary, #6366f1);
+}
+
+// 4. 组合样式（最高优先级）
+.k-button--primary.k-button--disabled {
+    background-color: var(--k-bg-color-disabled, #f8fafc);
+}
+```
+
+### 2. 自定义样式覆盖
+
+```vue
+<!-- 通过 customStyle 属性覆盖 -->
+<template>
+    <k-button 
+        custom-style="background-color: #ff6b6b; color: white;"
+        @click="handleClick"
+    >
+        自定义按钮
+    </k-button>
+</template>
+```
+
+```scss
+// 通过 CSS 类名覆盖
+.custom-button {
+    background-color: #ff6b6b !important;
+    color: white !important;
+    border-color: #ff6b6b !important;
+    
+    &:hover {
+        background-color: #ff5252 !important;
+    }
+}
+```
+
+### 3. 主题变量覆盖
+
+```typescript
+// 通过主题配置覆盖
+<template>
+    <k-config :theme="customTheme">
+        <k-button>使用自定义主题的按钮</k-button>
+    </k-config>
+</template>
+
+<script setup>
+const customTheme = {
+    colorPrimary: '#ff6b6b',
+    colorSuccess: '#4ecdc4',
+    spacingBase: '16px',
+    borderRadiusMd: '12px'
+}
+</script>
+```
+
+### 4. 全局样式覆盖
+
+```scss
+// 全局覆盖主题变量
+.kit-ui--root {
+    --k-color-primary: #ff6b6b;
+    --k-color-success: #4ecdc4;
+    --k-spacing-base: 16px;
+    --k-border-radius-md: 12px;
+}
+
+// 全局覆盖组件样式
+.k-button {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+```
+
+## 跨平台样式适配
+
+### 1. 条件编译样式
+
+```scss
+.k-component-name {
+    // 基础样式
+    
+    /* #ifdef WEB */
+    // Web 特有样式
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    
+    &:hover {
+        // 悬停效果
+        transform: translateY(-2px);
+    }
+    
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--k-color-primary, #6366f1);
+    }
+    /* #endif */
+    
+    /* #ifdef APP */
+    // App 特有样式
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    /* #endif */
+    
+    /* #ifdef MP-WEIXIN */
+    // 微信小程序特有样式
+    /* #endif */
+    
+    /* #ifdef H5 */
+    // H5 特有样式
+    /* #endif */
+}
+```
+
+### 2. 平台特定属性
+
+```scss
+.k-component-name {
+    // 通用属性
+    display: flex;
+    align-items: center;
+    
+    /* #ifdef WEB */
+    // Web 平台优化
+    will-change: transform;
+    backface-visibility: hidden;
+    /* #endif */
+    
+    /* #ifdef APP */
+    // App 平台优化
+    transform: translateZ(0);
+    /* #endif */
+}
+```
+
+### 3. 字体样式适配
+
+```scss
+.k-component-name {
+    /* #ifdef WEB */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* #endif */
+    
+    /* #ifdef APP */
+    font-family: 'PingFang SC', 'Helvetica Neue', Helvetica, sans-serif;
+    /* #endif */
+    
+    /* #ifdef MP-WEIXIN */
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
+    /* #endif */
+}
+```
+
+## 暗色主题适配
+
+### 1. 暗色主题变量
+
+```scss
+// 暗色主题变量定义
+.k-theme-dark {
+    // 文本颜色
+    --k-text-color-primary: #f8fafc;
+    --k-text-color-secondary: #e2e8f0;
+    --k-text-color-tertiary: #cbd5e1;
+    --k-text-color-quaternary: #94a3b8;
+    
+    // 背景颜色
+    --k-bg-color: #0f172a;
+    --k-bg-color-page: #020617;
+    --k-bg-color-overlay: rgba(15, 23, 42, 0.9);
+    --k-bg-color-mask: rgba(15, 23, 42, 0.6);
+    --k-bg-color-disabled: #1e293b;
+    --k-bg-color-hover: rgba(99, 102, 241, 0.1);
+    --k-bg-color-active: rgba(99, 102, 241, 0.15);
+    
+    // 边框颜色
+    --k-border-color: #334155;
+    --k-border-color-light: #1e293b;
+    --k-border-color-lighter: #0f172a;
+    --k-border-color-dark: #475569;
+    --k-border-color-darker: #64748b;
+    
+    // 暗色主题阴影
+    --k-shadow-neumorphism-raised: 6px 6px 12px rgba(2, 6, 23, 0.8), -6px -6px 12px rgba(30, 41, 59, 0.3);
+    --k-shadow-neumorphism-inset: inset 6px 6px 12px rgba(2, 6, 23, 0.8), inset -6px -6px 12px rgba(30, 41, 59, 0.3);
+    --k-shadow-neumorphism-flat: 3px 3px 6px rgba(2, 6, 23, 0.6), -3px -3px 6px rgba(30, 41, 59, 0.2);
+}
+```
+
+### 2. 组件暗色主题适配
+
+```scss
+.k-component-name {
+    // 基础样式使用 CSS 变量，自动适配暗色主题
+    background-color: var(--k-bg-color, #ffffff);
+    color: var(--k-text-color-primary, #1f2937);
+    border-color: var(--k-border-color, #e5e7eb);
+    
+    // 暗色主题特定样式
+    .k-theme-dark & {
+        // 暗色主题下的特殊处理
+        box-shadow: var(--k-shadow-neumorphism-flat);
+    }
+}
+```
+
+### 3. 主题切换实现
+
+```typescript
+// 主题切换逻辑
+const toggleTheme = () => {
+    const root = document.documentElement
+    if (root.classList.contains('k-theme-dark')) {
+        root.classList.remove('k-theme-dark')
+        localStorage.setItem('theme', 'light')
+    } else {
+        root.classList.add('k-theme-dark')
+        localStorage.setItem('theme', 'dark')
+    }
+}
+
+// 初始化主题
+const initTheme = () => {
+    const savedTheme = localStorage.getItem('theme')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('k-theme-dark')
+    }
+}
+```
+
+## 样式性能优化
+
+### 1. CSS 变量优化
+
+```scss
+// 避免频繁的 CSS 变量计算
+.k-component-name {
+    // 好的做法：使用预定义的变量
+    background-color: var(--k-color-primary);
+    
+    // 避免的做法：复杂计算
+    // background-color: calc(var(--k-color-primary) + 10%);
+}
+
+// 使用 transform 而不是改变布局属性
+.k-component-name {
+    transition: transform var(--k-transition-duration-base) ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        // 避免：margin-top: -2px;
+    }
+}
+```
+
+### 2. 选择器优化
+
+```scss
+// 避免深层嵌套选择器
+.k-component-name {
+    // 好的做法：扁平化选择器
+    &__element {
+        // 样式
+    }
+    
+    &__element--modifier {
+        // 样式
+    }
+    
+    // 避免的做法：深层嵌套
+    // &__element {
+    //     &__sub-element {
+    //         &__deep-element {
+    //             // 样式
+    //         }
+    //     }
+    // }
+}
+```
+
+### 3. 动画性能优化
+
+```scss
+// 使用 transform 和 opacity 进行动画
+.k-component-name {
+    // 好的做法：使用 GPU 加速属性
+    transition: transform var(--k-transition-duration-base) ease,
+                opacity var(--k-transition-duration-base) ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        opacity: 0.8;
+    }
+    
+    // 避免的做法：改变布局属性
+    // &:hover {
+    //     margin-top: -2px;
+    //     height: 50px;
+    // }
+}
+```
+
+## 样式调试和维护
+
+### 1. 样式调试工具
+
+```scss
+// 开发环境样式调试
+.k-component-name {
+    // 开发环境边框调试
+    /* #ifdef DEV */
+    outline: 1px solid red;
+    /* #endif */
+    
+    // 开发环境背景调试
+    /* #ifdef DEV */
+    background-color: rgba(255, 0, 0, 0.1);
+    /* #endif */
+}
+```
+
+### 2. 样式文档化
+
+```scss
+/**
+ * 按钮组件样式
+ * 
+ * @description 提供多种类型、尺寸和状态的按钮样式
+ * @variants type: primary, success, warning, error
+ * @variants size: small, medium, large
+ * @variants state: normal, disabled, loading
+ * @example
+ *   .k-button.k-button--primary.k-button--medium
+ */
+.k-button {
+    // 样式实现
+}
+```
+
+### 3. 样式测试
+
+```scss
+// 样式测试类
+.k-style-test {
+    // 测试颜色对比度
+    background-color: var(--k-color-primary);
+    color: var(--k-text-color-inverse);
+    
+    // 测试间距
+    padding: var(--k-spacing-base);
+    margin: var(--k-spacing-sm);
+    
+    // 测试圆角
+    border-radius: var(--k-border-radius-md);
+}
+```

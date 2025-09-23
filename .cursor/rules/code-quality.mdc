@@ -1,0 +1,901 @@
+---
+alwaysApply: true
+description: "kit-ui 代码质量规范"
+---
+
+# kit-ui 代码质量规范
+
+## 代码注释规范
+
+### 1. 文件级注释
+
+```typescript
+/**
+ * k-button 按钮组件
+ * 
+ * @description 提供多种类型、尺寸和状态的按钮组件，支持主题定制和事件处理
+ * @author kit-ui team
+ * @version 1.0.0
+ * @since 2024-01-01
+ * @example
+ *   <k-button type="primary" size="medium" @click="handleClick">
+ *     点击我
+ *   </k-button>
+ * 
+ * @features
+ *   - 多种按钮类型：primary, success, warning, error
+ *   - 多种尺寸：small, medium, large
+ *   - 状态支持：normal, disabled, loading
+ *   - 主题定制：支持 CSS 变量和主题配置
+ *   - 事件处理：click, focus, blur
+ * 
+ * @dependencies
+ *   - Vue 3 Composition API
+ *   - uni-app x 框架
+ *   - kit-ui 主题系统
+ */
+```
+
+### 2. 函数级注释
+
+```typescript
+/**
+ * 处理按钮点击事件
+ * 
+ * @description 处理按钮的点击逻辑，包括禁用状态检查、加载状态处理和事件触发
+ * @param event 点击事件对象
+ * @param options 处理选项
+ * @param options.preventDefault 是否阻止默认行为
+ * @param options.stopPropagation 是否阻止事件冒泡
+ * @returns void
+ * @throws {Error} 当组件状态异常时抛出错误
+ * @example
+ *   const handleClick = (event) => {
+ *     console.log('按钮被点击:', event)
+ *   }
+ * 
+ * @since 1.0.0
+ * @author kit-ui team
+ */
+const handleClick = (event: any, options?: { preventDefault?: boolean; stopPropagation?: boolean }): void => {
+    try {
+        // 检查禁用状态
+        if (props.disabled || props.loading) {
+            console.warn('按钮处于禁用或加载状态，忽略点击事件')
+            return
+        }
+
+        // 处理事件选项
+        if (options?.preventDefault) {
+            event.preventDefault()
+        }
+        if (options?.stopPropagation) {
+            event.stopPropagation()
+        }
+
+        // 触发点击事件
+        emit('click', event)
+        
+        console.log('按钮点击事件处理完成')
+    } catch (error) {
+        console.error('按钮点击事件处理失败:', error)
+        throw error
+    }
+}
+```
+
+### 3. 复杂逻辑注释
+
+```typescript
+// 计算按钮样式 - 根据主题配置和组件属性生成动态样式
+const buttonStyle = computed(() => {
+    const styles: string[] = []
+    
+    // 遍历主题配置，将驼峰命名转换为 kebab-case CSS 变量
+    // 例如：colorPrimary -> --k-color-primary
+    for (let key in themeConfig) {
+        const value = themeConfig[key]
+        // 跳过 mode 属性，因为它不是 CSS 变量
+        if (key != 'mode' && value != null) {
+            // 驼峰命名转 kebab-case 的正则替换
+            const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+            styles.push(`--k-${cssVar}: ${value}`)
+        }
+    }
+    
+    return styles.join('; ')
+})
+
+// 计算按下状态的类名 - 根据按钮属性优先级返回最具体的类名
+// 优先级：渐变 > 朴素 > 阴影 > 基础
+const hoverClass = computed(() => {
+    // 禁用或加载状态下不应用按下效果
+    if (props.disabled || props.loading) {
+        return ''
+    }
+
+    // 根据属性优先级返回对应的按下状态类名
+    if (props.gradient) {
+        return `k-button--gradient--${props.type}--active`
+    }
+    if (props.plain) {
+        return `k-button--plain--${props.type}--active`
+    }
+    if (props.shadow) {
+        return `k-button--shadow--${props.type}--active`
+    }
+    
+    // 基础按下状态
+    return `k-button--${props.type}--active`
+})
+```
+
+### 4. 组件属性注释
+
+```typescript
+// 组件属性定义 - 使用 TypeScript 接口确保类型安全
+interface ButtonProps {
+    /**
+     * 按钮类型
+     * @description 定义按钮的视觉样式和语义
+     * @default 'default'
+     * @example 'primary' | 'success' | 'warning' | 'error'
+     */
+    type?: 'default' | 'primary' | 'success' | 'warning' | 'error'
+    
+    /**
+     * 按钮尺寸
+     * @description 控制按钮的大小和间距
+     * @default 'medium'
+     * @example 'small' | 'medium' | 'large'
+     */
+    size?: 'small' | 'medium' | 'large'
+    
+    /**
+     * 按钮文字
+     * @description 按钮显示的文字内容
+     * @default ''
+     * @example '点击我'
+     */
+    text?: string
+    
+    /**
+     * 是否禁用
+     * @description 禁用状态下按钮不可点击
+     * @default false
+     */
+    disabled?: boolean
+    
+    /**
+     * 是否加载中
+     * @description 加载状态下显示加载动画并禁用点击
+     * @default false
+     */
+    loading?: boolean
+    
+    /**
+     * 是否朴素按钮
+     * @description 朴素按钮只有边框和文字，背景透明
+     * @default false
+     */
+    plain?: boolean
+    
+    /**
+     * 是否圆角按钮
+     * @description 圆角按钮使用更大的圆角半径
+     * @default false
+     */
+    round?: boolean
+    
+    /**
+     * 是否圆形按钮
+     * @description 圆形按钮宽高相等，适合图标按钮
+     * @default false
+     */
+    circle?: boolean
+    
+    /**
+     * 图标名称
+     * @description 按钮左侧显示的图标
+     * @default ''
+     * @example 'home' | 'user' | 'setting'
+     */
+    icon?: string
+    
+    /**
+     * 是否启用渐变背景
+     * @description 渐变按钮使用渐变色作为背景
+     * @default false
+     */
+    gradient?: boolean
+    
+    /**
+     * 是否启用阴影效果
+     * @description 阴影按钮添加阴影效果增强立体感
+     * @default false
+     */
+    shadow?: boolean
+    
+    /**
+     * 自定义样式
+     * @description 通过内联样式覆盖组件样式
+     * @default ''
+     * @example 'background-color: red; color: white;'
+     */
+    customStyle?: string
+}
+```
+
+## 类型定义规范
+
+### 1. 基础类型定义
+
+```typescript
+// 通用类型定义
+type SizeType = 'small' | 'medium' | 'large'
+type ColorType = 'primary' | 'success' | 'warning' | 'error' | 'info'
+type StatusType = 'normal' | 'disabled' | 'loading'
+
+// 事件类型定义
+interface BaseEvent {
+    target: any
+    currentTarget: any
+    timeStamp: number
+}
+
+interface ClickEvent extends BaseEvent {
+    type: 'click'
+    detail: {
+        x: number
+        y: number
+    }
+}
+
+interface ChangeEvent<T = any> extends BaseEvent {
+    type: 'change'
+    value: T
+    oldValue: T
+}
+
+// 组件配置类型
+interface ComponentConfig {
+    theme?: Record<string, any>
+    locale?: string
+    size?: SizeType
+    disabled?: boolean
+}
+```
+
+### 2. 复杂类型定义
+
+```typescript
+// 组件属性类型
+interface ComponentProps {
+    // 基础属性
+    size?: SizeType
+    type?: ColorType
+    status?: StatusType
+    
+    // 样式属性
+    customStyle?: string
+    className?: string
+    
+    // 功能属性
+    disabled?: boolean
+    loading?: boolean
+    clickable?: boolean
+    
+    // 数据属性
+    value?: any
+    defaultValue?: any
+    options?: OptionItem[]
+    
+    // 事件属性
+    onUpdate?: (value: any) => void
+    onChange?: (value: any, oldValue: any) => void
+}
+
+// 选项项类型
+interface OptionItem {
+    label: string
+    value: any
+    disabled?: boolean
+    children?: OptionItem[]
+}
+
+// 组件状态类型
+interface ComponentState {
+    isLoading: boolean
+    isVisible: boolean
+    isFocused: boolean
+    error: string | null
+    data: any[]
+}
+```
+
+### 3. 泛型类型定义
+
+```typescript
+// 通用响应类型
+interface ApiResponse<T = any> {
+    code: number
+    message: string
+    data: T
+    success: boolean
+}
+
+// 分页数据类型
+interface PaginationData<T = any> {
+    items: T[]
+    total: number
+    page: number
+    pageSize: number
+    hasMore: boolean
+}
+
+// 表单数据类型
+interface FormData<T = Record<string, any>> {
+    values: T
+    errors: Partial<Record<keyof T, string>>
+    touched: Partial<Record<keyof T, boolean>>
+    isValid: boolean
+}
+
+// 组件实例类型
+interface ComponentInstance<T = any> {
+    show: () => void
+    hide: () => void
+    update: (data: Partial<T>) => void
+    reset: () => void
+    destroy: () => void
+}
+```
+
+### 4. 工具类型定义
+
+```typescript
+// 深度只读类型
+type DeepReadonly<T> = {
+    readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P]
+}
+
+// 深度可选类型
+type DeepPartial<T> = {
+    [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
+}
+
+// 提取函数参数类型
+type ExtractFunctionArgs<T> = T extends (...args: infer U) => any ? U : never
+
+// 提取函数返回类型
+type ExtractFunctionReturn<T> = T extends (...args: any[]) => infer U ? U : never
+
+// 组件属性类型提取
+type ExtractComponentProps<T> = T extends { props: infer P } ? P : never
+
+// 组件事件类型提取
+type ExtractComponentEvents<T> = T extends { emits: infer E } ? E : never
+```
+
+## 错误处理规范
+
+### 1. 组件错误处理
+
+```typescript
+/**
+ * 安全的组件初始化
+ * @description 确保组件在异常情况下也能正常初始化
+ */
+const safeInitialize = async (): Promise<void> => {
+    try {
+        // 验证必要属性
+        if (!props.name && !slots.default) {
+            throw new Error('组件必须提供 name 属性或默认插槽内容')
+        }
+        
+        // 初始化数据
+        await initializeData()
+        
+        // 设置初始状态
+        isInitialized.value = true
+        
+        console.log('组件初始化成功')
+    } catch (error) {
+        console.error('组件初始化失败:', error)
+        
+        // 设置错误状态
+        errorState.value = {
+            message: error.message || '初始化失败',
+            code: 'INIT_ERROR',
+            timestamp: Date.now()
+        }
+        
+        // 触发错误事件
+        emit('error', error)
+        
+        // 显示错误提示
+        uni.showToast({
+            title: '组件加载失败',
+            icon: 'error',
+            duration: 2000
+        })
+    }
+}
+```
+
+### 2. 异步操作错误处理
+
+```typescript
+/**
+ * 安全的异步操作包装器
+ * @description 统一处理异步操作的错误和加载状态
+ */
+const safeAsyncOperation = async <T>(
+    operation: () => Promise<T>,
+    options?: {
+        loadingText?: string
+        errorText?: string
+        showLoading?: boolean
+        showError?: boolean
+    }
+): Promise<T | null> => {
+    const {
+        loadingText = '加载中...',
+        errorText = '操作失败',
+        showLoading = true,
+        showError = true
+    } = options || {}
+
+    try {
+        // 显示加载状态
+        if (showLoading) {
+            isLoading.value = true
+            uni.showLoading({ title: loadingText })
+        }
+
+        // 执行异步操作
+        const result = await operation()
+        
+        return result
+    } catch (error) {
+        console.error('异步操作失败:', error)
+        
+        // 设置错误状态
+        errorState.value = {
+            message: error.message || errorText,
+            code: 'ASYNC_ERROR',
+            timestamp: Date.now()
+        }
+        
+        // 显示错误提示
+        if (showError) {
+            uni.showToast({
+                title: error.message || errorText,
+                icon: 'error',
+                duration: 2000
+            })
+        }
+        
+        // 触发错误事件
+        emit('error', error)
+        
+        return null
+    } finally {
+        // 隐藏加载状态
+        if (showLoading) {
+            isLoading.value = false
+            uni.hideLoading()
+        }
+    }
+}
+```
+
+### 3. 参数验证
+
+```typescript
+/**
+ * 组件属性验证
+ * @description 验证组件属性的有效性和一致性
+ */
+const validateProps = (): ValidationResult => {
+    const errors: string[] = []
+    const warnings: string[] = []
+
+    // 验证必需属性
+    if (props.required && !props.value) {
+        errors.push('必需属性不能为空')
+    }
+
+    // 验证属性值范围
+    if (props.size && !['small', 'medium', 'large'].includes(props.size)) {
+        errors.push(`无效的尺寸值: ${props.size}`)
+    }
+
+    if (props.type && !['primary', 'success', 'warning', 'error'].includes(props.type)) {
+        errors.push(`无效的类型值: ${props.type}`)
+    }
+
+    // 验证属性组合
+    if (props.circle && props.text && props.text.length > 1) {
+        warnings.push('圆形按钮建议使用单个字符或图标')
+    }
+
+    if (props.gradient && props.plain) {
+        warnings.push('渐变和朴素属性不应同时使用')
+    }
+
+    // 验证自定义样式格式
+    if (props.customStyle) {
+        try {
+            // 简单的 CSS 格式验证
+            const cssRegex = /^[^{}]*{[^{}]*}$/
+            if (!cssRegex.test(props.customStyle)) {
+                errors.push('自定义样式格式不正确')
+            }
+        } catch (error) {
+            errors.push('自定义样式解析失败')
+        }
+    }
+
+    return {
+        isValid: errors.length === 0,
+        errors,
+        warnings
+    }
+}
+
+// 验证结果类型
+interface ValidationResult {
+    isValid: boolean
+    errors: string[]
+    warnings: string[]
+}
+```
+
+### 4. 边界情况处理
+
+```typescript
+/**
+ * 处理边界情况
+ * @description 处理组件可能遇到的各种边界情况
+ */
+const handleEdgeCases = (): void => {
+    // 处理数据为空的情况
+    if (!props.data || props.data.length === 0) {
+        console.warn('组件数据为空，显示空状态')
+        showEmptyState.value = true
+        return
+    }
+
+    // 处理数据过大的情况
+    if (props.data.length > 1000) {
+        console.warn('数据量过大，启用虚拟滚动')
+        enableVirtualScroll.value = true
+    }
+
+    // 处理屏幕尺寸过小的情况
+    const screenWidth = uni.getSystemInfoSync().screenWidth
+    if (screenWidth < 320) {
+        console.warn('屏幕尺寸过小，调整布局')
+        isSmallScreen.value = true
+    }
+
+    // 处理内存不足的情况
+    if (performance.memory && performance.memory.usedJSHeapSize > 50 * 1024 * 1024) {
+        console.warn('内存使用过高，清理缓存')
+        clearCache()
+    }
+}
+```
+
+## 性能优化规范
+
+### 1. 计算属性优化
+
+```typescript
+/**
+ * 优化的计算属性
+ * @description 避免不必要的重复计算，提高性能
+ */
+const optimizedComputed = computed(() => {
+    // 使用缓存避免重复计算
+    const cacheKey = `${props.size}-${props.type}-${props.disabled}`
+    
+    if (computedCache.has(cacheKey)) {
+        return computedCache.get(cacheKey)
+    }
+    
+    const result = {
+        classes: computeClasses(),
+        styles: computeStyles(),
+        attributes: computeAttributes()
+    }
+    
+    computedCache.set(cacheKey, result)
+    return result
+})
+
+// 计算属性缓存
+const computedCache = new Map<string, any>()
+
+// 清理缓存
+const clearComputedCache = (): void => {
+    computedCache.clear()
+}
+```
+
+### 2. 事件处理优化
+
+```typescript
+/**
+ * 防抖事件处理
+ * @description 避免频繁触发事件，提高性能
+ */
+const debouncedHandler = debounce((value: any) => {
+    emit('change', value)
+}, 300)
+
+/**
+ * 节流事件处理
+ * @description 限制事件触发频率，提高性能
+ */
+const throttledHandler = throttle((event: any) => {
+    handleScroll(event)
+}, 100)
+
+/**
+ * 批量事件处理
+ * @description 批量处理多个事件，减少渲染次数
+ */
+const batchEventHandler = (() => {
+    let batchQueue: any[] = []
+    let isProcessing = false
+    
+    return (event: any) => {
+        batchQueue.push(event)
+        
+        if (!isProcessing) {
+            isProcessing = true
+            nextTick(() => {
+                processBatchEvents(batchQueue)
+                batchQueue = []
+                isProcessing = false
+            })
+        }
+    }
+})()
+```
+
+### 3. 内存管理
+
+```typescript
+/**
+ * 内存管理工具
+ * @description 防止内存泄漏，及时清理资源
+ */
+class MemoryManager {
+    private timers: Set<number> = new Set()
+    private listeners: Map<string, Function[]> = new Map()
+    private observers: Set<IntersectionObserver> = new Set()
+
+    /**
+     * 注册定时器
+     */
+    registerTimer(timerId: number): void {
+        this.timers.add(timerId)
+    }
+
+    /**
+     * 注册事件监听器
+     */
+    registerListener(event: string, listener: Function): void {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, [])
+        }
+        this.listeners.get(event)!.push(listener)
+    }
+
+    /**
+     * 注册观察器
+     */
+    registerObserver(observer: IntersectionObserver): void {
+        this.observers.add(observer)
+    }
+
+    /**
+     * 清理所有资源
+     */
+    cleanup(): void {
+        // 清理定时器
+        this.timers.forEach(id => clearTimeout(id))
+        this.timers.clear()
+
+        // 清理事件监听器
+        this.listeners.clear()
+
+        // 清理观察器
+        this.observers.forEach(observer => observer.disconnect())
+        this.observers.clear()
+
+        console.log('内存资源已清理')
+    }
+}
+
+// 全局内存管理器实例
+const memoryManager = new MemoryManager()
+
+// 组件卸载时清理资源
+onBeforeUnmount(() => {
+    memoryManager.cleanup()
+})
+```
+
+## 代码组织规范
+
+### 1. 文件组织
+
+```typescript
+/**
+ * 组件文件组织规范
+ * 
+ * 1. 导入语句（按类型分组）
+ * 2. 类型定义
+ * 3. 组件配置
+ * 4. 响应式数据
+ * 5. 计算属性
+ * 6. 方法定义
+ * 7. 生命周期钩子
+ * 8. 暴露接口
+ */
+
+// 1. 导入语句
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { debounce, throttle } from '../utils/performance.uts'
+import type { ComponentProps, ComponentEvents } from './types.uts'
+
+// 2. 类型定义
+interface InternalState {
+    isLoading: boolean
+    error: string | null
+    data: any[]
+}
+
+// 3. 组件配置
+const props = defineProps<ComponentProps>()
+const emit = defineEmits<ComponentEvents>()
+
+// 4. 响应式数据
+const state = reactive<InternalState>({
+    isLoading: false,
+    error: null,
+    data: []
+})
+
+// 5. 计算属性
+const computedValue = computed(() => {
+    // 计算逻辑
+})
+
+// 6. 方法定义
+const handleEvent = (event: any) => {
+    // 处理逻辑
+}
+
+// 7. 生命周期钩子
+onMounted(() => {
+    // 初始化逻辑
+})
+
+onBeforeUnmount(() => {
+    // 清理逻辑
+})
+
+// 8. 暴露接口
+defineExpose({
+    // 暴露的方法和属性
+})
+```
+
+### 2. 命名规范
+
+```typescript
+/**
+ * 命名规范
+ * 
+ * 1. 变量命名：camelCase
+ * 2. 常量命名：UPPER_SNAKE_CASE
+ * 3. 函数命名：camelCase + 动词开头
+ * 4. 类命名：PascalCase
+ * 5. 接口命名：PascalCase + I 前缀（可选）
+ * 6. 类型命名：PascalCase + Type 后缀
+ * 7. 枚举命名：PascalCase + Enum 后缀
+ */
+
+// 变量命名
+const isLoading = ref(false)
+const userData = reactive({})
+const computedStyle = computed(() => {})
+
+// 常量命名
+const MAX_RETRY_COUNT = 3
+const DEFAULT_TIMEOUT = 5000
+const API_BASE_URL = 'https://api.example.com'
+
+// 函数命名
+const handleClick = () => {}
+const validateForm = () => {}
+const fetchUserData = async () => {}
+const clearCache = () => {}
+
+// 类命名
+class EventManager {}
+class ThemeProvider {}
+class ValidationService {}
+
+// 接口命名
+interface IComponentProps {}
+interface IUserData {}
+interface IApiResponse<T> {}
+
+// 类型命名
+type ButtonSizeType = 'small' | 'medium' | 'large'
+type ColorThemeType = 'light' | 'dark'
+type ComponentStateType = 'idle' | 'loading' | 'error'
+
+// 枚举命名
+enum ButtonTypeEnum {
+    Primary = 'primary',
+    Success = 'success',
+    Warning = 'warning',
+    Error = 'error'
+}
+```
+
+### 3. 代码分割
+
+```typescript
+/**
+ * 代码分割原则
+ * 
+ * 1. 按功能模块分割
+ * 2. 按复杂度分割
+ * 3. 按复用性分割
+ * 4. 按依赖关系分割
+ */
+
+// 工具函数分离
+// utils/validation.uts
+export const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+}
+
+export const validatePhone = (phone: string): boolean => {
+    const phoneRegex = /^1[3-9]\d{9}$/
+    return phoneRegex.test(phone)
+}
+
+// 常量分离
+// constants/button.uts
+export const BUTTON_TYPES = ['primary', 'success', 'warning', 'error'] as const
+export const BUTTON_SIZES = ['small', 'medium', 'large'] as const
+export const BUTTON_STATES = ['normal', 'disabled', 'loading'] as const
+
+// 类型定义分离
+// types/component.uts
+export interface BaseComponentProps {
+    size?: 'small' | 'medium' | 'large'
+    disabled?: boolean
+    customStyle?: string
+}
+
+export interface BaseComponentEvents {
+    click: [event: any]
+    change: [value: any]
+}
+
+// 主组件文件
+import { validateEmail, validatePhone } from '../utils/validation.uts'
+import { BUTTON_TYPES, BUTTON_SIZES } from '../constants/button.uts'
+import type { BaseComponentProps, BaseComponentEvents } from '../types/component.uts'
+```

@@ -1,0 +1,670 @@
+---
+alwaysApply: true
+description: "kit-ui 演示页面代码架构组织规范"
+---
+
+# kit-ui 演示页面代码架构组织规范
+
+## 演示页面目录结构
+
+### 1. 页面文件组织
+
+演示页面应遵循以下目录结构：
+
+```base
+pages/
+├── [component-name]/
+│   ├── [component-name].uvue          # 演示页面主文件
+│   └── components/                    # 页面专用组件（可选）
+│       ├── demo-item.uvue
+│       └── demo-section.uvue
+├── index/
+│   └── index.uvue                     # 首页组件列表
+└── config/
+    └── config.uvue                    # 配置演示页面
+```
+
+### 2. 页面命名规范
+
+- 页面目录名：`[component-name]`
+- 主文件：`[component-name].uvue`
+- 页面标题：`k-[component-name] [组件名称]组件`
+
+## 演示页面代码架构
+
+### 1. 页面文件结构模板
+
+```vue
+<template>
+    <!-- #ifdef APP -->
+    <scroll-view style="flex:1">
+    <!-- #endif -->
+        <view class="page">
+            <!-- 页面头部 -->
+            <view class="page-header">
+                <k-text size="24" weight="bold" align="center">k-[component-name] [组件名称]组件</k-text>
+                <k-text class="page-desc" size="14" align="center">组件功能描述</k-text>
+            </view>
+
+            <!-- 基础用法 -->
+            <view class="section">
+                <view class="section-title">
+                    <k-text size="16">基础用法</k-text>
+                    <k-text size="12" color="#999">最简单的用法</k-text>
+                </view>
+                <view class="demo-content">
+                    <!-- 演示内容 -->
+                </view>
+            </view>
+
+            <!-- 更多演示区块 -->
+            <!-- ... -->
+        </view>
+    <!-- #ifdef APP -->
+    </scroll-view>
+    <!-- #endif -->
+</template>
+
+<script setup>
+import { ref, reactive, computed } from 'vue'
+
+/**
+ * k-[component-name] 组件演示页面
+ * 
+ * @description 展示组件的各种用法和配置选项
+ * @author 作者名
+ * @version 1.0.0
+ */
+
+// 响应式数据
+const demoData = reactive({
+    // 演示数据
+})
+
+const isLoading = ref(false)
+
+// 计算属性
+const computedValue = computed(() => {
+    // 计算逻辑
+})
+
+// 事件处理函数
+const handleEvent = (event: any) => {
+    console.log('事件触发:', event)
+    uni.showToast({
+        title: '事件已触发',
+        icon: 'none',
+        duration: 1500
+    })
+}
+
+// 演示函数
+const runDemo = () => {
+    // 演示逻辑
+}
+</script>
+
+<style lang="scss">
+// 页面样式
+.page {
+    padding: 16px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+}
+
+.page-header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.page-desc {
+    margin-top: 8px;
+    color: #666;
+}
+
+.section {
+    margin-bottom: 32px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.section-title {
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.demo-content {
+    padding: 16px;
+}
+</style>
+```
+
+### 2. 演示区块组织规范
+
+```vue
+<!-- 基础用法演示 -->
+<view class="section">
+    <view class="section-title">
+        <k-text size="16">基础用法</k-text>
+        <k-text size="12" color="#999">最简单的用法</k-text>
+    </view>
+    <view class="demo-content">
+        <k-[component-name] prop1="value1" @event="handleEvent">
+            基础内容
+        </k-[component-name]>
+    </view>
+</view>
+
+<!-- 属性变体演示 -->
+<view class="section">
+    <view class="section-title">
+        <k-text size="16">属性变体</k-text>
+        <k-text size="12" color="#999">不同属性的效果</k-text>
+    </view>
+    <view class="demo-content">
+        <view class="demo-row">
+            <k-[component-name] type="primary" class="demo-item">主要</k-[component-name]>
+            <k-[component-name] type="success" class="demo-item">成功</k-[component-name]>
+            <k-[component-name] type="warning" class="demo-item">警告</k-[component-name]>
+        </view>
+    </view>
+</view>
+
+<!-- 尺寸变体演示 -->
+<view class="section">
+    <view class="section-title">
+        <k-text size="16">尺寸变体</k-text>
+        <k-text size="12" color="#999">不同尺寸的效果</k-text>
+    </view>
+    <view class="demo-content">
+        <view class="demo-column">
+            <k-[component-name] size="small" class="demo-item">小尺寸</k-[component-name]>
+            <k-[component-name] size="medium" class="demo-item">中等尺寸</k-[component-name]>
+            <k-[component-name] size="large" class="demo-item">大尺寸</k-[component-name]>
+        </view>
+    </view>
+</view>
+
+<!-- 状态演示 -->
+<view class="section">
+    <view class="section-title">
+        <k-text size="16">状态演示</k-text>
+        <k-text size="12" color="#999">不同状态的效果</k-text>
+    </view>
+    <view class="demo-content">
+        <view class="demo-column">
+            <k-[component-name] disabled class="demo-item">禁用状态</k-[component-name]>
+            <k-[component-name] loading class="demo-item">加载状态</k-[component-name]>
+        </view>
+    </view>
+</view>
+
+<!-- 复杂用法演示 -->
+<view class="section">
+    <view class="section-title">
+        <k-text size="16">复杂用法</k-text>
+        <k-text size="12" color="#999">实际应用场景</k-text>
+    </view>
+    <view class="demo-content">
+        <!-- 复杂演示内容 -->
+    </view>
+</view>
+```
+
+## 演示页面样式规范
+
+### 1. 布局样式
+
+```scss
+// 页面容器
+.page {
+    padding: 16px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    
+    /* #ifdef APP */
+    // App 平台特有样式
+    /* #endif */
+}
+
+// 页面头部
+.page-header {
+    margin-bottom: 24px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.page-desc {
+    margin-top: 8px;
+    color: #666;
+    opacity: 0.8;
+}
+
+// 演示区块
+.section {
+    margin-bottom: 32px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fafafa;
+}
+
+.demo-content {
+    padding: 20px;
+    background-color: #fff;
+}
+```
+
+### 2. 演示布局样式
+
+```scss
+// 行布局
+.demo-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+// 列布局
+.demo-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+// 网格布局
+.demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+// 演示项目
+.demo-item {
+    margin: 8px;
+    margin-right: 12px;
+    margin-bottom: 12px;
+}
+
+// 演示卡片
+.demo-card {
+    margin: 8px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+```
+
+### 3. 交互样式
+
+```scss
+// 可点击演示项目
+.demo-clickable {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+// 演示按钮样式
+.demo-btn {
+    margin: 8px 12px 8px 0;
+    min-width: 80px;
+}
+
+// 演示输入框样式
+.demo-input {
+    margin: 8px 0;
+    width: 100%;
+    max-width: 300px;
+}
+```
+
+## 演示数据管理规范
+
+### 1. 静态演示数据
+
+```typescript
+// 演示数据定义
+const demoData = reactive({
+    // 基础数据
+    basicItems: [
+        { id: 1, name: '项目1', status: 'active' },
+        { id: 2, name: '项目2', status: 'inactive' },
+        { id: 3, name: '项目3', status: 'pending' }
+    ],
+    
+    // 配置选项
+    options: {
+        size: ['small', 'medium', 'large'],
+        type: ['primary', 'success', 'warning', 'error'],
+        status: ['normal', 'disabled', 'loading']
+    },
+    
+    // 当前选中的配置
+    currentConfig: {
+        size: 'medium',
+        type: 'primary',
+        status: 'normal'
+    }
+})
+
+// 计算属性
+const currentItem = computed(() => {
+    return demoData.basicItems.find(item => item.status === 'active')
+})
+```
+
+### 2. 动态演示数据
+
+```typescript
+// 动态数据状态
+const dynamicState = reactive({
+    isLoading: false,
+    error: null,
+    data: []
+})
+
+// 异步加载演示数据
+const loadDemoData = async () => {
+    try {
+        dynamicState.isLoading = true
+        dynamicState.error = null
+        
+        // 模拟异步加载
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        dynamicState.data = [
+            { id: 1, title: '动态数据1', content: '这是动态加载的数据' },
+            { id: 2, title: '动态数据2', content: '这是动态加载的数据' }
+        ]
+    } catch (error) {
+        dynamicState.error = error.message
+        console.error('加载数据失败:', error)
+    } finally {
+        dynamicState.isLoading = false
+    }
+}
+
+// 页面加载时获取数据
+onMounted(() => {
+    loadDemoData()
+})
+```
+
+## 事件处理规范
+
+### 1. 基础事件处理
+
+```typescript
+// 点击事件处理
+const handleClick = (type: string, data?: any) => {
+    console.log('点击事件:', type, data)
+    
+    uni.showToast({
+        title: `点击了${type}`,
+        icon: 'none',
+        duration: 1500
+    })
+}
+
+// 表单事件处理
+const handleInput = (value: any) => {
+    console.log('输入值:', value)
+}
+
+const handleSubmit = (formData: any) => {
+    console.log('提交数据:', formData)
+    
+    uni.showModal({
+        title: '提交成功',
+        content: '数据已提交',
+        showCancel: false
+    })
+}
+```
+
+### 2. 复杂事件处理
+
+```typescript
+// 状态切换处理
+const toggleState = (item: any) => {
+    const index = demoData.basicItems.findIndex(i => i.id === item.id)
+    if (index !== -1) {
+        const currentStatus = demoData.basicItems[index].status
+        demoData.basicItems[index].status = 
+            currentStatus === 'active' ? 'inactive' : 'active'
+    }
+}
+
+// 批量操作处理
+const batchOperation = (operation: string, items: any[]) => {
+    console.log('批量操作:', operation, items)
+    
+    switch (operation) {
+        case 'delete':
+            // 删除操作
+            break
+        case 'update':
+            // 更新操作
+            break
+        default:
+            console.warn('未知操作:', operation)
+    }
+}
+```
+
+### 3. 错误处理
+
+```typescript
+// 错误处理函数
+const handleError = (error: any, context?: string) => {
+    console.error('演示页面错误:', context, error)
+    
+    uni.showToast({
+        title: '操作失败',
+        icon: 'error',
+        duration: 2000
+    })
+}
+
+// 异步操作错误处理
+const safeAsyncOperation = async (operation: () => Promise<any>) => {
+    try {
+        return await operation()
+    } catch (error) {
+        handleError(error, '异步操作')
+        return null
+    }
+}
+```
+
+## 演示页面注释规范
+
+### 1. 页面级注释
+
+```vue
+<!--
+/**
+ * k-[component-name] 组件演示页面
+ * 
+ * @description 展示 k-[component-name] 组件的各种用法和配置选项
+ * @features 基础用法、属性变体、尺寸变体、状态演示、复杂用法
+ * @author 作者名
+ * @version 1.0.0
+ * @since 2024-01-01
+ */
+-->
+```
+
+### 2. 区块注释
+
+```vue
+<!-- 
+基础用法演示
+展示组件的最简单用法，包含必要的属性
+-->
+<view class="section">
+    <!-- 区块内容 -->
+</view>
+
+<!-- 
+属性变体演示
+展示不同属性值的视觉效果
+-->
+<view class="section">
+    <!-- 区块内容 -->
+</view>
+```
+
+### 3. 代码注释
+
+```typescript
+/**
+ * 处理演示数据更新
+ * @param item 要更新的数据项
+ * @param updates 更新的字段
+ */
+const updateDemoItem = (item: any, updates: Partial<any>) => {
+    Object.assign(item, updates)
+    console.log('数据已更新:', item)
+}
+
+/**
+ * 重置演示数据到初始状态
+ */
+const resetDemoData = () => {
+    // 重置逻辑
+    console.log('演示数据已重置')
+}
+```
+
+## 性能优化规范
+
+### 1. 数据优化
+
+```typescript
+// 使用 computed 缓存计算结果
+const filteredItems = computed(() => {
+    return demoData.basicItems.filter(item => 
+        item.status === demoData.currentConfig.status
+    )
+})
+
+// 使用 shallowRef 优化大对象
+const largeData = shallowRef({})
+
+// 避免不必要的响应式
+const staticData = markRaw({
+    // 静态数据
+})
+```
+
+### 2. 渲染优化
+
+```vue
+<!-- 使用 v-memo 优化列表渲染 -->
+<view v-for="item in filteredItems" :key="item.id" v-memo="[item.id, item.status]">
+    <!-- 列表项内容 -->
+</view>
+
+<!-- 使用 v-once 优化静态内容 -->
+<view v-once class="static-content">
+    <!-- 静态内容 -->
+</view>
+```
+
+### 3. 事件优化
+
+```typescript
+// 使用防抖优化频繁事件
+import { debounce } from '../utils/debounce.uts'
+
+const debouncedSearch = debounce((query: string) => {
+    // 搜索逻辑
+}, 300)
+
+// 使用节流优化滚动事件
+import { throttle } from '../utils/throttle.uts'
+
+const throttledScroll = throttle((event: any) => {
+    // 滚动逻辑
+}, 100)
+```
+
+## 跨平台兼容规范
+
+### 1. 条件编译
+
+```vue
+<template>
+    <!-- #ifdef APP -->
+    <scroll-view style="flex:1">
+    <!-- #endif -->
+        <!-- 页面内容 -->
+    <!-- #ifdef APP -->
+    </scroll-view>
+    <!-- #endif -->
+</template>
+```
+
+### 2. 平台特定样式
+
+```scss
+.demo-content {
+    /* 通用样式 */
+    
+    /* #ifdef WEB */
+    // Web 特有样式
+    cursor: pointer;
+    user-select: none;
+    /* #endif */
+    
+    /* #ifdef APP */
+    // App 特有样式
+    /* #endif */
+    
+    /* #ifdef MP-WEIXIN */
+    // 微信小程序特有样式
+    /* #endif */
+}
+```
+
+### 3. 平台特定逻辑
+
+```typescript
+// 平台检测
+const isWeb = ref(false)
+const isApp = ref(false)
+const isMP = ref(false)
+
+onMounted(() => {
+    // #ifdef WEB
+    isWeb.value = true
+    // #endif
+    
+    // #ifdef APP
+    isApp.value = true
+    // #endif
+    
+    // #ifdef MP-WEIXIN
+    isMP.value = true
+    // #endif
+})
+```

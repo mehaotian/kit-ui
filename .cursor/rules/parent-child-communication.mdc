@@ -1,0 +1,835 @@
+---
+alwaysApply: true
+description: "kit-ui 父子组件通信规范"
+---
+
+# kit-ui 父子组件通信规范
+
+## 通信方式概览
+
+kit-ui 组件库采用多种通信方式，确保组件间的数据传递和状态同步：
+
+1. **provide/inject** - 主题配置和全局状态
+2. **props/emit** - 直接的父子数据传递
+3. **slots** - 内容分发和自定义渲染
+4. **ref/expose** - 子组件方法调用
+5. **事件总线** - 跨层级通信
+
+## provide/inject 通信规范
+
+### 1. 主题配置注入
+
+```typescript
+// 父组件 - k-config
+<script setup>
+import { provide, reactive, watch } from 'vue'
+
+const props = defineProps<{
+    theme?: UTSJSONObject | null
+    mode?: 'light' | 'dark'
+}>()
+
+// 创建响应式主题配置
+const themeConfig = reactive({
+    mode: props.mode ?? 'light',
+    ...(props.theme || {})
+})
+
+// 监听主题变化
+watch(() => props.theme, (newTheme) => {
+    if (newTheme) {
+        Object.assign(themeConfig, newTheme)
+    }
+}, { deep: true })
+
+// 提供主题配置给子组件
+provide('kit-theme', themeConfig)
+</script>
+```
+
+```typescript
+// 子组件 - 使用主题配置
+<script setup>
+import { inject, computed } from 'vue'
+
+// 注入主题配置
+const themeConfig = inject('kit-theme', {})
+
+// 计算动态样式
+const componentStyle = computed(() => {
+    const styles: string[] = []
+    
+    // 遍历主题配置，生成 CSS 变量
+    for (let key in themeConfig) {
+        const value = themeConfig[key]
+        if (key != 'mode' && value != null) {
+            // 将驼峰命名转换为 kebab-case
+            const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+            styles.push(`--k-${cssVar}: ${value}`)
+        }
+    }
+    
+    return styles.join('; ')
+})
+</script>
+```
+
+### 2. 组件组配置注入
+
+```typescript
+// 父组件 - k-cell-group
+<script setup>
+import { provide } from 'vue'
+
+const props = defineProps<{
+    border?: boolean
+    inset?: boolean
+}>()
+
+// 提供组配置给子组件
+provide('k-cell-group', {
+    border: props.border ?? true,
+    inset: props.inset ?? false
+})
+</script>
+```
+
+```typescript
+// 子组件 - k-cell
+<script setup>
+import { inject, computed } from 'vue'
+
+// 注入父组件配置
+const cellGroupConfig = inject('k-cell-group', {
+    border: true,
+    inset: false
+})
+
+// 计算是否显示边框
+const showBorder = computed(() => {
+    // 优先使用组件自身的 border 属性
+    if (props.border != null) {
+        return props.border
+    }
+    // 其次使用父组件的 border 配置
+    return cellGroupConfig.border
+})
+</script>
+```
+
+### 3. 复杂组件注册注入
+
+```typescript
+// 父组件 - k-collapse
+<script setup>
+import { provide, ref } from 'vue'
+
+// 子组件注册函数
+const registerChild = (child: any) => {
+    // 注册子组件
+    childComponents.value.push(child)
+}
+
+// 提供注册函数给子组件
+provide('k-collapse-register-child', registerChild)
+</script>
+```
+
+```typescript
+// 子组件 - k-collapse-item
+<script setup>
+import { inject, onMounted } from 'vue'
+
+// 注入注册函数
+const registerChild = inject<(child: any) => void>('k-collapse-register-child', null)
+
+onMounted(() => {
+    // 注册到父组件
+    if (registerChild) {
+        registerChild({
+            initBorder,
+            initBorderNull
+        })
+    }
+})
+
+// 暴露给父组件的方法
+const initBorder = () => {
+    // 初始化边框逻辑
+}
+
+const initBorderNull = () => {
+    // 重置边框逻辑
+}
+</script>
+```
+
+## props/emit 通信规范
+
+### 1. 属性传递规范
+
+```typescript
+// 父组件传递数据
+<template>
+    <k-button 
+        :type="buttonType" 
+        :size="buttonSize" 
+        :disabled="isDisabled"
+        @click="handleButtonClick"
+    >
+        点击我
+    </k-button>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+
+const buttonType = ref('primary')
+const buttonSize = ref('medium')
+const isDisabled = ref(false)
+
+const handleButtonClick = (event: any) => {
+    console.log('按钮被点击:', event)
+}
+</script>
+```
+
+```typescript
+// 子组件接收数据
+<script setup>
+interface ButtonProps {
+    type?: 'primary' | 'success' | 'warning' | 'error'
+    size?: 'small' | 'medium' | 'large'
+    disabled?: boolean
+    text?: string
+}
+
+const props = withDefaults(defineProps<ButtonProps>(), {
+    type: 'default',
+    size: 'medium',
+    disabled: false,
+    text: ''
+})
+
+const emit = defineEmits<{
+    click: [event: any]
+}>()
+
+const handleClick = (event: any) => {
+    if (props.disabled) return
+    emit('click', event)
+}
+</script>
+```
+
+### 2. 事件传递规范
+
+```typescript
+// 子组件定义事件
+<script setup>
+// 定义事件类型
+interface ComponentEvents {
+    click: [event: any]
+    change: [value: any, oldValue: any]
+    load: []
+    error: [error: any]
+    custom: [data: any]
+}
+
+const emit = defineEmits<ComponentEvents>()
+
+// 触发事件
+const handleClick = (event: any) => {
+    emit('click', event)
+}
+
+const handleValueChange = (newValue: any) => {
+    const oldValue = currentValue.value
+    currentValue.value = newValue
+    emit('change', newValue, oldValue)
+}
+
+const handleLoad = () => {
+    emit('load')
+}
+
+const handleError = (error: any) => {
+    console.error('组件错误:', error)
+    emit('error', error)
+}
+</script>
+```
+
+```typescript
+// 父组件监听事件
+<template>
+    <k-input 
+        v-model="inputValue"
+        @change="handleInputChange"
+        @load="handleInputLoad"
+        @error="handleInputError"
+    />
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const inputValue = ref('')
+
+const handleInputChange = (value: any, oldValue: any) => {
+    console.log('输入值变化:', value, oldValue)
+}
+
+const handleInputLoad = () => {
+    console.log('输入框加载完成')
+}
+
+const handleInputError = (error: any) => {
+    console.error('输入框错误:', error)
+}
+</script>
+```
+
+### 3. 双向绑定规范
+
+```typescript
+// 子组件实现 v-model
+<script setup>
+interface Props {
+    modelValue?: any
+    disabled?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: '',
+    disabled: false
+})
+
+const emit = defineEmits<{
+    'update:modelValue': [value: any]
+}>()
+
+const updateValue = (value: any) => {
+    emit('update:modelValue', value)
+}
+</script>
+```
+
+```typescript
+// 父组件使用 v-model
+<template>
+    <k-input v-model="inputValue" />
+    <k-switch v-model="switchValue" />
+    <k-checkbox v-model="checkboxValue" />
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const inputValue = ref('')
+const switchValue = ref(false)
+const checkboxValue = ref([])
+</script>
+```
+
+## slots 插槽通信规范
+
+### 1. 默认插槽
+
+```vue
+<!-- 子组件定义插槽 -->
+<template>
+    <view class="k-card">
+        <view class="k-card__header">
+            <slot name="header">
+                <text v-if="title">{{ title }}</text>
+            </slot>
+        </view>
+        <view class="k-card__content">
+            <slot></slot>
+        </view>
+        <view class="k-card__footer">
+            <slot name="footer"></slot>
+        </view>
+    </view>
+</template>
+
+<script setup>
+const props = defineProps<{
+    title?: string
+}>()
+</script>
+```
+
+```vue
+<!-- 父组件使用插槽 -->
+<template>
+    <k-card title="卡片标题">
+        <!-- 默认插槽内容 -->
+        <k-text>这是卡片的主要内容</k-text>
+        
+        <!-- 具名插槽 -->
+        <template #header>
+            <view class="custom-header">
+                <k-icon name="star" />
+                <k-text>自定义头部</k-text>
+            </view>
+        </template>
+        
+        <template #footer>
+            <k-button type="primary">操作按钮</k-button>
+        </template>
+    </k-card>
+</template>
+```
+
+### 2. 作用域插槽
+
+```vue
+<!-- 子组件提供作用域数据 -->
+<template>
+    <view class="k-list">
+        <view 
+            v-for="(item, index) in items" 
+            :key="item.id"
+            class="k-list__item"
+        >
+            <slot 
+                :item="item" 
+                :index="index" 
+                :selected="selectedItems.includes(item.id)"
+                :toggle="() => toggleItem(item.id)"
+            >
+                <k-text>{{ item.name }}</k-text>
+            </slot>
+        </view>
+    </view>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+
+interface Item {
+    id: number
+    name: string
+    value: any
+}
+
+const props = defineProps<{
+    items: Item[]
+    multiple?: boolean
+}>()
+
+const selectedItems = ref<number[]>([])
+
+const toggleItem = (id: number) => {
+    const index = selectedItems.value.indexOf(id)
+    if (index > -1) {
+        selectedItems.value.splice(index, 1)
+    } else {
+        if (props.multiple) {
+            selectedItems.value.push(id)
+        } else {
+            selectedItems.value = [id]
+        }
+    }
+}
+</script>
+```
+
+```vue
+<!-- 父组件使用作用域插槽 -->
+<template>
+    <k-list :items="listItems" multiple>
+        <template #default="{ item, index, selected, toggle }">
+            <view 
+                class="list-item"
+                :class="{ 'selected': selected }"
+                @click="toggle"
+            >
+                <k-icon :name="selected ? 'check-circle-fill' : 'circle'" />
+                <k-text>{{ item.name }}</k-text>
+                <k-text size="12" color="#999">索引: {{ index }}</k-text>
+            </view>
+        </template>
+    </k-list>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const listItems = ref([
+    { id: 1, name: '项目1', value: 'value1' },
+    { id: 2, name: '项目2', value: 'value2' },
+    { id: 3, name: '项目3', value: 'value3' }
+])
+</script>
+```
+
+### 3. 插槽检测和条件渲染
+
+```typescript
+// 子组件检测插槽存在
+<script setup>
+import { computed, useSlots } from 'vue'
+
+const slots = useSlots()
+
+// 检测插槽是否存在
+const hasHeaderSlot = computed(() => {
+    return !!slots.header
+})
+
+const hasDefaultSlot = computed(() => {
+    return !!slots.default
+})
+
+const hasFooterSlot = computed(() => {
+    return !!slots.footer
+})
+</script>
+
+<template>
+    <view class="k-component">
+        <!-- 条件渲染插槽 -->
+        <view v-if="hasHeaderSlot || title" class="k-component__header">
+            <slot name="header">
+                <text v-if="title">{{ title }}</text>
+            </slot>
+        </view>
+        
+        <view v-if="hasDefaultSlot" class="k-component__content">
+            <slot></slot>
+        </view>
+        
+        <view v-if="hasFooterSlot" class="k-component__footer">
+            <slot name="footer"></slot>
+        </view>
+    </view>
+</template>
+```
+
+## ref/expose 通信规范
+
+### 1. 子组件暴露方法
+
+```typescript
+// 子组件暴露方法
+<script setup>
+import { ref, nextTick } from 'vue'
+
+const isVisible = ref(false)
+const data = ref([])
+
+// 暴露给父组件的方法
+const show = () => {
+    isVisible.value = true
+}
+
+const hide = () => {
+    isVisible.value = false
+}
+
+const loadData = async () => {
+    try {
+        // 加载数据逻辑
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        data.value = [{ id: 1, name: '数据1' }]
+    } catch (error) {
+        console.error('加载数据失败:', error)
+    }
+}
+
+const refresh = async () => {
+    data.value = []
+    await loadData()
+}
+
+// 暴露方法给父组件
+defineExpose({
+    show,
+    hide,
+    loadData,
+    refresh,
+    // 暴露响应式数据（谨慎使用）
+    isVisible,
+    data
+})
+</script>
+```
+
+### 2. 父组件调用子组件方法
+
+```vue
+<!-- 父组件使用 ref -->
+<template>
+    <view class="parent-component">
+        <k-button @click="showModal">显示模态框</k-button>
+        <k-button @click="refreshData">刷新数据</k-button>
+        
+        <k-modal ref="modalRef" />
+    </view>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const modalRef = ref()
+
+const showModal = () => {
+    // 调用子组件方法
+    modalRef.value?.show()
+}
+
+const refreshData = async () => {
+    // 调用子组件方法
+    await modalRef.value?.refresh()
+}
+</script>
+```
+
+### 3. 组件实例类型定义
+
+```typescript
+// 定义组件实例类型
+interface ModalInstance {
+    show: () => void
+    hide: () => void
+    loadData: () => Promise<void>
+    refresh: () => Promise<void>
+    isVisible: Ref<boolean>
+    data: Ref<any[]>
+}
+
+// 父组件中使用类型
+<script setup>
+import { ref } from 'vue'
+
+const modalRef = ref<ModalInstance>()
+
+const handleModal = () => {
+    if (modalRef.value) {
+        modalRef.value.show()
+    }
+}
+</script>
+```
+
+## 事件总线通信规范
+
+### 1. 事件总线工具
+
+```typescript
+// utils/eventBus.ts
+type EventCallback = (...args: any[]) => void
+
+class EventBus {
+    private events: Map<string, EventCallback[]> = new Map()
+
+    // 监听事件
+    on(event: string, callback: EventCallback): void {
+        if (!this.events.has(event)) {
+            this.events.set(event, [])
+        }
+        this.events.get(event)!.push(callback)
+    }
+
+    // 触发事件
+    emit(event: string, ...args: any[]): void {
+        const callbacks = this.events.get(event)
+        if (callbacks) {
+            callbacks.forEach(callback => callback(...args))
+        }
+    }
+
+    // 移除事件监听
+    off(event: string, callback?: EventCallback): void {
+        if (!callback) {
+            this.events.delete(event)
+            return
+        }
+        
+        const callbacks = this.events.get(event)
+        if (callbacks) {
+            const index = callbacks.indexOf(callback)
+            if (index > -1) {
+                callbacks.splice(index, 1)
+            }
+        }
+    }
+
+    // 一次性监听
+    once(event: string, callback: EventCallback): void {
+        const onceCallback = (...args: any[]) => {
+            callback(...args)
+            this.off(event, onceCallback)
+        }
+        this.on(event, onceCallback)
+    }
+}
+
+export const eventBus = new EventBus()
+```
+
+### 2. 跨组件通信使用
+
+```typescript
+// 组件A - 发送事件
+<script setup>
+import { eventBus } from '@/utils/eventBus'
+
+const sendMessage = () => {
+    eventBus.emit('message', {
+        from: 'ComponentA',
+        content: 'Hello from Component A',
+        timestamp: Date.now()
+    })
+}
+
+const notifyUpdate = () => {
+    eventBus.emit('data-updated', {
+        type: 'user',
+        action: 'create',
+        data: { id: 1, name: 'New User' }
+    })
+}
+</script>
+```
+
+```typescript
+// 组件B - 监听事件
+<script setup>
+import { onMounted, onBeforeUnmount } from 'vue'
+import { eventBus } from '@/utils/eventBus'
+
+const handleMessage = (data: any) => {
+    console.log('收到消息:', data)
+}
+
+const handleDataUpdate = (data: any) => {
+    console.log('数据更新:', data)
+    // 刷新数据或更新UI
+}
+
+onMounted(() => {
+    // 监听事件
+    eventBus.on('message', handleMessage)
+    eventBus.on('data-updated', handleDataUpdate)
+})
+
+onBeforeUnmount(() => {
+    // 清理事件监听
+    eventBus.off('message', handleMessage)
+    eventBus.off('data-updated', handleDataUpdate)
+})
+</script>
+```
+
+## 通信最佳实践
+
+### 1. 通信方式选择原则
+
+```typescript
+/**
+ * 通信方式选择指南：
+ * 
+ * 1. provide/inject - 适用于：
+ *    - 主题配置传递
+ *    - 全局状态共享
+ *    - 深层嵌套组件通信
+ *    - 组件组配置传递
+ * 
+ * 2. props/emit - 适用于：
+ *    - 直接的父子组件通信
+ *    - 数据单向流动
+ *    - 简单的状态传递
+ * 
+ * 3. slots - 适用于：
+ *    - 内容分发
+ *    - 自定义渲染
+ *    - 组件复用
+ * 
+ * 4. ref/expose - 适用于：
+ *    - 调用子组件方法
+ *    - 获取子组件状态
+ *    - 直接操作子组件
+ * 
+ * 5. 事件总线 - 适用于：
+ *    - 跨层级通信
+ *    - 全局事件通知
+ *    - 解耦组件依赖
+ */
+```
+
+### 2. 性能优化建议
+
+```typescript
+// 1. 避免在 provide 中传递大对象
+// 不好的做法
+const largeData = ref(/* 大量数据 */)
+provide('large-data', largeData)
+
+// 好的做法
+const { data, loading, error } = useData()
+provide('data-service', { data, loading, error })
+
+// 2. 使用 shallowRef 优化大对象
+const largeObject = shallowRef(/* 大对象 */)
+
+// 3. 合理使用事件总线，避免内存泄漏
+onBeforeUnmount(() => {
+    // 清理所有事件监听
+    eventBus.off('event-name')
+})
+```
+
+### 3. 类型安全
+
+```typescript
+// 定义通信数据的类型
+interface ThemeConfig {
+    mode: 'light' | 'dark'
+    primaryColor: string
+    fontSize: number
+}
+
+interface ComponentGroupConfig {
+    border: boolean
+    inset: boolean
+    spacing: number
+}
+
+// 使用类型约束
+const themeConfig = inject<ThemeConfig>('kit-theme', {
+    mode: 'light',
+    primaryColor: '#6366f1',
+    fontSize: 14
+})
+
+const groupConfig = inject<ComponentGroupConfig>('k-cell-group', {
+    border: true,
+    inset: false,
+    spacing: 16
+})
+```
+
+### 4. 错误处理
+
+```typescript
+// 安全的 inject 使用
+const themeConfig = inject('kit-theme')
+if (!themeConfig) {
+    console.warn('k-[component-name]: 未找到主题配置，使用默认配置')
+    // 使用默认配置
+}
+
+// 安全的 ref 使用
+const childRef = ref()
+const callChildMethod = () => {
+    if (childRef.value && typeof childRef.value.method === 'function') {
+        childRef.value.method()
+    } else {
+        console.warn('子组件方法不存在或未挂载')
+    }
+}
+```
