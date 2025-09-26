@@ -1,0 +1,27 @@
+// 时间轴子组件实例类型
+export type TimelineItemChildType = {
+	// 元素ID
+	elId : string
+	// 节点名称
+	name : string
+	// 节点状态
+	status ?: string
+	// 节点颜色
+	color ?: string
+	// 节点位置
+	position ?: string
+	// 是否为最后一个节点
+	isLast ?: Ref<boolean>
+}
+
+// 时间轴主组件实例类型
+export type TimelineChildType = {
+	// 时间轴模式
+	mode : string
+	// 时间轴方向
+	direction ?: string
+	// 是否交替模式
+	alternate ?: boolean
+	// 是否显示 pending 状态
+	pending ?: boolean
+}

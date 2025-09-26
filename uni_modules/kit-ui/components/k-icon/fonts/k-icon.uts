@@ -6,12 +6,12 @@
  * CSS 前缀：kit-
  * 
  * 图标分类统计：
- * - Fill 类型：233 个
- * - Line 类型：233 个
+ * - Fill 类型：243 个
+ * - Line 类型：238 个
  * - 其他类型：0 个
  * 
  * 自动生成文件，请勿手动修改
- * 生成时间：2025/7/6 00:54:40
+ * 生成时间：2025/9/26 11:46:27
  */
 
 // 图标 Unicode 映射表
@@ -82,6 +82,7 @@ export const ICON_UNICODE_MAP: UTSJSONObject = {
   'chat-smile-2-fill': '\ue743',
   'chat-smile-3-fill': '\ue742',
   'chat-smile-fill': '\ue740',
+  'check-fill': '\ue893',
   'checkbox-blank-circle-fill': '\ue853',
   'checkbox-blank-fill': '\ue856',
   'checkbox-circle-fill': '\ue858',
@@ -168,6 +169,11 @@ export const ICON_UNICODE_MAP: UTSJSONObject = {
   'layout-2-fill': '\ue77c',
   'layout-3-fill': '\ue779',
   'layout-4-fill': '\ue77d',
+  'loader-2-fill': '\ue891',
+  'loader-3-fill': '\ue890',
+  'loader-4-fill': '\ue877',
+  'loader-5-fill': '\ue878',
+  'loader-fill': '\ue88f',
   'lock-fill': '\ue869',
   'lock-unlock-fill': '\ue86c',
   'mail-add-fill': '\ue709',
@@ -232,7 +238,11 @@ export const ICON_UNICODE_MAP: UTSJSONObject = {
   'thumb-down-fill': '\ue882',
   'thumb-up-fill': '\ue883',
   'ticket-2-fill': '\ue7da',
+  'time-fill': '\ue894',
+  'timer-fill': '\ue896',
   'u-disk-fill': '\ue7ae',
+  'upload-cloud-fill': '\ue897',
+  'upload-fill': '\ue89a',
   'usb-fill': '\ue7b0',
   'user-fill': '\ue88d',
   'vip-crown-2-fill': '\ue7dc',
@@ -315,6 +325,7 @@ export const ICON_UNICODE_MAP: UTSJSONObject = {
   'chat-smile-2-line': '\ue745',
   'chat-smile-3-line': '\ue73e',
   'chat-smile-line': '\ue73f',
+  'check-line': '\ue892',
   'checkbox-blank-circle-line': '\ue854',
   'checkbox-blank-line': '\ue855',
   'checkbox-circle-line': '\ue857',
@@ -465,7 +476,11 @@ export const ICON_UNICODE_MAP: UTSJSONObject = {
   'thumb-down-line': '\ue884',
   'thumb-up-line': '\ue87e',
   'ticket-2-line': '\ue7db',
+  'time-line': '\ue895',
+  'timer-line': '\ue898',
   'u-disk-line': '\ue7af',
+  'upload-cloud-line': '\ue899',
+  'upload-line': '\ue89b',
   'usb-line': '\ue7b1',
   'user-line': '\ue88e',
   'vip-crown-2-line': '\ue7dd',

@@ -101,6 +101,12 @@
 			{
 				"navigationBarTitleText" : ""
 			}
+		},
+		{
+			"path": "pages/timeline/timeline",
+			"style": {
+				"navigationBarTitleText": "时间轴"
+			}
 		}
 	],
 	"globalStyle": {

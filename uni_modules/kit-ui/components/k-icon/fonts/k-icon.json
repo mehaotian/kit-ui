@@ -6,6 +6,111 @@
   "description": "kit-ui 用图标库",
   "glyphs": [
     {
+      "icon_id": "17104943",
+      "name": "check-line",
+      "font_class": "check-line",
+      "unicode": "e892",
+      "unicode_decimal": 59538
+    },
+    {
+      "icon_id": "17104947",
+      "name": "check-fill",
+      "font_class": "check-fill",
+      "unicode": "e893",
+      "unicode_decimal": 59539
+    },
+    {
+      "icon_id": "17105156",
+      "name": "time-fill",
+      "font_class": "time-fill",
+      "unicode": "e894",
+      "unicode_decimal": 59540
+    },
+    {
+      "icon_id": "17105158",
+      "name": "time-line",
+      "font_class": "time-line",
+      "unicode": "e895",
+      "unicode_decimal": 59541
+    },
+    {
+      "icon_id": "17105161",
+      "name": "timer-fill",
+      "font_class": "timer-fill",
+      "unicode": "e896",
+      "unicode_decimal": 59542
+    },
+    {
+      "icon_id": "17105169",
+      "name": "upload-cloud-fill",
+      "font_class": "upload-cloud-fill",
+      "unicode": "e897",
+      "unicode_decimal": 59543
+    },
+    {
+      "icon_id": "17105172",
+      "name": "timer-line",
+      "font_class": "timer-line",
+      "unicode": "e898",
+      "unicode_decimal": 59544
+    },
+    {
+      "icon_id": "17105173",
+      "name": "upload-cloud-line",
+      "font_class": "upload-cloud-line",
+      "unicode": "e899",
+      "unicode_decimal": 59545
+    },
+    {
+      "icon_id": "17105174",
+      "name": "upload-fill",
+      "font_class": "upload-fill",
+      "unicode": "e89a",
+      "unicode_decimal": 59546
+    },
+    {
+      "icon_id": "17105175",
+      "name": "upload-line",
+      "font_class": "upload-line",
+      "unicode": "e89b",
+      "unicode_decimal": 59547
+    },
+    {
+      "icon_id": "17105033",
+      "name": "loader-4-fill",
+      "font_class": "loader-4-fill",
+      "unicode": "e877",
+      "unicode_decimal": 59511
+    },
+    {
+      "icon_id": "17105035",
+      "name": "loader-5-fill",
+      "font_class": "loader-5-fill",
+      "unicode": "e878",
+      "unicode_decimal": 59512
+    },
+    {
+      "icon_id": "17105037",
+      "name": "loader-fill",
+      "font_class": "loader-fill",
+      "unicode": "e88f",
+      "unicode_decimal": 59535
+    },
+    {
+      "icon_id": "17105045",
+      "name": "loader-3-fill",
+      "font_class": "loader-3-fill",
+      "unicode": "e890",
+      "unicode_decimal": 59536
+    },
+    {
+      "icon_id": "17105048",
+      "name": "loader-2-fill",
+      "font_class": "loader-2-fill",
+      "unicode": "e891",
+      "unicode_decimal": 59537
+    },
+    {
       "icon_id": "17103055",
       "name": "focus-line",
       "font_class": "focus-line",
