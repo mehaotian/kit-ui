@@ -11,6 +11,7 @@
 
 	// 注入父组件实例
 	const timelineRegister = inject<((child : TimelineItemChildType) => string) | null>('k-timeline-register', null)
+	const timelineAlternate = inject<boolean>('k-timeline-alternate', false)
 
 	// 定义 props
 	const props = defineProps({
@@ -66,6 +67,7 @@
 
 	// 是否为最后一个节点
 	const isLast = ref(false)
+	const domPosi = ref('right')
 
 	// 计算节点样式类
 	const itemClass = computed(() => {
@@ -149,7 +151,7 @@
 		name: props.title,
 		status: props.status,
 		color: props.color,
-		position: props.position,
+		position: domPosi,
 		isLast: isLast
 	}
 
@@ -172,9 +174,15 @@
 	<view class="k-timeline-item" :class="itemClass" @tap="handleClick">
 		<!-- 节点内容容器 -->
 		<view class="k-timeline-item__content">
-			<!-- <view class="k-timeline-item__content-main-left">
-				<text class="k-timeline-item__title" :style="titleStyle" v-if="time">{{ time }}</text>
-			</view> -->
+			<view v-if="domPosi == 'left'" class="k-timeline-item__content-main" :class="[domPosi]">
+				<view class="k-timeline-item__header" v-if="title || time">
+					<text class="k-timeline-item__title" :style="titleStyle" v-if="title">{{ title }}</text>
+					<text class="k-timeline-item__time" v-if="time">{{ time }}</text>
+				</view>
+				<text class="k-timeline-item__description" v-if="description">{{ description }}</text>
+				<slot></slot>
+			</view>
+			<view v-if="timelineAlternate && domPosi == 'right'" class="k-timeline-item__content-main"></view>
 			<!-- 节点标记 -->
 			<view class="k-timeline-item__node">
 				<view class="k-timeline-item__dot" :style="nodeStyle">
@@ -183,16 +191,16 @@
 				</view>
 				<view class="k-timeline-item__line" v-if="!isLast"></view>
 			</view>
-
 			<!-- 内容区域 -->
-			<view class="k-timeline-item__content-main">
+			<view v-if="domPosi == 'right'" class="k-timeline-item__content-main">
 				<view class="k-timeline-item__header" v-if="title || time">
 					<text class="k-timeline-item__title" :style="titleStyle" v-if="title">{{ title }}</text>
-					<!-- <text class="k-timeline-item__time" v-if="time">{{ time }}</text> -->
+					<text class="k-timeline-item__time" v-if="time">{{ time }}</text>
 				</view>
 				<text class="k-timeline-item__description" v-if="description">{{ description }}</text>
 				<slot></slot>
 			</view>
+			<view v-if="timelineAlternate && domPosi == 'left'" class="k-timeline-item__content-main"></view>
 		</view>
 
 	</view>
@@ -222,24 +230,16 @@
 			flex: 1;
 			padding: 0 16px;
 			min-height: 40px;
-			text-align: left;
+			// text-align: left;
 		}
 
 		&__content-main {
 			flex: 1;
 			padding: 0 16px;
 			min-height: 40px;
-			text-align: left;
+			// text-align: left;
 			padding-bottom: 24rpx;
 			padding-right: 0;
-			&.main-left {
-				flex: 0;
-			}
-		}
-		
-		&__content-main-left {
-			min-width: 100px;
-			border: 1px red solid;
 		}
 
 		&__node {
@@ -296,9 +296,9 @@
 
 		&__header {
 			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: space-between;
+			flex-direction: column;
+			// align-items: center;
+			// justify-content: space-between;
 			margin-bottom: 4px;
 			overflow: hidden;
 		}
@@ -315,7 +315,7 @@
 			font-size: var(--k-font-size-sm, 12px);
 			color: var(--k-text-color-secondary, #6b7280);
 			line-height: 1.5;
-			margin-left: 20rpx;
+			// margin-left: 20rpx;
 		}
 
 		&__description {
@@ -388,6 +388,24 @@
 			opacity: 0.5;
 			pointer-events: none;
 		}
+
+		&__content-main.left {
+			justify-content: flex-end;
+			padding-left: 0;
+			padding-right: 16px;
+			
+			.k-timeline-item__title {
+				text-align: right;
+			}
+			.k-timeline-item__time {
+				text-align: right;
+			}
+
+			.k-timeline-item__description {
+				text-align: right;
+			}
+		}
+
 
 		// 最后一个节点
 		// &--last {

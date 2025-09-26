@@ -14,15 +14,6 @@
 					<text class="title-text">基础用法</text>
 				</view>
 				<view class="demo-content">
-					<k-timeline>
-						<k-timeline-item title="入场" time="12:34">
-						</k-timeline-item>
-						<k-timeline-item title="开场致辞" description="董事长" time="01:00"></k-timeline-item>
-						<k-timeline-item title="分组讨论"  time="01:00"></k-timeline-item>
-						<k-timeline-item title="中场休息"  time="01:00"></k-timeline-item>
-						<k-timeline-item title="下午场"  time="01:00"></k-timeline-item>
-						<k-timeline-item title="总结"  time="01:00"></k-timeline-item>
-					</k-timeline>
 					<!-- <k-timeline>
 						<k-timeline-item title="入场" description="M华腾-腾讯" time="12:34">
 						</k-timeline-item>

@@ -1,5 +1,5 @@
 <script setup>
-	import { TimelineChildType } from '../k-timeline-item/timeline-item.type.uts'
+	import { TimelineChildType, TimelineItemChildType } from '../k-timeline-item/timeline-item.type.uts'
 
 	/**
 	 * k-timeline 时间轴组件
@@ -11,15 +11,15 @@
 
 	const props = defineProps({
 		// 时间轴模式: vertical, horizontal
-		mode: {
-			type: String,
-			default: 'vertical'
-		},
+		// mode: {
+		// 	type: String,
+		// 	default: 'vertical'
+		// },
 		// 时间轴方向: normal, reverse
-		direction: {
-			type: String,
-			default: 'normal'
-		},
+		// direction: {
+		// 	type: String,
+		// 	default: 'normal'
+		// },
 		// 是否为交替模式 (仅垂直模式生效)
 		alternate: {
 			type: Boolean,
@@ -51,7 +51,7 @@
 	// const slots = useSlots()
 
 	// // 子组件实例列表
-	// let childs : TimelineItemChildType[] = []
+	let childs : TimelineItemChildType[] = []
 
 	// // 计算时间轴样式类
 	// const timelineClass = computed(() => {
@@ -76,11 +76,7 @@
 	// 	return classes.join(' ')
 	// })
 
-	// // 添加子组件实例
-	// const registerItem = (item : TimelineItemChildType) => {
-	// 	childs.push(item)
-	// 	updateItemsPosition()
-	// }
+
 
 	// // 移除子组件实例
 	// const removeItem = (elId : string) => {
@@ -91,35 +87,42 @@
 	// 	// }
 	// }
 
-	// // 更新子组件位置信息
-	// const updateItemsPosition = () => {
-	// 	// childs.forEach((item, index) => {
-	// 	// 	// 更新是否为最后一个节点
-	// 	// 	item.isLast.value = index == childs.length - 1
-
-	// 	// 	// 在交替模式下更新位置
-	// 	// 	if (props.alternate && props.mode == 'vertical') {
-	// 	// 		item.position = index % 2 == 0 ? 'left' : 'right'
-	// 	// 	}
-	// 	// })
-	// }
+	// 更新子组件位置信息
+	const updateItemsPosition = () => {
+		childs.forEach((item : TimelineItemChildType, index : number) => {
+			// 更新是否为最后一个节点
+			item.isLast.value = index == childs.length - 1
+			// 在交替模式下更新位置
+			if (props.alternate) {
+				item.position.value = index % 2 == 0 ? 'left' : 'right'
+				console.log(item.position.value);
+			}
+		})
+	}
 
 	// // 处理子组件点击事件
 	// const handleItemClick = (item : TimelineItemChildType, event : any) => {
 	// 	emit('itemClick', item, event)
 	// }
 
-	// // 组件实例
-	// // const timelineInstance : TimelineChildType = {
-	// // 	mode: props.mode,
-	// // 	direction: props.direction,
-	// // 	alternate: props.alternate,
-	// // 	pending: props.pending,
-	// // }
+	// 组件实例
+	// const timelineInstance : TimelineChildType = {
+	// 	mode: props.mode,
+	// 	direction: props.direction,
+	// 	alternate: props.alternate,
+	// 	pending: props.pending,
+	// }
 
-	// // 向子组件提供实例
-	// // provide('k-timeline-instance', timelineInstance)
-	// provide('k-timeline-register', registerItem)
+	// 添加子组件实例
+	const registerItem = (child : TimelineItemChildType) => {
+		console.log('-- 组件插入', child);
+		childs.push(child)
+		updateItemsPosition()
+	}
+
+	// 向子组件提供实例
+	provide('k-timeline-alternate', props.alternate)
+	provide('k-timeline-register', registerItem)
 
 	// // 组件挂载后更新子组件位置
 	// onMounted(() => {

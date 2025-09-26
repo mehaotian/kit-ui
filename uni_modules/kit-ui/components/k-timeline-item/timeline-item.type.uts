@@ -5,13 +5,13 @@ export type TimelineItemChildType = {
 	// 节点名称
 	name : string
 	// 节点状态
-	status ?: string
+	status : string
 	// 节点颜色
-	color ?: string
+	color : string
 	// 节点位置
-	position ?: string
+	position : Ref<string>
 	// 是否为最后一个节点
-	isLast ?: Ref<boolean>
+	isLast : Ref<boolean>
 }
 
 // 时间轴主组件实例类型
