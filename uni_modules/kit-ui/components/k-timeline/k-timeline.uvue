@@ -10,16 +10,6 @@
 	const themeConfig = inject('kit-theme', {})
 
 	const props = defineProps({
-		// 时间轴模式: vertical, horizontal
-		// mode: {
-		// 	type: String,
-		// 	default: 'vertical'
-		// },
-		// 时间轴方向: normal, reverse
-		// direction: {
-		// 	type: String,
-		// 	default: 'normal'
-		// },
 		// 是否为交替模式 (仅垂直模式生效)
 		alternate: {
 			type: Boolean,
@@ -39,6 +29,11 @@
 		pendingIcon: {
 			type: String,
 			default: 'loading'
+		},
+		// label 最大宽度限制 (px)
+		maxLabelWidth: {
+			type: Number,
+			default: 120
 		}
 	})
 
@@ -52,6 +47,8 @@
 
 	// // 子组件实例列表
 	let childs : TimelineItemChildType[] = []
+	// 是否显示label
+	let showLabel = ref(false)
 
 	// // 计算时间轴样式类
 	// const timelineClass = computed(() => {
@@ -95,7 +92,6 @@
 			// 在交替模式下更新位置
 			if (props.alternate) {
 				item.position.value = index % 2 == 0 ? 'left' : 'right'
-				console.log(item.position.value);
 			}
 		})
 	}
@@ -115,7 +111,9 @@
 
 	// 添加子组件实例
 	const registerItem = (child : TimelineItemChildType) => {
-		console.log('-- 组件插入', child);
+		if (child.label != '') {
+			showLabel.value = true
+		}
 		childs.push(child)
 		updateItemsPosition()
 	}
@@ -123,6 +121,8 @@
 	// 向子组件提供实例
 	provide('k-timeline-alternate', props.alternate)
 	provide('k-timeline-register', registerItem)
+	provide('k-timeline-label-width', props.maxLabelWidth)
+	provide('k-timeline-show-label', showLabel)
 
 	// // 组件挂载后更新子组件位置
 	// onMounted(() => {
@@ -176,100 +176,6 @@
 
 		&__pending {
 			margin-top: 0;
-		}
-
-		// 垂直模式 (默认)
-		&--vertical {
-			.k-timeline__content {
-				display: flex;
-				flex-direction: column;
-			}
-		}
-
-		// 水平模式
-		&--horizontal {
-			.k-timeline__content {
-				display: flex;
-				flex-direction: row;
-				align-items: flex-start;
-				overflow-x: auto;
-				overflow-y: visible;
-			}
-
-			.k-timeline-item {
-				flex-shrink: 0;
-				padding-right: 20px;
-				padding-bottom: 0;
-
-				&__content {
-					flex-direction: column;
-					align-items: center;
-					min-width: 120px;
-				}
-
-				&__content-left,
-				&__content-right {
-					text-align: center;
-					padding: 8px 0;
-				}
-
-				&__content-left {
-					order: 2;
-				}
-
-				&__node {
-					order: 1;
-					flex-direction: row;
-				}
-
-				&__line {
-					width: 100%;
-					height: 2px;
-					top: 50%;
-					left: 12px;
-					transform: translateY(-50%);
-					min-height: auto;
-					min-width: 20px;
-				}
-			}
-		}
-
-		// Pending 状态样式
-		&--pending {
-			.k-timeline-item__dot--pending {
-				background-color: var(--k-color-primary, #6366f1);
-				border-color: var(--k-color-primary, #6366f1);
-				animation: k-timeline-pending 1.5s infinite;
-			}
-
-			.k-timeline-item__icon--pending {
-				animation: k-timeline-spin 1s linear infinite;
-			}
-		}
-	}
-
-	// 动画定义
-	@keyframes k-timeline-pending {
-		0% {
-			opacity: 0.3;
-		}
-
-		50% {
-			opacity: 1;
-		}
-
-		100% {
-			opacity: 0.3;
-		}
-	}
-
-	@keyframes k-timeline-spin {
-		from {
-			transform: rotate(0deg);
-		}
-
-		to {
-			transform: rotate(360deg);
 		}
 	}
 </style>

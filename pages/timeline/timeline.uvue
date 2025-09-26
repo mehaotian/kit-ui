@@ -4,47 +4,158 @@
 	<!-- #endif -->
 		<view class="page">
 			<view class="page-header">
-				<text class="page-title">Timeline 时间轴</text>
+				<text class="page-title">k-timeline 时间轴</text>
 				<text class="page-desc">垂直展示的时间流信息</text>
 			</view>
-
-			<!-- 基础用法 -->
 			<view class="section">
 				<view class="section-title">
 					<text class="title-text">基础用法</text>
 				</view>
 				<view class="demo-content">
 					<k-timeline>
-						<k-timeline-item title="入场" time="12:34">
-						</k-timeline-item>
-						<k-timeline-item title="开场致辞" description="董事长" time="01:00"></k-timeline-item>
-						<k-timeline-item title="分组讨论"  time="01:00"></k-timeline-item>
-						<k-timeline-item title="中场休息"  time="01:00"></k-timeline-item>
-						<k-timeline-item title="下午场"  time="01:00"></k-timeline-item>
-						<k-timeline-item title="总结"  time="01:00"></k-timeline-item>
+						<k-timeline-item title="阶段一" time="12:34"></k-timeline-item>
+						<k-timeline-item title="阶段二" description="突破性测试" time="01:00"></k-timeline-item>
+						<k-timeline-item title="完成" status="finish"></k-timeline-item>
 					</k-timeline>
-					<!-- <k-timeline>
-						<k-timeline-item title="入场" description="M华腾-腾讯" time="12:34">
-						</k-timeline-item>
-						<k-timeline-item title="主场演讲" description="马云（阿里巴巴）" time="01:00">
-						</k-timeline-item>
-						<k-timeline-item status="wait" title="等待"></k-timeline-item>
-						<k-timeline-item status="process" title="流程"></k-timeline-item>
-						<k-timeline-item status="finish" title="完成"></k-timeline-item>
-						<k-timeline-item status="error" title="错误"></k-timeline-item>
-						<k-timeline-item status="error" color="#000" title="修改背景色"></k-timeline-item>
-						<k-timeline-item title="禁用" disabled></k-timeline-item>
-						<k-timeline-item title="主题色 primary" color="primary"></k-timeline-item>
-						<k-timeline-item title="主题色 warning" color="warning"></k-timeline-item>
-						<k-timeline-item title="主题色 success" color="success"></k-timeline-item>
-						<k-timeline-item title="主题色 error" color="error"></k-timeline-item>
-						<k-timeline-item title="主题色 info" color="info"></k-timeline-item>
-						<k-timeline-item>
-							<text class="timeline-text">网络异常正在修复 2015-09-01</text>
-						</k-timeline-item>
-					</k-timeline> -->
+
 				</view>
 			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">左侧标签用法</text>
+				</view>
+				<view class="demo-content">
+					<k-timeline :max-label-width="50">
+						<k-timeline-item title="阶段一" label="01:00"></k-timeline-item>
+						<k-timeline-item title="阶段二" label="02:45" description="突破性测试" time="01:00"></k-timeline-item>
+						<k-timeline-item title="阶段二" label="12:19" status="error" time="01:00"></k-timeline-item>
+					</k-timeline>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">不同状态</text>
+				</view>
+				<view class="demo-content">
+					<k-timeline :max-label-width="50">
+						<k-timeline-item title="默认"></k-timeline-item>
+						<k-timeline-item title="等待" status="wait"></k-timeline-item>
+						<k-timeline-item title="进行中" status="process"></k-timeline-item>
+						<k-timeline-item title="失败" status="error"></k-timeline-item>
+						<k-timeline-item title="完成" status="finish"></k-timeline-item>
+					</k-timeline>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义圆点颜色</text>
+				</view>
+				<view class="demo-content">
+					<k-timeline>
+						<k-timeline-item title="主题色" color="primary"></k-timeline-item>
+						<k-timeline-item title="警告色" color="warning"></k-timeline-item>
+						<k-timeline-item title="成功色" color="success"></k-timeline-item>
+						<k-timeline-item title="失败色" color="error"></k-timeline-item>
+						<k-timeline-item title="描述色" color="info"></k-timeline-item>
+						<k-timeline-item title="自定义蓝色" color="blue"></k-timeline-item>
+						<k-timeline-item title="自定义红色" color="red"></k-timeline-item>
+						<k-timeline-item title="自定义绿色" color="green"></k-timeline-item>
+						<k-timeline-item title="自定义灰色" color="gray"></k-timeline-item>
+					</k-timeline>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">禁用效果</text>
+				</view>
+				<view class="demo-content">
+					<k-timeline>
+						<k-timeline-item title="未禁用" color="primary"></k-timeline-item>
+						<k-timeline-item title="未禁用" color="warning"></k-timeline-item>
+						<k-timeline-item title="未禁用" color="success"></k-timeline-item>
+						<k-timeline-item title="已禁用" color="primary" disabled></k-timeline-item>
+						<k-timeline-item title="已禁用" color="warning" disabled></k-timeline-item>
+						<k-timeline-item title="已禁用" color="success" disabled></k-timeline-item>
+					</k-timeline>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义图标/节点</text>
+				</view>
+				<view class="demo-content">
+					<k-timeline>
+						<k-timeline-item title="自定义图标（不显示节点背景）" :showCircle="false" icon="lock-line" icon-color="red"></k-timeline-item>
+						<k-timeline-item title="自定义图标" :showCircle="false" icon="star-fill" icon-color="blue"></k-timeline-item>
+						<k-timeline-item title="自定义图标" icon="home-6-line" icon-color="#f9f9f9"></k-timeline-item>
+
+						<k-timeline-item title="自定义节点（插槽）">
+							<template #node>
+								<view class="custon-node"></view>
+							</template>
+						</k-timeline-item>
+					</k-timeline>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">交叉模式</text>
+				</view>
+				<view class="demo-content">
+					<k-timeline alternate>
+						<k-timeline-item title="筹备" status="finish" time="2025-12-21 01:11" description="开始筹备会议"></k-timeline-item>
+						<k-timeline-item title="参会邀请" status="finish" time="2025-12-25 11:30" description="确认会议参与人员"></k-timeline-item>
+						<k-timeline-item title="议程安排" status="process" time="2025-12-26 01:00" description="开始进行议程安排，确定议程内容"></k-timeline-item>
+						<k-timeline-item title="会议实施" status="wait" time="2025-12-27 12:00" description="准备会议安排实施"></k-timeline-item>
+					</k-timeline>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">复杂示例</text>
+				</view>
+				<view class="demo-content">
+					<k-timeline :max-label-width="60">
+						<k-timeline-item label="08:30" title="注册暖场">
+							<k-card radius="large" shadow>
+								<k-text>1. 线上观众进入虚拟会场（含3D展厅、展商互动区）</k-text>
+								<k-text>2. 线下签到、领取资料包</k-text>
+								<k-text>3. 播放往届精彩回顾 & 今日议程预告</k-text>
+							</k-card>
+						</k-timeline-item>
+						<k-timeline-item label="09:00" title="开幕致辞">
+							<k-card radius="large" shadow>
+								<k-text>1. 主办方代表致欢迎辞</k-text>
+								<k-text>2. 科技部门嘉宾致辞</k-text>
+								<k-text>3. 峰会愿景发布</k-text>
+							</k-card>
+						</k-timeline-item>
+						
+						<k-timeline-item label="09:20" >
+							<k-card title="主题演讲《大模型时代的可持续创新》"  subtitle="演讲嘉宾：xx头部AI公司首席科学家" radius="large" shadow>
+								<k-text>1. 大模型能耗优化新路径</k-text>
+								<k-text>2. 绿色AI基础设施实践案例</k-text>
+								<k-text>3. 开源与协作如何加速可持续技术落地</k-text>
+							</k-card>
+						</k-timeline-item>
+						<k-timeline-item label="10:40" title="茶歇 & 虚拟展区自由参观" description="线上观众可进入“绿色科技展区”与展商互动（含VR体验）"></k-timeline-item>
+						<k-timeline-item label="16:30" title="峰会结束 & 自由 networking">
+							<k-card radius="large" shadow>
+								<k-text size="12">线上：开放虚拟社交厅（含AI匹配兴趣伙伴功能）</k-text>
+								<k-text size="12">线下：合影留念、自由交流</k-text>
+							</k-card>
+						</k-timeline-item>
+					</k-timeline>
+				</view>
+			</view>
+
 		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
@@ -63,5 +174,11 @@
 </script>
 
 <style lang="scss" scoped>
-
+	.custon-node {
+		width: 20px;
+		height: 20px;
+		border-radius: 20px;
+		background-color: #fff;
+		border: 5px blue solid;
+	}
 </style>

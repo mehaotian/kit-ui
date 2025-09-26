@@ -6,15 +6,14 @@
 	 * 用于展示时间轴中的单个节点
 	 */
 
-	// 注入主题配置
-	const themeConfig = inject('kit-theme', {})
-
-	// 注入父组件实例
-	const timelineRegister = inject<((child : TimelineItemChildType) => string) | null>('k-timeline-register', null)
-	const timelineAlternate = inject<boolean>('k-timeline-alternate', false)
 
 	// 定义 props
 	const props = defineProps({
+		// 左侧标签
+		label: {
+			type: String,
+			default: ''
+		},
 		// 节点标题
 		title: {
 			type: String,
@@ -35,7 +34,7 @@
 			type: String,
 			default: ''
 		},
-		// 节点颜色
+		// 节点颜色 ，primary success warning error info 
 		color: {
 			type: String,
 			default: ''
@@ -50,12 +49,32 @@
 			type: String,
 			default: ''
 		},
+		// 图标颜色
+		iconColor: {
+			type: String,
+			default: '#fff'
+		},
+		showCircle: {
+			type: Boolean,
+			default: true
+		},
 		// 是否禁用
 		disabled: {
 			type: Boolean,
 			default: false
 		}
 	})
+
+
+	// 注入主题配置
+	const themeConfig = inject('kit-theme', {})
+
+	// 注入父组件实例
+	const timelineRegister = inject<((child : TimelineItemChildType) => string) | null>('k-timeline-register', null)
+	const timelineAlternate = inject<boolean>('k-timeline-alternate', false)
+	const timelineLabelWidth = inject<number>('k-timeline-label-width', 90)
+	const timelineShowLabel = inject<Ref<boolean>>('k-timeline-show-label')
+	const showLabel = computed(() => timelineShowLabel?.value ?? false)
 
 	// 定义 emits
 	const emit = defineEmits<{
@@ -68,6 +87,16 @@
 	// 是否为最后一个节点
 	const isLast = ref(false)
 	const domPosi = ref('right')
+
+
+	// 计算 label 样式
+	const labelStyle = computed(() => {
+		const width = timelineLabelWidth ?? 90
+		return {
+			width: `${width}px`,
+			minWidth: `${width}px`
+		}
+	})
 
 	// 计算节点样式类
 	const itemClass = computed(() => {
@@ -105,13 +134,23 @@
 		}
 
 		// 设置节点颜色
-		const nodeColor = colorMap[props.color] as string ?? props.color
-		if (type == 'title') {
-			style['color'] = nodeColor
-		} else {
-			style['background-color'] = nodeColor
+
+		let nodeColor = props.color
+		if (colorMap[props.color] != null) {
+			nodeColor = colorMap[props.color] as string
 		}
-		return style
+
+		// 处理 app 默认值问题，如果没有默认值，则不会显示css样式
+		if (nodeColor != '') {
+			if (type == 'title') {
+				style['color'] = nodeColor
+			} else {
+				style['background-color'] = nodeColor
+			}
+			return style
+		}
+
+		return ''
 	}
 
 	// 计算节点颜色样式
@@ -125,7 +164,7 @@
 
 	// 计算图标名称
 	const iconName = computed(() => {
-		if (props.icon) {
+		if (props.icon != '') {
 			return props.icon
 		}
 
@@ -136,7 +175,11 @@
 			'finish': 'check-fill',
 			'error': 'close-fill'
 		}
-		return iconMap[props.status] as string ?? ''
+		// return iconMap[props.status] as string ?? ''
+		if (iconMap[props.status] != null) {
+			return iconMap[props.status] as string
+		}
+		return ''
 	})
 
 	// 处理点击事件
@@ -145,21 +188,24 @@
 		emit('click', event)
 	}
 
-	// 组件实例
-	const itemInstance : TimelineItemChildType = {
-		elId: elId.value,
-		name: props.title,
-		status: props.status,
-		color: props.color,
-		position: domPosi,
-		isLast: isLast
-	}
+	let labelWidth = ref(0)
 
 	// 组件挂载时注册到父组件
 	onMounted(() => {
+		const itemInstance : TimelineItemChildType = {
+			elId: elId.value,
+			name: props.title,
+			status: props.status,
+			color: props.color,
+			position: domPosi,
+			isLast: isLast,
+			label: props.label
+		}
+
 		if (timelineRegister != null) {
 			timelineRegister(itemInstance)
 		}
+
 	})
 
 	// 组件卸载时从父组件移除
@@ -174,10 +220,15 @@
 	<view class="k-timeline-item" :class="itemClass" @tap="handleClick">
 		<!-- 节点内容容器 -->
 		<view class="k-timeline-item__content">
+			<!-- 左侧标签区域 -->
+			<view v-if="showLabel && !timelineAlternate" :id="'content_' + elId" class="k-timeline-item__label" :style="labelStyle">
+				<text class="k-timeline-item__label-text" v-if="label">{{ label }}</text>
+			</view>
+
 			<view v-if="domPosi == 'left'" class="k-timeline-item__content-main" :class="[domPosi]">
-				<view class="k-timeline-item__header" v-if="title || time">
-					<text class="k-timeline-item__title" :style="titleStyle" v-if="title">{{ title }}</text>
-					<text class="k-timeline-item__time" v-if="time">{{ time }}</text>
+				<view class="k-timeline-item__header" v-if="title != '' || time != ''">
+					<text class="k-timeline-item__title" :style="titleStyle" v-if="title != ''">{{ title }}</text>
+					<text class="k-timeline-item__time" v-if="time != ''">{{ time }}</text>
 				</view>
 				<text class="k-timeline-item__description" v-if="description">{{ description }}</text>
 				<slot></slot>
@@ -185,17 +236,24 @@
 			<view v-if="timelineAlternate && domPosi == 'right'" class="k-timeline-item__content-main"></view>
 			<!-- 节点标记 -->
 			<view class="k-timeline-item__node">
-				<view class="k-timeline-item__dot" :style="nodeStyle">
-					<k-icon v-if="iconName != ''" :name="iconName" size="14px" color="#fff" class="k-timeline-item__icon"></k-icon>
-					<view v-else class="k-timeline-item__circle"></view>
-				</view>
+				<slot name="node">
+					<view v-if="showCircle" class="k-timeline-item__dot" :style="nodeStyle">
+						<k-icon v-if="iconName != ''" :name="iconName" size="14px" :color="iconColor" class="k-timeline-item__icon"></k-icon>
+						<view v-else class="k-timeline-item__circle"></view>
+					</view>
+					<view v-else class="k-timeline-item__dot-nobg">
+						<k-icon v-if="iconName != ''" :name="iconName" size="14px" :color="iconColor" class="k-timeline-item__icon"></k-icon>
+						<view v-else class="k-timeline-item__circle"></view>
+					</view>
+				</slot>
+				
 				<view class="k-timeline-item__line" v-if="!isLast"></view>
 			</view>
 			<!-- 内容区域 -->
 			<view v-if="domPosi == 'right'" class="k-timeline-item__content-main">
-				<view class="k-timeline-item__header" v-if="title || time">
-					<text class="k-timeline-item__title" :style="titleStyle" v-if="title">{{ title }}</text>
-					<text class="k-timeline-item__time" v-if="time">{{ time }}</text>
+				<view class="k-timeline-item__header" v-if="title != '' || time != ''">
+					<text class="k-timeline-item__title" :style="titleStyle" v-if="title != ''">{{ title }}</text>
+					<text class="k-timeline-item__time" v-if="time != ''">{{ time }}</text>
 				</view>
 				<text class="k-timeline-item__description" v-if="description">{{ description }}</text>
 				<slot></slot>
@@ -217,6 +275,21 @@
 			flex-direction: row;
 			align-items: flex-start;
 			overflow: visible;
+		}
+
+		&__label {
+			display: flex;
+			// align-items: center;
+			// justify-content: flex-end;
+			padding-right: 12px;
+			flex-shrink: 0;
+		}
+
+		&__label-text {
+			font-size: 14px;
+			color: var(--k-text-color-secondary, #666666);
+			text-align: right;
+			line-height: 1.5;
 		}
 
 		&__content-left {
@@ -259,7 +332,7 @@
 			justify-content: center;
 			width: 16px;
 			height: 16px;
-			border-radius: 50%;
+			border-radius: 100px;
 			// border: 3px solid var(--k-color-primary, #6366f1);
 			background-color: var(--k-color-primary, #6366f1);
 			z-index: 3;
@@ -268,11 +341,18 @@
 			left: 50%;
 			transform: translateX(-50%);
 		}
-
-		&__icon {
-			// font-size: 8px;
-			color: #ffffff;
-			// margin-top: 0rpx;
+		
+		&__dot-nobg {
+			width: 18px;
+			height: 18px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 3;
+			position: absolute;
+			top: 2px;
+			left: 50%;
+			transform: translateX(-50%);
 		}
 
 		&__circle {
@@ -286,7 +366,7 @@
 			width: 2px;
 			background-color: var(--k-border-color, #e5e7eb);
 			position: absolute;
-			top: 10px;
+			top: 18px;
 			left: 50%;
 			transform: translateX(-50%);
 			bottom: -2px;
@@ -297,15 +377,13 @@
 		&__header {
 			display: flex;
 			flex-direction: column;
-			// align-items: center;
-			// justify-content: space-between;
 			margin-bottom: 4px;
 			overflow: hidden;
 		}
 
 		&__title {
 			font-size: var(--k-font-size-base, 14px);
-			font-weight: 500;
+			font-weight: bold;
 			color: var(--k-text-color, #374151);
 			line-height: 1.5;
 			flex: 1;
@@ -393,10 +471,11 @@
 			justify-content: flex-end;
 			padding-left: 0;
 			padding-right: 16px;
-			
+
 			.k-timeline-item__title {
 				text-align: right;
 			}
+
 			.k-timeline-item__time {
 				text-align: right;
 			}

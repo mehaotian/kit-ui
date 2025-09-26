@@ -250,7 +250,15 @@
 			}
 		}
 	}
-
+	
+	function initBorder() {
+		// 这是最后一个不显示 边框
+		isBorder.value = false
+	}
+	function initBorderNull() {
+		isBorder.value = null
+	}
+	
 	onMounted(() => {
 		// 与父组件交互，
 		if (cellChild != null) {
@@ -262,13 +270,7 @@
 		}
 	})
 
-	function initBorder() {
-		// 这是最后一个不显示 边框
-		isBorder.value = false
-	}
-	function initBorderNull() {
-		isBorder.value = null
-	}
+
 	defineExpose({
 		initBorder,
 		initBorderNull
