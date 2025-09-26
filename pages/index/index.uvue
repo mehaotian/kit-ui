@@ -78,7 +78,7 @@
 				// { name: 'Space | 间隔', path: '/pages/space/space', status: 'planning' },
 				{ name: 'Tag ｜ 标签', path: '/pages/tag/tag', status: 'completed' },
 				{ name: 'Badge ｜ 徽标', path: '/pages/badge/badge', status: 'completed' },
-			
+
 			]
 		},
 		{
@@ -96,10 +96,10 @@
 				{ name: 'Avatar | 头像', path: '/pages/avatar/avatar', status: 'completed' },
 				{ name: 'Collapse | 折叠面板', path: '/pages/collapse/collapse', status: 'completed' },
 				{ name: 'Timeline | 时间轴', path: '/pages/timeline/timeline', status: 'completed' },
-				{ name: 'Swiper', path: '/pages/swiper/swiper', status: 'planning' },
-				{ name: 'Calendar｜暂不实现', path: '/pages/calendar/calendar', status: 'planning' },
-				{ name: 'List｜暂不实现', path: '/pages/list/list', status: 'planning' },
-				{ name: 'Table｜暂不实现', path: '/pages/table/table', status: 'planning' },
+				{ name: 'List｜列表', path: '/pages/list/list', status: 'planning' },
+				{ name: 'Swiper | 轮播图', path: '/pages/swiper/swiper', status: 'planning' },
+				{ name: 'Calendar｜日历', path: '/pages/calendar/calendar', status: 'planning' },
+				{ name: 'Table｜表格', path: '/pages/table/table', status: 'planning' },
 			]
 		},
 		{
@@ -158,7 +158,7 @@
 				{ name: 'Breadcrumb', path: '/pages/breadcrumb/breadcrumb', status: 'planning' }
 			]
 		},
-		
+
 		{
 			name: '业务组件',
 			description: '常见业务场景组件',
