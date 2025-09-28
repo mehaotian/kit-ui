@@ -13,9 +13,9 @@
 				</view>
 				<view class="demo-content">
 					<k-timeline>
-						<k-timeline-item title="阶段一" time="12:34"></k-timeline-item>
-						<k-timeline-item title="阶段二" description="突破性测试" time="01:00"></k-timeline-item>
-						<k-timeline-item title="完成" status="finish"></k-timeline-item>
+						<k-timeline-item @click="onClick" title="阶段一" time="12:34"></k-timeline-item>
+						<k-timeline-item @click="onClick" title="阶段二" description="突破性测试" time="01:00"></k-timeline-item>
+						<k-timeline-item @click="onClick" title="完成" status="finish"></k-timeline-item>
 					</k-timeline>
 
 				</view>
@@ -137,9 +137,9 @@
 								<k-text>3. 峰会愿景发布</k-text>
 							</k-card>
 						</k-timeline-item>
-						
-						<k-timeline-item label="09:20" >
-							<k-card title="主题演讲《大模型时代的可持续创新》"  subtitle="演讲嘉宾：xx头部AI公司首席科学家" radius="large" shadow>
+
+						<k-timeline-item label="09:20">
+							<k-card title="主题演讲《大模型时代的可持续创新》" subtitle="演讲嘉宾：xx头部AI公司首席科学家" radius="large" shadow>
 								<k-text>1. 大模型能耗优化新路径</k-text>
 								<k-text>2. 绿色AI基础设施实践案例</k-text>
 								<k-text>3. 开源与协作如何加速可持续技术落地</k-text>
@@ -163,14 +163,9 @@
 </template>
 
 <script setup>
-	/**
-	 * Timeline 时间轴组件演示页面
-	 */
-
-	// 页面配置
-	defineOptions({
-		name: "TimelinePage"
-	})
+	const onClick = () => {
+		console.log('点击了子项');
+	}
 </script>
 
 <style lang="scss" scoped>
