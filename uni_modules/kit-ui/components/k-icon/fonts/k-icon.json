@@ -6,6 +6,34 @@
   "description": "kit-ui 用图标库",
   "glyphs": [
     {
+      "icon_id": "17104998",
+      "name": "eye-fill",
+      "font_class": "eye-fill",
+      "unicode": "e89c",
+      "unicode_decimal": 59548
+    },
+    {
+      "icon_id": "17104999",
+      "name": "eye-line",
+      "font_class": "eye-line",
+      "unicode": "e89d",
+      "unicode_decimal": 59549
+    },
+    {
+      "icon_id": "17105007",
+      "name": "eye-off-fill",
+      "font_class": "eye-off-fill",
+      "unicode": "e89e",
+      "unicode_decimal": 59550
+    },
+    {
+      "icon_id": "17105077",
+      "name": "eye-off-line",
+      "font_class": "eye-off-line",
+      "unicode": "e89f",
+      "unicode_decimal": 59551
+    },
+    {
       "icon_id": "17104943",
       "name": "check-line",
       "font_class": "check-line",

@@ -132,7 +132,7 @@
 
 <template>
 	<!-- :class="timelineClass" -->
-	<view>
+	<view class="kit-ui--root">
 		<!-- 时间轴内容 -->
 		<view class="k-timeline__content">
 			<slot></slot>

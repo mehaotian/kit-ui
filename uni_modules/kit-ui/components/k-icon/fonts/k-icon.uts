@@ -6,12 +6,12 @@
  * CSS 前缀：kit-
  * 
  * 图标分类统计：
- * - Fill 类型：243 个
- * - Line 类型：238 个
+ * - Fill 类型：245 个
+ * - Line 类型：240 个
  * - 其他类型：0 个
  * 
  * 自动生成文件，请勿手动修改
- * 生成时间：2025/9/26 11:46:27
+ * 生成时间：2025/9/28 11:04:43
  */
 
 // 图标 Unicode 映射表
@@ -131,6 +131,8 @@ export const ICON_UNICODE_MAP: UTSJSONObject = {
   'edit-circle-fill': '\ue76e',
   'edit-fill': '\ue770',
   'eraser-fill': '\ue773',
+  'eye-fill': '\ue89c',
+  'eye-off-fill': '\ue89e',
   'file-3-fill': '\ue7be',
   'file-add-fill': '\ue7c0',
   'file-cloud-fill': '\ue7c2',
@@ -374,6 +376,8 @@ export const ICON_UNICODE_MAP: UTSJSONObject = {
   'edit-circle-line': '\ue76f',
   'edit-line': '\ue832',
   'eraser-line': '\ue775',
+  'eye-line': '\ue89d',
+  'eye-off-line': '\ue89f',
   'file-3-line': '\ue7bf',
   'file-add-line': '\ue7c1',
   'file-cloud-line': '\ue7c3',

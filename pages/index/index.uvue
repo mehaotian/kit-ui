@@ -110,7 +110,7 @@
 			count: 12,
 			path: '/pages/category/form',
 			components: [
-				{ name: 'Input', path: '/pages/input/input', status: 'planning' },
+				{ name: 'Input', path: '/pages/input/input', status: 'developing' },
 				{ name: 'Textarea', path: '/pages/textarea/textarea', status: 'planning' },
 				{ name: 'Radio', path: '/pages/radio/radio', status: 'planning' },
 				{ name: 'Checkbox', path: '/pages/checkbox/checkbox', status: 'planning' },

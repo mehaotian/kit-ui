@@ -1,0 +1,457 @@
+<script setup>
+	/**
+	 * 输入框组件
+	 * 支持多种输入类型、状态管理和事件处理
+	 */
+	import { inject, computed, ref, watch, nextTick } from 'vue'
+	import type { ComponentInternalInstance } from 'vue'
+
+	// 输入框类型定义
+	export type InputType = 'text' | 'password' | 'number' | 'tel' | 'email' | 'url' | 'search'
+	export type InputSize = 'small' | 'medium' | 'large'
+
+	// Props 定义
+	interface Props {
+		/** 输入框类型 */
+		type ?: string
+		/** 输入框的值，支持 v-model */
+		modelValue ?: string | number
+		/** 占位符文本 */
+		placeholder ?: string
+		/** 是否禁用 */
+		disabled ?: boolean
+		/** 是否只读 */
+		readonly ?: boolean
+		/** 是否显示清除按钮 */
+		clearable ?: boolean
+		/** 是否显示密码切换按钮 */
+		showPassword ?: boolean
+		/** 最大输入长度 */
+		maxlength ?: number
+		/** 输入框尺寸 */
+		size ?: string | number
+		/** 是否显示错误状态 */
+		error ?: boolean
+		/** 错误提示信息 */
+		errorMessage ?: string
+		/** 前缀图标 */
+		prefixIcon ?: string
+		/** 后缀图标 */
+		suffixIcon ?: string
+		/** 自定义输入框样式 */
+		inputStyle ?: string
+		/** 是否自动获取焦点 */
+		autofocus ?: boolean
+		/** 输入框名称 */
+		name ?: string
+		/** 输入框 ID */
+		id ?: string
+	}
+
+	// 默认 Props
+	const props = withDefaults(defineProps<Props>(), {
+		type: 'text',
+		modelValue: '',
+		placeholder: '',
+		disabled: false,
+		readonly: false,
+		clearable: false,
+		showPassword: false,
+		maxlength: -1,
+		size: 'medium',
+		error: false,
+		errorMessage: '',
+		prefixIcon: '',
+		suffixIcon: '',
+		inputStyle: '',
+		autofocus: false,
+		name: '',
+		id: '',
+	})
+
+	// 事件定义
+	const emit = defineEmits<{
+		/** 输入值变化事件 */
+		'update:modelValue' : [value: string | number]
+		/** 输入事件 */
+		'input' : [event: Event]
+		/** 值改变事件 */
+		'change' : [event: Event]
+		/** 获取焦点事件 */
+		'focus' : [event: Event]
+		/** 失去焦点事件 */
+		'blur' : [event: Event]
+		/** 清除事件 */
+		'clear' : []
+		/** 确认输入事件（回车键） */
+		'confirm' : [event: Event]
+		/** 键盘按下事件 */
+		'keydown' : [event: Event]
+		/** 键盘抬起事件 */
+		'keyup' : [event: Event]
+	}>()
+
+	// 内部状态
+	const inputValue = ref<string | number>(props.modelValue)
+	const isFocused = ref<boolean>(false)
+	const showPasswordValue = ref<boolean>(false)
+	const inputRef = ref<ComponentInternalInstance | null>(null)
+
+	// 监听 modelValue 变化
+	watch(() => props.modelValue, (newValue) => {
+		inputValue.value = newValue
+	}, { immediate: true })
+
+	// 监听内部值变化
+	watch(inputValue, (newValue) => {
+		emit('update:modelValue', newValue)
+	})
+
+	// 计算属性：实际输入类型
+	const inputType = computed(() => {
+		if (props.type == 'password' && props.showPassword) {
+			return showPasswordValue.value ? 'text' : 'password'
+		}
+		return props.type
+	})
+
+	// 计算属性：是否显示清除按钮
+	const showClear = computed(() => {
+		return props.clearable &&
+			!props.disabled &&
+			!props.readonly &&
+			inputValue.value != null &&
+			inputValue.value != ''
+	})
+
+	// 计算属性：是否显示密码切换按钮
+	const showPasswordToggle = computed(() => {
+		return props.type == 'password' &&
+			props.showPassword &&
+			!props.disabled &&
+			!props.readonly
+	})
+
+	// 计算属性：输入框样式类
+	const inputClass = computed(() => {
+		const classes = ['k-input']
+
+		// 尺寸
+		classes.push(`k-input--${props.size}`)
+
+		// 状态
+		if (isFocused.value) classes.push('k-input--focused')
+		if (props.error) classes.push('k-input--error')
+		if (props.disabled) classes.push('k-input--disabled')
+		if (props.readonly) classes.push('k-input--readonly')
+
+		// 前后缀
+		if (props.prefixIcon) classes.push('k-input--prefix')
+		if (props.suffixIcon || showClear.value || showPasswordToggle.value) {
+			classes.push('k-input--suffix')
+		}
+
+		return classes.join(' ')
+	})
+
+	// 计算属性：合并输入框样式
+	const computedInputStyle = computed(() => {
+		return props.inputStyle
+	})
+
+	// 事件处理函数：输入事件
+	const handleInput = (event : Event) => {
+		const target = event.target as HTMLInputElement
+		let value : string | number = target.value
+
+		// 数字类型处理
+		if (props.type == 'number') {
+			const numValue = parseFloat(value as string)
+			if (!isNaN(numValue)) {
+				// 检查最小值和最大值
+				value = numValue
+			} else {
+				value = ''
+			}
+		}
+
+		// 长度限制
+		if (props.maxlength > 0 && (value as string).length > props.maxlength) {
+			value = (value as string).slice(0, props.maxlength)
+		}
+
+		inputValue.value = value
+		emit('input', event)
+	}
+
+	// 事件处理函数：值改变事件
+	const handleChange = (event : Event) => {
+		emit('change', event)
+	}
+
+	// 事件处理函数：获取焦点
+	const handleFocus = (event : Event) => {
+		if (props.disabled || props.readonly) return
+		isFocused.value = true
+		emit('focus', event)
+	}
+
+	// 事件处理函数：失去焦点
+	const handleBlur = (event : Event) => {
+		isFocused.value = false
+		emit('blur', event)
+	}
+
+	// 事件处理函数：清除输入
+	const handleClear = () => {
+		if (props.disabled || props.readonly) return
+		inputValue.value = ''
+		emit('clear')
+		// 清除后重新获取焦点
+		nextTick(() => {
+			focus()
+		})
+	}
+
+	// 事件处理函数：密码显示切换
+	const handlePasswordToggle = () => {
+		if (props.disabled || props.readonly) return
+		showPasswordValue.value = !showPasswordValue.value
+	}
+
+	// 事件处理函数：确认输入（回车键）
+	const handleConfirm = (event : Event) => {
+		emit('confirm', event)
+	}
+
+	// 暴露给父组件的方法：获取焦点
+	const focus = () => {
+		if (inputRef.value) {
+			// 使用 $callMethod 调用组件方法
+			// inputRef.value.$callMethod('focus')
+		}
+	}
+
+	// 暴露给父组件的方法：失去焦点
+	const blur = () => {
+		if (inputRef.value) {
+			// 使用 $callMethod 调用组件方法
+			// inputRef.value.$callMethod('blur')
+		}
+	}
+
+	// 暴露给父组件的方法：选中所有文本
+	const select = () => {
+		if (inputRef.value) {
+			// 使用 $callMethod 调用组件方法
+			// inputRef.value.$callMethod('select')
+		}
+	}
+
+	// 暴露给父组件的方法：设置选择范围
+	const setSelectionRange = (start : number, end : number) => {
+		if (inputRef.value) {
+			// 使用 $callMethod 调用组件方法
+			// inputRef.value.$callMethod('setSelectionRange', start, end)
+		}
+	}
+
+	// 暴露方法给父组件
+	defineExpose({
+		focus,
+		blur,
+		select,
+		setSelectionRange,
+		inputRef
+	})
+</script>
+
+<template>
+	<view class="kit-ui--root k-input-wrapper">
+		<!-- 输入框主体 -->
+		<view :class="inputClass">
+			<!-- 前缀图标 -->
+			<view v-if="prefixIcon" class="k-input__prefix">
+				<k-icon :name="prefixIcon" color="#ced4da" size="18px"></k-icon>
+			</view>
+
+			<!-- 前缀插槽 -->
+			<view v-if="$slots.prefix" class="k-input__prefix">
+				<slot name="prefix"></slot>
+			</view>
+
+			<!-- 输入框 -->
+			<input ref="inputRef" class="k-input__inner" :type="inputType" :value="inputValue" :placeholder="placeholder" :disabled="disabled||readonly" :maxlength="maxlength > 0 ? maxlength : undefined" :autofocus="autofocus" :name="name" :id="id" :style="computedInputStyle" @input="handleInput" @change="handleChange" @focus="handleFocus" @blur="handleBlur" />
+
+			<!-- 后缀区域 -->
+			<view v-if="showClear || showPasswordToggle || suffixIcon || $slots.suffix" class="k-input__suffix">
+				<!-- 清除按钮 -->
+				<view v-if="showClear" class="k-input__clear" @tap="handleClear">
+					<k-icon name="close-fill" color="#ced4da" size="18px"></k-icon>
+				</view>
+
+				<!-- 密码切换按钮 -->
+				<view v-if="showPasswordToggle" class="k-input__password-toggle" @tap="handlePasswordToggle">
+					<k-icon :name="showPasswordValue?'eye-line':'eye-off-line'" color="#ced4da" size="18px"></k-icon>
+				</view>
+
+				<!-- 后缀图标 -->
+				<view v-if="suffixIcon" class="k-input__suffix-icon">
+					<k-icon :name="suffixIcon" color="#ced4da" size="18px"></k-icon>
+				</view>
+
+				<!-- 后缀插槽 -->
+				<view v-if="$slots.suffix" class="k-input__suffix-slot">
+					<slot name="suffix"></slot>
+				</view>
+			</view>
+		</view>
+
+		<!-- 错误提示信息 -->
+		<view v-if="error && errorMessage" class="k-input__error-message">
+			<text class="k-input__error-text">{{ errorMessage }}</text>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-input-wrapper {
+		position: relative;
+		width: 100%;
+	}
+
+	.k-input {
+		position: relative;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 100%;
+		background-color: var(--k-bg-color);
+		border: var(--k-border-width-base) solid var(--k-border-color);
+		border-radius: var(--k-border-radius-base);
+		transition: all var(--k-transition-duration-base) ease;
+
+		&--focused {
+			border-color: var(--k-color-primary);
+			box-shadow: 0 0 0 2px var(--k-color-primary-bg);
+		}
+
+		&--error {
+			border-color: var(--k-color-error);
+
+			&.k-input--focused {
+				box-shadow: 0 0 0 2px var(--k-color-error-bg);
+			}
+		}
+
+		&--disabled {
+			background-color: var(--k-bg-color-disabled);
+			border-color: var(--k-border-color-light);
+			cursor: not-allowed;
+		}
+
+		&--readonly {
+			background-color: var(--k-bg-color-page);
+		}
+
+		// 尺寸变体
+		&--small {
+			height: var(--k-component-size-sm);
+			padding: 0 var(--k-spacing-sm);
+			font-size: var(--k-font-size-sm);
+		}
+
+		&--medium {
+			height: var(--k-component-size-base);
+			padding: 0 var(--k-spacing-base);
+			font-size: var(--k-font-size-base);
+		}
+
+		&--large {
+			height: var(--k-component-size-md);
+			padding: 0 var(--k-spacing-md);
+			font-size: var(--k-font-size-md);
+		}
+
+		// 前缀样式调整
+		&--prefix {
+			padding-left: var(--k-spacing-sm);
+		}
+
+		// 后缀样式调整
+		&--suffix {
+			padding-right: var(--k-spacing-sm);
+		}
+	}
+
+	.k-input__inner {
+		flex: 1;
+		width: 100%;
+		line-height: 1.2;
+		background-color: transparent;
+		border: none;
+		outline: none;
+		color: var(--k-text-color-primary);
+		font-size: inherit;
+	}
+
+	.k-input__prefix {
+		display: flex;
+		align-items: center;
+		margin-right: var(--k-spacing-sm);
+		color: var(--k-text-color-secondary);
+	}
+
+	.k-input__suffix {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		margin-left: var(--k-spacing-sm);
+		color: var(--k-text-color-secondary);
+	}
+
+	.k-input__clear,
+	.k-input__password-toggle,
+	.k-input__suffix-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 16px;
+		height: 16px;
+		margin-left: var(--k-spacing-xs);
+		cursor: pointer;
+		transition: color var(--k-transition-duration-base) ease;
+	}
+
+	.k-input__clear-icon,
+	.k-input__password-icon,
+	.k-input__suffix-icon-inner {
+		font-size: var(--k-font-size-base);
+	}
+
+	.k-input__error-message {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		margin-top: var(--k-spacing-xs);
+		width: 100%;
+	}
+
+	.k-input__error-text {
+		font-size: var(--k-font-size-sm);
+		color: var(--k-color-error);
+	}
+
+	/* 禁用状态样式 */
+	.k-input--disabled .k-input__inner {
+		color: var(--k-text-color-disabled);
+		cursor: not-allowed;
+	}
+
+	/* 占位符样式 - 需要在 text 组件上定义 */
+	.k-input__placeholder {
+		color: var(--k-text-color-placeholder);
+	}
+</style>

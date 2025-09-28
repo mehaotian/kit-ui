@@ -6,6 +6,12 @@
 			}
 		},
 		{
+			"path": "pages/input/input",
+			"style": {
+				"navigationBarTitleText": "输入框"
+			}
+		},
+		{
 			"path": "pages/button/button",
 			"style": {
 				"navigationBarTitleText": "按钮"

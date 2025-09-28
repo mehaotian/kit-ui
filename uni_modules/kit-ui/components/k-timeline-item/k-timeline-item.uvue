@@ -217,7 +217,7 @@
 </script>
 
 <template>
-	<view class="k-timeline-item" :class="itemClass" @tap="handleClick">
+	<view class="kit-ui--root k-timeline-item" :class="itemClass" @tap="handleClick">
 		<!-- 节点内容容器 -->
 		<view class="k-timeline-item__content">
 			<!-- 左侧标签区域 -->
