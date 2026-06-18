@@ -5,8 +5,8 @@
 		<view class="page">
 			<!-- 页面头部 -->
 			<view class="page-header">
-				<k-text size="24" weight="bold" align="center">k-card 卡片组件</k-text>
-				<k-text class="page-desc" size="14" align="center">卡片组件用于承载信息，支持标题、内容、操作区域等功能</k-text>
+				<text class="page-title">k-card 卡片组件</text>
+				<text class="page-desc">卡片组件用于承载信息，支持标题、内容、操作区域等功能</text>
 			</view>
 
 			<!-- 基础用法 -->

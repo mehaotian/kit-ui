@@ -4,8 +4,8 @@
 	<!-- #endif -->
 		<view class="page">
 			<view class="page-header">
-				<k-text size="24" weight="bold" align="center">k-collapse-item 折叠面板</k-text>
-				<k-text class="page-desc" size="14" align="center">可以折叠/展开的内容区域</k-text>
+				<text class="page-title">k-collapse-item 折叠面板</text>
+				<text class="page-desc">可以折叠/展开的内容区域</text>
 			</view>
 
 			<view class="section">

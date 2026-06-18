@@ -9,7 +9,10 @@
 			</view>
 
 			<view class="section">
-				<text class="section-title">完整示例</text>
+				<view class="section-title">
+					<text class="title-text">完整示例</text>
+					<text class="page-desc">点击图标可复制名称</text>
+				</view>
 				<view class="demo-content demo-row">
 					<view v-for="(item,index) in allFillIcons" :key="index" class="icon-demo-item">
 						<k-icon :name="item" size="24" @click="handleIconClick(item)" />

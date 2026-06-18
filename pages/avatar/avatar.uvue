@@ -71,7 +71,7 @@
 			</view>
 
 			<!-- 带徽标的头像 -->
-			<view class="demo-section">
+			<view class="section">
 				<view class="section-title">
 					<k-text size="16">带徽标的头像</k-text>
 					<k-text class="demo-desc" size="12" color="#999">添加dot属性，控制头像显示徽标</k-text>
@@ -84,7 +84,7 @@
 			</view>
 
 			<!-- 可点击头像 -->
-			<view class="demo-section">
+			<view class="section">
 				<view class="section-title">
 					<k-text size="16">可点击头像</k-text>
 					<k-text class="demo-desc" size="12" color="#999">添加clickable属性，使头像可点击</k-text>
@@ -98,7 +98,7 @@
 			</view>
 
 			<!-- 头像组 -->
-			<view class="demo-section">
+			<view class="section">
 				<view class="section-title">
 					<k-text size="16">头像组</k-text>
 					<k-text class="demo-desc" size="12" color="#999">通过样式实现头像组</k-text>
@@ -110,7 +110,7 @@
 			</view>
 
 			<!-- 自定义内容 -->
-			<view class="demo-section">
+			<view class="section">
 				<view class="section-title">
 					<k-text size="16">自定义内容</k-text>
 					<k-text class="demo-desc" size="12" color="#999">通过插槽实现自定义内容</k-text>
