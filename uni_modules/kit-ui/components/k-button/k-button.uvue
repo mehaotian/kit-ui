@@ -139,8 +139,10 @@
 		<text class="k-button__text">
 			<slot>{{ text }}</slot>
 		</text>
+		<!-- #ifdef WEB -->
 		<!-- 按钮覆盖到最上层，样式自定义 -->
 		<button class="k-button__btn"></button>
+		<!-- #endif -->
 	</view>
 </template>
 <style lang="scss">
@@ -162,7 +164,12 @@
 		border-top-right-radius: var(--k-border-radius-md, 8px);
 		border-bottom-left-radius: var(--k-border-radius-md, 8px);
 		border-bottom-right-radius: var(--k-border-radius-md, 8px);
-		transition: all var(--k-animation-duration-normal, 0.3s) var(--k-animation-timing-ease-out, cubic-bezier(0.25, 0.46, 0.45, 0.94));
+		transition:
+			background-color var(--k-transition-duration-base, 0.3s) ease,
+			background-image var(--k-transition-duration-base, 0.3s) ease,
+			border-color var(--k-transition-duration-fast, 0.2s) ease,
+			box-shadow var(--k-transition-duration-base, 0.3s) ease,
+			transform var(--k-transition-duration-fast, 0.2s) ease;
 
 		// 默认样式 - 简洁风格
 		background-color: var(--k-bg-color, #ffffff);
@@ -205,6 +212,7 @@
 		&--primary--active {
 			background-color: var(--k-color-primary-active, #4f46e5);
 			border-color: var(--k-color-primary-active, #4f46e5);
+			transform: translateY(1px);
 		}
 
 		// 成功按钮 - 纯色背景
@@ -215,8 +223,9 @@
 
 		// 成功按钮按下状态
 		&--success--active {
-			background-color: var(--k-color-success-active, #047857);
-			border-color: var(--k-color-success-active, #047857);
+			background-color: var(--k-color-success-active, #0f9f72);
+			border-color: var(--k-color-success-active, #0f9f72);
+			transform: translateY(1px);
 		}
 
 		// 警告按钮 - 纯色背景
@@ -227,8 +236,9 @@
 
 		// 警告按钮按下状态
 		&--warning--active {
-			background-color: var(--k-color-warning-active, #b45309);
-			border-color: var(--k-color-warning-active, #b45309);
+			background-color: var(--k-color-warning-active, #d97706);
+			border-color: var(--k-color-warning-active, #d97706);
+			transform: translateY(1px);
 		}
 
 		// 危险按钮 - 纯色背景
@@ -239,8 +249,9 @@
 
 		// 危险按钮按下状态
 		&--danger--active {
-			background-color: var(--k-color-error-active, #b91c1c);
-			border-color: var(--k-color-error-active, #b91c1c);
+			background-color: var(--k-color-error-active, #dc2626);
+			border-color: var(--k-color-error-active, #dc2626);
+			transform: translateY(1px);
 		}
 
 		// 朴素按钮 - 透明背景 + 柔和边框
@@ -345,43 +356,103 @@
 
 		// 渐变效果 - 通过属性控制
 		&--gradient {
+			border-color: transparent;
 			&.k-button--primary {
-				// background-image: var(--k-gradient-primary, linear-gradient(to bottom right, #667eea, #764ba2));
-				background-image: var(--k-gradient-primary);
+				background-color: var(--k-color-primary, #6366f1);
+				/* #ifdef APP */
+				background: linear-gradient(to bottom, #7f8cff, #5d6bf4);
+				/* #endif */
+				/* #ifndef APP */
+				background-image: linear-gradient(to bottom, #7f8cff, #5d6bf4);
+				background-image: var(--k-gradient-primary, linear-gradient(to bottom, #7f8cff, #5d6bf4));
+				/* #endif */
 			}
 
 			&.k-button--success {
-				background-image: var(--k-gradient-success);
+				background-color: var(--k-color-success, #10b981);
+				/* #ifdef APP */
+				background: linear-gradient(to bottom, #47cf95, #2bb67d);
+				/* #endif */
+				/* #ifndef APP */
+				background-image: linear-gradient(to bottom, #47cf95, #2bb67d);
+				background-image: var(--k-gradient-success, linear-gradient(to bottom, #47cf95, #2bb67d));
+				/* #endif */
 			}
 
 			&.k-button--warning {
-				background-image: var(--k-gradient-warning);
+				background-color: var(--k-color-warning, #f59e0b);
+				/* #ifdef APP */
+				background: linear-gradient(to bottom, #f9c04f, #f2a42a);
+				/* #endif */
+				/* #ifndef APP */
+				background-image: linear-gradient(to bottom, #f9c04f, #f2a42a);
+				background-image: var(--k-gradient-warning, linear-gradient(to bottom, #f9c04f, #f2a42a));
+				/* #endif */
 			}
 
 			&.k-button--danger {
-				background-image: var(--k-gradient-error);
+				background-color: var(--k-color-error, #ef4444);
+				/* #ifdef APP */
+				background: linear-gradient(to bottom, #ff6f87, #f2526b);
+				/* #endif */
+				/* #ifndef APP */
+				background-image: linear-gradient(to bottom, #ff6f87, #f2526b);
+				background-image: var(--k-gradient-error, linear-gradient(to bottom, #ff6f87, #f2526b));
+				/* #endif */
 			}
 		}
 
 		// 渐变按钮按下状态 - 独立类名
 		&--gradient--default--active {
+			background-color: var(--k-bg-color-active, #f3f4f6);
 			transform: translateY(1px);
-			border: 1px red solid;
 		}
 
 		&--gradient--primary--active {
+			background-color: var(--k-color-primary-active, #4f46e5);
+			/* #ifdef APP */
+			background: linear-gradient(to bottom, #7380f9, #5562e8);
+			/* #endif */
+			/* #ifndef APP */
+			background-image: linear-gradient(to bottom, #7380f9, #5562e8);
+			background-image: var(--k-gradient-primary-active, linear-gradient(to bottom, #7380f9, #5562e8));
+			/* #endif */
 			transform: translateY(1px);
 		}
 
 		&--gradient--success--active {
+			background-color: var(--k-color-success-active, #0f9f72);
+			/* #ifdef APP */
+			background: linear-gradient(to bottom, #39c68d, #25a870);
+			/* #endif */
+			/* #ifndef APP */
+			background-image: linear-gradient(to bottom, #39c68d, #25a870);
+			background-image: var(--k-gradient-success-active, linear-gradient(to bottom, #39c68d, #25a870));
+			/* #endif */
 			transform: translateY(1px);
 		}
 
 		&--gradient--warning--active {
+			background-color: var(--k-color-warning-active, #d97706);
+			/* #ifdef APP */
+			background: linear-gradient(to bottom, #f3b03f, #e59419);
+			/* #endif */
+			/* #ifndef APP */
+			background-image: linear-gradient(to bottom, #f3b03f, #e59419);
+			background-image: var(--k-gradient-warning-active, linear-gradient(to bottom, #f3b03f, #e59419));
+			/* #endif */
 			transform: translateY(1px);
 		}
 
 		&--gradient--danger--active {
+			background-color: var(--k-color-error-active, #dc2626);
+			/* #ifdef APP */
+			background: linear-gradient(to bottom, #f8647d, #e8455f);
+			/* #endif */
+			/* #ifndef APP */
+			background-image: linear-gradient(to bottom, #f8647d, #e8455f);
+			background-image: var(--k-gradient-error-active, linear-gradient(to bottom, #f8647d, #e8455f));
+			/* #endif */
 			transform: translateY(1px);
 		}
 

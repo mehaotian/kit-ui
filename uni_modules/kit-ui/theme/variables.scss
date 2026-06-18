@@ -18,7 +18,7 @@ $k-color-success: #10b981 !default;        // 翡翠绿，温和自然
 $k-color-success-light: #{smart-color-variant($k-color-success, 'light')} !default;  // 浅绿色，柔和成功
 $k-color-success-dark: #{smart-color-variant($k-color-success, 'dark')} !default;   // 深绿，深度成功
 $k-color-success-gradient: linear-gradient(to bottom right, $k-color-success, $k-color-success-dark) !default;
-$k-color-success-active: #047857 !default;
+$k-color-success-active: #0f9f72 !default;
 $k-color-success-bg: rgba($k-color-success, 0.1) !default;
 
 /* 警告色彩 - 温暖舒适系 */
@@ -26,7 +26,7 @@ $k-color-warning: #f59e0b !default;        // 琥珀橙，温暖舒适
 $k-color-warning-light: #{smart-color-variant($k-color-warning, 'light')} !default;  // 浅黄色，柔和警告
 $k-color-warning-dark: #{smart-color-variant($k-color-warning, 'dark')} !default;   // 深橙，深度警告
 $k-color-warning-gradient: linear-gradient(to bottom right, $k-color-warning, $k-color-warning-dark) !default;
-$k-color-warning-active: #b45309 !default;
+$k-color-warning-active: #d97706 !default;
 $k-color-warning-bg: rgba($k-color-warning, 0.1) !default;
 
 /* 错误色彩 - 柔和警示系 */
@@ -34,7 +34,7 @@ $k-color-error: #ef4444 !default;          // 珊瑚红，柔和警示
 $k-color-error-light: #{smart-color-variant($k-color-error, 'light')} !default;    // 浅红色，柔和错误
 $k-color-error-dark: #{smart-color-variant($k-color-error, 'dark')} !default;     // 深红，深度错误
 $k-color-error-gradient: linear-gradient(to bottom right, $k-color-error, $k-color-error-dark) !default;
-$k-color-error-active: #991b1b !default;
+$k-color-error-active: #dc2626 !default;
 $k-color-error-bg: rgba($k-color-error, 0.1) !default;
 
 /* 信息色彩 - 清新淡雅系 */
@@ -46,11 +46,18 @@ $k-color-info-active: #0891b2 !default;
 $k-color-info-bg: rgba($k-color-info, 0.1) !default;
 
 /* 渐变色彩组合 */
-$k-gradient-primary: linear-gradient(to bottom left, #667eea, #764ba2) !default;
-$k-gradient-success: linear-gradient(to bottom left, #10b981, #059669) !default;
-$k-gradient-warning: linear-gradient(to bottom left, #f59e0b, #d97706) !default;
-$k-gradient-error: linear-gradient(to bottom left, #ef4444, #dc2626) !default;
-$k-gradient-info: linear-gradient(to bottom left, #06b6d4, #0891b2) !default;
+$k-gradient-primary: linear-gradient(to bottom, #7f8cff, #5d6bf4) !default;
+$k-gradient-success: linear-gradient(to bottom, #47cf95, #2bb67d) !default;
+$k-gradient-warning: linear-gradient(to bottom, #f9c04f, #f2a42a) !default;
+$k-gradient-error: linear-gradient(to bottom, #ff6f87, #f2526b) !default;
+$k-gradient-info: linear-gradient(to bottom, #46cde3, #26afcd) !default;
+
+/* 渐变按下态色彩 */
+$k-gradient-primary-active: linear-gradient(to bottom, #7380f9, #5562e8) !default;
+$k-gradient-success-active: linear-gradient(to bottom, #39c68d, #25a870) !default;
+$k-gradient-warning-active: linear-gradient(to bottom, #f3b03f, #e59419) !default;
+$k-gradient-error-active: linear-gradient(to bottom, #f8647d, #e8455f) !default;
+$k-gradient-info-active: linear-gradient(to bottom, #36bddb, #219fbd) !default;
 
 /* 中性色彩 */
 $k-color-white: #ffffff !default;

@@ -63,6 +63,12 @@
   --k-gradient-error: #{$k-gradient-error};
 	--k-gradient-danger:#{$k-gradient-error};
   --k-gradient-info: #{$k-gradient-info};
+  --k-gradient-primary-active: #{$k-gradient-primary-active};
+  --k-gradient-success-active: #{$k-gradient-success-active};
+  --k-gradient-warning-active: #{$k-gradient-warning-active};
+  --k-gradient-error-active: #{$k-gradient-error-active};
+  --k-gradient-danger-active: #{$k-gradient-error-active};
+  --k-gradient-info-active: #{$k-gradient-info-active};
   
   /* 文本颜色 */
   --k-text-color-primary: #{$k-text-color-primary};
@@ -72,6 +78,7 @@
   --k-text-color-inverse: #{$k-text-color-inverse};
   --k-text-color-placeholder: #{$k-text-color-placeholder};
   --k-text-color-disabled: #{$k-text-color-disabled};
+  --k-text-color: #{$k-text-color-primary};
   
   /* 背景颜色 */
   --k-bg-color: #{$k-bg-color};
@@ -162,6 +169,7 @@
   --k-text-color-secondary: #{$k-dark-text-color-secondary};
   --k-text-color-tertiary: #{$k-dark-text-color-tertiary};
   --k-text-color-quaternary: #{$k-dark-text-color-quaternary};
+  --k-text-color: #{$k-dark-text-color-primary};
   
   /* 背景颜色 */
   --k-bg-color: #{$k-dark-bg-color};
