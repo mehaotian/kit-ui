@@ -130,7 +130,7 @@ const handleClose = () => {
 ### Props
 
 | 参数 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| --- | --- | --- | --- |
 | type | 加载样式类型 | `'spinner' \| 'dots' \| 'bars' \| 'pulse'` | `'spinner'` |
 | size | 尺寸 | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| string` | `'md'` |
 | color | 颜色主题 | `'primary' \| 'success' \| 'warning' \| 'danger' \| 'info' \| string` | `'primary'` |
@@ -144,13 +144,13 @@ const handleClose = () => {
 ### Events
 
 | 事件名 | 说明 | 回调参数 |
-|--------|------|----------|
+| --- | --- | --- |
 | close | 遮罩关闭时触发 | - |
 
 ## 尺寸对照表
 
 | 尺寸 | 加载器大小 | 文本大小 |
-|------|------------|----------|
+| --- | --- | --- |
 | xs | 16px | 12px |
 | sm | 20px | 14px |
 | md | 24px | 16px |
@@ -160,7 +160,7 @@ const handleClose = () => {
 ## 颜色对照表
 
 | 颜色 | 色值 |
-|------|------|
+| --- | --- |
 | primary | #007AFF |
 | success | #34C759 |
 | warning | #FF9500 |

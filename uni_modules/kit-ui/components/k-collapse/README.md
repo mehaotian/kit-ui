@@ -135,7 +135,7 @@ const onChange = (index, expanded) => {
 ### Props
 
 | 参数 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| --- | --- | --- | --- |
 | title | 面板标题 | `string` | `''` |
 | expanded | 是否展开面板 | `boolean` | `false` |
 | disabled | 是否禁用面板 | `boolean` | `false` |
@@ -146,13 +146,13 @@ const onChange = (index, expanded) => {
 ### Events
 
 | 事件名 | 说明 | 回调参数 |
-|--------|------|----------|
+| --- | --- | --- |
 | change | 面板展开状态改变时触发 | `(expanded: boolean)` |
 
 ### Slots
 
 | 名称 | 说明 |
-|------|------|
+| --- | --- |
 | default | 面板内容 |
 | title | 自定义标题内容 |
 
@@ -161,7 +161,7 @@ const onChange = (index, expanded) => {
 组件提供了以下 CSS 变量，可用于自定义样式：
 
 | 变量名 | 说明 | 默认值 |
-|--------|------|--------|
+| --- | --- | --- |
 | --k-collapse-border-color | 边框颜色 | `#e8e8e8` |
 | --k-collapse-header-bg | 头部背景色 | `#fafafa` |
 | --k-collapse-header-active-bg | 头部激活背景色 | `#f0f0f0` |

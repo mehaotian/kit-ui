@@ -156,7 +156,7 @@ const onItemClick = (name, event) => {
 ### Grid Props
 
 | 参数 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| --- | --- | --- | --- |
 | column | 列数 | number | 4 |
 | border | 是否显示边框 | boolean | true |
 | gutter | 格子之间的间距，单位为px | number | 0 |
@@ -171,7 +171,7 @@ const onItemClick = (name, event) => {
 ### GridItem Props
 
 | 参数 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| --- | --- | --- | --- |
 | text | 文字 | string | '' |
 | icon | 图标名称 | string | '' |
 | icon-prefix | 图标类名前缀 | string | 'k-icon' |
@@ -187,25 +187,25 @@ const onItemClick = (name, event) => {
 ### Grid Events
 
 | 事件名 | 说明 | 回调参数 |
-|--------|------|----------|
+| --- | --- | --- |
 | click | 点击格子时触发 | index: 格子的索引, event: 点击事件对象 |
 
 ### GridItem Events
 
 | 事件名 | 说明 | 回调参数 |
-|--------|------|----------|
+| --- | --- | --- |
 | click | 点击格子时触发 | name: 格子的标识符, event: 点击事件对象 |
 
 ### Grid Slots
 
 | 名称 | 说明 |
-|------|------|
+| --- | --- |
 | default | 默认插槽，用于放置 GridItem |
 
 ### GridItem Slots
 
 | 名称 | 说明 |
-|------|------|
+| --- | --- |
 | default | 自定义宫格的所有内容 |
 | icon | 自定义图标 |
 | text | 自定义文字 |
@@ -217,7 +217,7 @@ const onItemClick = (name, event) => {
 组件提供了下列 CSS 变量，可用于自定义样式。
 
 | 名称 | 默认值 | 描述 |
-|------|--------|------|
+| --- | --- | --- |
 | --k-grid-background-color | #fff | 宫格背景色 |
 | --k-grid-border-color | #ebedf0 | 宫格边框颜色 |
 | --k-grid-item-padding | 16px | 宫格内边距 |

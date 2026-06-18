@@ -162,14 +162,14 @@
 ### Timeline Props
 
 | 参数 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| --- | --- | --- | --- |
 | pending | 指定最后一个幽灵节点是否存在或内容 | boolean | false |
 | direction | 时间轴方向 | 'normal' \| 'reverse' | 'normal' |
 
 ### Timeline Item Props
 
 | 参数 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| --- | --- | --- | --- |
 | color | 指定圆圈颜色 | string | 'blue' |
 | icon | 自定义时间轴点图标 | string | - |
 | time | 时间标签 | string | - |
@@ -177,7 +177,7 @@
 ### Timeline Item Slots
 
 | 名称 | 说明 |
-|------|------|
+| --- | --- |
 | default | 时间轴节点内容 |
 
 ## 主题定制
@@ -185,7 +185,7 @@
 组件提供了下列 CSS 变量，可用于自定义样式：
 
 | 名称 | 默认值 | 描述 |
-|------|--------|------|
+| --- | --- | --- |
 | --k-timeline-line-color | #e5e7eb | 时间轴线条颜色 |
 | --k-timeline-dot-size | 12px | 时间轴节点大小 |
 | --k-timeline-dot-border-width | 2px | 时间轴节点边框宽度 |

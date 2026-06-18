@@ -20,7 +20,7 @@ const value = ref('')
 ### Props
 
 | 参数 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| --- | --- | --- | --- |
 | modelValue | 输入框值 | String \| Number | '' |
 | type | 输入框类型 | String | 'text' |
 | placeholder | 占位符文本 | String | '请输入内容' |
@@ -39,7 +39,7 @@ const value = ref('')
 ### Events
 
 | 事件名 | 说明 | 回调参数 |
-|--------|------|----------|
+| --- | --- | --- |
 | update:modelValue | 值变化时触发 | (value) |
 | input | 输入时触发 | (value, event) |
 | change | 值改变时触发 | (value, event) |
@@ -51,7 +51,7 @@ const value = ref('')
 ### Methods
 
 | 方法名 | 说明 | 参数 |
-|--------|------|------|
+| --- | --- | --- |
 | focus | 使输入框获得焦点 | - |
 | blur | 使输入框失去焦点 | - |
 

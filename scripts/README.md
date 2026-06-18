@@ -52,6 +52,7 @@ scripts\generate-icons.bat
 ### 1. 准备图标文件
 
 确保以下文件存在：
+
 - `uni_modules/kit-ui/components/k-icon/fonts/k-icon.json`：源图标数据文件
 
 ### 2. 运行生成脚本
@@ -61,6 +62,7 @@ scripts\generate-icons.bat
 ### 3. 验证生成结果
 
 脚本会生成：
+
 - `uni_modules/kit-ui/components/k-icon/fonts/k-icon.uts`：图标配置文件
 
 ## 生成的文件结构
@@ -99,17 +101,21 @@ export function getIconVariants(iconName: string): { fill: boolean, line: boolea
 ## 图标命名规则
 
 ### 基础命名
+
 - 使用小写字母和连字符
 - 格式：`{name}-{type}`
 - 示例：`home-fill`、`user-line`
 
 ### 图标类型
+
 - **fill**：填充样式图标（实心）
 - **line**：线条样式图标（空心）
 - **other**：其他特殊样式图标
 
 ### 图标命名
+
 脚本仅保留 JSON 文件中的原始图标名称：
+
 - 原始名称：`home-fill`
 - 不生成前缀别名（如 `kit-home-fill`、`icon-home-fill`）
 
@@ -201,6 +207,7 @@ const UTS_FILE_PATH = '...'   // 目标 UTS 文件路径
 ## 更新日志
 
 ### v2.0.0
+
 - ✨ 新增图标智能分类功能（fill/line/other）
 - ✨ 新增按类型排序功能
 - ✨ 新增分类图标数组导出
@@ -212,6 +219,7 @@ const UTS_FILE_PATH = '...'   // 目标 UTS 文件路径
 - 📝 完善文档和注释
 
 ### v1.0.0
+
 - 🎉 初始版本
 - ✨ 基础图标配置生成功能
 - ✨ Unicode 映射表生成

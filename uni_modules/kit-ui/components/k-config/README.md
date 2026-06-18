@@ -80,7 +80,7 @@ const switchTheme = () => {
 ### Props
 
 | 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
+| --- | --- | --- | --- |
 | theme | Object | `{}` | 主题配置对象 |
 | mode | String | `'light'` | 主题模式（light/dark） |
 

@@ -15,7 +15,7 @@
 ## 组件属性
 
 | 属性名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
+| --- | --- | --- | --- |
 | text | String | '' | 标签文本内容 |
 | type | String | 'default' | 标签类型，可选值：default/primary/success/warning/error/info |
 | size | String | 'medium' | 标签大小，可选值：small/medium/large 或具体数值（如 '16', '18px'） |
@@ -34,14 +34,14 @@
 ## 组件事件
 
 | 事件名 | 说明 | 回调参数 |
-|--------|------|----------|
+| --- | --- | --- |
 | click | 点击标签时触发 | event: Event |
 | close | 点击关闭按钮时触发 | event: Event |
 
 ## 插槽
 
 | 插槽名 | 说明 |
-|--------|------|
+| --- | --- |
 | default | 自定义标签内容 |
 
 ## 使用示例
@@ -178,7 +178,7 @@ const customTheme = {
 #### 支持的主题变量
 
 | 变量名 | 说明 | 默认值 |
-|--------|------|--------|
+| --- | --- | --- |
 | colorPrimary | 主要颜色 | #007AFF |
 | colorSuccess | 成功颜色 | #34C759 |
 | colorWarning | 警告颜色 | #FF9500 |

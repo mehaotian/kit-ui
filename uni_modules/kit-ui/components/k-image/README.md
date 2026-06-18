@@ -125,7 +125,7 @@ const handlePreview = (src) => {
 ### Props
 
 | 属性名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
+| --- | --- | --- | --- |
 | src | String | '' | 图片资源地址 |
 | mode | String | 'scaleToFill' | 图片裁剪、缩放的模式 |
 | width | String | null | 图片宽度 |
@@ -149,7 +149,7 @@ const handlePreview = (src) => {
 ### Events
 
 | 事件名 | 说明 | 回调参数 |
-|--------|------|----------|
+| --- | --- | --- |
 | load | 图片加载完成时触发 | (event) |
 | error | 图片加载失败时触发 | (event) |
 | click | 点击图片时触发 | - |
@@ -158,7 +158,7 @@ const handlePreview = (src) => {
 ### Mode 值说明
 
 | 值 | 说明 |
-|----|------|
+| --- | --- |
 | scaleToFill | 缩放模式，不保持纵横比缩放图片，使图片的宽高完全拉伸至填满 image 元素 |
 | aspectFit | 缩放模式，保持纵横比缩放图片，使图片的长边能完全显示出来 |
 | aspectFill | 缩放模式，保持纵横比缩放图片，只保证图片的短边能完全显示出来 |

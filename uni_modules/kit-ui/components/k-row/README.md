@@ -51,7 +51,7 @@
 ## Props
 
 | 参数 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| --- | --- | --- | --- |
 | gutter | 栅格间隔，单位px | number | 0 |
 | justify | 水平排列方式 | 'start' \| 'end' \| 'center' \| 'space-around' \| 'space-between' \| 'space-evenly' | 'start' |
 | align | 垂直对齐方式 | 'top' \| 'middle' \| 'bottom' \| 'stretch' | 'top' |
