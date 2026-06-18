@@ -2,275 +2,163 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		<view class="row">
-			<view class="box primary">主色</view>
-			<view class="row-box">
-				<view class="primary-box primary-900"></view>
-				<view class="primary-box primary-800"></view>
-				<view class="primary-box primary-700"></view>
-				<view class="primary-box primary-600"></view>
-				<view class="primary-box primary-500"></view>
-				<view class="primary-box primary-400"></view>
-				<view class="primary-box primary-300"></view>
-				<view class="primary-box primary-200"></view>
-				<view class="primary-box primary-100"></view>
+		<view class="kit-ui--root color-page">
+			<view class="color-page__header">
+				<k-text size="22" weight="bold">色彩系统</k-text>
+				<k-text size="12" color="var(--k-text-color-secondary, #6b7280)">统一展示主色与语义色的平滑色阶</k-text>
 			</view>
-		</view>
 
-		<view class="row">
-			<view class="box warning">警告色</view>
-			<view class="row-box">
-				<view class="primary-box warning-900"></view>
-				<view class="primary-box warning-800"></view>
-				<view class="primary-box warning-700"></view>
-				<view class="primary-box warning-600"></view>
-				<view class="primary-box warning-500"></view>
-				<view class="primary-box warning-400"></view>
-				<view class="primary-box warning-300"></view>
-				<view class="primary-box warning-200"></view>
-				<view class="primary-box warning-100"></view>
+			<view v-for="(group, groupIndex) in colorGroups" :key="group.key" class="color-card" :class="{
+				'color-card--last': groupIndex == colorGroups.length - 1
+			}">
+				<view class="color-card__title">
+					<k-text size="16" weight="bold">{{ group.label }}</k-text>
+					<k-text size="12" color="var(--k-text-color-secondary, #6b7280)">{{ group.baseLabel }}</k-text>
+				</view>
+
+				<view class="color-card__preview" :style="`background-color: ${group.baseToken};`"></view>
+
+				<view class="color-tone-row">
+					<view v-for="(tone, toneIndex) in group.tones" :key="tone.key" class="color-tone-item" :class="{
+						'color-tone-item--last': toneIndex == group.tones.length - 1
+					}">
+						<view class="color-tone-item__block" :style="`background-color: ${tone.token};`"></view>
+						<k-text size="10" color="var(--k-text-color-tertiary, #9ca3af)" align="center">{{ tone.key }}</k-text>
+					</view>
+				</view>
 			</view>
 		</view>
-		<view class="row">
-			<view class="box error">错误色</view>
-			<view class="row-box">
-				<view class="primary-box error-900"></view>
-				<view class="primary-box error-800"></view>
-				<view class="primary-box error-700"></view>
-				<view class="primary-box error-600"></view>
-				<view class="primary-box error-500"></view>
-				<view class="primary-box error-400"></view>
-				<view class="primary-box error-300"></view>
-				<view class="primary-box error-200"></view>
-				<view class="primary-box error-100"></view>
-			</view>
-		</view>
-		<view class="row">
-			<view class="box info">信息色</view>
-			<view class="row-box">
-				<view class="primary-box info-900"></view>
-				<view class="primary-box info-800"></view>
-				<view class="primary-box info-700"></view>
-				<view class="primary-box info-600"></view>
-				<view class="primary-box info-500"></view>
-				<view class="primary-box info-400"></view>
-				<view class="primary-box info-300"></view>
-				<view class="primary-box info-200"></view>
-				<view class="primary-box info-100"></view>
-			</view>
-		</view>
-		
-		<view class="row">
-			<view class="box success">成功色</view>
-			<view class="row-box">
-				<view class="primary-box success-900"></view>
-				<view class="primary-box success-800"></view>
-				<view class="primary-box success-700"></view>
-				<view class="primary-box success-600"></view>
-				<view class="primary-box success-500"></view>
-				<view class="primary-box success-400"></view>
-				<view class="primary-box success-300"></view>
-				<view class="primary-box success-200"></view>
-				<view class="primary-box success-100"></view>
-			</view>
-		</view>
-		
-		
 	<!-- #ifdef APP -->
 	</scroll-view>
 	<!-- #endif -->
 </template>
 
-<script>
-	export default {
-		data() {
-			return {
-				
-			}
-		},
-		methods: {
-			
-		}
+<script setup lang="uts">
+type ColorTone = {
+	key : string
+	token : string
+}
+
+type ColorGroup = {
+	key : string
+	label : string
+	baseLabel : string
+	baseToken : string
+	tones : ColorTone[]
+}
+
+const toneKeys = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900']
+
+/**
+ * 构建色阶 token 列表
+ * 所有色值统一从主题变量读取，避免 demo 硬编码颜色
+ */
+const buildToneTokens = (colorName : string) : ColorTone[] => {
+	const tones : ColorTone[] = []
+	toneKeys.forEach((toneKey : string) => {
+		tones.push({
+			key: toneKey,
+			token: `var(--k-color-${colorName}-${toneKey})`
+		})
+	})
+	return tones
+}
+
+const colorGroups = ref<ColorGroup[]>([
+	{
+		key: 'primary',
+		label: '主色',
+		baseLabel: '--k-color-primary',
+		baseToken: 'var(--k-color-primary)',
+		tones: buildToneTokens('primary')
+	},
+	{
+		key: 'success',
+		label: '成功色',
+		baseLabel: '--k-color-success',
+		baseToken: 'var(--k-color-success)',
+		tones: buildToneTokens('success')
+	},
+	{
+		key: 'warning',
+		label: '警告色',
+		baseLabel: '--k-color-warning',
+		baseToken: 'var(--k-color-warning)',
+		tones: buildToneTokens('warning')
+	},
+	{
+		key: 'error',
+		label: '错误色',
+		baseLabel: '--k-color-error',
+		baseToken: 'var(--k-color-error)',
+		tones: buildToneTokens('error')
+	},
+	{
+		key: 'info',
+		label: '信息色',
+		baseLabel: '--k-color-info',
+		baseToken: 'var(--k-color-info)',
+		tones: buildToneTokens('info')
 	}
+])
+
 </script>
 
 <style lang="scss">
-	// 感觉上是有点bug ，按说不用引入 ，app。vue 引入即可 ，但是现在不引入会报错找不到变量，需要排查一下原因
 @import "@/uni_modules/kit-ui/theme/index.scss";
-.box {
-	width: 100%;
-	height: 100px;
+
+.color-page {
+	padding: 16px;
+	background-color: var(--k-bg-color-page, #f8fafc);
 }
 
-.row {
-	// display: flex;
-	// flex-direction: row;
-	margin-bottom: 20px;
-}
-.primary {
-	background-color: $k-color-primary;
+.color-page__header {
+	margin-bottom: 12px;
 }
 
-.row-box {
+.color-card {
+	background-color: var(--k-bg-color, #ffffff);
+	border: 1px solid var(--k-border-color-light, #f3f4f6);
+	border-radius: 12px;
+	padding: 12px;
+	margin-bottom: 12px;
+}
+
+.color-card--last {
+	margin-bottom: 0;
+}
+
+.color-card__title {
+	margin-bottom: 10px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.color-card__preview {
+	height: 74px;
+	border-radius: 10px;
+	margin-bottom: 10px;
+}
+
+.color-tone-row {
 	display: flex;
 	flex-direction: row;
 }
 
-.primary-box {
+.color-tone-item {
 	flex: 1;
-	height: 50px;
-}
-.primary-900 {
-	background-color: $k-color-primary-900;
-}
-.primary-800 {
-	background-color: $k-color-primary-800;
-}
-.primary-700 {
-	background-color: $k-color-primary-700;
-}
-.primary-600 {
-	background-color: $k-color-primary-600;
-}
-.primary-500 {
-	background-color: $k-color-primary-500;
-}
-.primary-400 {
-	background-color: $k-color-primary-400;
-}
-.primary-300 {
-	background-color: $k-color-primary-300;
-}
-.primary-200 {
-	background-color: $k-color-primary-200;
-}
-.primary-100 {
-	background-color: $k-color-primary-100;
+	margin-right: 4px;
 }
 
-.warning {
-	background-color: $k-color-warning;
-}
-.warning-900 {
-	background-color: $k-color-warning-900;
-}
-.warning-800 {
-	background-color: $k-color-warning-800;
-}
-.warning-700 {
-	background-color: $k-color-warning-700;
-}
-.warning-600 {
-	background-color: $k-color-warning-600;
-}
-.warning-500 {
-	background-color: $k-color-warning-500;
-}
-.warning-400 {
-	background-color: $k-color-warning-400;
-}
-.warning-300 {
-	background-color: $k-color-warning-300;
-}
-.warning-200 {
-	background-color: $k-color-warning-200;
-}
-.warning-100 {
-	background-color: $k-color-warning-100;
+.color-tone-item--last {
+	margin-right: 0;
 }
 
-
-.error {
-	background-color: $k-color-error;
+.color-tone-item__block {
+	height: 24px;
+	border-radius: 6px;
+	margin-bottom: 4px;
 }
-
-.error-900 {
-	background-color: $k-color-error-900;
-}
-.error-800 {
-	background-color: $k-color-error-800;
-}
-.error-700 {
-	background-color: $k-color-error-700;
-}
-.error-600 {
-	background-color: $k-color-error-600;
-}
-.error-500 {
-	background-color: $k-color-error-500;
-}
-.error-400 {
-	background-color: $k-color-error-400;
-}
-.error-300 {
-	background-color: $k-color-error-300;
-}
-.error-200 {
-	background-color: $k-color-error-200;
-}
-.error-100 {
-	background-color: $k-color-error-100;
-}
-
-.info {
-	background-color: $k-color-info;
-}
-.info-900 {
-	background-color: $k-color-info-900;
-}
-.info-800 {
-	background-color: $k-color-info-800;
-}
-.info-700 {
-	background-color: $k-color-info-700;
-}
-.info-600 {
-	background-color: $k-color-info-600;
-}
-.info-500 {
-	background-color: $k-color-info-500;
-}
-.info-400 {
-	background-color: $k-color-info-400;
-}
-.info-300 {
-	background-color: $k-color-info-300;
-}
-.info-200 {
-	background-color: $k-color-info-200;
-}
-.info-100 {
-	background-color: $k-color-info-100;
-}
-.success {
-	background-color: $k-color-success;
-}
-.success-900 {
-	background-color: $k-color-success-900;
-}
-.success-800 {
-	background-color: $k-color-success-800;
-}
-.success-700 {
-	background-color: $k-color-success-700;
-}
-.success-600 {
-	background-color: $k-color-success-600;
-}
-.success-500 {
-	background-color: $k-color-success-500;
-}
-.success-400 {
-	background-color: $k-color-success-400;
-}
-.success-300 {
-	background-color: $k-color-success-300;
-}
-.success-200 {
-	background-color: $k-color-success-200;
-}
-.success-100 {
-	background-color: $k-color-success-100;
-}
-
 </style>
