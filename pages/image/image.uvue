@@ -228,8 +228,7 @@
 						width="100px"
 						height="100px"
 						preview
-						@click="handleImageClick"
-						@preview="handlePreview"
+						@preview="handlePreviewOpen"
 					/>
 				</view>
 			</view>
@@ -244,7 +243,6 @@
 						src="https://picsum.photos/200/200?random=12"
 						width="100px"
 						height="100px"
-						preview
 						disabled
 						@click="handleDisabledClick"
 					/>
@@ -260,16 +258,8 @@
 	// 备用图片地址列表，用于 fallbackSrc 演示
 	const fallbackList = ['https://picsum.photos/200/200?random=81']
 
-	// 处理图片点击事件
-	const handleImageClick = () => {
-		uni.showToast({
-			title: '图片被点击',
-			icon: 'none'
-		})
-	}
-
-	// 处理图片预览事件
-	const handlePreview = (src : string) => {
+	// 预览成功回调
+	const handlePreviewOpen = (src : string) => {
 		console.log('预览图片:', src)
 	}
 

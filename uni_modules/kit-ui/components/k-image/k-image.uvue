@@ -146,21 +146,6 @@
 			type: Boolean,
 			default: false
 		},
-		// 预览图标
-		previewIcon: {
-			type: String,
-			default: 'eye'
-		},
-		// 预览图标大小
-		previewIconSize: {
-			type: String,
-			default: '20'
-		},
-		// 预览图标颜色
-		previewIconColor: {
-			type: String,
-			default: '#ffffff'
-		},
 		// 是否显示遮罩层
 		showMask: {
 			type: Boolean,
@@ -250,23 +235,16 @@
 		return styles.join('; ')
 	})
 
-	// 处理容器点击：预览模式下触发预览，并统一派发 click 事件
+	// 处理容器点击：预览模式下仅触发预览，不派发 click
 	const handleClick = () => {
 		if (props.disabled) {
 			return
 		}
 		if (props.preview && currentSrc.value != '') {
 			handlePreview()
-		}
-		emit('click')
-	}
-
-	// 处理预览图标点击，阻止冒泡避免重复触发容器 click
-	const handlePreviewIconClick = () => {
-		if (props.disabled) {
 			return
 		}
-		handlePreview()
+		emit('click')
 	}
 
 	const handleLoad = (event : UniImageLoadEvent) => {
@@ -398,11 +376,6 @@
 		<view v-if="showMask" class="k-image__mask" :style="maskStyle">
 			<slot name="mask"></slot>
 		</view>
-
-		<!-- 预览图标：disabled 时不渲染，避免点击/触摸时灰色圆形闪现 -->
-		<view v-if="preview && !disabled && !isLoading && !hasError" class="k-image__preview-icon" @click.stop="handlePreviewIconClick">
-			<k-icon :name="previewIcon" :size="previewIconSize" :color="previewIconColor"></k-icon>
-		</view>
 	</view>
 </template>
 
@@ -455,15 +428,6 @@
 		&--preview {
 			/* #ifdef WEB */
 			cursor: pointer;
-			/* #endif */
-
-			/* #ifdef WEB */
-			&:hover {
-				.k-image__preview-icon {
-					opacity: 1;
-				}
-			}
-
 			/* #endif */
 		}
 
@@ -535,26 +499,6 @@
 			right: 0;
 			bottom: 0;
 			pointer-events: none;
-		}
-
-		// 预览图标
-		&__preview-icon {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 40px;
-			height: 40px;
-			background-color: rgba(0, 0, 0, 0.5);
-			border-radius: 20px;
-			opacity: 0;
-			/* #ifdef WEB */
-			transition: opacity 0.3s ease;
-			cursor: pointer;
-			/* #endif */
 		}
 	}
 </style>
