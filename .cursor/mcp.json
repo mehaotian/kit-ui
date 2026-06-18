@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "uni-app-x": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "uni-app-x-mcp"
+      ]
+    }
+  }
+}
