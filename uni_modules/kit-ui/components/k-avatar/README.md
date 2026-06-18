@@ -136,7 +136,6 @@ function handleClick() {
 | badge | 徽标配置 | string \| number | null |
 | badgeColor | 徽标颜色 | string | '#ff4757' |
 
-
 ## Events
 
 | 事件名 | 说明 | 回调参数 |
