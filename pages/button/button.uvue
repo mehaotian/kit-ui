@@ -13,7 +13,7 @@
 				<view class="section-title">
 					<text class="title-text">基础用法</text>
 				</view>
-				<view class="demo-content demo-row">
+				<view class="demo-content demo-column">
 					<k-button class="k-btn" type="default" text="默认按钮" @click="handleClick('default')"></k-button>
 					<k-button class="k-btn" type="primary" text="主要按钮" @click="handleClick('primary')"></k-button>
 					<k-button class="k-btn" type="success" text="成功按钮" @click="handleClick('success')"></k-button>

@@ -1,0 +1,13 @@
+<script setup>
+	
+</script>
+
+<template>
+	<view class="kit-ui--root k-input-wrapper">
+test		
+	</view>
+</template>
+
+<style lang="scss">
+	
+</style>

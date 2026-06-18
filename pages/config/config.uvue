@@ -2,63 +2,71 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<k-text size="24" weight="bold" align="center">k-config 主题注入演示</k-text>
+				<k-text class="page-desc" size="14" align="center">通过 k-config 实现组件的主题切换</k-text>
+			</view>
 
-
-		<view class="config-demo">
-			<view class="demo-section">
-				<text class="section-title">k-config 主题注入演示</text>
-
-				<!-- 默认主题配置 -->
-				<view class="demo-group">
-					<text class="group-title">默认主题</text>
-					<k-config >
-						<view class="button-group">
-							<k-button type="success" text="成功按钮" />
-							<k-button type="primary" text="主要按钮" />
-							<k-button type="warning" text="警告按钮" />
-						</view>
-					</k-config>
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">默认主题</k-text>
 				</view>
 
-				<!-- 自定义主题配置 -->
-				<view class="demo-group">
-					<text class="group-title">自定义主题配置</text>
+				<view class="demo-content">
+					<k-button class="k-btn" type="primary" text="主要按钮" />
+					<k-button class="k-btn" type="success" text="成功按钮" />
+					<k-button class="k-btn" type="warning" text="警告按钮" />
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">自定义主题</k-text>
+				</view>
+
+				<view class="demo-content">
 					<k-config :theme="customTheme">
-						<view class="button-group">
-							<k-button type="success" text="成功按钮" />
-							<k-button type="primary" text="主要按钮" />
-							<k-button type="warning" text="警告按钮" />
-						</view>
+						<k-button class="k-btn" type="primary" text="主要按钮" />
+						<k-button class="k-btn" type="success" text="成功按钮" />
+						<k-button class="k-btn" type="warning" text="警告按钮" />
 					</k-config>
 				</view>
+			</view>
 
-				<!-- 橙色主题配置 -->
-				<view class="demo-group">
-					<text class="group-title">橙色主题配置</text>
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">橙色主题配置</k-text>
+				</view>
+
+				<view class="demo-content">
 					<k-config :theme="orangeTheme">
-						<view class="button-group">
-							<k-button type="success" text="成功按钮" />
-							<k-button type="primary" text="主要按钮" />
-							<k-button type="warning" text="警告按钮" />
-						</view>
+						<k-button class="k-btn" type="primary" text="主要按钮" />
+						<k-button class="k-btn" type="success" text="成功按钮" />
+						<k-button class="k-btn" type="warning" text="警告按钮" />
 					</k-config>
 				</view>
+			</view>
 
-				<!-- 动态主题切换 -->
-				<view class="demo-group">
-					<text class="group-title">动态主题切换</text>
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">动态主题切换</k-text>
+				</view>
+
+				<view class="demo-content">
 					<view class="theme-controls">
-						<button @click="switchToBlue" class="control-btn">蓝色主题</button>
-						<button @click="switchToGreen" class="control-btn">绿色主题</button>
-						<button @click="switchToPurple" class="control-btn">紫色主题</button>
+						<button @click="switchToBlue" size="mini" class="control-btn">蓝色主题</button>
+						<button @click="switchToGreen" size="mini" class="control-btn">绿色主题</button>
+						<button @click="switchToPurple" size="mini" class="control-btn">紫色主题</button>
 					</view>
-					{{dynamicTheme}}
+					<view class="code">
+						{{dynamicTheme}}
+					</view>
 					<k-config :theme="dynamicTheme">
 						<view class="button-group">
-							<k-button type="success" text="成功按钮" />
-							<k-button type="success" text="成功按钮" />
-							<k-button type="primary" text="主要按钮" />
-							<k-button type="warning" text="警告按钮" />
+							<k-button class="k-btn" type="primary" text="主要" />
+							<k-button class="k-btn" type="success" text="成功" />
+							<k-button class="k-btn" type="warning" text="警告" />
 						</view>
 					</k-config>
 				</view>
@@ -121,69 +129,27 @@
 </script>
 
 <style lang="scss" scoped>
-	.config-demo {
-		padding: 20px;
-		background-color: #f8f9fa;
+	.demo-content {
+		padding: 10px;
 	}
 
-	.demo-section {
-		max-width: 800px;
-		margin: 0 auto;
+	.k-btn {
+		margin: 10px;
 	}
 
-	.section-title {
-		font-size: 24px;
-		font-weight: bold;
-		color: #333;
-		margin-bottom: 20px;
-	}
-
-	.demo-group {
-		margin-bottom: 30px;
-		padding: 20px;
-		background-color: #ffffff;
-		border-radius: 8px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	}
-
-	.group-title {
-		font-size: 16px;
-		font-weight: 400;
-		color: #666;
-		margin-bottom: 15px;
-	}
-
-	.button-group {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-	}
-
+	.button-group,
 	.theme-controls {
 		display: flex;
 		flex-direction: row;
-		margin-bottom: 15px;
-		flex-wrap: wrap;
+		justify-content: center;
 	}
 
+	.code {
+		margin: 10px 0;
+		padding: 10px;
+		background-color: #eee;
+	}
 	.control-btn {
-		padding: 8px 16px;
-		border: 1px solid #d9d9d9;
-		border-radius: 6px;
-		background-color: #ffffff;
-		color: #333;
-		font-size: 14px;
-		transition: all 0.3s ease;
-
-		/* #ifdef WEB */
-		&:hover {
-			border-color: #40a9ff;
-			color: #40a9ff;
-		}
-		/* #endif */
-
-		&:active {
-			transform: scale(0.98);
-		}
+		margin: 10px;
 	}
 </style>

@@ -9,14 +9,15 @@
 		parseIconColor,
 		getIconUnicode,
 	} from './config.uts'
-	
+
 	// 微信小程序使用动态加载字体
 	// #ifdef MP-WEIXIN
-	import KiconPath from "./fonts/k-icon.ttf"
+	// import KiconPath from "./fonts/k-icon.ttf"
+	import { base64 } from './fonts/k-icon-base64.uts'
 	uni.loadFontFace({
 		global: false,
 		family: 'KIconRoot',
-		source: `url('${KiconPath}')`,
+		source: `url('${base64}')`,
 		success() {},
 		fail(error) {},
 	})
@@ -483,13 +484,15 @@
 </template>
 <style lang="scss">
 	@import "../../theme/index.scss";
+
 	/* #ifndef MP-WEIXIN */
 	@font-face {
 		font-family: KIconRoot;
 		src: url('./fonts/k-icon.ttf');
 	}
+
 	/* #endif */
-	
+
 
 	// 基础图标字体类
 	.k-icon-font {

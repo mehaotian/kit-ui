@@ -136,20 +136,20 @@
 	const inputClass = computed(() => {
 		const classes = ['k-input']
 
-		// 尺寸
-		classes.push(`k-input--${props.size}`)
+		// // 尺寸
+		// classes.push(`k-input--${props.size}`)
 
-		// 状态
-		if (isFocused.value) classes.push('k-input--focused')
-		if (props.error) classes.push('k-input--error')
-		if (props.disabled) classes.push('k-input--disabled')
-		if (props.readonly) classes.push('k-input--readonly')
+		// // 状态
+		// if (isFocused.value) classes.push('k-input--focused')
+		// if (props.error) classes.push('k-input--error')
+		// if (props.disabled) classes.push('k-input--disabled')
+		// if (props.readonly) classes.push('k-input--readonly')
 
-		// 前后缀
-		if (props.prefixIcon) classes.push('k-input--prefix')
-		if (props.suffixIcon || showClear.value || showPasswordToggle.value) {
-			classes.push('k-input--suffix')
-		}
+		// // 前后缀
+		// if (props.prefixIcon) classes.push('k-input--prefix')
+		// if (props.suffixIcon || showClear.value || showPasswordToggle.value) {
+		// 	classes.push('k-input--suffix')
+		// }
 
 		return classes.join(' ')
 	})
@@ -281,7 +281,7 @@
 			</view>
 
 			<!-- 输入框 -->
-			<input ref="inputRef" class="k-input__inner" :type="inputType" :value="inputValue" :placeholder="placeholder" :disabled="disabled||readonly" :maxlength="maxlength > 0 ? maxlength : undefined" :autofocus="autofocus" :name="name" :id="id" :style="computedInputStyle" @input="handleInput" @change="handleChange" @focus="handleFocus" @blur="handleBlur" />
+			<!-- <input ref="inputRef" class="k-input__inner" :type="inputType" :value="inputValue" :placeholder="placeholder" :disabled="disabled||readonly" :maxlength="maxlength > 0 ? maxlength : undefined" :autofocus="autofocus" :name="name" :id="id" :style="computedInputStyle" @input="handleInput" @change="handleChange" @focus="handleFocus" @blur="handleBlur" /> -->
 
 			<!-- 后缀区域 -->
 			<view v-if="showClear || showPasswordToggle || suffixIcon || $slots.suffix" class="k-input__suffix">

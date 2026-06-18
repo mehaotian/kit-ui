@@ -68,6 +68,7 @@
 			count: 8,
 			path: '/pages/category/basic',
 			components: [
+				{ name: 'Config | 配置', path: '/pages/config/config', status: 'developing' },
 				{ name: 'Color | 颜色', path: '/pages/color/color', status: 'developing' },
 				{ name: 'Button | 按钮', path: '/pages/button/button', status: 'completed' },
 				{ name: 'Icon | 图标', path: '/pages/icon/icon', status: 'completed' },

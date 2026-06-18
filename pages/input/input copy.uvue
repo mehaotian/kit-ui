@@ -1,0 +1,234 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view class="container">
+	<!-- #endif -->
+		<view class="page">
+			<!-- 页面标题 -->
+			<view class="page-header">
+				<k-text size="24" weight="bold" align="center">k-input 输入框</k-text>
+				<k-text class="page-desc" size="14" align="center">用于接收用户输入的文本内容</k-text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">基础用法</k-text>
+					<k-text size="12" color="#999">基础的输入框用法</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="basicValue" placeholder="请输入内容" />
+				</view>
+
+			</view>
+
+			<!-- 不同尺寸 -->
+			<view class="section">
+
+				<view class="section-title">
+					<k-text size="16">不同尺寸</k-text>
+					<k-text size="12" color="#999">提供三种不同的尺寸：small、medium、large</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="sizeValue" size="small" placeholder="小尺寸输入框" />
+					<k-input class="input-demo" v-model="sizeValue" size="medium" placeholder="中等尺寸输入框" />
+					<k-input class="input-demo" v-model="sizeValue" size="large" placeholder="大尺寸输入框" />
+				</view>
+			</view>
+
+			<!-- 输入类型 -->
+			<view class="section">
+
+				<view class="section-title">
+					<text class="title-text"></text>
+					<k-text size="16">输入类型</k-text>
+					<k-text size="12" color="#999">支持多种输入类型：text、password、number、tel、email 等</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="textValue" type="text" placeholder="文本输入" />
+
+					<k-input class="input-demo" v-model="passwordValue" type="password" placeholder="密码输入" show-password />
+
+					<k-input class="input-demo" v-model="numberValue" type="number" placeholder="数字输入" />
+
+					<k-input class="input-demo" v-model="telValue" type="tel" placeholder="电话号码" />
+
+					<k-input class="input-demo" v-model="emailValue" type="email" placeholder="邮箱地址" />
+				</view>
+			</view>
+
+			<!-- 清除功能 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">清除功能</k-text>
+					<k-text size="12" color="#999">设置 clearable 属性显示清除按钮</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="clearableValue" placeholder="可清除的输入框" clearable />
+				</view>
+			</view>
+
+			<!-- 前后缀 -->
+			<view class="section">
+
+				<view class="section-title">
+					<k-text size="16">前后缀</k-text>
+					<k-text size="12" color="#999">可以设置前缀和后缀图标，也可以使用插槽自定义内容</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="prefixValue" placeholder="带前缀的输入框" prefix-icon="search-line" />
+					<k-input class="input-demo" v-model="suffixValue" placeholder="带后缀的输入框" suffix-icon="search-line" />
+					<k-input class="input-demo" v-model="slotValue" placeholder="使用插槽">
+						<template #prefix>
+							<text class="prefix-text">https://</text>
+						</template>
+						<template #suffix>
+							<text class="suffix-text">.com</text>
+						</template>
+					</k-input>
+				</view>
+
+
+			</view>
+
+			<!-- 禁用状态 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">禁用状态</k-text>
+					<k-text size="12" color="#999">设置 disabled 属性禁用输入框</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="disabledValue" placeholder="禁用状态" disabled />
+				</view>
+			</view>
+
+			<!-- 只读状态 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">只读状态</k-text>
+					<k-text size="12" color="#999">设置 readonly 属性使输入框只读</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="readonlyValue" placeholder="只读状态" readonly />
+				</view>
+			</view>
+
+			<!-- 错误状态 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">错误状态</k-text>
+					<k-text size="12" color="#999">设置 error 和 error-message 属性显示错误状态和提示</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="errorValue" placeholder="输入内容" :error="errorValue.length > 0 && errorValue.length < 6" :error-message="errorValue.length > 0 && errorValue.length < 6 ? '内容长度不能少于6个字符' : ''" />
+				</view>
+			</view>
+
+			<!-- 字符限制 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">字符限制</k-text>
+					<k-text size="12" color="#999">设置 maxlength 属性限制输入字符数</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="maxlengthValue" placeholder="最多输入10个字符" :maxlength="10" />
+				</view>
+			</view>
+
+			<!-- 事件处理 -->
+			<view class="section">
+				<view class="section-title">
+					<k-text size="16">事件处理</k-text>
+					<k-text size="12" color="#999">支持多种事件：input、change、focus、blur、clear、confirm</k-text>
+				</view>
+				<view class="demo-content">
+					<k-input class="input-demo" v-model="eventValue" placeholder="输入内容查看事件" @input="handleInput" @change="handleChange" @focus="handleFocus" @blur="handleBlur" @clear="handleClear" @confirm="handleConfirm" />
+				</view>
+				<view class="event-log">
+					<text class="event-text">事件日志：{{ eventLog }}</text>
+				</view>
+
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup>
+	import { ref } from 'vue'
+
+	// 基础用法
+	const basicValue = ref<string>('')
+
+	// 不同尺寸
+	const sizeValue = ref<string>('')
+
+	// 输入类型
+	const textValue = ref<string>('')
+	const passwordValue = ref<string>('')
+	const numberValue = ref<number | string>('')
+	const telValue = ref<string>('')
+	const emailValue = ref<string>('')
+
+	// 清除功能
+	const clearableValue = ref<string>('')
+
+	// 前后缀
+	const prefixValue = ref<string>('')
+	const suffixValue = ref<string>('')
+	const slotValue = ref<string>('')
+
+	// 禁用状态
+	const disabledValue = ref<string>('禁用状态的输入框')
+
+	// 只读状态
+	const readonlyValue = ref<string>('只读状态的输入框')
+
+	// 错误状态
+	const errorValue = ref<string>('')
+
+	// 字符限制
+	const maxlengthValue = ref<string>('')
+
+	// 数字范围
+	const rangeValue = ref<number | string>('')
+
+	// 事件处理
+	const eventValue = ref<string>('')
+	const eventLog = ref<string>('暂无事件')
+
+	// 事件处理函数
+	const handleInput = (event : Event) => {
+		eventLog.value = `输入事件: ${(event.target as HTMLInputElement).value}`
+	}
+
+	const handleChange = (event : Event) => {
+		eventLog.value = `改变事件: ${(event.target as HTMLInputElement).value}`
+	}
+
+	const handleFocus = (event : Event) => {
+		eventLog.value = '获取焦点事件'
+	}
+
+	const handleBlur = (event : Event) => {
+		eventLog.value = '失去焦点事件'
+	}
+
+	const handleClear = () => {
+		eventLog.value = '清除事件'
+	}
+
+	const handleConfirm = (event : Event) => {
+		eventLog.value = '确认事件（回车键）'
+	}
+</script>
+
+<style lang="scss">
+	.demo-content {
+		padding: 5px;
+	}
+
+	.input-demo {
+		padding: 5px;
+	}
+</style>
