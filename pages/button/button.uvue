@@ -50,6 +50,40 @@
 
 			<view class="section">
 				<view class="section-title">
+					<text class="title-text">图标按钮</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-button class="k-btn" type="primary" icon="ball-pen-fill" text="编辑按钮"></k-button>
+					<k-button class="k-btn" type="success" plain icon="layout-3-line" text="布局按钮"></k-button>
+					<k-button class="k-btn" type="warning" icon="mail-line">插槽图标按钮</k-button>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">加载状态</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-button class="k-btn" type="primary" :loading="isLoading" text="点击触发加载"
+						@click="handleLoading"></k-button>
+					<k-button class="k-btn" type="success" loading text="静态加载"></k-button>
+					<k-button class="k-btn" type="warning" plain loading text="朴素加载"></k-button>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">阴影按钮</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-button class="k-btn" type="default" shadow text="默认阴影"></k-button>
+					<k-button class="k-btn" type="primary" shadow text="主要阴影"></k-button>
+					<k-button class="k-btn" type="success" shadow text="成功阴影"></k-button>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
 					<text class="title-text">按钮尺寸</text>
 				</view>
 				<view class="demo-content demo-column">
@@ -114,6 +148,9 @@
 					duration: 1500
 				});
 			},
+			/**
+			 * 处理常规按钮点击提示
+			 */
 			handleClick(type : string) {
 				console.log('按钮点击:', type);
 				uni.showToast({
@@ -122,6 +159,9 @@
 					duration: 1500
 				});
 			},
+			/**
+			 * 处理加载态按钮示例
+			 */
 			handleLoading() {
 				this.isLoading = true;
 				setTimeout(() => {
@@ -141,4 +181,5 @@
 	.k-btn {
 		margin: 10px 0;
 	}
+
 </style>

@@ -18,6 +18,12 @@
 			}
 		},
 		{
+			"path": "pages/button-style/button-style",
+			"style": {
+				"navigationBarTitleText": "Button|按钮-样式覆盖"
+			}
+		},
+		{
 			"path": "pages/config/config",
 			"style": {
 				"navigationBarTitleText": "主题配置"

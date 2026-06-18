@@ -1,0 +1,96 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex:1">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">Button|按钮-样式覆盖</text>
+				<text class="page-desc">原生 button 复用 k-button 样式体系</text>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础覆盖</text>
+				</view>
+				<view class="demo-content demo-column">
+					<button class="k-btn-native kit-ui--root k-button k-button--primary"
+						hover-class="k-button--primary--active">原生主要按钮</button>
+					<button class="k-btn-native kit-ui--root k-button k-button--danger k-button--plain"
+						hover-class="k-button--plain--danger--active">原生镂空按钮</button>
+					<button class="k-btn-native kit-ui--root k-button k-button--primary k-button--gradient"
+						hover-class="k-button--gradient--primary--active">原生渐变按钮</button>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">尺寸与状态覆盖</text>
+				</view>
+				<view class="demo-content demo-column">
+					<button class="k-btn-native kit-ui--root k-button k-button--warning k-button--small"
+						hover-class="k-button--warning--active">原生小号按钮</button>
+					<button class="k-btn-native kit-ui--root k-button k-button--primary k-button--large"
+						hover-class="k-button--primary--active">原生大号按钮</button>
+					<button class="k-btn-native kit-ui--root k-button k-button--default k-button--disabled"
+						disabled>原生禁用按钮</button>
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">平台能力示例</text>
+				</view>
+				<view class="demo-content demo-column">
+					<!-- #ifdef MP-WEIXIN -->
+					<button class="k-btn-native kit-ui--root k-button k-button--success" open-type="getPhoneNumber"
+						hover-class="k-button--success--active" @getphonenumber="handleGetPhoneNumber">微信平台能力按钮</button>
+					<!-- #endif -->
+
+					<!-- #ifndef MP-WEIXIN -->
+					<button class="k-btn-native kit-ui--root k-button k-button--success"
+						hover-class="k-button--success--active" @click="handleNativeAbilityFallback">平台能力示例（当前平台不支持）</button>
+					<!-- #endif -->
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script>
+	export default {
+		data() {
+			return {}
+		},
+		methods: {
+			/**
+			 * 处理非微信平台的能力演示点击提示
+			 */
+			handleNativeAbilityFallback() {
+				uni.showToast({
+					title: '当前平台不支持该开放能力',
+					icon: 'none',
+					duration: 1800
+				});
+			},
+			/**
+			 * 处理微信平台 getPhoneNumber 回调事件
+			 */
+			handleGetPhoneNumber(event : any) {
+				console.log('getPhoneNumber 回调:', event);
+				uni.showToast({
+					title: '已触发微信 getPhoneNumber 回调',
+					icon: 'none',
+					duration: 1800
+				});
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.k-btn-native {
+		margin: 10px 0;
+	}
+</style>

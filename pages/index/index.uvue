@@ -71,6 +71,7 @@
 				{ name: 'Config | 配置', path: '/pages/config/config', status: 'developing' },
 				{ name: 'Color | 颜色', path: '/pages/color/color', status: 'developing' },
 				{ name: 'Button | 按钮', path: '/pages/button/button', status: 'completed' },
+				{ name: 'Button|按钮-样式覆盖', path: '/pages/button-style/button-style', status: 'completed' },
 				{ name: 'Icon | 图标', path: '/pages/icon/icon', status: 'completed' },
 				{ name: 'IconList | 图标完整示例', path: '/pages/icon-list/icon-list', status: 'completed' },
 				{ name: 'Text | 文本', path: '/pages/text/text', status: 'completed' },

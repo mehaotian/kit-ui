@@ -114,6 +114,47 @@
 		return `k-button--${props.type}--active`
 	})
 
+	/**
+	 * 计算按钮内容颜色
+	 * 用于图标与加载态在不同类型下保持与文字一致的视觉
+	 */
+	const contentColor = computed(() => {
+		if (props.plain) {
+			if (props.type == 'primary') {
+				return 'var(--k-color-primary, #6366f1)'
+			}
+			if (props.type == 'success') {
+				return 'var(--k-color-success, #10b981)'
+			}
+			if (props.type == 'warning') {
+				return 'var(--k-color-warning, #f59e0b)'
+			}
+			if (props.type == 'danger') {
+				return 'var(--k-color-error, #ef4444)'
+			}
+			return 'var(--k-text-color, #374151)'
+		}
+
+		if (props.type == 'primary' || props.type == 'success' || props.type == 'warning' || props.type == 'danger') {
+			return '#ffffff'
+		}
+		return 'var(--k-text-color, #374151)'
+	})
+
+	/**
+	 * 计算图标尺寸
+	 * 图标尺寸与按钮尺寸保持联动
+	 */
+	const iconSize = computed(() => {
+		if (props.size == 'small') {
+			return '14'
+		}
+		if (props.size == 'large') {
+			return '18'
+		}
+		return '16'
+	})
+
 	// 点击处理函数
 	const handleClick = () => {
 		if (props.disabled || props.loading) {
@@ -136,6 +177,8 @@
 				'k-button--shadow': shadow
 			}
 		]" :style="buttonStyle" :hover-class="hoverClass" @click="handleClick">
+		<k-icon v-if="loading" class="k-button__loading-icon" name="loader-4-fill" :size="iconSize" :color="contentColor" loading></k-icon>
+		<k-icon v-else-if="icon != ''" class="k-button__icon" :name="icon" :size="iconSize" :color="contentColor"></k-icon>
 		<text class="k-button__text">
 			<slot>{{ text }}</slot>
 		</text>
@@ -154,6 +197,7 @@
 		align-items: center;
 		justify-content: center;
 		position: relative;
+		overflow: visible;
 		box-sizing: border-box;
 		padding-top: var(--k-spacing-base, 12px);
 		padding-bottom: var(--k-spacing-base, 12px);
@@ -271,7 +315,7 @@
 				border-color: var(--k-color-warning, #f59e0b);
 			}
 
-			&.k-button--error {
+			&.k-button--danger {
 				border-color: var(--k-color-error, #ef4444);
 			}
 		}
@@ -459,46 +503,50 @@
 		// 阴影效果 - 通过属性控制
 		&--shadow {
 			&.k-button--default {
-				box-shadow: var(--k-shadow-neumorphism-flat, 3px 3px 6px rgba(163, 177, 198, 0.4), -3px -3px 6px rgba(255, 255, 255, 0.3));
+				box-shadow: 0 6px 12px -6px rgba(15, 23, 42, 0.22);
 			}
 
 			&.k-button--primary {
-				box-shadow: var(--k-shadow-primary, 0 8px 25px rgba(99, 102, 241, 0.15));
+				box-shadow: 0 8px 14px -7px rgba(99, 102, 241, 0.42);
 			}
 
 			&.k-button--success {
-				box-shadow: var(--k-shadow-success, 0 8px 25px rgba(16, 185, 129, 0.15));
+				box-shadow: 0 8px 14px -7px rgba(16, 185, 129, 0.4);
 			}
 
 			&.k-button--warning {
-				box-shadow: var(--k-shadow-warning, 0 8px 25px rgba(245, 158, 11, 0.15));
+				box-shadow: 0 8px 14px -7px rgba(245, 158, 11, 0.4);
 			}
 
 			&.k-button--danger {
-				box-shadow: var(--k-shadow-error, 0 8px 25px rgba(239, 68, 68, 0.15));
+				box-shadow: 0 8px 14px -7px rgba(239, 68, 68, 0.4);
 			}
 		}
 
 		// 阴影按钮按下状态 - 独立类名
 		&--shadow--default--active {
-			transform: translateY(0);
-			box-shadow: var(--k-shadow-neumorphism-inset, inset 6px 6px 12px rgba(163, 177, 198, 0.6), inset -6px -6px 12px rgba(255, 255, 255, 0.5));
+			transform: translateY(1px);
+			box-shadow: 0 3px 8px -6px rgba(15, 23, 42, 0.2);
 		}
 
 		&--shadow--primary--active {
-			transform: translateY(-1px);
+			transform: translateY(1px);
+			box-shadow: 0 4px 8px -6px rgba(99, 102, 241, 0.34);
 		}
 
 		&--shadow--success--active {
-			transform: translateY(-1px);
+			transform: translateY(1px);
+			box-shadow: 0 4px 8px -6px rgba(16, 185, 129, 0.32);
 		}
 
 		&--shadow--warning--active {
-			transform: translateY(-1px);
+			transform: translateY(1px);
+			box-shadow: 0 4px 8px -6px rgba(245, 158, 11, 0.32);
 		}
 
 		&--shadow--danger--active {
-			transform: translateY(-1px);
+			transform: translateY(1px);
+			box-shadow: 0 4px 8px -6px rgba(239, 68, 68, 0.32);
 		}
 
 		// 禁用状态
@@ -511,14 +559,20 @@
 		}
 
 		// 加载状态
-		&--loading {}
+		&--loading {
+			/* #ifdef WEB */
+			cursor: wait;
+			/* #endif */
+		}
 
 		// 内部元素
-		&__loading {}
+		&__loading-icon {
+			margin-right: 6px;
+		}
 
-		&__loading-icon {}
-
-		&__icon {}
+		&__icon {
+			margin-right: 6px;
+		}
 
 		&__text {
 			font-size: var(--k-font-size-base, 14px);
@@ -577,5 +631,11 @@
 		&--large &__text {
 			font-size: var(--k-font-size-lg, 18px);
 		}
+
+		&--circle &__loading-icon,
+		&--circle &__icon {
+			margin-right: 0;
+		}
 	}
+
 </style>
