@@ -1,48 +1,57 @@
 <template>
 	<!-- #ifdef APP -->
-	<scroll-view class="container">
+	<scroll-view style="flex:1">
 	<!-- #endif -->
 		<view class="page">
 			<view class="page-header">
 				<text class="page-title">k-image 图片组件</text>
-				<text class="page-desc">支持填充模式、懒加载、占位图与预览能力</text>
+				<text class="page-desc">支持占位符、加载/错误状态、备用图、遮罩与预览能力</text>
 			</view>
-			
+
+			<!-- 基础用法：形状与尺寸 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">基础用法</text>
 				</view>
 				<view class="demo-content demo-row">
-					<k-image 
-						src="https://picsum.photos/200/200?random=1"
-						width="100px"
-						height="100px"
-					/>
-					<k-image 
-					showMask
-						src="https://picsum.photos/200/200?random=2"
-						width="100px"
-						height="100px"
-						shape="round"
-					/>
-					<k-image 
-						src="https://picsum.photos/200/200?random=3"
-						width="100px"
-						height="100px"
-						shape="circle"
-					/>
+					<view class="demo-item">
+						<k-image
+							src="https://picsum.photos/200/200?random=1"
+							width="100px"
+							height="100px"
+						/>
+						<text class="demo-label">方形</text>
+					</view>
+					<view class="demo-item">
+						<k-image
+							src="https://picsum.photos/200/200?random=2"
+							width="100px"
+							height="100px"
+							shape="round"
+							radius="12px"
+						/>
+						<text class="demo-label">圆角</text>
+					</view>
+					<view class="demo-item">
+						<k-image
+							src="https://picsum.photos/200/200?random=3"
+							width="100px"
+							height="100px"
+							shape="circle"
+						/>
+						<text class="demo-label">圆形</text>
+					</view>
 				</view>
 			</view>
 
+			<!-- 填充模式 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">填充模式</text>
 				</view>
 				<view class="demo-content demo-row">
 					<view class="demo-item">
-						<k-image 
+						<k-image
 							src="https://picsum.photos/300/200?random=4"
 							width="100px"
 							height="100px"
@@ -51,7 +60,7 @@
 						<text class="demo-label">scaleToFill</text>
 					</view>
 					<view class="demo-item">
-						<k-image 
+						<k-image
 							src="https://picsum.photos/300/200?random=5"
 							width="100px"
 							height="100px"
@@ -60,7 +69,7 @@
 						<text class="demo-label">aspectFit</text>
 					</view>
 					<view class="demo-item">
-						<k-image 
+						<k-image
 							src="https://picsum.photos/300/200?random=6"
 							width="100px"
 							height="100px"
@@ -71,71 +80,136 @@
 				</view>
 			</view>
 
+			<!-- 加载状态：src 加载期间自动展示 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">加载状态</text>
 				</view>
 				<view class="demo-content demo-row">
-					<k-image 
-						src="https://picsum.photos/200/200?random=7&delay=2000"
-						width="100px"
-						height="100px"
-						show-loading
-						loading-text="加载中..."
-					/>
+					<view class="demo-item">
+						<k-image
+							src="https://picsum.photos/800/800?random=7"
+							width="100px"
+							height="100px"
+						/>
+						<text class="demo-label">默认图标</text>
+					</view>
+					<view class="demo-item">
+						<k-image
+							src="https://picsum.photos/800/800?random=71"
+							width="100px"
+							height="100px"
+							loading-type="spinner"
+							loading-color="primary"
+						/>
+						<text class="demo-label">k-loading</text>
+					</view>
 				</view>
 			</view>
 
+			<!-- 错误处理与备用图 -->
 			<view class="section">
 				<view class="section-title">
 					<text class="title-text">错误处理</text>
 				</view>
 				<view class="demo-content demo-row">
-					<k-image 
-						src="https://invalid-url.com/image.jpg"
-						width="100px"
-						height="100px"
-						show-error
-						error-text="加载失败"
-					/>
-					<k-image 
-						src="https://invalid-url.com/image.jpg"
-						fallback="https://picsum.photos/200/200?random=8"
-						width="100px"
-						height="100px"
-					/>
+					<view class="demo-item">
+						<k-image
+							src="https://invalid-url.com/image.jpg"
+							width="100px"
+							height="100px"
+							error-text="加载失败"
+						/>
+						<text class="demo-label">错误提示</text>
+					</view>
+					<view class="demo-item">
+						<k-image
+							src="https://invalid-url.com/image.jpg"
+							:fallback-src="fallbackList"
+							width="100px"
+							height="100px"
+						/>
+						<text class="demo-label">备用图片</text>
+					</view>
 				</view>
 			</view>
 
+			<!-- 占位符：src 为空时自动展示 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">占位符</text>
 				</view>
 				<view class="demo-content demo-row">
-					<k-image 
-						width="100px"
-						height="100px"
-						show-placeholder
-					/>
-					<k-image
-						width="100px"
-						height="100px"
-						show-placeholder
-						placeholder-text="暂无图片"
-					/>
+					<view class="demo-item">
+						<k-image
+							width="100px"
+							height="100px"
+						/>
+						<text class="demo-label">默认图标</text>
+					</view>
+					<view class="demo-item">
+						<k-image
+							width="100px"
+							height="100px"
+							placeholder-text="暂无图片"
+						/>
+						<text class="demo-label">自定义文案</text>
+					</view>
+					<view class="demo-item">
+						<k-image
+							width="100px"
+							height="100px"
+							placeholder-icon="image-fill"
+							placeholder-icon-color="#6366f1"
+						/>
+						<text class="demo-label">自定义图标</text>
+					</view>
 				</view>
 			</view>
 
+			<!-- 遮罩层 -->
 			<view class="section">
-				
+				<view class="section-title">
+					<text class="title-text">遮罩层</text>
+				</view>
+				<view class="demo-content demo-row">
+					<view class="demo-item">
+						<k-image
+							src="https://picsum.photos/200/200?random=8"
+							width="100px"
+							height="100px"
+							show-mask
+						/>
+						<text class="demo-label">默认遮罩</text>
+					</view>
+					<view class="demo-item">
+						<k-image
+							src="https://picsum.photos/200/200?random=9"
+							width="100px"
+							height="100px"
+							show-mask
+							mask-color="#6366f1"
+							:mask-opacity="0.4"
+						>
+							<template #mask>
+								<view class="mask-slot">
+									<k-icon name="eye-line" size="20" color="#ffffff" />
+								</view>
+							</template>
+						</k-image>
+						<text class="demo-label">自定义遮罩</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 懒加载 -->
+			<view class="section">
 				<view class="section-title">
 					<text class="title-text">懒加载</text>
 				</view>
 				<view class="demo-content demo-row">
-					<k-image 
-						src="https://picsum.photos/200/200?random=9"
+					<k-image
+						src="https://picsum.photos/200/200?random=10"
 						width="100px"
 						height="100px"
 						lazy
@@ -143,17 +217,34 @@
 				</view>
 			</view>
 
+			<!-- 点击预览 -->
 			<view class="section">
 				<view class="section-title">
 					<text class="title-text">点击预览</text>
 				</view>
 				<view class="demo-content demo-row">
-					<k-image 
-						src="https://picsum.photos/200/200?random=10"
+					<k-image
+						src="https://picsum.photos/800/600?random=11"
 						width="100px"
 						height="100px"
 						preview
-						@click="handleImageClick"
+						@preview="handlePreviewOpen"
+					/>
+				</view>
+			</view>
+
+			<!-- 禁用状态 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">禁用状态</text>
+				</view>
+				<view class="demo-content demo-row">
+					<k-image
+						src="https://picsum.photos/200/200?random=12"
+						width="100px"
+						height="100px"
+						disabled
+						@click="handleDisabledClick"
 					/>
 				</view>
 			</view>
@@ -164,23 +255,35 @@
 </template>
 
 <script setup lang="uts">
-	// 处理图片点击事件
-	const handleImageClick = () => {
-		console.log('图片被点击了')
+	// 备用图片地址列表，用于 fallbackSrc 演示
+	const fallbackList = ['https://picsum.photos/200/200?random=81']
+
+	// 预览成功回调
+	const handlePreviewOpen = (src : string) => {
+		console.log('预览图片:', src)
+	}
+
+	// 禁用状态下点击不应触发
+	const handleDisabledClick = () => {
 		uni.showToast({
-			title: '图片被点击了',
+			title: '不应触发',
 			icon: 'none'
 		})
 	}
 </script>
 
 <style>
-	.container {
-		flex: 1;
-	}
 	.demo-label {
 		font-size: 12px;
 		color: #666;
 		text-align: center;
+		margin-top: 8px;
+	}
+
+	.mask-slot {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 </style>

@@ -84,6 +84,26 @@
 		}
 	});
 
+	/**
+	 * 计算溢出省略时的最大行数（微信小程序 max-lines 属性）
+	 */
+	const ellipsisMaxLines = computed(() : number => {
+		if (!props.ellipsis) {
+			return 0
+		}
+		return props.lines
+	})
+
+	/**
+	 * 计算文本溢出模式（微信小程序 Skyline overflow 属性）
+	 */
+	const ellipsisOverflow = computed(() : string => {
+		if (!props.ellipsis) {
+			return 'visible'
+		}
+		return 'ellipsis'
+	})
+
 	// 计算文本尺寸
 	const textSize = computed(() : string => {
 		if (props.size != '') {
@@ -108,19 +128,33 @@
 			styles.push(`color: ${props.color}`)
 		}
 
-		// 多行省略
+		// 文本溢出省略
 		if (props.ellipsis) {
 			if (props.lines > 1) {
-				// #ifndef APP
-				styles.push(`-webkit-line-clamp: ${props.lines}`)
-				// #endif
 				// #ifdef APP
 				styles.push('text-overflow: ellipsis')
 				styles.push(`lines: ${props.lines}`)
 				// #endif
+				// #ifndef APP
+				// 小程序 / Web 使用标准 -webkit-line-clamp 方案
+				styles.push('display: -webkit-box')
+				styles.push('-webkit-box-orient: vertical')
+				styles.push(`-webkit-line-clamp: ${props.lines}`)
+				styles.push('overflow: hidden')
+				styles.push('word-break: break-all')
+				styles.push('width: 100%')
+				// #endif
 			} else {
-				styles.push('text-overflow: ellipsis;white-space: nowrap')
+				// #ifndef APP
+				styles.push('text-overflow: ellipsis')
+				styles.push('white-space: nowrap')
+				styles.push('overflow: hidden')
+				styles.push('width: 100%')
+				// #endif
+				// #ifdef APP
+				styles.push('text-overflow: ellipsis')
 				styles.push(`lines: 1`)
+				// #endif
 			}
 		}
 
@@ -192,12 +226,13 @@
 			`k-text--weight-${weight}`,
 			{
 				'k-text--ellipsis': ellipsis,
+				'k-text--ellipsis-multiline': ellipsis && lines > 1,
 				'k-text--decoration-underline': decoration === 'underline',
 				'k-text--decoration-line-through': decoration === 'line-through',
 				'k-text--align-center': align === 'center',
 				'k-text--align-right': align === 'right'
 			}
-		]" :style="textStyle" :selectable="selectable" :space="space" :decode="decode">
+		]" :style="textStyle" :max-lines="ellipsisMaxLines" :overflow="ellipsisOverflow" :selectable="selectable" :space="space" :decode="decode">
 		<slot>{{ formattedText }}</slot>
 	</text>
 </template>

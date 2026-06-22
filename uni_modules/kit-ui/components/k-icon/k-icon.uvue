@@ -8,6 +8,7 @@
 		parseIconSize,
 		parseIconColor,
 		getIconUnicode,
+		buildSvgUrl,
 	} from './config.uts'
 
 	// 微信小程序使用动态加载字体
@@ -206,20 +207,6 @@
 		})
 	}
 
-	// SVG URL 构建函数
-	function buildSvgUrl(name : string) : string {
-		if (config.iconHost != null && config.iconHost != '') {
-			// 使用自定义图标服务器
-			return `${config.iconHost}/${name.replace(':', '/')}.svg`
-		}
-
-		// 使用 iconify API (需要网络)
-		const [collection, iconName] = name.split(':')
-		return `https://api.iconify.design/${collection}/${iconName}.svg`
-	}
-
-
-
 	// Events 定义
 	const emit = defineEmits<{
 		click : [event: any]
@@ -246,6 +233,17 @@
 		return 'text'
 	})
 
+	// 尺寸处理
+	const iconSize = computed(() : string => {
+		if (props.size != '') {
+			return parseIconSize(props.size)
+		}
+
+		// 使用配置的默认尺寸
+		const defaultSize = config.defaultSize ?? 'md'
+		return parseIconSize(defaultSize)
+	})
+
 	// 图标内容获取
 	const iconContent = computed(() : string => {
 		if (iconType.value == 'text') {
@@ -262,21 +260,15 @@
 		}
 
 		if (iconType.value == 'svg') {
-			return buildSvgUrl(props.name)
+			let colorValue = props.color
+			if (colorValue == '') {
+				colorValue = config.defaultColor ?? ''
+			}
+			const host = config.iconHost ?? ''
+			return buildSvgUrl(props.name, colorValue, iconSize.value, host)
 		}
 
 		return props.name
-	})
-
-	// 尺寸处理
-	const iconSize = computed(() : string => {
-		if (props.size != '') {
-			return parseIconSize(props.size)
-		}
-
-		// 使用配置的默认尺寸
-		const defaultSize = config.defaultSize ?? 'md'
-		return parseIconSize(defaultSize)
 	})
 
 	// 颜色处理
@@ -388,23 +380,6 @@
 		}
 	})
 
-	const svgStyle = computed(() : UTSJSONObject => {
-		const style : UTSJSONObject = {
-			width: iconSize.value,
-			height: iconSize.value,
-			backgroundSize: 'contain',
-			backgroundRepeat: 'no-repeat',
-			backgroundPosition: 'center'
-		}
-
-		// 设置 SVG 背景图片
-		if (iconType.value == 'svg' && iconContent.value != '') {
-			style.backgroundImage = `url(${iconContent.value})`
-		}
-
-		return style
-	})
-
 
 	// 事件处理
 	function handleClick(event : UniEvent) {
@@ -475,11 +450,9 @@
 <template>
 	<view class="kit-ui--root k-icon" :class="iconClass" :style="iconStyle" @click="handleClick">
 		<!-- 字体图标 -->
-		<text v-if="iconType == 'text'" class="k-icon-font" :style="textStyle">{{ iconContent }}</text>
-		<!-- 图片图标 -->
-		<image v-else-if="iconType == 'image'" class="k-icon__image" :src="iconContent" :style="imageStyle" mode="aspectFit" @error="handleImageError" @load="handleImageLoad" />
-		<!-- SVG 图标 (通过背景图片实现) -->
-		<view v-else-if="iconType == 'svg'" class="k-icon__svg" :style="svgStyle"></view>
+		<text v-if="iconType == 'text'" class="k-icon-font" :class="textClass" :style="textStyle">{{ iconContent }}</text>
+		<!-- 图片 / SVG 图标（App 端不支持 background-image url，统一用 image 加载） -->
+		<image v-else-if="iconType == 'image' || iconType == 'svg'" class="k-icon__image" :src="iconContent" :style="imageStyle" mode="aspectFit" @error="handleImageError" @load="handleImageLoad" />
 	</view>
 </template>
 <style lang="scss">

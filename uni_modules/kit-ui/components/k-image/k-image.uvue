@@ -61,7 +61,7 @@
 			type: Boolean,
 			default: false
 		},
-		// 是否可拖拽（仅H5平台）
+		// 是否可拖拽（仅 WEB 平台）
 		draggable: {
 			type: Boolean,
 			default: false
@@ -146,21 +146,6 @@
 			type: Boolean,
 			default: false
 		},
-		// 预览图标
-		previewIcon: {
-			type: String,
-			default: 'eye'
-		},
-		// 预览图标大小
-		previewIconSize: {
-			type: String,
-			default: '20'
-		},
-		// 预览图标颜色
-		previewIconColor: {
-			type: String,
-			default: '#ffffff'
-		},
 		// 是否显示遮罩层
 		showMask: {
 			type: Boolean,
@@ -190,7 +175,6 @@
 	const hasError = ref(false)
 	const currentSrc = ref('')
 	const fallbackIndex = ref(0)
-	const imageInfo = ref(null)
 
 	// 计算属性
 	const showPlaceholder = computed(() => {
@@ -214,11 +198,11 @@
 		const styles : string[] = []
 
 		// 设置宽高
-		if (props.width != '') {
+		if (props.width != null && props.width != '') {
 			const width = typeof props.width == 'number' ? `${props.width}px` : props.width
 			styles.push(`width: ${width}`)
 		}
-		if (props.height != '') {
+		if (props.height != null && props.height != '') {
 			const height = typeof props.height == 'number' ? `${props.height}px` : props.height
 			styles.push(`height: ${height}`)
 		}
@@ -251,9 +235,13 @@
 		return styles.join('; ')
 	})
 
-	// 事件处理函数
+	// 处理容器点击：预览模式下仅触发预览，不派发 click
 	const handleClick = () => {
 		if (props.disabled) {
+			return
+		}
+		if (props.preview && currentSrc.value != '') {
+			handlePreview()
 			return
 		}
 		emit('click')
@@ -297,13 +285,6 @@
 				console.error('图片预览失败:', err)
 			}
 		})
-	}
-
-	const onImageClick = () => {
-		if (props.preview) {
-			handlePreview()
-		}
-		emit('click')
 	}
 
 	// 初始化图片源
@@ -359,8 +340,9 @@
 			{
 				'k-image--loading': isLoading,
 				'k-image--error': hasError,
-				'k-image--preview': preview,
-				'k-image--lazy': lazy
+				'k-image--preview': preview && !disabled,
+				'k-image--lazy': lazy,
+				'k-image--disabled': disabled
 			}
 		]" :style="imageContainerStyle" @click="handleClick">
 		<!-- 占位符 -->
@@ -388,16 +370,11 @@
 		</view>
 
 		<!-- 图片 -->
-		<image v-if="shouldShowImage" class="k-image__img" :src="currentSrc" :mode="mode" :lazy-load="lazy" :fade-show="fadeShow" :webp="webp" :show-menu-by-longpress="showMenuByLongpress" :draggable="draggable" @load="handleLoad" @error="handleError" @click="() => onImageClick()" />
+		<image v-if="shouldShowImage" class="k-image__img" :src="currentSrc" :mode="mode" :lazy-load="lazy" :fade-show="fadeShow" :webp="webp" :show-menu-by-longpress="showMenuByLongpress" :draggable="draggable" @load="handleLoad" @error="handleError" />
 
 		<!-- 遮罩层 -->
 		<view v-if="showMask" class="k-image__mask" :style="maskStyle">
 			<slot name="mask"></slot>
-		</view>
-
-		<!-- 预览图标 -->
-		<view v-if="preview && !isLoading && !hasError" class="k-image__preview-icon" @click.stop="handlePreview">
-			<k-icon :name="previewIcon" :size="previewIconSize" :color="previewIconColor"></k-icon>
 		</view>
 	</view>
 </template>
@@ -443,18 +420,14 @@
 			}
 		}
 
+		&--disabled {
+			opacity: 0.5;
+			pointer-events: none;
+		}
+
 		&--preview {
 			/* #ifdef WEB */
 			cursor: pointer;
-			/* #endif */
-
-			/* #ifdef WEB */
-			&:hover {
-				.k-image__preview-icon {
-					opacity: 1;
-				}
-			}
-
 			/* #endif */
 		}
 
@@ -526,26 +499,6 @@
 			right: 0;
 			bottom: 0;
 			pointer-events: none;
-		}
-
-		// 预览图标
-		&__preview-icon {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 40px;
-			height: 40px;
-			background-color: rgba(0, 0, 0, 0.5);
-			border-radius: 20px;
-			opacity: 0;
-			/* #ifdef WEB */
-			transition: opacity 0.3s ease;
-			cursor: pointer;
-			/* #endif */
 		}
 	}
 </style>

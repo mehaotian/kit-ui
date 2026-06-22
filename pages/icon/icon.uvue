@@ -26,7 +26,6 @@
 
 			<!-- 图标尺寸 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">图标尺寸</text>
 				</view>
@@ -68,51 +67,103 @@
 				</view>
 			</view>
 
-			<!-- 加载状态 -->
+			<!-- 加载与旋转 -->
 			<view class="section">
 				<view class="section-title">
-					<text class="title-text">加载状态</text>
+					<text class="title-text">加载与旋转</text>
 				</view>
-				
 				<view class="demo-content demo-row">
+					<k-icon name="settings-line" size="24" loading />
+					<k-icon name="donut-chart-line" size="24" spin />
 					<k-icon name="settings-line" :spin-speed="3000" size="24" loading />
 					<k-icon name="donut-chart-line" :spin-reverse="true" size="24" spin />
 					<k-icon name="settings-fill" size="24" :loading="isLoading" @click="toggleLoading" />
 				</view>
-				<text class="click-result">点击第三个图标，开始旋转2秒后停止</text>
+				<view class="demo-footer">
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">loading / spin / spin-speed / spin-reverse</k-text>
+					</view>
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">点击最后一个图标，旋转 2 秒后停止</k-text>
+					</view>
+				</view>
 			</view>
 
 			<!-- 禁用状态 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">禁用状态</text>
 				</view>
-				
 				<view class="demo-content demo-row">
 					<k-icon name="settings-fill" size="24" disabled @click="handleIconClick('settings-fill')" />
 					<k-icon name="volume-up-line" size="24" disabled @click="handleIconClick('volume-up-line')" />
 					<k-icon name="chat-4-line" size="24" disabled @click="handleIconClick('chat-4-line')" />
 				</view>
-				<text class="click-result">当前图标有点击事件，但是点击不会被触发</text>
+				<view class="demo-footer">
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">disabled 为 true 时，点击事件不会触发</k-text>
+					</view>
+				</view>
 			</view>
 
 			<!-- 图片图标 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">图片图标</text>
 				</view>
 				<view class="demo-content demo-row">
-					<k-icon name="https://fastly.jsdelivr.net/npm/@vant/assets/icon-demo.png" size="32" />
-					<k-icon name="/static/logo.png" size="32" />
+					<k-icon name="https://fastly.jsdelivr.net/npm/@vant/assets/icon-demo.png" size="32" @load="handleImageLoad" @error="handleImageError" />
+					<k-icon name="/static/logo.png" size="32" @load="handleImageLoad" @error="handleImageError" />
+					<k-icon name="https://invalid.example.com/not-found.png" size="32" @load="handleImageLoad" @error="handleImageError" />
+				</view>
+				<view class="demo-footer">
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">{{ imageEventResult }}</k-text>
+					</view>
+				</view>
+			</view>
+
+			<!-- SVG 图标 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">SVG 图标</text>
+				</view>
+				<view class="demo-content demo-row">
 					<k-icon name="tabler:alarm-plus" size="32" />
+					<k-icon name="mdi:home" size="32" color="primary" />
+					<k-icon name="mdi:heart" size="32" color="#6366f1" />
+				</view>
+				<view class="demo-footer">
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">name 为 collection:name 格式，通过 Iconify 加载 SVG</k-text>
+					</view>
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">SVG 改色通过 Iconify URL color 参数实现，仅单色图标有效</k-text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 字体类名 prefix -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">字体类名 prefix</text>
+				</view>
+				<view class="demo-content demo-row">
+					<k-icon name="account-box-fill" size="24" />
+					<k-icon name="account-box-fill" size="24" prefix="icon-demo-prefix" />
+				</view>
+				<view class="demo-footer">
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">prefix 为字体图标 text 节点追加 CSS 类名</k-text>
+					</view>
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">用于切换自定义 iconfont</k-text>
+					</view>
 				</view>
 			</view>
 
 			<!-- 自定义样式 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">自定义样式</text>
 				</view>
@@ -120,11 +171,15 @@
 					<k-icon name="mic-line" size="32" color="#ff6b6b" custom-style="border: 2px solid #ff6b6b; border-radius: 100px; padding: 8px;" />
 					<k-icon name="music-line" size="32" color="#f9ca24" custom-style="background-image: linear-gradient(45deg, #f9ca24, #f0932b); border-radius: 8px; padding: 6px;" />
 				</view>
+				<view class="demo-footer">
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">通过 custom-style 传入行内样式字符串</k-text>
+					</view>
+				</view>
 			</view>
 
 			<!-- 点击事件 -->
 			<view class="section">
-				
 				<view class="section-title">
 					<text class="title-text">点击事件</text>
 				</view>
@@ -133,7 +188,11 @@
 					<k-icon name="chat-3-line" size="24" @click="handleIconClick('chat-3-line')" />
 					<k-icon name="chat-4-line" size="24" @click="handleIconClick('chat-4-line')" />
 				</view>
-				<text class="click-result">{{ clickResult }}</text>
+				<view class="demo-footer">
+					<view class="demo-desc-item">
+						<k-text size="12" color="#999">{{ clickResult }}</k-text>
+					</view>
+				</view>
 			</view>
 		</view>
 	<!-- #ifdef APP -->
@@ -144,11 +203,13 @@
 <script setup lang="uts">
 	import { ref } from 'vue'
 
-	// 响应式数据
 	const isLoading = ref(false)
 	const clickResult = ref('点击图标查看效果')
+	const imageEventResult = ref('图片加载成功或失败时会更新此文案')
 
-	// 方法
+	/**
+	 * 切换动态 loading 状态，2 秒后自动恢复
+	 */
 	function toggleLoading() {
 		isLoading.value = !isLoading.value
 		setTimeout(() => {
@@ -156,21 +217,50 @@
 		}, 2000)
 	}
 
+	/**
+	 * 处理图标点击，展示 click 事件回调
+	 */
 	function handleIconClick(iconName : string) {
 		clickResult.value = `点击了 ${iconName} 图标 - ${new Date().toLocaleTimeString()}`
+	}
+
+	/**
+	 * 处理图片图标加载成功
+	 */
+	function handleImageLoad() {
+		imageEventResult.value = `图片加载成功 - ${new Date().toLocaleTimeString()}`
+	}
+
+	/**
+	 * 处理图片图标加载失败
+	 */
+	function handleImageError() {
+		imageEventResult.value = `图片加载失败 - ${new Date().toLocaleTimeString()}`
 	}
 </script>
 
 <style lang="scss" scoped>
-	.click-result {
-		font-size: 14px;
-		color: var(--k-color-text-secondary, #606266);
-		// margin-top: 8px;
-		margin-left: 15px;
+	.demo-footer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+		margin-top: 12px;
+		padding-top: 10px;
+		border-top: 1px solid var(--k-border-color-light, #f3f4f6);
 	}
 
-	// 自定义字体示例 (实际使用时需要引入真实字体文件)
-	.custom-font {
-		font-family: 'custom-icons', sans-serif;
+	.demo-desc-item {
+		margin-top: 6px;
+		width: 100%;
+	}
+
+	.demo-desc-item:first-child {
+		margin-top: 0;
+	}
+
+	/* prefix 演示：为字体图标节点追加自定义 class */
+	:deep(.icon-demo-prefix) {
+		opacity: 0.45;
 	}
 </style>

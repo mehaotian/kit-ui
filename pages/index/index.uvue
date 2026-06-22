@@ -68,8 +68,8 @@
 			count: 8,
 			path: '/pages/category/basic',
 			components: [
-				{ name: 'Config | 配置', path: '/pages/config/config', status: 'developing' },
-				{ name: 'Color | 颜色', path: '/pages/color/color', status: 'developing' },
+				{ name: 'Config | 配置', path: '/pages/config/config', status: 'completed' },
+				{ name: 'Color | 颜色', path: '/pages/color/color', status: 'completed' },
 				{ name: 'Button | 按钮', path: '/pages/button/button', status: 'completed' },
 				{ name: 'Button|按钮-样式覆盖', path: '/pages/button-style/button-style', status: 'completed' },
 				{ name: 'Icon | 图标', path: '/pages/icon/icon', status: 'completed' },

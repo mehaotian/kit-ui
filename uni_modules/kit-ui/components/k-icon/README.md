@@ -1,239 +1,149 @@
 # k-icon 图标组件
 
-轻量、扩展方便、用法简单的图标组件，支持多种图标类型和丰富的功能特性。
-
-## 特性
-
-- 🎯 **轻量级**：核心代码精简，按需加载
-- 🔧 **易扩展**：支持多种图标源，配置灵活
-- 📱 **跨平台**：完美适配 H5/小程序/App/鸿蒙
-- 🎨 **主题化**：深度集成 kit-ui 主题系统
-- ⚡ **高性能**：智能缓存，优化渲染
-- 🛠 **TypeScript**：完整的类型定义
-
-## 支持的图标类型
-
-### 1. 内置图标（Unicode）
-
-```vue
-<k-icon name="home" size="24" />
-<k-icon name="user" size="24" />
-<k-icon name="setting" size="24" />
-```
-
-### 2. 图片图标
-
-```vue
-<!-- 网络图片 -->
-<k-icon name="https://example.com/icon.png" size="32" />
-<!-- 本地图片 -->
-<k-icon name="/static/logo.png" size="32" />
-```
-
-### 3. SVG 图标
-
-```vue
-<!-- Iconify 图标 -->
-<k-icon name="mdi:home" size="24" />
-<k-icon name="heroicons:user" size="24" />
-```
-
-### 4. 自定义字体图标
-
-```vue
-<k-icon name="\uE001" size="24" prefix="custom-font" />
-```
+用于展示图标的组件，支持内置图标、网络/本地图片，以及第三方 Iconify 图标。
 
 ## 基础用法
 
-### 图标尺寸
-
 ```vue
-<!-- 预设尺寸 -->
-<k-icon name="home" size="xs" />   <!-- 12px -->
-<k-icon name="home" size="sm" />   <!-- 14px -->
-<k-icon name="home" size="md" />   <!-- 16px -->
-<k-icon name="home" size="lg" />   <!-- 18px -->
-<k-icon name="home" size="xl" />   <!-- 20px -->
-<k-icon name="home" size="2xl" />  <!-- 24px -->
-
-<!-- 自定义尺寸 -->
-<k-icon name="home" size="32" />
-<k-icon name="home" size="48" />
+<k-icon name="account-box-fill" size="24" />
+<k-icon name="settings-fill" size="24" color="primary" />
 ```
 
-### 图标颜色
+## 图标来源
+
+### 内置图标
+
+直接传入图标名称即可，完整列表见演示页「图标列表」。
 
 ```vue
-<!-- 主题颜色 -->
-<k-icon name="heart" color="primary" />
-<k-icon name="heart" color="success" />
-<k-icon name="heart" color="warning" />
-<k-icon name="heart" color="danger" />
-<k-icon name="heart" color="info" />
-
-<!-- 自定义颜色 -->
-<k-icon name="star" color="#ff6b6b" />
-<k-icon name="star" color="rgb(255, 107, 107)" />
+<k-icon name="account-box-fill" size="24" />
+<k-icon name="settings-fill" size="24" color="primary" />
 ```
 
-## 高级功能
+### 图片图标
 
-### 加载状态
+传入图片地址，支持网络图片和本地路径。
 
 ```vue
-<!-- 加载动画 -->
-<k-icon name="loading" loading />
-<!-- 旋转动画 -->
-<k-icon name="refresh" spin />
-<!-- 动态加载状态 -->
-<k-icon name="setting" :loading="isLoading" />
+<k-icon name="https://example.com/icon.png" size="32" />
+<k-icon name="/static/logo.png" size="32" />
 ```
 
-### 徽标功能
+### Iconify 图标
+
+使用 `图标集:图标名` 格式，需联网加载。
 
 ```vue
-<!-- 红点徽标 -->
-<k-icon name="home" dot />
-<!-- 数字徽标 -->
-<k-icon name="user" badge="5" />
-<k-icon name="setting" badge="99" />
-<!-- 文字徽标 -->
-<k-icon name="heart" badge="new" />
+<k-icon name="tabler:alarm-plus" size="32" />
+<k-icon name="mdi:home" size="24" color="primary" />
 ```
 
-### 禁用状态
+## 尺寸
+
+支持预设尺寸和自定义数值：
+
+| 预设 | 大小 |
+| --- | --- |
+| xs | 12px |
+| sm | 16px |
+| md | 20px |
+| lg | 24px |
+| xl | 32px |
+| 2xl | 48px |
 
 ```vue
-<k-icon name="home" disabled />
+<k-icon name="account-box-fill" size="md" />
+<k-icon name="account-box-fill" size="32" />
+<k-icon name="account-box-fill" size="48px" />
 ```
 
-### 自定义样式
+## 颜色
+
+支持主题色和自定义色值：
 
 ```vue
-<k-icon 
-  name="heart" 
-  size="32" 
-  color="#ff6b6b" 
-  custom-style="border: 2px solid #ff6b6b; border-radius: 50%; padding: 8px;"
+<k-icon name="account-box-fill" color="primary" />
+<k-icon name="account-box-fill" color="success" />
+<k-icon name="account-box-fill" color="warning" />
+<k-icon name="account-box-fill" color="danger" />
+<k-icon name="account-box-fill" color="info" />
+<k-icon name="account-box-fill" color="#6366f1" />
+```
+
+可选主题色：`primary`、`success`、`warning`、`danger`、`info`、`text`、`text-secondary`、`text-placeholder`。
+
+## 加载与旋转
+
+```vue
+<k-icon name="settings-line" loading />
+<k-icon name="donut-chart-line" spin />
+<k-icon name="settings-line" :spin-speed="3000" loading />
+<k-icon name="donut-chart-line" :spin-reverse="true" spin />
+<k-icon name="settings-fill" :loading="isLoading" />
+```
+
+## 禁用与点击
+
+```vue
+<k-icon name="settings-fill" disabled @click="onClick" />
+<k-icon name="volume-up-line" size="24" @click="onClick" />
+```
+
+## 自定义样式
+
+通过 `custom-style` 传入行内样式字符串：
+
+```vue
+<k-icon
+  name="mic-line"
+  size="32"
+  color="#ff6b6b"
+  custom-style="border: 2px solid #ff6b6b; border-radius: 100px; padding: 8px;"
 />
 ```
 
-## API
+## 自定义字体
 
-### Props
+通过 `prefix` 追加 CSS 类名，配合自定义 iconfont 使用：
 
-| 参数 | 说明 | 类型 | 默认值 |
+```vue
+<k-icon name="account-box-fill" size="24" prefix="my-icon-font" />
+```
+
+## 组件属性
+
+| 属性名 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| name | 图标名称/URL/Unicode | `string` | - |
-| size | 图标尺寸 | `string \| number` | `'md'` |
-| color | 图标颜色 | `string` | - |
-| prefix | 字体图标前缀 | `string` | `'k-icon'` |
-| custom-style | 自定义样式 | `string` | - |
-| disabled | 是否禁用 | `boolean` | `false` |
-| loading | 是否显示加载状态 | `boolean` | `false` |
-| spin | 是否旋转 | `boolean` | `false` |
-| dot | 是否显示红点徽标 | `boolean` | `false` |
-| badge | 徽标内容 | `string \| number` | - |
-| inherit | 是否继承父元素颜色 | `boolean` | `false` |
+| name | String | '' | 图标名称、图片地址，或 Iconify 名称（`collection:name`） |
+| size | String | '' | 图标尺寸，支持预设（xs/sm/md 等）或数值（如 `32`、`48px`） |
+| color | String | '' | 图标颜色，支持主题色和 `#hex`、`rgb()` 等 |
+| prefix | String | '' | 追加到字体图标的 CSS 类名 |
+| custom-style | String | '' | 自定义行内样式 |
+| disabled | Boolean | false | 是否禁用，禁用后无法触发点击 |
+| loading | Boolean | false | 是否显示加载旋转 |
+| spin | Boolean | false | 是否持续旋转 |
+| spin-speed | Number | 1000 | 旋转一圈耗时（毫秒） |
+| spin-reverse | Boolean | false | 是否反向旋转 |
 
-### Events
+## 组件事件
 
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| click | 点击图标时触发 | `event: Event` |
-| load | 图片加载完成时触发 | `event: Event` |
-| error | 图片加载失败时触发 | `event: Event` |
+| click | 点击图标时触发 | event |
+| load | 图片或 Iconify 图标加载成功时触发 | - |
+| error | 图片或 Iconify 图标加载失败时触发 | error |
 
-## 配置
+## 使用注意
 
-### 全局配置
+1. **内置图标改色**：设置 `color` 即可，支持主题色和自定义色值。
+2. **Iconify 图标改色**：设置 `color` 可改单色图标颜色；彩色图标无法改色。
+3. **图片图标**：不支持通过 `color` 改色。
+4. **Iconify 格式**：必须为 `图标集:图标名`（如 `mdi:home`），本地 `.svg` 文件路径会被当作普通图片处理。
+5. **网络要求**：Iconify 图标和图片地址需能正常访问网络资源。
+6. **点击限制**：`disabled` 或 `loading` 为 `true` 时，不会触发 `click` 事件。
+7. **自定义样式**：`custom-style` 仅支持字符串写法。
 
-可以通过修改 `config.uts` 文件来自定义全局配置：
+## 演示页
 
-```typescript
-// 修改默认配置
-const customConfig: IconConfig = {
-  host: 'https://your-icon-host.com',
-  prefix: 'your-prefix',
-  cache: true,
-  lazyLoad: true
-}
-
-// 应用配置
-setIconConfig(customConfig)
-```
-
-### 添加自定义图标
-
-```typescript
-// 添加内置图标
-addBuiltinIcon('custom-icon', '\uE100')
-
-// 批量添加
-addBuiltinIcons({
-  'icon1': '\uE101',
-  'icon2': '\uE102',
-  'icon3': '\uE103'
-})
-```
-
-## 字体文件说明
-
-组件需要字体文件支持，请确保以下文件存在：
-
-- `fonts/k-icons.ttf` - 主要图标字体文件
-- `fonts/k-icons.woff` - Web 字体文件（可选）
-- `fonts/k-icons.woff2` - Web 字体文件（可选）
-
-> **注意**：由于字体文件较大，本示例未包含实际字体文件。在实际使用时，您需要：
->
-> 1. 准备图标字体文件（.ttf 格式）
-> 2. 将字体文件放置在 `fonts/` 目录下
-> 3. 根据字体文件更新 `k-icon.scss` 中的字体路径
-> 4. 在 `config.uts` 中配置对应的 Unicode 映射
-
-## 主题定制
-
-组件深度集成了 kit-ui 主题系统，支持以下 CSS 变量：
-
-```scss
-:root {
-  --k-color-primary: #007aff;
-  --k-color-success: #28a745;
-  --k-color-warning: #ffc107;
-  --k-color-danger: #dc3545;
-  --k-color-info: #17a2b8;
-  --k-color-text-primary: #303133;
-  --k-color-text-secondary: #606266;
-  --k-color-text-disabled: #c0c4cc;
-}
-```
-
-## 性能优化
-
-1. **按需加载**：只加载使用到的图标
-2. **智能缓存**：自动缓存已加载的图标
-3. **懒加载**：支持图片图标的懒加载
-4. **预设尺寸**：使用预设尺寸减少计算开销
-
-## 兼容性
-
-- ✅ H5
-- ✅ 微信小程序
-- ✅ 支付宝小程序
-- ✅ 百度小程序
-- ✅ 字节跳动小程序
-- ✅ QQ 小程序
-- ✅ App (Android/iOS)
-- ✅ 鸿蒙 OS
-
-## 更新日志
-
-### v1.0.0
-
-- 🎉 初始版本发布
-- ✨ 支持多种图标类型
-- ✨ 完整的主题系统集成
-- ✨ 丰富的功能特性
-- ✨ 完善的 TypeScript 支持
+- 图标示例：演示各属性与事件
+- 图标列表：浏览全部内置图标名称
