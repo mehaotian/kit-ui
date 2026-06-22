@@ -187,7 +187,7 @@
 	const eventLog = ref<string>('暂无事件')
 
 	const themeConfig = {
-		colorPrimary: '#6366f1',
+		colorPrimary: '#f0ad4e',
 		colorError: '#ef4444'
 	}
 
