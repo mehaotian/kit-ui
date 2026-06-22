@@ -1,0 +1,649 @@
+<script setup lang="uts">
+	import { inject, computed, ref, watch, useSlots } from 'vue'
+
+	/**
+	 * k-input 输入框组件
+	 * 基于 uni-app x 原生 input 封装，支持清除、密码切换、前后缀与错误态
+	 */
+
+	type SizeStyle = {
+		height : string
+		padH : number
+		fontSize : string
+		iconSize : string
+	}
+
+	type KInputProps = {
+		modelValue ?: string
+		type ?: string
+		placeholder ?: string
+		disabled ?: boolean
+		readonly ?: boolean
+		clearable ?: boolean
+		clearTrigger ?: string
+		showPassword ?: boolean
+		maxlength ?: number
+		size ?: string
+		error ?: boolean
+		errorMessage ?: string
+		prefixIcon ?: string
+		suffixIcon ?: string
+		border ?: boolean
+		round ?: boolean
+		confirmType ?: string
+		showWordLimit ?: boolean
+		inputAlign ?: string
+		customStyle ?: string
+		name ?: string
+		adjustPosition ?: boolean
+	}
+
+	const props = withDefaults(defineProps<KInputProps>(), {
+		modelValue: '',
+		type: 'text',
+		placeholder: '',
+		disabled: false,
+		readonly: false,
+		clearable: false,
+		clearTrigger: 'focus',
+		showPassword: false,
+		maxlength: -1,
+		size: 'medium',
+		error: false,
+		errorMessage: '',
+		prefixIcon: '',
+		suffixIcon: '',
+		border: true,
+		round: false,
+		confirmType: 'done',
+		showWordLimit: false,
+		inputAlign: 'left',
+		customStyle: '',
+		name: '',
+		adjustPosition: true
+	})
+
+	const emit = defineEmits<{
+		'update:modelValue' : [value: string]
+		input : [value: string]
+		change : [value: string]
+		focus : [value: string]
+		blur : [value: string]
+		clear : []
+		confirm : [value: string]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+	const slots = useSlots()
+
+	const innerValue = ref<string>('')
+	const isFocused = ref<boolean>(false)
+	const passwordVisible = ref<boolean>(false)
+	const isClearPending = ref<boolean>(false)
+
+	/**
+	 * 监听外部 v-model，同步到内部值
+	 */
+	watch((): string => props.modelValue, (newValue: string) => {
+		innerValue.value = newValue != null ? newValue : ''
+	}, { immediate: true })
+
+	/**
+	 * 解析尺寸配置，与 k-button / k-tag 保持一致的尺寸梯度
+	 */
+	const parseSize = (size: string): SizeStyle => {
+		if (size == 'small') {
+			return {
+				height: '32px',
+				padH: 8,
+				fontSize: '12px',
+				iconSize: '14'
+			}
+		}
+		if (size == 'large') {
+			return {
+				height: '48px',
+				padH: 16,
+				fontSize: '16px',
+				iconSize: '18'
+			}
+		}
+		return {
+			height: '40px',
+			padH: 12,
+			fontSize: '14px',
+			iconSize: '16'
+		}
+	}
+
+	const sizeStyle = computed((): SizeStyle => {
+		return parseSize(props.size)
+	})
+
+	/**
+	 * 注入主题 CSS 变量到组件根节点
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 是否为密码输入模式
+	 */
+	const isPasswordType = computed((): boolean => {
+		return props.type == 'password'
+	})
+
+	/**
+	 * 传给原生 input 的 type
+	 */
+	const nativeInputType = computed((): string => {
+		if (isPasswordType.value) {
+			return 'text'
+		}
+		return props.type
+	})
+
+	/**
+	 * 密码隐藏状态
+	 */
+	const nativePassword = computed((): boolean => {
+		if (!isPasswordType.value) {
+			return false
+		}
+		if (props.showPassword) {
+			return !passwordVisible.value
+		}
+		return true
+	})
+
+	/**
+	 * 是否存在前缀区域
+	 */
+	const hasPrefix = computed((): boolean => {
+		return props.prefixIcon != '' || slots['prefix'] != null
+	})
+
+	/**
+	 * 是否显示清除按钮
+	 */
+	const showClear = computed((): boolean => {
+		if (!props.clearable || props.disabled || props.readonly) {
+			return false
+		}
+		if (innerValue.value == '') {
+			return false
+		}
+		if (props.clearTrigger == 'always') {
+			return true
+		}
+		return isFocused.value || isClearPending.value
+	})
+
+	/**
+	 * 是否显示密码切换按钮
+	 */
+	const showPasswordToggle = computed((): boolean => {
+		return isPasswordType.value && props.showPassword && !props.disabled && !props.readonly
+	})
+
+	/**
+	 * 是否显示字数统计
+	 */
+	const showLimit = computed((): boolean => {
+		return props.showWordLimit && props.maxlength > 0
+	})
+
+	/**
+	 * 字数统计文案
+	 */
+	const wordLimitText = computed((): string => {
+		return `${innerValue.value.length}/${props.maxlength}`
+	})
+
+	/**
+	 * 是否存在后缀区域
+	 */
+	const hasSuffix = computed((): boolean => {
+		return showClear.value ||
+			showPasswordToggle.value ||
+			props.suffixIcon != '' ||
+			slots['suffix'] != null ||
+			showLimit.value
+	})
+
+	/**
+	 * 后缀区占位宽度（px），避免原生 input 盖住清除按钮
+	 */
+	const suffixAreaWidth = computed((): number => {
+		let width = 0
+		if (showClear.value) {
+			width += 28
+		}
+		if (showPasswordToggle.value) {
+			width += 28
+		}
+		if (props.suffixIcon != '') {
+			width += 28
+		}
+		if (slots['suffix'] != null) {
+			width += 28
+		}
+		if (showLimit.value) {
+			width += 48
+		}
+		return width
+	})
+
+	/**
+	 * 输入框外层容器样式
+	 */
+	const inputBoxStyle = computed((): UTSJSONObject => {
+		const padH = sizeStyle.value.padH
+		const suffixWidth = suffixAreaWidth.value
+		return {
+			height: sizeStyle.value.height,
+			paddingTop: '0',
+			paddingBottom: '0',
+			paddingLeft: `${padH}px`,
+			paddingRight: `${padH + suffixWidth}px`
+		}
+	})
+
+	/**
+	 * 传给原生 input 的 maxlength
+	 */
+	const nativeMaxlength = computed((): number => {
+		if (props.maxlength > 0) {
+			return props.maxlength
+		}
+		return -1
+	})
+
+	/**
+	 * placeholder 内联样式
+	 */
+	const placeholderStyleText = computed((): string => {
+		return `color: var(--k-text-color-placeholder, #9ca3af); font-size: ${sizeStyle.value.fontSize}`
+	})
+
+	/**
+	 * 后缀图标颜色（使用 hex，避免小程序端 CSS 变量导致 fill 图标渲染异常）
+	 */
+	const suffixIconColor = computed((): string => {
+		return '#6b7280'
+	})
+
+	/**
+	 * 处理输入事件，同步 v-model
+	 */
+	const handleInput = (event: UniInputEvent) => {
+		if (props.disabled || props.readonly) {
+			return
+		}
+		const value = event.detail.value
+		innerValue.value = value
+		emit('update:modelValue', value)
+		emit('input', value)
+	}
+
+	/**
+	 * 处理失焦后内容变更事件
+	 */
+	const handleChange = (event: UniInputChangeEvent) => {
+		const value = event.detail.value
+		emit('change', value)
+	}
+
+	/**
+	 * 处理获取焦点
+	 */
+	const handleFocus = (event: UniInputFocusEvent) => {
+		if (props.disabled || props.readonly) {
+			return
+		}
+		isFocused.value = true
+		emit('focus', event.detail.value)
+	}
+
+	/**
+	 * 处理失去焦点
+	 */
+	const handleBlur = (event: UniInputBlurEvent) => {
+		if (isClearPending.value) {
+			return
+		}
+		setTimeout(() => {
+			if (isClearPending.value) {
+				return
+			}
+			isFocused.value = false
+		}, 150)
+		emit('blur', event.detail.value)
+	}
+
+	/**
+	 * 处理键盘确认
+	 */
+	const handleConfirm = (event: UniInputConfirmEvent) => {
+		emit('confirm', event.detail.value)
+	}
+
+	/**
+	 * 执行清除逻辑
+	 */
+	const handleClearAction = () => {
+		if (props.disabled || props.readonly) {
+			isClearPending.value = false
+			return
+		}
+		innerValue.value = ''
+		emit('update:modelValue', '')
+		emit('input', '')
+		emit('clear')
+		isClearPending.value = false
+	}
+
+	/**
+	 * 清除按钮 touchstart：标记状态；微信小程序在此直接清除（tap 常被原生 input 拦截）
+	 */
+	const handleClearTouchStart = () => {
+		isClearPending.value = true
+		// #ifdef MP-WEIXIN
+		handleClearAction()
+		// #endif
+	}
+
+	/**
+	 * 清除按钮 tap（APP / WEB 等平台）
+	 */
+	const handleClearTap = () => {
+		// #ifndef MP-WEIXIN
+		handleClearAction()
+		// #endif
+		// #ifdef MP-WEIXIN
+		isClearPending.value = false
+		// #endif
+	}
+
+	/**
+	 * 切换密码可见性
+	 */
+	const handlePasswordToggle = () => {
+		if (props.disabled || props.readonly) {
+			return
+		}
+		passwordVisible.value = !passwordVisible.value
+	}
+
+	/**
+	 * 密码切换 touchstart（微信小程序）
+	 */
+	const handlePasswordTouchStart = () => {
+		// #ifdef MP-WEIXIN
+		handlePasswordToggle()
+		// #endif
+	}
+</script>
+
+<template>
+	<view class="kit-ui--root k-input-wrapper" :style="wrapperThemeStyle">
+		<view
+			class="k-input"
+			:class="[
+				`k-input--${size}`,
+				{
+					'k-input--focused': isFocused,
+					'k-input--error': error,
+					'k-input--disabled': disabled,
+					'k-input--readonly': readonly,
+					'k-input--borderless': !border,
+					'k-input--round': round,
+					'k-input--has-suffix': hasSuffix
+				}
+			]"
+			:style="inputBoxStyle"
+		>
+			<view class="k-input__main">
+				<view v-if="hasPrefix" class="k-input__prefix">
+					<k-icon
+						v-if="prefixIcon != ''"
+						:name="prefixIcon"
+						:size="sizeStyle.iconSize"
+						:color="suffixIconColor"
+					></k-icon>
+					<slot name="prefix"></slot>
+				</view>
+
+				<view class="k-input__field">
+					<input
+						class="k-input__inner"
+						:class="[`k-input__inner--${inputAlign}`]"
+						:type="nativeInputType"
+						:password="nativePassword"
+						:value="innerValue"
+						:placeholder="placeholder"
+						:placeholder-style="placeholderStyleText"
+						:disabled="disabled || readonly"
+						:maxlength="nativeMaxlength"
+						:confirm-type="confirmType"
+						:adjust-position="adjustPosition"
+						:name="name"
+						@input="handleInput"
+						@change="handleChange"
+						@focus="handleFocus"
+						@blur="handleBlur"
+						@confirm="handleConfirm"
+					/>
+				</view>
+			</view>
+
+			<view v-if="hasSuffix" class="k-input__suffix">
+				<view
+					v-if="showClear"
+					class="k-input__action k-input__action--clear"
+					hover-class="k-input__action--hover"
+					@touchstart.stop="handleClearTouchStart"
+					@tap.stop="handleClearTap"
+					@click.stop="handleClearTap"
+				>
+					<k-icon name="close-circle-fill" :size="sizeStyle.iconSize" :color="suffixIconColor"></k-icon>
+				</view>
+
+				<view
+					v-if="showPasswordToggle"
+					class="k-input__action"
+					hover-class="k-input__action--hover"
+					@touchstart.stop="handlePasswordTouchStart"
+					@tap.stop="handlePasswordToggle"
+				>
+					<k-icon
+						:name="passwordVisible ? 'eye-line' : 'eye-off-line'"
+						:size="sizeStyle.iconSize"
+						:color="suffixIconColor"
+					></k-icon>
+				</view>
+
+				<view v-if="suffixIcon != ''" class="k-input__suffix-icon">
+					<k-icon :name="suffixIcon" :size="sizeStyle.iconSize" :color="suffixIconColor"></k-icon>
+				</view>
+
+				<view v-if="slots['suffix'] != null" class="k-input__suffix-slot">
+					<slot name="suffix"></slot>
+				</view>
+
+				<view v-if="showLimit" class="k-input__word-limit">
+					<text class="k-input__word-limit-text">{{ wordLimitText }}</text>
+				</view>
+			</view>
+		</view>
+
+		<view v-if="error && errorMessage != ''" class="k-input__error-message">
+			<text class="k-input__error-text">{{ errorMessage }}</text>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-input-wrapper {
+		position: relative;
+		width: 100%;
+	}
+
+	.k-input {
+		position: relative;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 100%;
+		box-sizing: border-box;
+		overflow: hidden;
+		background-color: var(--k-bg-color, #ffffff);
+		border: var(--k-border-width-base, 1px) solid var(--k-border-color, #e5e7eb);
+		border-radius: var(--k-border-radius-base, 8px);
+		transition: border-color var(--k-transition-duration-base, 0.2s) ease;
+
+		&--focused {
+			border-color: var(--k-color-primary, #6366f1);
+		}
+
+		&--error {
+			border-color: var(--k-color-error, #ef4444);
+		}
+
+		&--error.k-input--focused {
+			border-color: var(--k-color-error, #ef4444);
+		}
+
+		&--disabled {
+			background-color: var(--k-bg-color-disabled, #f3f4f6);
+			border-color: var(--k-border-color-light, #f3f4f6);
+		}
+
+		&--readonly {
+			background-color: var(--k-bg-color-page, #f8fafc);
+		}
+
+		&--borderless {
+			border-color: transparent;
+			background-color: transparent;
+		}
+
+		&--round {
+			border-radius: 100px;
+		}
+	}
+
+	.k-input__main {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex: 1;
+		min-width: 0;
+		height: 100%;
+	}
+
+	.k-input__field {
+		flex: 1;
+		min-width: 0;
+		height: 100%;
+		overflow: hidden;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.k-input__inner {
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		border-width: 0;
+	}
+
+	.k-input__inner--left {
+		text-align: left;
+	}
+
+	.k-input__inner--center {
+		text-align: center;
+	}
+
+	.k-input__inner--right {
+		text-align: right;
+	}
+
+	.k-input__prefix {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+		margin-right: var(--k-spacing-xs, 4px);
+	}
+
+	.k-input__suffix {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-end;
+		flex-shrink: 0;
+		z-index: 10;
+		padding-right: var(--k-spacing-xs, 4px);
+	}
+
+	.k-input__action,
+	.k-input__suffix-icon,
+	.k-input__suffix-slot {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		min-width: 28px;
+		min-height: 28px;
+		margin-left: var(--k-spacing-xs, 4px);
+	}
+
+	.k-input__action--hover {
+		opacity: 0.65;
+	}
+
+	.k-input__action--clear {
+		position: relative;
+		z-index: 11;
+	}
+
+	.k-input__word-limit {
+		margin-left: var(--k-spacing-xs, 4px);
+	}
+
+	.k-input__word-limit-text {
+		font-size: var(--k-font-size-sm, 12px);
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.k-input__error-message {
+		margin-top: var(--k-spacing-xs, 4px);
+		width: 100%;
+	}
+
+	.k-input__error-text {
+		font-size: var(--k-font-size-sm, 12px);
+		color: var(--k-color-error, #ef4444);
+	}
+</style>

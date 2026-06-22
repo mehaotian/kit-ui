@@ -13,16 +13,14 @@
 
 	// 微信小程序使用动态加载字体
 	// #ifdef MP-WEIXIN
-	// import KiconPath from "./fonts/k-icon.ttf"
 	import { base64 } from './fonts/k-icon-base64.uts'
 	uni.loadFontFace({
-		global: false,
+		global: true,
 		family: 'KIconRoot',
 		source: `url('${base64}')`,
 		success() {},
 		fail(error) {},
 	})
-
 	// #endif
 
 	// 注入主题配置
@@ -366,11 +364,15 @@
 	})
 
 	const textStyle = computed(() : UTSJSONObject => {
-		return {
+		const style : UTSJSONObject = {
 			fontSize: iconSize.value,
 			color: iconColor.value,
 			lineHeight: '1'
 		}
+		if (iconType.value == 'text') {
+			style['fontFamily'] = 'KIconRoot'
+		}
+		return style
 	})
 
 	const imageStyle = computed(() : UTSJSONObject => {

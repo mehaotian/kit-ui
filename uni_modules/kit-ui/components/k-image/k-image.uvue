@@ -234,6 +234,25 @@
 		styles.push(`opacity: ${props.maskOpacity}`)
 		return styles.join('; ')
 	})
+	
+	
+	const handlePreview = () => {
+		if (props.disabled || currentSrc.value == '') {
+			return
+		}
+	
+		// 使用 uni.previewImage 预览图片
+		uni.previewImage({
+			current: currentSrc.value,
+			urls: [currentSrc.value],
+			success: () => {
+				emit('preview', currentSrc.value)
+			},
+			fail: (err : any) => {
+				console.error('图片预览失败:', err)
+			}
+		})
+	}
 
 	// 处理容器点击：预览模式下仅触发预览，不派发 click
 	const handleClick = () => {
@@ -269,23 +288,6 @@
 		emit('error', event)
 	}
 
-	const handlePreview = () => {
-		if (props.disabled || currentSrc.value == '') {
-			return
-		}
-
-		// 使用 uni.previewImage 预览图片
-		uni.previewImage({
-			current: currentSrc.value,
-			urls: [currentSrc.value],
-			success: () => {
-				emit('preview', currentSrc.value)
-			},
-			fail: (err : any) => {
-				console.error('图片预览失败:', err)
-			}
-		})
-	}
 
 	// 初始化图片源
 	const initSrc = () => {

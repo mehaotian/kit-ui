@@ -1,0 +1,604 @@
+<script setup lang="uts">
+	import { inject, computed, ref, watch } from 'vue'
+
+	/**
+	 * k-textarea 多行文本输入组件
+	 * 基于 uni-app x 原生 textarea 封装，支持自动增高、清除、字数统计与错误态
+	 */
+
+	type SizeStyle = {
+		minHeight : string
+		padH : number
+		padV : number
+		fontSize : string
+		iconSize : string
+	}
+
+	type KTextareaProps = {
+		modelValue ?: string
+		placeholder ?: string
+		disabled ?: boolean
+		readonly ?: boolean
+		clearable ?: boolean
+		clearTrigger ?: string
+		maxlength ?: number
+		size ?: string
+		height ?: string
+		error ?: boolean
+		errorMessage ?: string
+		border ?: boolean
+		round ?: boolean
+		autoHeight ?: boolean
+		showWordLimit ?: boolean
+		confirmType ?: string
+		confirmHold ?: boolean
+		showConfirmBar ?: boolean
+		holdKeyboard ?: boolean
+		inputAlign ?: string
+		customStyle ?: string
+		name ?: string
+		adjustPosition ?: boolean
+		cursorSpacing ?: number
+	}
+
+	const props = withDefaults(defineProps<KTextareaProps>(), {
+		modelValue: '',
+		placeholder: '',
+		disabled: false,
+		readonly: false,
+		clearable: false,
+		clearTrigger: 'focus',
+		maxlength: -1,
+		size: 'medium',
+		height: '120px',
+		error: false,
+		errorMessage: '',
+		border: true,
+		round: false,
+		autoHeight: false,
+		showWordLimit: false,
+		confirmType: 'return',
+		confirmHold: false,
+		showConfirmBar: true,
+		holdKeyboard: false,
+		inputAlign: 'left',
+		customStyle: '',
+		name: '',
+		adjustPosition: true,
+		cursorSpacing: 0
+	})
+
+	const emit = defineEmits<{
+		'update:modelValue' : [value: string]
+		input : [value: string]
+		change : [value: string]
+		focus : [value: string]
+		blur : [value: string]
+		clear : []
+		confirm : [value: string]
+		linechange : [detail: UTSJSONObject]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+
+	const innerValue = ref<string>('')
+	const isFocused = ref<boolean>(false)
+	const isClearPending = ref<boolean>(false)
+	/** 微信小程序 linechange 同步高度（关闭原生 auto-height 后手动撑高） */
+	const mpAutoHeightPx = ref<number>(0)
+
+	/**
+	 * 监听外部 v-model，同步到内部值
+	 */
+	watch((): string => props.modelValue, (newValue: string) => {
+		innerValue.value = newValue != null ? newValue : ''
+	}, { immediate: true })
+
+	/**
+	 * 微信小程序：内容被删空时回退到 minHeight
+	 */
+	watch((): string => innerValue.value, (newValue: string) => {
+		// #ifdef MP-WEIXIN
+		if (props.autoHeight && newValue == '') {
+			mpAutoHeightPx.value = 0
+		}
+		// #endif
+	})
+
+	/**
+	 * 解析尺寸配置
+	 */
+	const parseSize = (size: string): SizeStyle => {
+		if (size == 'small') {
+			return {
+				minHeight: '80px',
+				padH: 8,
+				padV: 8,
+				fontSize: '12px',
+				iconSize: '14'
+			}
+		}
+		if (size == 'large') {
+			return {
+				minHeight: '160px',
+				padH: 16,
+				padV: 12,
+				fontSize: '16px',
+				iconSize: '18'
+			}
+		}
+		return {
+			minHeight: '120px',
+			padH: 12,
+			padV: 10,
+			fontSize: '14px',
+			iconSize: '16'
+		}
+	}
+
+	const sizeStyle = computed((): SizeStyle => {
+		return parseSize(props.size)
+	})
+
+	/**
+	 * 注入主题 CSS 变量到组件根节点
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 是否显示清除按钮
+	 */
+	const showClear = computed((): boolean => {
+		if (!props.clearable || props.disabled || props.readonly) {
+			return false
+		}
+		if (innerValue.value == '') {
+			return false
+		}
+		if (props.clearTrigger == 'always') {
+			return true
+		}
+		return isFocused.value || isClearPending.value
+	})
+
+	/**
+	 * 是否显示字数统计
+	 */
+	const showLimit = computed((): boolean => {
+		return props.showWordLimit && props.maxlength > 0
+	})
+
+	/**
+	 * 字数统计文案
+	 */
+	const wordLimitText = computed((): string => {
+		return `${innerValue.value.length}/${props.maxlength}`
+	})
+
+	/**
+	 * 是否显示底部工具栏
+	 */
+	const showFooter = computed((): boolean => {
+		return showClear.value || showLimit.value
+	})
+
+	/**
+	 * 文本域外层容器样式（固定高度模式：padding 与 height 设在外层）
+	 */
+	const textareaBoxStyle = computed((): UTSJSONObject => {
+		if (props.autoHeight) {
+			return {}
+		}
+		const style = sizeStyle.value
+		return {
+			paddingTop: `${style.padV}px`,
+			paddingBottom: `${style.padV}px`,
+			paddingLeft: `${style.padH}px`,
+			paddingRight: `${style.padH}px`,
+			height: props.height != '' ? props.height : style.minHeight
+		}
+	})
+
+	/**
+	 * 是否启用原生 auto-height（微信小程序封装场景下改由 linechange 手动增高）
+	 */
+	const nativeAutoHeight = computed((): boolean => {
+		// #ifdef MP-WEIXIN
+		return false
+		// #endif
+		// #ifndef MP-WEIXIN
+		return props.autoHeight
+		// #endif
+	})
+
+	/**
+	 * 原生 textarea 内联样式（自动增高模式：min-height / padding 必须写在 textarea 上）
+	 */
+	const textareaInnerStyle = computed((): UTSJSONObject => {
+		const style = sizeStyle.value
+		const innerStyle: UTSJSONObject = {}
+		if (props.autoHeight) {
+			innerStyle['minHeight'] = style.minHeight
+			innerStyle['paddingTop'] = `${style.padV}px`
+			innerStyle['paddingBottom'] = `${style.padV}px`
+			innerStyle['paddingLeft'] = `${style.padH}px`
+			innerStyle['paddingRight'] = `${style.padH}px`
+			innerStyle['fontSize'] = style.fontSize
+			// #ifdef MP-WEIXIN
+			if (mpAutoHeightPx.value > 0) {
+				innerStyle['height'] = `${mpAutoHeightPx.value}px`
+			}
+			// #endif
+		}
+		return innerStyle
+	})
+
+	/**
+	 * 底部工具栏样式（自动增高时 padding 在 textarea 上，footer 需单独对齐）
+	 */
+	const footerStyle = computed((): UTSJSONObject => {
+		if (!props.autoHeight) {
+			return {}
+		}
+		const style = sizeStyle.value
+		return {
+			paddingLeft: `${style.padH}px`,
+			paddingRight: `${style.padH}px`,
+			paddingBottom: `${style.padV}px`
+		}
+	})
+	/**
+	 * 传给原生 textarea 的 maxlength
+	 */
+	const nativeMaxlength = computed((): number => {
+		if (props.maxlength > 0) {
+			return props.maxlength
+		}
+		return -1
+	})
+
+	/**
+	 * placeholder 内联样式
+	 */
+	const placeholderStyleText = computed((): string => {
+		return `color: var(--k-text-color-placeholder, #9ca3af); font-size: ${sizeStyle.value.fontSize}`
+	})
+
+	/**
+	 * 后缀图标颜色
+	 */
+	const actionIconColor = computed((): string => {
+		return '#6b7280'
+	})
+
+	/**
+	 * 处理输入事件，同步 v-model
+	 */
+	const handleInput = (event: UniInputEvent) => {
+		if (props.disabled || props.readonly) {
+			return
+		}
+		const value = event.detail.value
+		innerValue.value = value
+		emit('update:modelValue', value)
+		emit('input', value)
+	}
+
+	/**
+	 * 处理失焦后内容变更事件
+	 */
+	const handleChange = (event: UniInputChangeEvent) => {
+		const value = event.detail.value
+		emit('change', value)
+	}
+
+	/**
+	 * 处理获取焦点
+	 */
+	const handleFocus = (event: UniTextareaFocusEvent) => {
+		if (props.disabled || props.readonly) {
+			return
+		}
+		isFocused.value = true
+		emit('focus', event.detail.value)
+	}
+
+	/**
+	 * 处理失去焦点
+	 */
+	const handleBlur = (event: UniTextareaBlurEvent) => {
+		if (isClearPending.value) {
+			return
+		}
+		setTimeout(() => {
+			if (isClearPending.value) {
+				return
+			}
+			isFocused.value = false
+		}, 150)
+		emit('blur', event.detail.value)
+	}
+
+	/**
+	 * 处理键盘确认
+	 */
+	const handleConfirm = (event: UniInputConfirmEvent) => {
+		emit('confirm', event.detail.value)
+	}
+
+	/**
+	 * 处理行数变化（自动增高场景；微信小程序通过 linechange 同步高度）
+	 */
+	const handleLineChange = (event: UniTextareaLineChangeEvent) => {
+		const detailHeight = event.detail.height
+		// #ifdef MP-WEIXIN
+		if (props.autoHeight && detailHeight > 0) {
+			mpAutoHeightPx.value = detailHeight
+		}
+		// #endif
+		emit('linechange', {
+			height: detailHeight,
+			heightRpx: event.detail.heightRpx,
+			lineCount: event.detail.lineCount
+		})
+	}
+
+	/**
+	 * 重置微信小程序手动增高高度（内容清空时回退到 minHeight）
+	 */
+	const resetMpAutoHeight = () => {
+		// #ifdef MP-WEIXIN
+		mpAutoHeightPx.value = 0
+		// #endif
+	}
+
+	/**
+	 * 执行清除逻辑
+	 */
+	const handleClearAction = () => {
+		if (props.disabled || props.readonly) {
+			isClearPending.value = false
+			return
+		}
+		innerValue.value = ''
+		resetMpAutoHeight()
+		emit('update:modelValue', '')
+		emit('input', '')
+		emit('clear')
+		isClearPending.value = false
+	}
+
+	/**
+	 * 清除按钮 touchstart：微信小程序在此直接清除
+	 */
+	const handleClearTouchStart = () => {
+		isClearPending.value = true
+		// #ifdef MP-WEIXIN
+		handleClearAction()
+		// #endif
+	}
+
+	/**
+	 * 清除按钮 tap（APP / WEB 等平台）
+	 */
+	const handleClearTap = () => {
+		// #ifndef MP-WEIXIN
+		handleClearAction()
+		// #endif
+		// #ifdef MP-WEIXIN
+		isClearPending.value = false
+		// #endif
+	}
+</script>
+
+<template>
+	<view class="kit-ui--root k-textarea-wrapper" :style="wrapperThemeStyle">
+		<view
+			class="k-textarea"
+			:class="[
+				`k-textarea--${size}`,
+				{
+					'k-textarea--focused': isFocused,
+					'k-textarea--error': error,
+					'k-textarea--disabled': disabled,
+					'k-textarea--readonly': readonly,
+					'k-textarea--borderless': !border,
+					'k-textarea--round': round,
+					'k-textarea--auto-height': autoHeight
+				}
+			]"
+			:style="textareaBoxStyle"
+		>
+			<textarea
+				class="k-textarea__inner"
+				:class="[`k-textarea__inner--${inputAlign}`]"
+				:style="textareaInnerStyle"
+				:value="innerValue"
+				:placeholder="placeholder"
+				:placeholder-style="placeholderStyleText"
+				:disabled="disabled || readonly"
+				:maxlength="nativeMaxlength"
+				:auto-height="nativeAutoHeight"
+				:confirm-type="confirmType"
+				:confirm-hold="confirmHold"
+				:show-confirm-bar="showConfirmBar"
+				:hold-keyboard="holdKeyboard"
+				:adjust-position="adjustPosition"
+				:cursor-spacing="cursorSpacing"
+				:name="name"
+				@input="handleInput"
+				@change="handleChange"
+				@focus="handleFocus"
+				@blur="handleBlur"
+				@confirm="handleConfirm"
+				@linechange="handleLineChange"
+			/>
+
+			<view v-if="showFooter" class="k-textarea__footer" :style="footerStyle">
+				<view
+					v-if="showClear"
+					class="k-textarea__action k-textarea__action--clear"
+					hover-class="k-textarea__action--hover"
+					@touchstart.stop="handleClearTouchStart"
+					@tap.stop="handleClearTap"
+					@click.stop="handleClearTap"
+				>
+					<k-icon name="close-circle-fill" :size="sizeStyle.iconSize" :color="actionIconColor"></k-icon>
+				</view>
+
+				<view v-if="showLimit" class="k-textarea__word-limit">
+					<text class="k-textarea__word-limit-text">{{ wordLimitText }}</text>
+				</view>
+			</view>
+		</view>
+
+		<view v-if="error && errorMessage != ''" class="k-textarea__error-message">
+			<text class="k-textarea__error-text">{{ errorMessage }}</text>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-textarea-wrapper {
+		position: relative;
+		width: 100%;
+	}
+
+	.k-textarea {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		box-sizing: border-box;
+		overflow: hidden;
+		background-color: var(--k-bg-color, #ffffff);
+		border: var(--k-border-width-base, 1px) solid var(--k-border-color, #e5e7eb);
+		border-radius: var(--k-border-radius-base, 8px);
+		transition: border-color var(--k-transition-duration-base, 0.2s) ease;
+
+		&--auto-height {
+			overflow: visible;
+		}
+
+		&--focused {
+			border-color: var(--k-color-primary, #6366f1);
+		}
+
+		&--error {
+			border-color: var(--k-color-error, #ef4444);
+		}
+
+		&--error.k-textarea--focused {
+			border-color: var(--k-color-error, #ef4444);
+		}
+
+		&--disabled {
+			background-color: var(--k-bg-color-disabled, #f3f4f6);
+			border-color: var(--k-border-color-light, #f3f4f6);
+		}
+
+		&--readonly {
+			background-color: var(--k-bg-color-page, #f8fafc);
+		}
+
+		&--borderless {
+			border-color: transparent;
+			background-color: transparent;
+		}
+
+		&--round {
+			border-radius: var(--k-border-radius-lg, 12px);
+		}
+	}
+
+	.k-textarea__inner {
+		width: 100%;
+		flex: 1;
+		min-height: 48px;
+		background-color: transparent;
+		border-width: 0;
+		box-sizing: border-box;
+	}
+
+	.k-textarea--auto-height .k-textarea__inner {
+		flex: none;
+		width: 100%;
+		min-height: 0;
+	}
+
+	.k-textarea__inner--left {
+		text-align: left;
+	}
+
+	.k-textarea__inner--center {
+		text-align: center;
+	}
+
+	.k-textarea__inner--right {
+		text-align: right;
+	}
+
+	.k-textarea__footer {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-end;
+		width: 100%;
+		margin-top: var(--k-spacing-xs, 4px);
+	}
+
+	.k-textarea__action {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		min-width: 28px;
+		min-height: 28px;
+		margin-right: var(--k-spacing-xs, 4px);
+	}
+
+	.k-textarea__action--hover {
+		opacity: 0.65;
+	}
+
+	.k-textarea__action--clear {
+		position: relative;
+		z-index: 2;
+	}
+
+	.k-textarea__word-limit {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.k-textarea__word-limit-text {
+		font-size: var(--k-font-size-sm, 12px);
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.k-textarea__error-message {
+		margin-top: var(--k-spacing-xs, 4px);
+		width: 100%;
+	}
+
+	.k-textarea__error-text {
+		font-size: var(--k-font-size-sm, 12px);
+		color: var(--k-color-error, #ef4444);
+	}
+</style>

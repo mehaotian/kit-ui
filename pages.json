@@ -12,6 +12,12 @@
 			}
 		},
 		{
+			"path": "pages/textarea/textarea",
+			"style": {
+				"navigationBarTitleText": "多行输入"
+			}
+		},
+		{
 			"path": "pages/button/button",
 			"style": {
 				"navigationBarTitleText": "按钮"

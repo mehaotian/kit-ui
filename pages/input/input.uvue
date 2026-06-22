@@ -1,20 +1,148 @@
 <template>
 	<!-- #ifdef APP -->
-	<scroll-view class="container">
+	<scroll-view style="flex: 1;">
 	<!-- #endif -->
 		<view class="page">
 			<view class="page-header">
 				<text class="page-title">k-input 输入框</text>
-				<text class="page-desc">用于接收用户输入内容，支持状态与插槽扩展</text>
+				<text class="page-desc">用于接收用户输入内容，支持清除、密码切换与错误态</text>
 			</view>
 
+			<!-- 基础用法 -->
 			<view class="section">
 				<view class="section-title">
-					<text class="title-text">示例准备中</text>
-					<text class="page-desc">当前页面正在整理为统一示例风格，后续会补充完整演示。</text>
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">v-model 双向绑定</text>
 				</view>
-				<view class="demo-content">
-					<text class="input-placeholder-text">输入框示例内容即将上线</text>
+				<view class="demo-content demo-column">
+					<k-input v-model="basicValue" placeholder="请输入内容" />
+					<text class="demo-tip">当前值：{{ basicValue == '' ? '空' : basicValue }}</text>
+				</view>
+			</view>
+
+			<!-- 不同尺寸 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">不同尺寸</text>
+					<text class="page-desc">small / medium / large</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-input v-model="sizeValue" size="small" placeholder="小尺寸输入框" />
+					<k-input v-model="sizeValue" size="medium" placeholder="中等尺寸输入框" />
+					<k-input v-model="sizeValue" size="large" placeholder="大尺寸输入框" />
+				</view>
+			</view>
+
+			<!-- 输入类型 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">输入类型</text>
+					<text class="page-desc">text / password / number / tel / digit</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-input v-model="textValue" type="text" placeholder="文本输入" />
+					<k-input v-model="passwordValue" type="password" placeholder="密码输入" show-password />
+					<k-input v-model="numberValue" type="number" placeholder="数字输入" />
+					<k-input v-model="telValue" type="tel" placeholder="电话号码" />
+					<k-input v-model="digitValue" type="digit" placeholder="带小数点数字" />
+				</view>
+			</view>
+
+			<!-- 清除功能 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">清除功能</text>
+					<text class="page-desc">clearable 聚焦时显示；clear-trigger="always" 始终显示</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-input v-model="clearableValue" placeholder="聚焦后显示清除按钮" clearable />
+					<k-input v-model="clearAlwaysValue" placeholder="始终显示清除按钮" clearable clear-trigger="always" />
+				</view>
+			</view>
+
+			<!-- 前后缀 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">前后缀</text>
+					<text class="page-desc">prefix-icon / suffix-icon / 插槽自定义</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-input v-model="prefixValue" placeholder="带前缀图标" prefix-icon="search-line" />
+					<k-input v-model="suffixValue" placeholder="带后缀图标" suffix-icon="mail-line" />
+					<k-input v-model="slotValue" placeholder="域名">
+						<template #prefix>
+							<text class="slot-text">https://</text>
+						</template>
+						<template #suffix>
+							<text class="slot-text">.com</text>
+						</template>
+					</k-input>
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">disabled / readonly / error / borderless / round</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-input v-model="disabledValue" placeholder="禁用状态" disabled />
+					<k-input v-model="readonlyValue" placeholder="只读状态" readonly />
+					<k-input
+						v-model="errorValue"
+						placeholder="至少 6 个字符"
+						:error="errorValue.length > 0 && errorValue.length < 6"
+						:error-message="errorValue.length > 0 && errorValue.length < 6 ? '内容长度不能少于 6 个字符' : ''"
+					/>
+					<k-input v-model="borderlessValue" placeholder="无边框输入框" :border="false" />
+					<k-input v-model="roundValue" placeholder="圆角输入框" round clearable />
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">maxlength / show-word-limit / confirm-type</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-input
+						v-model="maxlengthValue"
+						placeholder="最多输入 10 个字符"
+						:maxlength="10"
+						show-word-limit
+						clearable
+					/>
+					<k-input
+						v-model="searchValue"
+						placeholder="搜索关键词"
+						prefix-icon="search-line"
+						confirm-type="search"
+						clearable
+					/>
+				</view>
+			</view>
+
+			<!-- 事件处理 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">事件处理</text>
+					<text class="page-desc">input / change / focus / blur / clear / confirm</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-input
+						v-model="eventValue"
+						placeholder="输入内容查看事件"
+						clearable
+						@input="handleInput"
+						@change="handleChange"
+						@focus="handleFocus"
+						@blur="handleBlur"
+						@clear="handleClear"
+						@confirm="handleConfirm"
+					/>
+					<text class="demo-tip">事件日志：{{ eventLog }}</text>
 				</view>
 			</view>
 		</view>
@@ -24,16 +152,84 @@
 </template>
 
 <script setup lang="uts">
+	const basicValue = ref<string>('')
+	const sizeValue = ref<string>('')
+	const textValue = ref<string>('')
+	const passwordValue = ref<string>('')
+	const numberValue = ref<string>('')
+	const telValue = ref<string>('')
+	const digitValue = ref<string>('')
+	const clearableValue = ref<string>('')
+	const clearAlwaysValue = ref<string>('始终可清除')
+	const prefixValue = ref<string>('')
+	const suffixValue = ref<string>('')
+	const slotValue = ref<string>('')
+	const disabledValue = ref<string>('禁用内容')
+	const readonlyValue = ref<string>('只读内容')
+	const errorValue = ref<string>('')
+	const borderlessValue = ref<string>('')
+	const roundValue = ref<string>('')
+	const maxlengthValue = ref<string>('')
+	const searchValue = ref<string>('')
+	const eventValue = ref<string>('')
+	const eventLog = ref<string>('暂无事件')
 
+	/**
+	 * 记录 input 事件
+	 */
+	const handleInput = (value: string) => {
+		eventLog.value = `input: ${value}`
+	}
+
+	/**
+	 * 记录 change 事件
+	 */
+	const handleChange = (value: string) => {
+		eventLog.value = `change: ${value}`
+	}
+
+	/**
+	 * 记录 focus 事件
+	 */
+	const handleFocus = (value: string) => {
+		eventLog.value = `focus: ${value}`
+	}
+
+	/**
+	 * 记录 blur 事件
+	 */
+	const handleBlur = (value: string) => {
+		eventLog.value = `blur: ${value}`
+	}
+
+	/**
+	 * 记录 clear 事件
+	 */
+	const handleClear = () => {
+		eventLog.value = 'clear'
+	}
+
+	/**
+	 * 记录 confirm 事件
+	 */
+	const handleConfirm = (value: string) => {
+		eventLog.value = `confirm: ${value}`
+	}
 </script>
 
 <style lang="scss">
-	.demo-content {
-		padding: 5px;
+	.demo-column .k-input-wrapper {
+		margin-bottom: 10px;
 	}
 
-	.input-placeholder-text {
+	.demo-tip,
+	.slot-text {
 		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.slot-text {
+		font-size: var(--k-font-size-sm, 12px);
 		color: var(--k-text-color-secondary, #6b7280);
 	}
 </style>

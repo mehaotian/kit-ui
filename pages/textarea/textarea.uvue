@@ -1,0 +1,261 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-textarea 多行输入</text>
+				<text class="page-desc">用于多行文本录入，支持自动增高、清除与字数统计</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">v-model 双向绑定</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-textarea v-model="basicValue" placeholder="请输入多行内容" />
+					<text class="demo-tip">当前字数：{{ basicValue.length }}</text>
+				</view>
+			</view>
+
+			<!-- 不同尺寸 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">不同尺寸</text>
+					<text class="page-desc">small / medium / large</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-textarea v-model="sizeValue" size="small" placeholder="小尺寸文本域" />
+					<k-textarea v-model="sizeValue" size="medium" placeholder="中等尺寸文本域" />
+					<k-textarea v-model="sizeValue" size="large" placeholder="大尺寸文本域" />
+				</view>
+			</view>
+
+			<!-- 自动增高 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自动增高</text>
+					<text class="page-desc">auto-height 随内容增高</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-textarea
+						v-model="autoHeightValue"
+						auto-height
+						placeholder="输入多行内容，高度会自动增长"
+					/>
+				</view>
+			</view>
+
+			<!-- 固定高度 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">固定高度</text>
+					<text class="page-desc">height 指定容器高度</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-textarea
+						v-model="fixedHeightValue"
+						height="160px"
+						placeholder="固定高度 160px，内容超出可滚动"
+					/>
+				</view>
+			</view>
+
+			<!-- 清除功能 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">清除功能</text>
+					<text class="page-desc">clearable 聚焦时显示；clear-trigger="always" 始终显示</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-textarea v-model="clearableValue" clearable placeholder="聚焦后显示清除按钮" />
+					<k-textarea
+						v-model="clearAlwaysValue"
+						clearable
+						clear-trigger="always"
+						placeholder="始终显示清除按钮"
+					/>
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">disabled / readonly / error / borderless / round</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-textarea v-model="disabledValue" disabled placeholder="禁用状态" />
+					<k-textarea v-model="readonlyValue" readonly placeholder="只读状态" />
+					<k-textarea
+						v-model="errorValue"
+						placeholder="至少 10 个字符"
+						:error="errorValue.length > 0 && errorValue.length < 10"
+						:error-message="errorValue.length > 0 && errorValue.length < 10 ? '内容长度不能少于 10 个字符' : ''"
+					/>
+					<k-textarea v-model="borderlessValue" :border="false" placeholder="无边框文本域" />
+					<k-textarea v-model="roundValue" round placeholder="圆角文本域" />
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">maxlength / show-word-limit / confirm-type</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-textarea
+						v-model="maxlengthValue"
+						placeholder="最多输入 100 个字符"
+						:maxlength="100"
+						show-word-limit
+						clearable
+					/>
+					<k-textarea
+						v-model="confirmValue"
+						placeholder="点击键盘发送按钮"
+						confirm-type="send"
+						:confirm-hold="true"
+						@confirm="handleConfirm"
+					/>
+					<text class="demo-tip">确认日志：{{ confirmLog }}</text>
+				</view>
+			</view>
+
+			<!-- 主题用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">主题用法</text>
+					<text class="page-desc">通过 k-config 注入主题变量</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-config :theme="themeConfig">
+						<k-textarea v-model="themeValue" placeholder="主题色文本域" clearable />
+					</k-config>
+				</view>
+			</view>
+
+			<!-- 事件处理 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">事件处理</text>
+					<text class="page-desc">input / change / focus / blur / clear / confirm / linechange</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-textarea
+						v-model="eventValue"
+						auto-height
+						clearable
+						placeholder="输入内容查看事件"
+						@input="handleInput"
+						@change="handleChange"
+						@focus="handleFocus"
+						@blur="handleBlur"
+						@clear="handleClear"
+						@confirm="handleEventConfirm"
+						@linechange="handleLineChange"
+					/>
+					<text class="demo-tip">事件日志：{{ eventLog }}</text>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	const basicValue = ref<string>('')
+	const sizeValue = ref<string>('')
+	const autoHeightValue = ref<string>('')
+	const fixedHeightValue = ref<string>('')
+	const clearableValue = ref<string>('')
+	const clearAlwaysValue = ref<string>('始终可清除的内容')
+	const disabledValue = ref<string>('禁用内容')
+	const readonlyValue = ref<string>('只读内容')
+	const errorValue = ref<string>('')
+	const borderlessValue = ref<string>('')
+	const roundValue = ref<string>('')
+	const maxlengthValue = ref<string>('')
+	const confirmValue = ref<string>('')
+	const confirmLog = ref<string>('暂无')
+	const themeValue = ref<string>('')
+	const eventValue = ref<string>('')
+	const eventLog = ref<string>('暂无事件')
+
+	const themeConfig = {
+		colorPrimary: '#6366f1',
+		colorError: '#ef4444'
+	}
+
+	/**
+	 * 记录 confirm 事件
+	 */
+	const handleConfirm = (val: string) => {
+		confirmLog.value = `send: ${val}`
+	}
+
+	/**
+	 * 记录 input 事件
+	 */
+	const handleInput = (value: string) => {
+		eventLog.value = `input: ${value.length} 字`
+	}
+
+	/**
+	 * 记录 change 事件
+	 */
+	const handleChange = (value: string) => {
+		eventLog.value = `change: ${value.length} 字`
+	}
+
+	/**
+	 * 记录 focus 事件
+	 */
+	const handleFocus = (value: string) => {
+		eventLog.value = `focus: ${value.length} 字`
+	}
+
+	/**
+	 * 记录 blur 事件
+	 */
+	const handleBlur = (value: string) => {
+		eventLog.value = `blur: ${value.length} 字`
+	}
+
+	/**
+	 * 记录 clear 事件
+	 */
+	const handleClear = () => {
+		eventLog.value = 'clear'
+	}
+
+	/**
+	 * 记录 confirm 事件
+	 */
+	const handleEventConfirm = (value: string) => {
+		eventLog.value = `confirm: ${value}`
+	}
+
+	/**
+	 * 记录 linechange 事件
+	 */
+	const handleLineChange = (detail: UTSJSONObject) => {
+		const lineCount = detail['lineCount']
+		eventLog.value = `linechange: ${lineCount} 行`
+	}
+</script>
+
+<style lang="scss">
+	.demo-column .k-textarea-wrapper {
+		margin-bottom: 10px;
+	}
+
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+</style>
