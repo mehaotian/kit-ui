@@ -1,0 +1,135 @@
+/**
+ * 表单校验规则类型
+ */
+export type FormValidationRule = {
+	required ?: boolean
+	message ?: string
+	minLength ?: number
+	maxLength ?: number
+	min ?: number
+	max ?: number
+	pattern ?: string
+	type ?: string
+}
+
+/**
+ * 表单项实例类型
+ */
+export type FormItemInstance = {
+	prop : string
+	validate : () => boolean
+	resetValidation : () => void
+}
+
+/**
+ * 将值转为数字（UTS 兼容，避免使用 Number() 构造函数）
+ */
+function toNumber(value : any) : number {
+	if (typeof value == 'number') {
+		return value
+	}
+	return parseFloat(`${value}`)
+}
+
+/**
+ * 校验单个字段
+ */
+export function validateFormField(
+	value : any,
+	rules : FormValidationRule[]
+) : UTSJSONObject {
+	for (let i = 0; i < rules.length; i++) {
+		const rule = rules[i]
+
+		if (rule.required == true) {
+			const isEmpty = value == null || value == '' ||
+				(Array.isArray(value) && value.length == 0)
+			if (isEmpty) {
+				return {
+					valid: false,
+					message: rule.message != null && rule.message != '' ? rule.message : '此字段为必填项'
+				}
+			}
+		}
+
+		if (rule.required != true) {
+			const isEmpty = value == null || value == '' ||
+				(Array.isArray(value) && value.length == 0)
+			if (isEmpty) {
+				continue
+			}
+		}
+
+		if (rule.type == 'array' && !Array.isArray(value)) {
+			return {
+				valid: false,
+				message: rule.message != null && rule.message != '' ? rule.message : '字段类型必须为 array'
+			}
+		}
+
+		if (rule.type == 'boolean' && typeof value != 'boolean') {
+			return {
+				valid: false,
+				message: rule.message != null && rule.message != '' ? rule.message : '字段类型必须为 boolean'
+			}
+		}
+
+		if (rule.minLength != null && `${value}`.length < rule.minLength!) {
+			return {
+				valid: false,
+				message: rule.message != null && rule.message != '' ? rule.message : `长度不能少于${rule.minLength}个字符`
+			}
+		}
+
+		if (rule.maxLength != null && `${value}`.length > rule.maxLength!) {
+			return {
+				valid: false,
+				message: rule.message != null && rule.message != '' ? rule.message : `长度不能超过${rule.maxLength}个字符`
+			}
+		}
+
+		if (rule.min != null && toNumber(value) < rule.min!) {
+			return {
+				valid: false,
+				message: rule.message != null && rule.message != '' ? rule.message : `值不能小于${rule.min}`
+			}
+		}
+
+		if (rule.max != null && toNumber(value) > rule.max!) {
+			return {
+				valid: false,
+				message: rule.message != null && rule.message != '' ? rule.message : `值不能大于${rule.max}`
+			}
+		}
+
+		if (rule.pattern != null && rule.pattern != '') {
+			const reg = new RegExp(rule.pattern!)
+			if (!reg.test(`${value}`)) {
+				return {
+					valid: false,
+					message: rule.message != null && rule.message != '' ? rule.message : '字段格式不正确'
+				}
+			}
+		}
+	}
+
+	return { valid: true, message: '' }
+}
+
+/**
+ * 从 rules 对象中读取字段规则
+ */
+export function getFieldRules(
+	rules : UTSJSONObject,
+	prop : string,
+	localRules : FormValidationRule[]
+) : FormValidationRule[] {
+	if (localRules.length > 0) {
+		return localRules
+	}
+	const fieldRules = rules[prop]
+	if (fieldRules == null) {
+		return []
+	}
+	return fieldRules as FormValidationRule[]
+}

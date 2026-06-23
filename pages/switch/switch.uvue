@@ -1,0 +1,171 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-switch 开关</text>
+				<text class="page-desc">用于两种状态的切换，支持加载态与自定义颜色</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">v-model 双向绑定</text>
+				</view>
+				<view class="demo-content demo-row">
+					<text class="demo-label">消息通知</text>
+					<k-switch v-model="basicValue" />
+				</view>
+				<text class="demo-tip">当前值：{{ basicValue ? '开启' : '关闭' }}</text>
+			</view>
+
+			<!-- 不同尺寸 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">不同尺寸</text>
+					<text class="page-desc">small / medium / large</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-row">
+						<text class="demo-label">small</text>
+						<k-switch v-model="sizeValue" size="small" />
+					</view>
+					<view class="demo-row">
+						<text class="demo-label">medium</text>
+						<k-switch v-model="sizeValue" size="medium" />
+					</view>
+					<view class="demo-row">
+						<text class="demo-label">large</text>
+						<k-switch v-model="sizeValue" size="large" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">disabled / loading</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-row">
+						<text class="demo-label">禁用（关）</text>
+						<k-switch v-model="disabledOff" disabled />
+					</view>
+					<view class="demo-row">
+						<text class="demo-label">禁用（开）</text>
+						<k-switch v-model="disabledOn" disabled />
+					</view>
+					<view class="demo-row">
+						<text class="demo-label">加载中</text>
+						<k-switch v-model="loadingValue" loading />
+					</view>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">自定义颜色 / active-value</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-row">
+						<text class="demo-label">自定义色</text>
+						<k-switch
+							v-model="colorValue"
+							active-color="#10b981"
+							inactive-color="#e5e7eb"
+						/>
+					</view>
+					<view class="demo-row">
+						<text class="demo-label">自定义值</text>
+						<k-switch v-model="customValue" :active-value="1" :inactive-value="0" />
+					</view>
+					<text class="demo-tip">自定义值：{{ customValue }}</text>
+				</view>
+			</view>
+
+			<!-- 主题用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">主题用法</text>
+					<text class="page-desc">默认主题 vs k-config 注入（对比更明显）</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-row">
+						<text class="demo-label">默认（#6366f1）</text>
+						<k-switch v-model="themeDefaultValue" />
+					</view>
+					<view class="demo-row">
+						<text class="demo-label">紫色主题（#7c3aed）</text>
+						<k-config :theme="themeConfig">
+							<k-switch v-model="themeValue" />
+						</k-config>
+					</view>
+				</view>
+			</view>
+
+			<!-- 事件处理 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">事件处理</text>
+					<text class="page-desc">change 事件</text>
+				</view>
+				<view class="demo-content demo-row">
+					<text class="demo-label">监听切换</text>
+					<k-switch v-model="eventValue" @change="handleChange" />
+				</view>
+				<text class="demo-tip">事件日志：{{ eventLog }}</text>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	const basicValue = ref<boolean>(true)
+	const sizeValue = ref<boolean>(true)
+	const disabledOff = ref<boolean>(false)
+	const disabledOn = ref<boolean>(true)
+	const loadingValue = ref<boolean>(true)
+	const colorValue = ref<boolean>(true)
+	const customValue = ref<number>(1)
+	const themeDefaultValue = ref<boolean>(true)
+	const themeValue = ref<boolean>(true)
+	const eventValue = ref<boolean>(false)
+	const eventLog = ref<string>('暂无')
+
+	const themeConfig = {
+		colorPrimary: '#7c3aed',
+		colorPrimaryActive: '#6d28d9'
+	}
+
+	/**
+	 * 记录 change 事件
+	 */
+	const handleChange = (value: boolean) => {
+		eventLog.value = `change: ${value ? '开启' : '关闭'}`
+	}
+</script>
+
+<style lang="scss">
+	.demo-row {
+		margin-bottom: 10px;
+	}
+
+	.demo-label {
+		font-size: 14px;
+		color: var(--k-text-color, #374151);
+		flex: 1;
+	}
+
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+		margin-top: 4px;
+	}
+</style>

@@ -1,0 +1,252 @@
+<script setup lang="uts">
+	import { inject, computed } from 'vue'
+
+	/**
+	 * k-switch 开关
+	 * 用于两种状态切换，支持自定义开关值与加载态
+	 */
+
+	type SwitchSizeStyle = {
+		width : number
+		height : number
+		nodeSize : number
+		nodeOffset : number
+	}
+
+	type KSwitchProps = {
+		modelValue ?: any
+		disabled ?: boolean
+		loading ?: boolean
+		size ?: string
+		activeColor ?: string
+		inactiveColor ?: string
+		activeValue ?: any
+		inactiveValue ?: any
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KSwitchProps>(), {
+		modelValue: false,
+		disabled: false,
+		loading: false,
+		size: 'medium',
+		activeColor: '',
+		inactiveColor: '',
+		activeValue: true,
+		inactiveValue: false,
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		'update:modelValue' : [value: any]
+		change : [value: any]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+
+	/**
+	 * 解析尺寸配置
+	 */
+	const parseSize = (size: string): SwitchSizeStyle => {
+		if (size == 'small') {
+			return { width: 36, height: 20, nodeSize: 16, nodeOffset: 2 }
+		}
+		if (size == 'large') {
+			return { width: 52, height: 28, nodeSize: 24, nodeOffset: 2 }
+		}
+		return { width: 44, height: 24, nodeSize: 20, nodeOffset: 2 }
+	}
+
+	const sizeStyle = computed((): SwitchSizeStyle => {
+		return parseSize(props.size)
+	})
+
+	/**
+	 * 是否处于开启状态
+	 */
+	const isActive = computed((): boolean => {
+		return props.modelValue == props.activeValue
+	})
+
+	/**
+	 * 轨道背景色（禁用态保留开/关颜色，仅降低整体透明度）
+	 */
+	const trackColor = computed((): string => {
+		if (isActive.value) {
+			if (props.activeColor != '') {
+				return props.activeColor
+			}
+			return 'var(--k-color-primary, #6366f1)'
+		}
+		if (props.inactiveColor != '') {
+			return props.inactiveColor
+		}
+		return 'var(--k-border-color, #d1d5db)'
+	})
+
+	/**
+	 * 滑块位移距离
+	 */
+	const nodeTranslateX = computed((): number => {
+		const style = sizeStyle.value
+		return style.width - style.nodeSize - style.nodeOffset * 2
+	})
+
+	/**
+	 * 滑块 left 位置（APP 端 left 过渡比 transform 更稳定）
+	 */
+	const nodeLeft = computed((): number => {
+		const style = sizeStyle.value
+		if (isActive.value) {
+			return style.nodeOffset + nodeTranslateX.value
+		}
+		return style.nodeOffset
+	})
+
+	/**
+	 * 注入主题 CSS 变量
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 轨道内联样式
+	 */
+	const trackStyle = computed((): UTSJSONObject => {
+		const style = sizeStyle.value
+		return {
+			width: `${style.width}px`,
+			height: `${style.height}px`,
+			backgroundColor: trackColor.value,
+			borderRadius: `${style.height / 2}px`
+		}
+	})
+
+	/**
+	 * 滑块内联样式
+	 */
+	const nodeStyle = computed((): UTSJSONObject => {
+		const style = sizeStyle.value
+		return {
+			width: `${style.nodeSize}px`,
+			height: `${style.nodeSize}px`,
+			left: `${nodeLeft.value}px`
+		}
+	})
+
+	/**
+	 * 按下反馈类名
+	 */
+	const pressHoverClass = computed((): string => {
+		if (props.disabled || props.loading) {
+			return ''
+		}
+		return 'k-switch__track--pressed'
+	})
+
+	/**
+	 * 处理开关切换
+	 */
+	const handleTap = () => {
+		if (props.disabled || props.loading) {
+			return
+		}
+		const nextValue = isActive.value ? props.inactiveValue : props.activeValue
+		emit('update:modelValue', nextValue)
+		emit('change', nextValue)
+	}
+</script>
+
+<template>
+	<view
+		class="kit-ui--root k-switch"
+		:class="[
+			`k-switch--${size}`,
+			{
+				'k-switch--checked': isActive,
+				'k-switch--disabled': disabled,
+				'k-switch--loading': loading
+			}
+		]"
+		:style="wrapperThemeStyle"
+		@click="handleTap"
+	>
+		<view
+			class="k-switch__track"
+			:class="{ 'k-switch__track--checked': isActive }"
+			:style="trackStyle"
+			:hover-class="pressHoverClass"
+		>
+			<view class="k-switch__node" :style="nodeStyle">
+				<k-icon
+					v-if="loading"
+					class="k-switch__loading"
+					name="loader-4-fill"
+					size="12"
+					color="#9ca3af"
+					loading
+				></k-icon>
+			</view>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-switch {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+
+		&--disabled {
+			opacity: 0.55;
+		}
+
+		&__track {
+			position: relative;
+			flex-shrink: 0;
+			transition: background-color var(--k-transition-duration-fast, 0.2s) ease;
+		}
+
+		&__track--pressed {
+			opacity: 0.85;
+		}
+
+		&__node {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			margin-top: auto;
+			margin-bottom: auto;
+			border-radius: 100px;
+			background-color: #ffffff;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			transition: left var(--k-transition-duration-fast, 0.2s) ease;
+		}
+
+		&__loading {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+		}
+	}
+</style>

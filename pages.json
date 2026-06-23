@@ -18,6 +18,30 @@
 			}
 		},
 		{
+			"path": "pages/radio/radio",
+			"style": {
+				"navigationBarTitleText": "单选框"
+			}
+		},
+		{
+			"path": "pages/checkbox/checkbox",
+			"style": {
+				"navigationBarTitleText": "复选框"
+			}
+		},
+		{
+			"path": "pages/switch/switch",
+			"style": {
+				"navigationBarTitleText": "开关"
+			}
+		},
+		{
+			"path": "pages/form/form",
+			"style": {
+				"navigationBarTitleText": "表单"
+			}
+		},
+		{
 			"path": "pages/button/button",
 			"style": {
 				"navigationBarTitleText": "按钮"

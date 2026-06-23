@@ -114,15 +114,15 @@
 			components: [
 				{ name: 'Input', path: '/pages/input/input', status: 'completed' },
 				{ name: 'Textarea', path: '/pages/textarea/textarea', status: 'completed' },
-				{ name: 'Radio', path: '/pages/radio/radio', status: 'planning' },
-				{ name: 'Checkbox', path: '/pages/checkbox/checkbox', status: 'planning' },
-				{ name: 'Switch', path: '/pages/switch/switch', status: 'planning' },
+				{ name: 'Radio', path: '/pages/radio/radio', status: 'completed' },
+				{ name: 'Checkbox', path: '/pages/checkbox/checkbox', status: 'completed' },
+				{ name: 'Switch', path: '/pages/switch/switch', status: 'completed' },
+				{ name: 'Form', path: '/pages/form/form', status: 'completed' },
 				{ name: 'Slider', path: '/pages/slider/slider', status: 'planning' },
 				{ name: 'Rate', path: '/pages/rate/rate', status: 'planning' },
 				{ name: 'Picker', path: '/pages/picker/picker', status: 'planning' },
 				{ name: 'DatePicker', path: '/pages/datepicker/datepicker', status: 'planning' },
 				{ name: 'Upload', path: '/pages/upload/upload', status: 'planning' },
-				{ name: 'Form', path: '/pages/form/form', status: 'planning' },
 				{ name: 'Search', path: '/pages/search/search', status: 'planning' }
 			]
 		},

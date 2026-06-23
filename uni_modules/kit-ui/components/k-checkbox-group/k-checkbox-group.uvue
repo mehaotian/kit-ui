@@ -1,0 +1,131 @@
+<script setup lang="uts">
+	import { inject, computed } from 'vue'
+	import { CheckboxGroupValue } from './checkbox-group.type.uts'
+
+	/**
+	 * k-checkbox-group 复选框组
+	 * 管理一组 k-checkbox 的选中值，支持最大/最小选中数量限制
+	 */
+
+	type KCheckboxGroupProps = {
+		modelValue ?: CheckboxGroupValue
+		disabled ?: boolean
+		direction ?: string
+		size ?: string
+		max ?: number
+		min ?: number
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KCheckboxGroupProps>(), {
+		modelValue: (): CheckboxGroupValue => [],
+		disabled: false,
+		direction: 'horizontal',
+		size: 'medium',
+		max: -1,
+		min: 0,
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		'update:modelValue' : [value: CheckboxGroupValue]
+		change : [value: CheckboxGroupValue]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+
+	/**
+	 * 获取当前选中值列表
+	 */
+	const getValues = (): CheckboxGroupValue => {
+		return props.modelValue
+	}
+
+	/**
+	 * 注入主题 CSS 变量到组件根节点
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 切换选中状态
+	 */
+	const toggleValue = (name: string | number) => {
+		if (props.disabled) {
+			return
+		}
+		const values = getValues().slice()
+		let foundIndex = -1
+		for (let i = 0; i < values.length; i++) {
+			if (values[i] == name) {
+				foundIndex = i
+				break
+			}
+		}
+		if (foundIndex >= 0) {
+			if (values.length <= props.min) {
+				return
+			}
+			values.splice(foundIndex, 1)
+		} else {
+			if (props.max > 0 && values.length >= props.max) {
+				return
+			}
+			values.push(name)
+		}
+		emit('update:modelValue', values)
+		emit('change', values)
+	}
+
+	provide('k-checkbox-group-values', computed((): CheckboxGroupValue => props.modelValue))
+	provide('k-checkbox-group-disabled', computed((): boolean => props.disabled))
+	provide('k-checkbox-group-size', computed((): string => props.size))
+	provide('k-checkbox-group-toggle', toggleValue)
+</script>
+
+<template>
+	<view
+		class="kit-ui--root k-checkbox-group"
+		:class="[
+			`k-checkbox-group--${direction}`,
+			`k-checkbox-group--${size}`,
+			{ 'k-checkbox-group--disabled': disabled }
+		]"
+		:style="wrapperThemeStyle"
+	>
+		<slot></slot>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-checkbox-group {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+		width: 100%;
+
+		&--vertical {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		&--disabled {
+			opacity: 0.6;
+		}
+	}
+</style>

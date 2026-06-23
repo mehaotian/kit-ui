@@ -1,0 +1,195 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-checkbox 复选框</text>
+				<text class="page-desc">用于多选场景，支持组管理、半选态与数量限制</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">k-checkbox-group + v-model</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-checkbox-group v-model="hobbies">
+						<k-checkbox name="read" label="阅读" />
+						<k-checkbox name="sport" label="运动" />
+						<k-checkbox name="music" label="音乐" />
+					</k-checkbox-group>
+					<text class="demo-tip">已选：{{ hobbies.length }} 项</text>
+				</view>
+			</view>
+
+			<!-- 不同尺寸 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">不同尺寸</text>
+					<text class="page-desc">small / medium / large</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-checkbox-group v-model="sizeValue" size="small">
+						<k-checkbox name="a" label="小 A" />
+						<k-checkbox name="b" label="小 B" />
+					</k-checkbox-group>
+					<k-checkbox-group v-model="sizeValue" size="medium">
+						<k-checkbox name="a" label="中 A" />
+						<k-checkbox name="b" label="中 B" />
+					</k-checkbox-group>
+					<k-checkbox-group v-model="sizeValue" size="large">
+						<k-checkbox name="a" label="大 A" />
+						<k-checkbox name="b" label="大 B" />
+					</k-checkbox-group>
+				</view>
+			</view>
+
+			<!-- 垂直排列 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">垂直排列</text>
+					<text class="page-desc">direction="vertical"</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-checkbox-group v-model="verticalValue" direction="vertical">
+						<k-checkbox name="1" label="选项一" />
+						<k-checkbox name="2" label="选项二" />
+						<k-checkbox name="3" label="选项三" />
+					</k-checkbox-group>
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">disabled / indeterminate / 整组禁用</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-checkbox-group v-model="stateValue">
+						<k-checkbox name="a" label="可选项" />
+						<k-checkbox name="b" label="禁用项" disabled />
+					</k-checkbox-group>
+					<k-checkbox v-model="indeterminateValue" indeterminate label="半选态（全选中间态）" />
+					<k-checkbox-group v-model="stateValue" disabled>
+						<k-checkbox name="c" label="整组禁用 A" />
+						<k-checkbox name="d" label="整组禁用 B" />
+					</k-checkbox-group>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">max / min / 圆形 / 独立使用</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-checkbox-group v-model="maxValue" :max="2">
+						<k-checkbox name="1" label="最多选 2 项 - 1" />
+						<k-checkbox name="2" label="最多选 2 项 - 2" />
+						<k-checkbox name="3" label="最多选 2 项 - 3" />
+					</k-checkbox-group>
+					<k-checkbox-group v-model="minValue" :min="1">
+						<k-checkbox name="x" label="至少选 1 项 - X" />
+						<k-checkbox name="y" label="至少选 1 项 - Y" />
+					</k-checkbox-group>
+					<k-checkbox v-model="roundValue" shape="round" label="圆形复选框" />
+					<k-checkbox v-model="singleValue" label="独立复选框" />
+				</view>
+			</view>
+
+			<!-- 主题用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">主题用法</text>
+					<text class="page-desc">默认主题 vs k-config 注入（对比更明显）</text>
+				</view>
+				<view class="demo-content demo-column">
+					<text class="demo-theme-label">默认主题（#6366f1）</text>
+					<k-checkbox-group v-model="themeDefaultValue">
+						<k-checkbox name="a" label="选项 A" />
+						<k-checkbox name="b" label="选项 B" />
+					</k-checkbox-group>
+					<text class="demo-theme-label">青色主题（colorPrimary: #0891b2）</text>
+					<k-config :theme="themeConfig">
+						<k-checkbox-group v-model="themeValue">
+							<k-checkbox name="a" label="选项 A" />
+							<k-checkbox name="b" label="选项 B" />
+						</k-checkbox-group>
+					</k-config>
+				</view>
+			</view>
+
+			<!-- 事件处理 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">事件处理</text>
+					<text class="page-desc">change 事件</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-checkbox-group v-model="eventValue" @change="handleGroupChange">
+						<k-checkbox name="p" label="选项 P" />
+						<k-checkbox name="q" label="选项 Q" />
+					</k-checkbox-group>
+					<text class="demo-tip">事件日志：{{ eventLog }}</text>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	const hobbies = ref<(string | number)[]>([])
+	const sizeValue = ref<(string | number)[]>(['a'])
+	const verticalValue = ref<(string | number)[]>(['1'])
+	const stateValue = ref<(string | number)[]>(['a'])
+	const indeterminateValue = ref<boolean>(false)
+	const maxValue = ref<(string | number)[]>([])
+	const minValue = ref<(string | number)[]>(['x'])
+	const roundValue = ref<boolean>(true)
+	const singleValue = ref<boolean>(false)
+	const themeDefaultValue = ref<(string | number)[]>(['a'])
+	const themeValue = ref<(string | number)[]>(['a'])
+	const eventValue = ref<(string | number)[]>([])
+	const eventLog = ref<string>('暂无')
+
+	const themeConfig = {
+		colorPrimary: '#0891b2',
+		colorPrimaryActive: '#0e7490'
+	}
+
+	/**
+	 * 记录组 change 事件
+	 */
+	const handleGroupChange = (values: (string | number)[]) => {
+		eventLog.value = `change: ${values.length} 项`
+	}
+</script>
+
+<style lang="scss">
+	.demo-column .k-checkbox-group {
+		margin-bottom: 10px;
+	}
+
+	.demo-column .k-checkbox {
+		margin-bottom: 8px;
+	}
+
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.demo-theme-label {
+		font-size: 13px;
+		font-weight: bold;
+		color: var(--k-text-color-primary, #111827);
+		margin-bottom: 6px;
+		margin-top: 4px;
+	}
+</style>

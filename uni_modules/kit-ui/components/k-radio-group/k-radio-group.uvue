@@ -1,0 +1,125 @@
+<script setup lang="uts">
+	import { inject, computed, ref, watch } from 'vue'
+
+	/**
+	 * k-radio-group 单选框组
+	 * 管理一组 k-radio 的选中值，支持水平/垂直布局与按钮形态
+	 */
+
+	type KRadioGroupProps = {
+		modelValue ?: string | number
+		disabled ?: boolean
+		direction ?: string
+		size ?: string
+		shape ?: string
+		iconPlacement ?: string
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KRadioGroupProps>(), {
+		modelValue: '',
+		disabled: false,
+		direction: 'horizontal',
+		size: 'medium',
+		shape: 'dot',
+		iconPlacement: 'left',
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		'update:modelValue' : [value: string | number]
+		change : [value: string | number]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+
+	/**
+	 * 组内共享选中值（本地 ref 保证 APP 端子项立即联动更新）
+	 */
+	const innerValue = ref<string | number>(props.modelValue)
+
+	/**
+	 * 同步外部 v-model 到组内 ref
+	 */
+	watch((): string | number => props.modelValue, (value: string | number) => {
+		if (innerValue.value != value) {
+			innerValue.value = value
+		}
+	})
+
+	/**
+	 * 注入主题 CSS 变量到组件根节点
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 更新选中值并触发事件
+	 */
+	const updateValue = (value: string | number) => {
+		if (props.disabled) {
+			return
+		}
+		if (innerValue.value == value) {
+			return
+		}
+		innerValue.value = value
+		emit('update:modelValue', value)
+		emit('change', value)
+	}
+
+	provide('k-radio-group-value', computed((): string | number => innerValue.value))
+	provide('k-radio-group-disabled', computed((): boolean => props.disabled))
+	provide('k-radio-group-size', computed((): string => props.size))
+	provide('k-radio-group-shape', computed((): string => props.shape))
+	provide('k-radio-group-icon-placement', computed((): string => props.iconPlacement))
+	provide('k-radio-group-update', updateValue)
+</script>
+
+<template>
+	<view
+		class="kit-ui--root k-radio-group"
+		:class="[
+			`k-radio-group--${direction}`,
+			`k-radio-group--${size}`,
+			`k-radio-group--${shape}`,
+			{ 'k-radio-group--disabled': disabled }
+		]"
+		:style="wrapperThemeStyle"
+	>
+		<slot></slot>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-radio-group {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+		width: 100%;
+
+		&--vertical {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		&--disabled {
+			opacity: 0.6;
+		}
+	}
+</style>

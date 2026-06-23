@@ -1,0 +1,299 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-form 表单</text>
+				<text class="page-desc">表单容器与表单项，支持规则校验与错误提示</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">model + rules + 提交校验</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form ref="basicFormRef" :model="basicForm" :rules="basicRules">
+						<k-form-item label="用户名" prop="username">
+							<k-input v-model="basicForm.username" placeholder="请输入用户名" />
+						</k-form-item>
+						<k-form-item label="手机号" prop="phone">
+							<k-input v-model="basicForm.phone" type="tel" placeholder="请输入手机号" />
+						</k-form-item>
+					</k-form>
+					<k-button type="primary" text="提交" @click="handleBasicSubmit" />
+					<text class="demo-tip">提交结果：{{ submitLog }}</text>
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">required / disabled / 手动 error</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form :model="stateForm" :rules="stateRules" disabled>
+						<k-form-item label="昵称" prop="nickname" required>
+							<k-input v-model="stateForm.nickname" placeholder="整表单禁用" />
+						</k-form-item>
+					</k-form>
+					<k-form-item label="备注" error-message="这是一条手动错误提示">
+						<k-textarea v-model="stateForm.remark" placeholder="手动错误态" />
+					</k-form-item>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">label-position / label-width / 组合控件</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form
+						ref="complexFormRef"
+						:model="complexForm"
+						:rules="complexRules"
+						label-position="top"
+						label-width="100px"
+					>
+						<k-form-item label="性别" prop="gender">
+							<k-radio-group v-model="complexForm.gender">
+								<k-radio name="male" label="男" />
+								<k-radio name="female" label="女" />
+							</k-radio-group>
+						</k-form-item>
+						<k-form-item label="爱好" prop="hobbies">
+							<k-checkbox-group v-model="complexForm.hobbies">
+								<k-checkbox name="read" label="阅读" />
+								<k-checkbox name="sport" label="运动" />
+							</k-checkbox-group>
+						</k-form-item>
+						<k-form-item label="接收通知" prop="notify">
+							<k-switch v-model="complexForm.notify" />
+						</k-form-item>
+						<k-form-item label="自我介绍" prop="bio">
+							<k-textarea
+								v-model="complexForm.bio"
+								placeholder="至少 10 个字符"
+								show-word-limit
+								:maxlength="100"
+							/>
+						</k-form-item>
+					</k-form>
+					<view class="demo-actions">
+						<k-button type="default" text="重置校验" @click="handleReset" />
+						<k-button type="primary" text="校验提交" @click="handleComplexSubmit" />
+					</view>
+					<text class="demo-tip">校验日志：{{ validateLog }}</text>
+				</view>
+			</view>
+
+			<!-- 主题用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">主题用法</text>
+					<text class="page-desc">默认主题 vs k-config 注入（对比更明显）</text>
+				</view>
+				<view class="demo-content demo-column">
+					<text class="demo-theme-label">默认主题表单</text>
+					<k-form :model="themeFormDefault" border>
+						<k-form-item label="性别" prop="gender">
+							<k-radio-group v-model="themeFormDefault.gender">
+								<k-radio name="male" label="男" />
+								<k-radio name="female" label="女" />
+							</k-radio-group>
+						</k-form-item>
+					</k-form>
+					<text class="demo-theme-label">橙色主题（colorPrimary: #ea580c）</text>
+					<k-config :theme="themeConfig">
+						<k-form :model="themeForm" border>
+							<k-form-item label="性别" prop="gender">
+								<k-radio-group v-model="themeForm.gender">
+									<k-radio name="male" label="男" />
+									<k-radio name="female" label="女" />
+								</k-radio-group>
+							</k-form-item>
+							<k-form-item label="爱好" prop="hobbies">
+								<k-checkbox-group v-model="themeForm.hobbies">
+									<k-checkbox name="read" label="阅读" />
+									<k-checkbox name="sport" label="运动" />
+								</k-checkbox-group>
+							</k-form-item>
+							<k-form-item label="通知">
+								<k-switch v-model="themeForm.notify" />
+							</k-form-item>
+						</k-form>
+					</k-config>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	import { KFormExpose } from '@/uni_modules/kit-ui/components/k-form/form.type.uts'
+
+	type BasicFormData = {
+		username : string
+		phone : string
+	}
+
+	type StateFormData = {
+		nickname : string
+		remark : string
+	}
+
+	type ComplexFormData = {
+		gender : string
+		hobbies : (string | number)[]
+		notify : boolean
+		bio : string
+	}
+
+	type ThemeFormData = {
+		gender : string
+		hobbies : (string | number)[]
+		notify : boolean
+	}
+
+	type ThemeFormDefaultData = {
+		gender : string
+	}
+
+	const basicFormRef = ref<KFormExpose | null>(null)
+	const complexFormRef = ref<KFormExpose | null>(null)
+
+	const basicForm = reactive<BasicFormData>({
+		username: '',
+		phone: ''
+	})
+
+	const basicRules = {
+		username: [
+			{ required: true, message: '请输入用户名' },
+			{ minLength: 2, message: '用户名至少 2 个字符' }
+		],
+		phone: [
+			{ required: true, message: '请输入手机号' },
+			{ pattern: '^1[3-9]\\d{9}$', message: '手机号格式不正确' }
+		]
+	}
+
+	const stateForm = reactive<StateFormData>({
+		nickname: 'Kit UI',
+		remark: ''
+	})
+
+	const stateRules = {
+		nickname: [{ required: true, message: '请输入昵称' }]
+	}
+
+	const complexForm = reactive<ComplexFormData>({
+		gender: '',
+		hobbies: [],
+		notify: true,
+		bio: ''
+	})
+
+	const complexRules = {
+		gender: [{ required: true, message: '请选择性别' }],
+		hobbies: [{ required: true, type: 'array', message: '请至少选择一项爱好' }],
+		bio: [{ required: true, message: '请填写自我介绍' }, { minLength: 10, message: '至少 10 个字符' }]
+	}
+
+	const themeFormDefault = reactive<ThemeFormDefaultData>({
+		gender: 'male'
+	})
+
+	const themeForm = reactive<ThemeFormData>({
+		gender: 'male',
+		hobbies: ['read'],
+		notify: true
+	})
+
+	const submitLog = ref<string>('暂无')
+	const validateLog = ref<string>('暂无')
+
+	const themeConfig = {
+		colorPrimary: '#ea580c',
+		colorPrimaryActive: '#c2410c',
+		colorError: '#dc2626'
+	}
+
+	/**
+	 * 提交基础表单
+	 */
+	const handleBasicSubmit = () => {
+		const form = basicFormRef.value
+		if (form == null) {
+			return
+		}
+		const valid = form.validate()
+		submitLog.value = valid ? '校验通过' : '校验失败，请检查表单项'
+	}
+
+	/**
+	 * 提交复杂表单
+	 */
+	const handleComplexSubmit = () => {
+		const form = complexFormRef.value
+		if (form == null) {
+			return
+		}
+		const valid = form.validate()
+		validateLog.value = valid ? '校验通过，可提交' : '校验失败'
+	}
+
+	/**
+	 * 重置复杂表单校验状态
+	 */
+	const handleReset = () => {
+		const form = complexFormRef.value
+		if (form == null) {
+			return
+		}
+		form.resetValidation()
+		validateLog.value = '已重置校验状态'
+	}
+</script>
+
+<style lang="scss">
+	.demo-column .k-form {
+		margin-bottom: 12px;
+		width: 100%;
+	}
+
+	.demo-column .k-input-wrapper,
+	.demo-column .k-textarea-wrapper {
+		width: 100%;
+	}
+
+	.demo-actions {
+		display: flex;
+		flex-direction: row;
+		margin-bottom: 8px;
+	}
+
+	.demo-actions .k-button {
+		margin-right: 10px;
+	}
+
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.demo-theme-label {
+		font-size: 13px;
+		font-weight: bold;
+		color: var(--k-text-color-primary, #111827);
+		margin-bottom: 6px;
+		margin-top: 4px;
+	}
+</style>

@@ -1,0 +1,4 @@
+/**
+ * checkbox-group 选中值类型（UTS 兼容，避免 string[] | number[] 联合数组）
+ */
+export type CheckboxGroupValue = (string | number)[]

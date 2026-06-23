@@ -1,0 +1,214 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-radio 单选框</text>
+				<text class="page-desc">用于在多个互斥选项中选择一项，支持组管理与按钮形态</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">k-radio-group + v-model</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-radio-group v-model="gender">
+						<k-radio name="male" label="男" />
+						<k-radio name="female" label="女" />
+					</k-radio-group>
+					<text class="demo-tip">当前选中：{{ gender == '' ? '未选择' : gender }}</text>
+				</view>
+			</view>
+
+			<!-- 不同尺寸 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">不同尺寸</text>
+					<text class="page-desc">small / medium / large</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-radio-group v-model="sizeValue" size="small">
+						<k-radio name="a" label="小尺寸 A" />
+						<k-radio name="b" label="小尺寸 B" />
+					</k-radio-group>
+					<k-radio-group v-model="sizeValue" size="medium">
+						<k-radio name="a" label="中等 A" />
+						<k-radio name="b" label="中等 B" />
+					</k-radio-group>
+					<k-radio-group v-model="sizeValue" size="large">
+						<k-radio name="a" label="大尺寸 A" />
+						<k-radio name="b" label="大尺寸 B" />
+					</k-radio-group>
+				</view>
+			</view>
+
+			<!-- 垂直排列 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">垂直排列</text>
+					<text class="page-desc">direction="vertical"</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-radio-group v-model="verticalValue" direction="vertical">
+						<k-radio name="apple" label="苹果" />
+						<k-radio name="banana" label="香蕉" />
+						<k-radio name="orange" label="橙子" />
+					</k-radio-group>
+				</view>
+			</view>
+
+			<!-- 按钮形态 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">按钮形态</text>
+					<text class="page-desc">shape="button"</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-radio-group v-model="buttonValue" shape="button">
+						<k-radio name="day" label="按日" />
+						<k-radio name="week" label="按周" />
+						<k-radio name="month" label="按月" />
+					</k-radio-group>
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">disabled / label-disabled / 整组禁用</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-radio-group v-model="stateValue">
+						<k-radio name="1" label="可选项" />
+						<k-radio name="2" label="禁用项" disabled />
+						<k-radio name="3" label="标签不可点" label-disabled />
+					</k-radio-group>
+					<k-radio-group v-model="stateValue" disabled>
+						<k-radio name="4" label="整组禁用 A" />
+						<k-radio name="5" label="整组禁用 B" />
+					</k-radio-group>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">数字 name / 自定义插槽 / 独立使用</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-radio-group v-model="numberValue">
+						<k-radio :name="1" label="选项 1" />
+						<k-radio :name="2" label="选项 2" />
+					</k-radio-group>
+					<k-radio-group v-model="slotValue">
+						<k-radio name="vip">
+							<text class="slot-label">VIP 会员</text>
+						</k-radio>
+						<k-radio name="svip">
+							<text class="slot-label">超级 VIP</text>
+						</k-radio>
+					</k-radio-group>
+					<view class="demo-row">
+						<k-radio v-model="singleValue" name="agree" label="独立单选（布尔值）" />
+					</view>
+					<text class="demo-tip">独立值：{{ singleValue ? 'true' : 'false' }}</text>
+				</view>
+			</view>
+
+			<!-- 主题用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">主题用法</text>
+					<text class="page-desc">默认主题 vs k-config 注入（对比更明显）</text>
+				</view>
+				<view class="demo-content demo-column">
+					<text class="demo-theme-label">默认主题（#6366f1）</text>
+					<k-radio-group v-model="themeDefaultValue">
+						<k-radio name="a" label="选项 A" />
+						<k-radio name="b" label="选项 B" />
+					</k-radio-group>
+					<text class="demo-theme-label">玫红主题（colorPrimary: #e11d48）</text>
+					<k-config :theme="themeConfig">
+						<k-radio-group v-model="themeValue" shape="button">
+							<k-radio name="a" label="选项 A" />
+							<k-radio name="b" label="选项 B" />
+						</k-radio-group>
+					</k-config>
+				</view>
+			</view>
+
+			<!-- 事件处理 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">事件处理</text>
+					<text class="page-desc">change 事件</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-radio-group v-model="eventValue" @change="handleChange">
+						<k-radio name="x" label="选项 X" />
+						<k-radio name="y" label="选项 Y" />
+					</k-radio-group>
+					<text class="demo-tip">事件日志：{{ eventLog }}</text>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	const gender = ref<string>('')
+	const sizeValue = ref<string>('a')
+	const verticalValue = ref<string>('apple')
+	const buttonValue = ref<string>('day')
+	const stateValue = ref<string>('1')
+	const numberValue = ref<number>(1)
+	const slotValue = ref<string>('vip')
+	const singleValue = ref<boolean>(false)
+	const themeDefaultValue = ref<string>('a')
+	const themeValue = ref<string>('a')
+	const eventValue = ref<string>('x')
+	const eventLog = ref<string>('暂无')
+
+	const themeConfig = {
+		colorPrimary: '#e11d48',
+		colorPrimaryActive: '#be123c'
+	}
+
+	/**
+	 * 记录 change 事件
+	 */
+	const handleChange = (value: string | number) => {
+		eventLog.value = `change: ${value}`
+	}
+</script>
+
+<style lang="scss">
+	.demo-column .k-radio-group {
+		margin-bottom: 10px;
+	}
+
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.demo-theme-label {
+		font-size: 13px;
+		font-weight: bold;
+		color: var(--k-text-color-primary, #111827);
+		margin-bottom: 6px;
+		margin-top: 4px;
+	}
+
+	.slot-label {
+		font-size: 14px;
+		color: var(--k-text-color, #374151);
+	}
+</style>

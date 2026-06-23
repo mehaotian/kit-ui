@@ -1,0 +1,166 @@
+<script setup lang="uts">
+	import { inject, computed, provide } from 'vue'
+	import { FormItemInstance } from './utils.uts'
+
+	defineOptions({
+		name: 'KForm'
+	})
+
+	/**
+	 * k-form 表单容器
+	 * 统一管理表单项校验、重置与布局配置
+	 */
+
+	type KFormProps = {
+		model ?: UTSJSONObject
+		rules ?: UTSJSONObject
+		labelWidth ?: string
+		labelAlign ?: string
+		labelPosition ?: string
+		disabled ?: boolean
+		showErrorMessage ?: boolean
+		border ?: boolean
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KFormProps>(), {
+		model: (): UTSJSONObject => ({}),
+		rules: (): UTSJSONObject => ({}),
+		labelWidth: '80px',
+		labelAlign: 'left',
+		labelPosition: 'left',
+		disabled: false,
+		showErrorMessage: true,
+		border: false,
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		submit : [model: UTSJSONObject]
+		validate : [valid: boolean, errors: UTSJSONObject]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+	const formItems : FormItemInstance[] = []
+
+	/**
+	 * 注入主题 CSS 变量
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 注册表单项
+	 */
+	const registerFormItem = (item : FormItemInstance) => {
+		formItems.push(item)
+	}
+
+	/**
+	 * 卸载表单项
+	 */
+	const unregisterFormItem = (prop : string) => {
+		const index = formItems.findIndex((item : FormItemInstance) => item.prop == prop)
+		if (index >= 0) {
+			formItems.splice(index, 1)
+		}
+	}
+
+	/**
+	 * 校验整个表单
+	 */
+	const validate = (): boolean => {
+		let valid = true
+		const errors : UTSJSONObject = {}
+		formItems.forEach((item : FormItemInstance) => {
+			const itemValid = item.validate()
+			if (!itemValid) {
+				valid = false
+			}
+		})
+		emit('validate', valid, errors)
+		return valid
+	}
+
+	/**
+	 * 重置校验状态
+	 */
+	const resetValidation = () => {
+		formItems.forEach((item : FormItemInstance) => {
+			item.resetValidation()
+		})
+	}
+
+	/**
+	 * 提交表单：先校验再触发 submit
+	 */
+	const submit = () => {
+		const valid = validate()
+		if (valid) {
+			emit('submit', props.model)
+		}
+	}
+
+	provide('k-form-model', computed((): UTSJSONObject => props.model))
+	provide('k-form-rules', computed((): UTSJSONObject => props.rules))
+	provide('k-form-label-width', computed((): string => props.labelWidth))
+	provide('k-form-label-align', computed((): string => props.labelAlign))
+	provide('k-form-label-position', computed((): string => props.labelPosition))
+	provide('k-form-disabled', computed((): boolean => props.disabled))
+	provide('k-form-show-error', computed((): boolean => props.showErrorMessage))
+	provide('k-form-register-item', registerFormItem)
+	provide('k-form-unregister-item', unregisterFormItem)
+
+	defineExpose({
+		validate,
+		resetValidation,
+		submit
+	})
+</script>
+
+<template>
+	<view
+		class="kit-ui--root k-form"
+		:class="{
+			'k-form--border': border,
+			'k-form--label-top': labelPosition == 'top'
+		}"
+		:style="wrapperThemeStyle"
+	>
+		<slot></slot>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-form {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+
+		&--border {
+			border-width: 1px;
+			border-style: solid;
+			border-color: var(--k-border-color-light, #f3f4f6);
+			border-radius: var(--k-border-radius-base, 8px);
+			overflow: hidden;
+		}
+
+		&--label-top {
+			flex-direction: column;
+		}
+	}
+</style>

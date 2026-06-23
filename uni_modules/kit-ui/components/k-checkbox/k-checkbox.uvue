@@ -1,0 +1,353 @@
+<script setup lang="uts">
+	import { inject, computed } from 'vue'
+
+	/**
+	 * k-checkbox 复选框
+	 * 可单独使用或与 k-checkbox-group 组合，支持半选态
+	 */
+
+	type SizeStyle = {
+		iconSize : string
+		fontSize : string
+	}
+
+	type KCheckboxProps = {
+		name ?: string | number
+		label ?: string
+		disabled ?: boolean
+		labelDisabled ?: boolean
+		modelValue ?: boolean
+		indeterminate ?: boolean
+		size ?: string
+		shape ?: string
+		iconPlacement ?: string
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KCheckboxProps>(), {
+		name: '',
+		label: '',
+		disabled: false,
+		labelDisabled: false,
+		modelValue: false,
+		indeterminate: false,
+		size: '',
+		shape: 'square',
+		iconPlacement: '',
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		'update:modelValue' : [value: boolean]
+		change : [name: string | number, checked: boolean]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+	const slots = useSlots()
+
+	const groupValues = inject<ComputedRef<(string | number)[]> | null>('k-checkbox-group-values', null)
+	const groupDisabled = inject<ComputedRef<boolean> | null>('k-checkbox-group-disabled', null)
+	const groupSize = inject<ComputedRef<string> | null>('k-checkbox-group-size', null)
+	const groupToggle = inject<((name: string | number) => void) | null>('k-checkbox-group-toggle', null)
+
+	/**
+	 * 是否处于 checkbox-group 内
+	 */
+	const inGroup = computed((): boolean => {
+		return groupToggle != null
+	})
+
+	/**
+	 * 解析尺寸配置
+	 */
+	const parseSize = (size: string): SizeStyle => {
+		if (size == 'small') {
+			return { iconSize: '16', fontSize: '12px' }
+		}
+		if (size == 'large') {
+			return { iconSize: '22', fontSize: '16px' }
+		}
+		return { iconSize: '18', fontSize: '14px' }
+	}
+
+	/**
+	 * 实际生效的尺寸
+	 */
+	const resolvedSize = computed((): string => {
+		if (props.size != '') {
+			return props.size
+		}
+		if (groupSize != null) {
+			return groupSize.value
+		}
+		return 'medium'
+	})
+
+	const sizeStyle = computed((): SizeStyle => {
+		return parseSize(resolvedSize.value)
+	})
+
+	/**
+	 * 实际生效的图标位置
+	 */
+	const resolvedIconPlacement = computed((): string => {
+		if (props.iconPlacement != '') {
+			return props.iconPlacement
+		}
+		return 'left'
+	})
+
+	/**
+	 * 是否禁用（自身或组级）
+	 */
+	const isDisabled = computed((): boolean => {
+		if (props.disabled) {
+			return true
+		}
+		if (groupDisabled != null && groupDisabled.value) {
+			return true
+		}
+		return false
+	})
+
+	/**
+	 * 是否选中（组内需依赖 groupValues 触发 computed 更新）
+	 */
+	const isChecked = computed((): boolean => {
+		if (inGroup.value && groupValues != null) {
+			const values = groupValues.value
+			for (let i = 0; i < values.length; i++) {
+				if (values[i] == props.name) {
+					return true
+				}
+			}
+			return false
+		}
+		return props.modelValue
+	})
+
+	/**
+	 * 是否存在默认插槽内容
+	 */
+	const hasDefaultSlot = computed((): boolean => {
+		return slots['default'] != null
+	})
+
+	/**
+	 * 是否显示文字标签
+	 */
+	const showLabel = computed((): boolean => {
+		return props.label != '' || hasDefaultSlot.value
+	})
+
+	/**
+	 * 注入主题 CSS 变量
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 按下反馈类名
+	 */
+	const pressHoverClass = computed((): string => {
+		if (isDisabled.value) {
+			return ''
+		}
+		return 'k-checkbox__icon--pressed'
+	})
+
+	/**
+	 * 处理点击切换
+	 */
+	const handleTap = () => {
+		if (isDisabled.value) {
+			return
+		}
+		if (inGroup.value && groupToggle != null) {
+			groupToggle(props.name)
+			const nextChecked = !isChecked.value
+			emit('change', props.name, nextChecked)
+			return
+		}
+		const nextValue = !props.modelValue
+		emit('update:modelValue', nextValue)
+		emit('change', props.name, nextValue)
+	}
+
+	/**
+	 * 处理标签区域点击
+	 */
+	const handleLabelTap = () => {
+		if (props.labelDisabled) {
+			return
+		}
+		handleTap()
+	}
+</script>
+
+<template>
+	<view
+		class="kit-ui--root k-checkbox"
+		:class="[
+			`k-checkbox--${resolvedSize}`,
+			`k-checkbox--${shape}`,
+			`k-checkbox--icon-${resolvedIconPlacement}`,
+			{
+				'k-checkbox--checked': isChecked,
+				'k-checkbox--indeterminate': indeterminate,
+				'k-checkbox--disabled': isDisabled,
+				'k-checkbox--has-label': showLabel
+			}
+		]"
+		:style="wrapperThemeStyle"
+	>
+		<view
+			class="k-checkbox__icon"
+			:class="{ 'k-checkbox__icon--checked': isChecked || indeterminate }"
+			:hover-class="pressHoverClass"
+			@click="handleTap"
+		>
+			<view
+				v-if="isChecked && !indeterminate"
+				class="k-checkbox__mark"
+			></view>
+			<view
+				v-if="indeterminate"
+				class="k-checkbox__indeterminate"
+			></view>
+		</view>
+
+		<view
+			v-if="showLabel"
+			class="k-checkbox__label"
+			@click="handleLabelTap"
+		>
+			<slot>
+				<text class="k-checkbox__label-text" :style="{ fontSize: sizeStyle.fontSize }">{{ label }}</text>
+			</slot>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-checkbox {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+		margin-right: var(--k-spacing-md, 16px);
+		margin-bottom: var(--k-spacing-xs, 4px);
+
+		&--disabled {
+			opacity: 0.55;
+		}
+
+		&--icon-right {
+			flex-direction: row-reverse;
+
+			.k-checkbox__label {
+				margin-right: var(--k-spacing-xs, 4px);
+				margin-left: 0;
+			}
+		}
+
+		&__icon {
+			position: relative;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			width: 18px;
+			height: 18px;
+			flex-shrink: 0;
+			border-width: 2px;
+			border-style: solid;
+			border-color: var(--k-border-color, #d1d5db);
+			border-radius: var(--k-border-radius-sm, 4px);
+			box-sizing: border-box;
+			background-color: transparent;
+			transition:
+				background-color var(--k-transition-duration-fast, 0.2s) ease,
+				border-color var(--k-transition-duration-fast, 0.2s) ease;
+		}
+
+		&__icon--pressed {
+			opacity: 0.75;
+		}
+
+		&--small &__icon {
+			width: 16px;
+			height: 16px;
+		}
+
+		&--large &__icon {
+			width: 22px;
+			height: 22px;
+		}
+
+		&--round &__icon {
+			border-radius: 100px;
+		}
+
+		&__icon--checked,
+		&--checked &__icon,
+		&--indeterminate &__icon {
+			background-color: var(--k-color-primary, #6366f1);
+			border-color: var(--k-color-primary, #6366f1);
+		}
+
+		&__mark {
+			width: 5px;
+			height: 9px;
+			border-right-width: 2px;
+			border-bottom-width: 2px;
+			border-right-style: solid;
+			border-bottom-style: solid;
+			border-right-color: #ffffff;
+			border-bottom-color: #ffffff;
+			transform: rotate(45deg);
+			margin-top: -2px;
+		}
+
+		&__indeterminate {
+			width: 10px;
+			height: 2px;
+			background-color: #ffffff;
+			border-radius: 1px;
+		}
+
+		&__label {
+			margin-left: var(--k-spacing-xs, 4px);
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		&__label-text {
+			color: var(--k-text-color, #374151);
+		}
+
+		&--disabled &__label-text {
+			color: var(--k-text-color-disabled, #9ca3af);
+		}
+	}
+
+	.k-checkbox-group--vertical .k-checkbox {
+		margin-right: 0;
+		margin-bottom: var(--k-spacing-sm, 8px);
+	}
+</style>

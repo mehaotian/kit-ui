@@ -1,0 +1,506 @@
+<script setup lang="uts">
+	import { inject, computed } from 'vue'
+
+	/**
+	 * k-radio 单选框
+	 * 可单独使用或与 k-radio-group 组合，支持圆点/按钮两种形态
+	 */
+
+	type SizeStyle = {
+		iconSize : number
+		dotSize : number
+		fontSize : string
+		buttonPadV : number
+		buttonPadH : number
+	}
+
+	type KRadioProps = {
+		name ?: string | number
+		label ?: string
+		disabled ?: boolean
+		labelDisabled ?: boolean
+		modelValue ?: boolean
+		size ?: string
+		shape ?: string
+		iconPlacement ?: string
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KRadioProps>(), {
+		name: '',
+		label: '',
+		disabled: false,
+		labelDisabled: false,
+		modelValue: false,
+		size: '',
+		shape: '',
+		iconPlacement: '',
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		'update:modelValue' : [value: boolean]
+		change : [name: string | number]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+	const slots = useSlots()
+
+	const groupValue = inject<ComputedRef<string | number> | null>('k-radio-group-value', null)
+	const groupDisabled = inject<ComputedRef<boolean> | null>('k-radio-group-disabled', null)
+	const groupSize = inject<ComputedRef<string> | null>('k-radio-group-size', null)
+	const groupShape = inject<ComputedRef<string> | null>('k-radio-group-shape', null)
+	const groupIconPlacement = inject<ComputedRef<string> | null>('k-radio-group-icon-placement', null)
+	const groupUpdate = inject<((value: string | number) => void) | null>('k-radio-group-update', null)
+
+	/**
+	 * 是否处于 radio-group 内
+	 */
+	const inGroup = computed((): boolean => {
+		return groupUpdate != null
+	})
+
+	/**
+	 * 解析尺寸配置
+	 */
+	const parseSize = (size: string): SizeStyle => {
+		if (size == 'small') {
+			return {
+				iconSize: 16,
+				dotSize: 8,
+				fontSize: '12px',
+				buttonPadV: 4,
+				buttonPadH: 10
+			}
+		}
+		if (size == 'large') {
+			return {
+				iconSize: 22,
+				dotSize: 12,
+				fontSize: '16px',
+				buttonPadV: 8,
+				buttonPadH: 16
+			}
+		}
+		return {
+			iconSize: 18,
+			dotSize: 10,
+			fontSize: '14px',
+			buttonPadV: 6,
+			buttonPadH: 12
+		}
+	}
+
+	/**
+	 * 实际生效的尺寸
+	 */
+	const resolvedSize = computed((): string => {
+		if (props.size != '') {
+			return props.size
+		}
+		if (groupSize != null) {
+			return groupSize.value
+		}
+		return 'medium'
+	})
+
+	/**
+	 * 实际生效的形态
+	 */
+	const resolvedShape = computed((): string => {
+		if (props.shape != '') {
+			return props.shape
+		}
+		if (groupShape != null) {
+			return groupShape.value
+		}
+		return 'dot'
+	})
+
+	/**
+	 * 实际生效的图标位置
+	 */
+	const resolvedIconPlacement = computed((): string => {
+		if (props.iconPlacement != '') {
+			return props.iconPlacement
+		}
+		if (groupIconPlacement != null) {
+			return groupIconPlacement.value
+		}
+		return 'left'
+	})
+
+	const sizeStyle = computed((): SizeStyle => {
+		return parseSize(resolvedSize.value)
+	})
+
+	/**
+	 * 是否禁用（自身或组级）
+	 */
+	const isDisabled = computed((): boolean => {
+		if (props.disabled) {
+			return true
+		}
+		if (groupDisabled != null && groupDisabled.value) {
+			return true
+		}
+		return false
+	})
+
+	/**
+	 * 是否选中（组内依赖 ComputedRef，保证 APP 端互斥联动）
+	 */
+	const isChecked = computed((): boolean => {
+		if (inGroup.value && groupValue != null) {
+			return groupValue.value == props.name
+		}
+		return props.modelValue
+	})
+
+	/**
+	 * 是否存在默认插槽内容
+	 */
+	const hasDefaultSlot = computed((): boolean => {
+		return slots['default'] != null
+	})
+
+	/**
+	 * 是否显示文字标签
+	 */
+	const showLabel = computed((): boolean => {
+		return props.label != '' || hasDefaultSlot.value
+	})
+
+	/**
+	 * 解析主题主色（内联样式在 APP 端比 CSS 变量更可靠）
+	 */
+	const primaryColor = computed((): string => {
+		const color = themeConfig['colorPrimary']
+		if (color != null && `${color}` != '') {
+			return `${color}`
+		}
+		return '#6366f1'
+	})
+
+	/**
+	 * 注入主题 CSS 变量
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 圆点外圈样式
+	 */
+	const iconBoxStyle = computed((): UTSJSONObject => {
+		const size = sizeStyle.value
+		const style: UTSJSONObject = {
+			width: `${size.iconSize}px`,
+			height: `${size.iconSize}px`
+		}
+		if (isChecked.value) {
+			style['borderColor'] = primaryColor.value
+		} else {
+			style['borderColor'] = '#d1d5db'
+		}
+		return style
+	})
+
+	/**
+	 * 圆点内圈样式（绝对居中 + 宽高过渡，从圆心向外展开）
+	 */
+	const dotStyle = computed((): UTSJSONObject => {
+		const dot = sizeStyle.value.dotSize
+		const checkedSize = `${dot}px`
+		return {
+			width: isChecked.value ? checkedSize : '0px',
+			height: isChecked.value ? checkedSize : '0px',
+			backgroundColor: primaryColor.value
+		}
+	})
+
+	/**
+	 * 按钮形态样式（APP 内联选中色；尺寸走 CSS 避免 MP 内联 px 放大）
+	 */
+	const buttonStyle = computed((): UTSJSONObject => {
+		const style: UTSJSONObject = {}
+		// #ifdef APP
+		if (isChecked.value) {
+			style['backgroundColor'] = primaryColor.value
+			style['borderColor'] = primaryColor.value
+		} else {
+			style['backgroundColor'] = '#ffffff'
+			style['borderColor'] = '#e5e7eb'
+		}
+		// #endif
+		return style
+	})
+
+	/**
+	 * 按钮文字样式（仅颜色/字重；字号由 CSS 控制以保障 MP 与 WEB 一致）
+	 */
+	const buttonTextStyle = computed((): UTSJSONObject => {
+		if (isChecked.value) {
+			return {
+				color: '#ffffff',
+				fontWeight: '700'
+			}
+		}
+		return {
+			color: '#374151',
+			fontWeight: '400'
+		}
+	})
+
+	/**
+	 * 标签文字样式
+	 */
+	const labelTextStyle = computed((): UTSJSONObject => {
+		return {
+			fontSize: sizeStyle.value.fontSize,
+			color: isDisabled.value ? '#9ca3af' : '#374151'
+		}
+	})
+
+	/**
+	 * 处理点击选中
+	 */
+	const handleTap = () => {
+		if (isDisabled.value) {
+			return
+		}
+		if (inGroup.value && groupUpdate != null) {
+			groupUpdate(props.name)
+			emit('change', props.name)
+			return
+		}
+		const nextValue = !props.modelValue
+		emit('update:modelValue', nextValue)
+		emit('change', props.name)
+	}
+
+	/**
+	 * 处理标签区域点击
+	 */
+	const handleLabelTap = () => {
+		if (props.labelDisabled) {
+			return
+		}
+		handleTap()
+	}
+</script>
+
+<template>
+	<view
+		class="kit-ui--root k-radio"
+		:class="[
+			`k-radio--${resolvedSize}`,
+			`k-radio--${resolvedShape}`,
+			`k-radio--icon-${resolvedIconPlacement}`,
+			{
+				'k-radio--checked': isChecked,
+				'k-radio--disabled': isDisabled,
+				'k-radio--has-label': showLabel
+			}
+		]"
+		:style="wrapperThemeStyle"
+	>
+		<view
+			v-if="resolvedShape == 'button'"
+			class="k-radio__button"
+			:class="[
+				`k-radio__button--${resolvedSize}`,
+				{ 'k-radio__button--checked': isChecked }
+			]"
+			:style="buttonStyle"
+			@click="handleTap"
+		>
+			<slot v-if="hasDefaultSlot"></slot>
+			<text
+				v-else
+				class="k-radio__button-text"
+				:class="`k-radio__button-text--${resolvedSize}`"
+				:style="buttonTextStyle"
+			>{{ label }}</text>
+		</view>
+
+		<template v-else>
+			<view
+				class="k-radio__icon"
+				:style="iconBoxStyle"
+				@click="handleTap"
+			>
+				<view class="k-radio__icon-dot" :style="dotStyle"></view>
+			</view>
+
+			<view v-if="showLabel" class="k-radio__label" @click="handleLabelTap">
+				<slot>
+					<text class="k-radio__label-text" :style="labelTextStyle">{{ label }}</text>
+				</slot>
+			</view>
+		</template>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-radio {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+		margin-right: var(--k-spacing-md, 16px);
+		margin-bottom: var(--k-spacing-xs, 4px);
+
+		&--icon-right {
+			flex-direction: row-reverse;
+
+			.k-radio__label {
+				margin-right: var(--k-spacing-xs, 4px);
+				margin-left: 0;
+			}
+		}
+
+		&--button {
+			margin-right: 0;
+			margin-bottom: 0;
+		}
+
+		&--disabled {
+			opacity: 0.5;
+		}
+
+		&__icon {
+			position: relative;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			border-radius: 100px;
+			border-width: 2px;
+			border-style: solid;
+			box-sizing: border-box;
+		}
+
+		&__icon-dot {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			border-radius: 100px;
+			transition:
+				width var(--k-transition-duration-fast, 0.2s) ease,
+				height var(--k-transition-duration-fast, 0.2s) ease;
+		}
+
+		&__label {
+			margin-left: var(--k-spacing-xs, 4px);
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		&__button {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			box-sizing: border-box;
+			border-width: 1px;
+			border-style: solid;
+			border-color: #e5e7eb;
+			border-radius: var(--k-border-radius-base, 8px);
+			background-color: #ffffff;
+			transition:
+				background-color var(--k-transition-duration-fast, 0.2s) ease,
+				border-color var(--k-transition-duration-fast, 0.2s) ease;
+		}
+
+		&__button--small {
+			padding-top: 4px;
+			padding-bottom: 4px;
+			padding-left: 10px;
+			padding-right: 10px;
+		}
+
+		&__button--medium {
+			padding-top: 6px;
+			padding-bottom: 6px;
+			padding-left: 12px;
+			padding-right: 12px;
+		}
+
+		&__button--large {
+			padding-top: 8px;
+			padding-bottom: 8px;
+			padding-left: 16px;
+			padding-right: 16px;
+		}
+
+		&__button-text {
+			text-align: center;
+			transition: color var(--k-transition-duration-fast, 0.2s) ease;
+		}
+
+		&__button-text--small {
+			font-size: var(--k-font-size-sm, 12px);
+			line-height: 14px;
+		}
+
+		&__button-text--medium {
+			font-size: var(--k-font-size-base, 14px);
+			line-height: 16px;
+		}
+
+		&__button-text--large {
+			font-size: var(--k-font-size-md, 16px);
+			line-height: 18px;
+		}
+
+		/* #ifdef APP */
+		&__button-text--small {
+			line-height: 15px;
+		}
+
+		&__button-text--medium {
+			line-height: 17px;
+		}
+
+		&__button-text--large {
+			line-height: 19px;
+		}
+		/* #endif */
+
+		&__button--checked {
+			background-color: var(--k-color-primary, #6366f1);
+			border-color: var(--k-color-primary, #6366f1);
+		}
+
+		&--button &__button {
+			margin-right: var(--k-spacing-xs, 4px);
+		}
+	}
+
+	.k-radio-group--vertical .k-radio {
+		margin-right: 0;
+		margin-bottom: var(--k-spacing-sm, 8px);
+	}
+
+	.k-radio-group--button {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+</style>

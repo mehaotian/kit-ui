@@ -1,0 +1,336 @@
+<script setup lang="uts">
+	import { inject, computed, onMounted, onUnmounted, ref } from 'vue'
+	import { FormValidationRule, FormItemInstance, validateFormField, getFieldRules } from '../k-form/utils.uts'
+
+	/**
+	 * k-form-item 表单项
+	 * 承载标签、控件与校验错误提示
+	 */
+
+	type KFormItemProps = {
+		label ?: string
+		prop ?: string
+		required ?: boolean
+		rules ?: FormValidationRule[]
+		labelWidth ?: string
+		borderBottom ?: boolean
+		errorMessage ?: string
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KFormItemProps>(), {
+		label: '',
+		prop: '',
+		required: false,
+		rules: (): FormValidationRule[] => [],
+		labelWidth: '',
+		borderBottom: true,
+		errorMessage: '',
+		customStyle: ''
+	})
+
+	const themeConfig = inject('kit-theme', {})
+	const formModel = inject<ComputedRef<UTSJSONObject> | null>('k-form-model', null)
+	const formRules = inject<ComputedRef<UTSJSONObject> | null>('k-form-rules', null)
+	const formLabelWidth = inject<ComputedRef<string> | null>('k-form-label-width', null)
+	const formLabelAlign = inject<ComputedRef<string> | null>('k-form-label-align', null)
+	const formLabelPosition = inject<ComputedRef<string> | null>('k-form-label-position', null)
+	const formDisabled = inject<ComputedRef<boolean> | null>('k-form-disabled', null)
+	const formShowError = inject<ComputedRef<boolean> | null>('k-form-show-error', null)
+	const registerFormItem = inject<((item: FormItemInstance) => void) | null>('k-form-register-item', null)
+	const unregisterFormItem = inject<((prop: string) => void) | null>('k-form-unregister-item', null)
+
+	const innerErrorMessage = ref<string>('')
+
+	/**
+	 * 合并表单级与项级校验规则
+	 */
+	const getMergedRules = (): FormValidationRule[] => {
+		if (formRules != null && props.prop != '') {
+			return getFieldRules(formRules.value, props.prop, props.rules)
+		}
+		return props.rules
+	}
+
+	/**
+	 * 读取当前字段值
+	 */
+	const getFieldValue = (): any => {
+		if (formModel != null && props.prop != '') {
+			const value = formModel.value[props.prop]
+			if (value != null) {
+				return value
+			}
+		}
+		return ''
+	}
+
+	/**
+	 * 执行字段校验
+	 */
+	const validate = (): boolean => {
+		if (props.prop == '') {
+			return true
+		}
+		const rules = getMergedRules()
+		if (rules.length == 0) {
+			innerErrorMessage.value = ''
+			return true
+		}
+		const result = validateFormField(getFieldValue(), rules)
+		const valid = result['valid'] as boolean
+		if (!valid) {
+			innerErrorMessage.value = result['message'] as string
+			return false
+		}
+		innerErrorMessage.value = ''
+		return true
+	}
+
+	/**
+	 * 重置校验状态
+	 */
+	const resetValidation = () => {
+		innerErrorMessage.value = ''
+	}
+
+	/**
+	 * 实际标签宽度
+	 */
+	const resolvedLabelWidth = computed((): string => {
+		if (props.labelWidth != '') {
+			return props.labelWidth
+		}
+		if (formLabelWidth != null) {
+			return formLabelWidth.value
+		}
+		return '80px'
+	})
+
+	/**
+	 * 实际标签对齐
+	 */
+	const resolvedLabelAlign = computed((): string => {
+		if (formLabelAlign != null) {
+			return formLabelAlign.value
+		}
+		return 'left'
+	})
+
+	/**
+	 * 是否顶部标签布局
+	 */
+	const isLabelTop = computed((): boolean => {
+		if (formLabelPosition != null && formLabelPosition.value == 'top') {
+			return true
+		}
+		return false
+	})
+
+	/**
+	 * 是否显示必填星号
+	 */
+	const showRequiredMark = computed((): boolean => {
+		if (props.required) {
+			return true
+		}
+		const rules = getMergedRules()
+		for (let i = 0; i < rules.length; i++) {
+			const rule = rules[i]
+			if (rule.required == true) {
+				return true
+			}
+		}
+		return false
+	})
+
+	/**
+	 * 是否显示错误信息
+	 */
+	const showError = computed((): boolean => {
+		if (formShowError != null && !formShowError.value) {
+			return false
+		}
+		if (props.errorMessage != '') {
+			return true
+		}
+		return innerErrorMessage.value != ''
+	})
+
+	/**
+	 * 错误提示文案
+	 */
+	const errorText = computed((): string => {
+		if (props.errorMessage != '') {
+			return props.errorMessage
+		}
+		return innerErrorMessage.value
+	})
+
+	/**
+	 * 注入主题 CSS 变量
+	 */
+	const wrapperThemeStyle = computed((): string => {
+		const styles: string[] = []
+		for (let key in themeConfig) {
+			const value = themeConfig[key]
+			if (key != 'mode' && value != null) {
+				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+				styles.push(`--k-${cssVar}: ${value}`)
+			}
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 标签区域样式
+	 */
+	const labelStyle = computed((): UTSJSONObject => {
+		if (isLabelTop.value) {
+			return {}
+		}
+		return {
+			width: resolvedLabelWidth.value,
+			textAlign: resolvedLabelAlign.value
+		}
+	})
+
+	onMounted(() => {
+		if (registerFormItem != null && props.prop != '') {
+			registerFormItem({
+				prop: props.prop,
+				validate,
+				resetValidation
+			})
+		}
+	})
+
+	onUnmounted(() => {
+		if (unregisterFormItem != null && props.prop != '') {
+			unregisterFormItem(props.prop)
+		}
+	})
+</script>
+
+<template>
+	<view
+		class="kit-ui--root k-form-item"
+		:class="{
+			'k-form-item--top': isLabelTop,
+			'k-form-item--border': borderBottom,
+			'k-form-item--error': showError,
+			'k-form-item--required': showRequiredMark
+		}"
+		:style="wrapperThemeStyle"
+	>
+		<view class="k-form-item__body">
+			<view v-if="label != ''" class="k-form-item__label" :style="labelStyle">
+				<text v-if="showRequiredMark" class="k-form-item__required">*</text>
+				<text class="k-form-item__label-text">{{ label }}</text>
+			</view>
+			<view class="k-form-item__content">
+				<view class="k-form-item__control">
+					<slot></slot>
+				</view>
+			</view>
+		</view>
+		<view v-if="showError" class="k-form-item__error">
+			<text class="k-form-item__error-text">{{ errorText }}</text>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	@import '../../theme/index.scss';
+
+	.k-form-item {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		padding-top: var(--k-spacing-sm, 8px);
+		padding-bottom: var(--k-spacing-sm, 8px);
+		box-sizing: border-box;
+
+		&--border {
+			border-bottom-width: 1px;
+			border-bottom-style: solid;
+			border-bottom-color: var(--k-border-color-light, #f3f4f6);
+		}
+
+		&__body {
+			display: flex;
+			flex-direction: row;
+			align-items: flex-start;
+			width: 100%;
+		}
+
+		&--top &__body {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		&__label {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			flex-shrink: 0;
+			padding-right: var(--k-spacing-sm, 8px);
+		}
+
+		&--top &__label {
+			width: 100%;
+			padding-right: 0;
+			margin-bottom: var(--k-spacing-xs, 4px);
+		}
+
+		&__required {
+			color: var(--k-color-error, #ef4444);
+			margin-right: 2px;
+			font-size: var(--k-font-size-sm, 12px);
+		}
+
+		&__label-text {
+			font-size: var(--k-font-size-base, 14px);
+			color: var(--k-text-color, #374151);
+		}
+
+		&__content {
+			flex: 1;
+			flex-grow: 1;
+			width: 0;
+			min-width: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			justify-content: center;
+		}
+
+		&__control {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		&--top &__content {
+			width: 100%;
+		}
+
+		&__error {
+			margin-top: var(--k-spacing-xs, 4px);
+			padding-left: 0;
+		}
+
+		&--top &__error,
+		&__error {
+			width: 100%;
+		}
+
+		&__error-text {
+			font-size: var(--k-font-size-sm, 12px);
+			color: var(--k-color-error, #ef4444);
+		}
+	}
+</style>
