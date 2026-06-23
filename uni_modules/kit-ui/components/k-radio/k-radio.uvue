@@ -1,11 +1,19 @@
 <script setup lang="uts">
-	import { inject, computed } from 'vue'
+	import { inject, computed, ref, watch, onMounted } from 'vue'
 	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
 
 	/**
 	 * k-radio 单选框
 	 * 可单独使用或与 k-radio-group 组合，支持圆点/按钮两种形态
+	 * APP 端通过 ref + setProperty 驱动过渡，避免内联 :style 打断 CSS transition
 	 */
+
+	// #ifdef APP
+	const iconRef = ref<UniElement | null>(null)
+	const dotRef = ref<UniElement | null>(null)
+	const buttonRef = ref<UniElement | null>(null)
+	const CHOICE_TRANSITION = '0.2s'
+	// #endif
 
 	type SizeStyle = {
 		iconSize : number
@@ -161,9 +169,12 @@
 	})
 
 	/**
-	 * 圆点外圈样式
+	 * 圆点外圈样式（APP 由 ref 写入；WEB/MP 含 borderColor）
 	 */
 	const iconBoxStyle = computed((): UTSJSONObject => {
+		// #ifdef APP
+		return {}
+		// #endif
 		const size = sizeStyle.value
 		return {
 			width: `${size.iconSize}px`,
@@ -173,9 +184,12 @@
 	})
 
 	/**
-	 * 圆点内圈样式（绝对居中 + 宽高过渡，从圆心向外展开）
+	 * 圆点内圈样式（APP 由 ref 写入；WEB/MP 含宽高动画属性）
 	 */
 	const dotStyle = computed((): UTSJSONObject => {
+		// #ifdef APP
+		return {}
+		// #endif
 		const dot = sizeStyle.value.dotSize
 		const checkedSize = `${dot}px`
 		return {
@@ -186,21 +200,115 @@
 	})
 
 	/**
-	 * 按钮形态样式（APP 内联选中色；WEB/MP 走 CSS 变量过渡）
+	 * 按钮形态样式（APP 由 ref 写入；WEB/MP 走 CSS 变量过渡）
 	 */
 	const buttonStyle = computed((): UTSJSONObject => {
-		const style: UTSJSONObject = {}
-		// #ifdef APP
-		if (isChecked.value) {
-			style['backgroundColor'] = primaryColor.value
-			style['borderColor'] = primaryColor.value
-		} else {
-			style['backgroundColor'] = '#ffffff'
-			style['borderColor'] = '#e5e7eb'
-		}
-		// #endif
-		return style
+		return {}
 	})
+
+	// #ifdef APP
+	/**
+	 * 解析圆点内圈边长
+	 */
+	const calcDotSize = (checked: boolean): string => {
+		if (!checked) {
+			return '0px'
+		}
+		return `${sizeStyle.value.dotSize}px`
+	}
+
+	/**
+	 * 写入圆点外圈与内圈静态样式及过渡配置
+	 */
+	const applyStaticRadioDotStyles = () => {
+		if (iconRef.value == null || dotRef.value == null) {
+			return
+		}
+		const size = sizeStyle.value
+		const iconNode = iconRef.value!.style!
+		iconNode.setProperty('width', `${size.iconSize}px`)
+		iconNode.setProperty('height', `${size.iconSize}px`)
+		iconNode.setProperty('transition-property', 'border-color')
+		iconNode.setProperty('transition-duration', CHOICE_TRANSITION)
+		iconNode.setProperty('transition-timing-function', 'ease')
+
+		const dotNode = dotRef.value!.style!
+		dotNode.setProperty('background-color', primaryColor.value)
+		dotNode.setProperty('border-radius', '100px')
+		dotNode.setProperty('transition-property', 'width, height')
+		dotNode.setProperty('transition-duration', CHOICE_TRANSITION)
+		dotNode.setProperty('transition-timing-function', 'ease')
+	}
+
+	/**
+	 * 同步圆点选中视觉（边框色与内圈缩放）
+	 */
+	const syncRadioDotVisual = (checked: boolean) => {
+		if (iconRef.value == null || dotRef.value == null) {
+			return
+		}
+		const dotSize = calcDotSize(checked)
+		iconRef.value!.style!.setProperty(
+			'border-color',
+			checked ? primaryColor.value : '#d1d5db'
+		)
+		dotRef.value!.style!.setProperty('width', dotSize)
+		dotRef.value!.style!.setProperty('height', dotSize)
+	}
+
+	/**
+	 * 写入按钮形态过渡配置
+	 */
+	const applyStaticRadioButtonStyles = () => {
+		if (buttonRef.value == null) {
+			return
+		}
+		const buttonNode = buttonRef.value!.style!
+		buttonNode.setProperty('transition-property', 'background-color, border-color')
+		buttonNode.setProperty('transition-duration', CHOICE_TRANSITION)
+		buttonNode.setProperty('transition-timing-function', 'ease')
+	}
+
+	/**
+	 * 同步按钮形态选中视觉
+	 */
+	const syncRadioButtonVisual = (checked: boolean) => {
+		if (buttonRef.value == null) {
+			return
+		}
+		if (checked) {
+			buttonRef.value!.style!.setProperty('background-color', primaryColor.value)
+			buttonRef.value!.style!.setProperty('border-color', primaryColor.value)
+		} else {
+			buttonRef.value!.style!.setProperty('background-color', '#ffffff')
+			buttonRef.value!.style!.setProperty('border-color', '#e5e7eb')
+		}
+	}
+
+	/**
+	 * 按形态同步 radio 视觉
+	 */
+	const syncRadioVisual = () => {
+		if (resolvedShape.value == 'button') {
+			applyStaticRadioButtonStyles()
+			syncRadioButtonVisual(isChecked.value)
+			return
+		}
+		applyStaticRadioDotStyles()
+		syncRadioDotVisual(isChecked.value)
+	}
+
+	onMounted(() => {
+		syncRadioVisual()
+	})
+
+	watch(
+		(): any[] => [isChecked.value, resolvedSize.value, resolvedShape.value, primaryColor.value],
+		() => {
+			syncRadioVisual()
+		}
+	)
+	// #endif
 
 	/**
 	 * 按钮文字样式（颜色/字重；字号由 CSS 控制以保障 MP 与 WEB 一致）
@@ -260,6 +368,7 @@
 	>
 		<view
 			v-if="resolvedShape == 'button'"
+			ref="buttonRef"
 			class="k-radio__button"
 			:class="[
 				`k-radio__button--${resolvedSize}`,
@@ -279,11 +388,12 @@
 
 		<template v-else>
 			<view
+				ref="iconRef"
 				class="k-radio__icon"
 				:style="iconBoxStyle"
 				@click="handleTap"
 			>
-				<view class="k-radio__icon-dot" :style="dotStyle"></view>
+				<view ref="dotRef" class="k-radio__icon-dot" :style="dotStyle"></view>
 			</view>
 
 			<view v-if="showLabel" class="k-radio__label" @click="handleLabelTap">
@@ -343,9 +453,11 @@
 			top: 50%;
 			transform: translate(-50%, -50%);
 			border-radius: 100px;
+			/* #ifndef APP */
 			transition:
 				width var(--k-transition-duration-fast, 0.2s) ease,
 				height var(--k-transition-duration-fast, 0.2s) ease;
+			/* #endif */
 		}
 
 		&__label {
@@ -374,9 +486,11 @@
 			border-color: #e5e7eb;
 			border-radius: var(--k-border-radius-base, 8px);
 			background-color: #ffffff;
+			/* #ifndef APP */
 			transition:
 				background-color var(--k-transition-duration-fast, 0.2s) ease,
 				border-color var(--k-transition-duration-fast, 0.2s) ease;
+			/* #endif */
 		}
 
 		&__button--small {

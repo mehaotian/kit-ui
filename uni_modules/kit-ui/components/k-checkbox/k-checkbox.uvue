@@ -1,11 +1,18 @@
 <script setup lang="uts">
-	import { inject, computed } from 'vue'
+	import { inject, computed, ref, watch, onMounted } from 'vue'
 	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
 
 	/**
 	 * k-checkbox 复选框
-	 * solid / inset 均通过内层 fill 缩放动画；WEB/MP 有过渡，APP 无过渡
+	 * solid / inset 均通过内层 fill 缩放动画
+	 * APP 端通过 ref + setProperty 驱动过渡，避免内联 :style 打断 CSS transition
 	 */
+
+	// #ifdef APP
+	const iconRef = ref<UniElement | null>(null)
+	const fillRef = ref<UniElement | null>(null)
+	const CHOICE_TRANSITION = '0.2s'
+	// #endif
 
 	type SizeStyle = {
 		iconSize : number
@@ -216,9 +223,12 @@
 	})
 
 	/**
-	 * 外框样式（背景透明，选中动画由内层 fill 承担）
+	 * 外框样式（APP 由 ref 写入；WEB/MP 含 borderColor）
 	 */
 	const iconBoxStyle = computed((): UTSJSONObject => {
+		// #ifdef APP
+		return {}
+		// #endif
 		const size = sizeStyle.value
 		return {
 			width: `${size.iconSize}px`,
@@ -232,6 +242,9 @@
 	 * 内层 fill 样式（solid / inset 统一缩放动画）
 	 */
 	const fillStyle = computed((): UTSJSONObject => {
+		// #ifdef APP
+		return {}
+		// #endif
 		const fill = getFillSize(sizeStyle.value.iconSize, resolvedFillMode.value)
 		const activeSize = `${fill}px`
 		return {
@@ -241,6 +254,79 @@
 			borderRadius: props.shape == 'round' ? '100px' : '2px'
 		}
 	})
+
+	// #ifdef APP
+	/**
+	 * 解析外框边框色
+	 */
+	const resolveIconBorderColor = (active: boolean): string => {
+		return active ? primaryColor.value : '#d1d5db'
+	}
+
+	/**
+	 * 解析内层 fill 目标边长
+	 */
+	const calcFillSize = (active: boolean): string => {
+		const fill = getFillSize(sizeStyle.value.iconSize, resolvedFillMode.value)
+		return active ? `${fill}px` : '0px'
+	}
+
+	/**
+	 * 写入外框与 fill 静态样式及过渡配置
+	 */
+	const applyStaticCheckboxStyles = () => {
+		if (iconRef.value == null || fillRef.value == null) {
+			return
+		}
+		const size = sizeStyle.value
+		const iconNode = iconRef.value!.style!
+		iconNode.setProperty('width', `${size.iconSize}px`)
+		iconNode.setProperty('height', `${size.iconSize}px`)
+		iconNode.setProperty('background-color', 'transparent')
+		iconNode.setProperty('transition-property', 'border-color')
+		iconNode.setProperty('transition-duration', CHOICE_TRANSITION)
+		iconNode.setProperty('transition-timing-function', 'ease')
+
+		const fillNode = fillRef.value!.style!
+		fillNode.setProperty('background-color', primaryColor.value)
+		fillNode.setProperty('border-radius', props.shape == 'round' ? '100px' : '2px')
+		fillNode.setProperty('transition-property', 'width, height')
+		fillNode.setProperty('transition-duration', CHOICE_TRANSITION)
+		fillNode.setProperty('transition-timing-function', 'ease')
+	}
+
+	/**
+	 * 同步选中/半选视觉（边框色与 fill 缩放）
+	 */
+	const syncCheckboxVisual = (active: boolean) => {
+		if (iconRef.value == null || fillRef.value == null) {
+			return
+		}
+		const fillSize = calcFillSize(active)
+		iconRef.value!.style!.setProperty('border-color', resolveIconBorderColor(active))
+		fillRef.value!.style!.setProperty('width', fillSize)
+		fillRef.value!.style!.setProperty('height', fillSize)
+	}
+
+	onMounted(() => {
+		applyStaticCheckboxStyles()
+		syncCheckboxVisual(isIconActive.value)
+	})
+
+	watch(
+		(): any[] => [
+			isIconActive.value,
+			resolvedSize.value,
+			resolvedFillMode.value,
+			props.shape,
+			primaryColor.value
+		],
+		() => {
+			applyStaticCheckboxStyles()
+			syncCheckboxVisual(isIconActive.value)
+		}
+	)
+	// #endif
 
 	/**
 	 * 对号样式（三端统一内联）
@@ -319,12 +405,13 @@
 		:style="wrapperThemeStyle"
 	>
 		<view
+			ref="iconRef"
 			class="k-checkbox__icon"
 			:style="iconBoxStyle"
 			:hover-class="pressHoverClass"
 			@click="handleTap"
 		>
-			<view class="k-checkbox__fill" :style="fillStyle"></view>
+			<view ref="fillRef" class="k-checkbox__fill" :style="fillStyle"></view>
 			<view
 				v-if="isChecked && !indeterminate"
 				class="k-checkbox__mark"
@@ -384,14 +471,10 @@
 			border-style: solid;
 			border-radius: var(--k-border-radius-sm, 4px);
 			box-sizing: border-box;
+			/* #ifndef APP */
 			transition: border-color var(--k-transition-duration-fast, 0.2s) ease;
+			/* #endif */
 		}
-
-		/* #ifdef APP */
-		&__icon {
-			transition: none;
-		}
-		/* #endif */
 
 		&__icon--pressed {
 			opacity: 0.75;
@@ -406,16 +489,12 @@
 			left: 50%;
 			top: 50%;
 			transform: translate(-50%, -50%);
+			/* #ifndef APP */
 			transition:
 				width var(--k-transition-duration-fast, 0.2s) ease,
 				height var(--k-transition-duration-fast, 0.2s) ease;
+			/* #endif */
 		}
-
-		/* #ifdef APP */
-		&__fill {
-			transition: none;
-		}
-		/* #endif */
 
 		&__mark {
 			position: relative;

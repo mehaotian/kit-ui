@@ -1,9 +1,11 @@
 <script setup lang="uts">
-	import { inject, computed } from 'vue'
+	import { inject, computed, ref, watch, onMounted } from 'vue'
+	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
 
 	/**
 	 * k-switch 开关
 	 * 用于两种状态切换，支持自定义开关值与加载态
+	 * APP 端通过 ref + setProperty 驱动过渡，避免内联 :style 打断 CSS transition
 	 */
 
 	type SwitchSizeStyle = {
@@ -44,6 +46,12 @@
 
 	const themeConfig = inject('kit-theme', {})
 
+	// #ifdef APP
+	const trackRef = ref<UniElement | null>(null)
+	const nodeRef = ref<UniElement | null>(null)
+	const SWITCH_TRANSITION = '0.2s'
+	// #endif
+
 	/**
 	 * 解析尺寸配置
 	 */
@@ -69,19 +77,36 @@
 	})
 
 	/**
-	 * 轨道背景色（禁用态保留开/关颜色，仅降低整体透明度）
+	 * 解析轨道背景色（APP 使用实色；WEB/MP 可使用 CSS 变量）
 	 */
-	const trackColor = computed((): string => {
-		if (isActive.value) {
+	const resolveTrackColor = (active: boolean): string => {
+		if (active) {
 			if (props.activeColor != '') {
 				return props.activeColor
 			}
+			// #ifdef APP
+			return resolvePrimaryColor(themeConfig)
+			// #endif
+			// #ifndef APP
 			return 'var(--k-color-primary, #6366f1)'
+			// #endif
 		}
 		if (props.inactiveColor != '') {
 			return props.inactiveColor
 		}
+		// #ifdef APP
+		return '#d1d5db'
+		// #endif
+		// #ifndef APP
 		return 'var(--k-border-color, #d1d5db)'
+		// #endif
+	}
+
+	/**
+	 * 轨道背景色（禁用态保留开/关颜色，仅降低整体透明度）
+	 */
+	const trackColor = computed((): string => {
+		return resolveTrackColor(isActive.value)
 	})
 
 	/**
@@ -107,37 +132,32 @@
 	 * 注入主题 CSS 变量
 	 */
 	const wrapperThemeStyle = computed((): string => {
-		const styles: string[] = []
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-		if (props.customStyle != '') {
-			styles.push(props.customStyle)
-		}
-		return styles.join('; ')
+		return buildThemeStyle(themeConfig, props.customStyle)
 	})
 
 	/**
-	 * 轨道内联样式
+	 * 轨道内联样式（APP 全部由 ref 写入；WEB/MP 含 backgroundColor）
 	 */
 	const trackStyle = computed((): UTSJSONObject => {
+		// #ifdef APP
+		return {}
+		// #endif
 		const style = sizeStyle.value
 		return {
 			width: `${style.width}px`,
 			height: `${style.height}px`,
-			backgroundColor: trackColor.value,
-			borderRadius: `${style.height / 2}px`
+			borderRadius: `${style.height / 2}px`,
+			backgroundColor: trackColor.value
 		}
 	})
 
 	/**
-	 * 滑块内联样式
+	 * 滑块内联样式（APP 全部由 ref 写入；WEB/MP 含 left）
 	 */
 	const nodeStyle = computed((): UTSJSONObject => {
+		// #ifdef APP
+		return {}
+		// #endif
 		const style = sizeStyle.value
 		return {
 			width: `${style.nodeSize}px`,
@@ -145,6 +165,67 @@
 			left: `${nodeLeft.value}px`
 		}
 	})
+
+	// #ifdef APP
+	/**
+	 * 计算滑块 left（与 nodeLeft 逻辑一致，供 ref 写入）
+	 */
+	const calcNodeLeft = (active: boolean): number => {
+		const style = sizeStyle.value
+		if (active) {
+			return style.nodeOffset + nodeTranslateX.value
+		}
+		return style.nodeOffset
+	}
+
+	/**
+	 * 写入轨道与滑块静态尺寸及过渡配置
+	 */
+	const applyStaticSwitchStyles = () => {
+		if (trackRef.value == null || nodeRef.value == null) {
+			return
+		}
+		const style = sizeStyle.value
+		const trackNode = trackRef.value!.style!
+		trackNode.setProperty('width', `${style.width}px`)
+		trackNode.setProperty('height', `${style.height}px`)
+		trackNode.setProperty('border-radius', `${style.height / 2}px`)
+		trackNode.setProperty('transition-property', 'background-color')
+		trackNode.setProperty('transition-duration', SWITCH_TRANSITION)
+		trackNode.setProperty('transition-timing-function', 'ease')
+
+		const nodeNode = nodeRef.value!.style!
+		nodeNode.setProperty('width', `${style.nodeSize}px`)
+		nodeNode.setProperty('height', `${style.nodeSize}px`)
+		nodeNode.setProperty('transition-property', 'left')
+		nodeNode.setProperty('transition-duration', SWITCH_TRANSITION)
+		nodeNode.setProperty('transition-timing-function', 'ease')
+	}
+
+	/**
+	 * 同步开关开/关视觉（left 与轨道背景色）
+	 */
+	const syncSwitchVisual = (active: boolean) => {
+		if (trackRef.value == null || nodeRef.value == null) {
+			return
+		}
+		trackRef.value!.style!.setProperty('background-color', resolveTrackColor(active))
+		nodeRef.value!.style!.setProperty('left', `${calcNodeLeft(active)}px`)
+	}
+
+	onMounted(() => {
+		applyStaticSwitchStyles()
+		syncSwitchVisual(isActive.value)
+	})
+
+	watch(
+		(): any[] => [isActive.value, props.size, props.activeColor, props.inactiveColor],
+		() => {
+			applyStaticSwitchStyles()
+			syncSwitchVisual(isActive.value)
+		}
+	)
+	// #endif
 
 	/**
 	 * 按下反馈类名
@@ -184,12 +265,13 @@
 		@click="handleTap"
 	>
 		<view
+			ref="trackRef"
 			class="k-switch__track"
 			:class="{ 'k-switch__track--checked': isActive }"
 			:style="trackStyle"
 			:hover-class="pressHoverClass"
 		>
-			<view class="k-switch__node" :style="nodeStyle">
+			<view ref="nodeRef" class="k-switch__node" :style="nodeStyle">
 				<k-icon
 					v-if="loading"
 					class="k-switch__loading"
@@ -219,7 +301,9 @@
 		&__track {
 			position: relative;
 			flex-shrink: 0;
+			/* #ifndef APP */
 			transition: background-color var(--k-transition-duration-fast, 0.2s) ease;
+			/* #endif */
 		}
 
 		&__track--pressed {
@@ -239,7 +323,9 @@
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
+			/* #ifndef APP */
 			transition: left var(--k-transition-duration-fast, 0.2s) ease;
+			/* #endif */
 		}
 
 		&__loading {

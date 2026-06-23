@@ -12,6 +12,7 @@
 2. `component-architecture.mdc`：组件目录与结构红线。
 3. `demo-page-architecture.mdc`：演示页结构与样式红线。
 4. `style-system.mdc`：主题变量与视觉约束。
+5. `app-animation.mdc`：APP 端过渡动画硬约束（组件 `*.uvue`）。
 
 ## rules -> skills 映射
 
@@ -20,6 +21,7 @@
 | 新建组件与 demo | `kit-ui-add-component` |
 | 文档同步 | `kit-ui-doc-sync` |
 | 跨端与语法合规 | `kit-ui-cross-platform-check` |
+| APP 过渡动画 | `kit-ui-app-animation` |
 | 视觉精修 | `kit-ui-visual-polish-check` |
 | 发版检查 | `kit-ui-release-checklist` |
 | MCP 使用策略 | `kit-ui-mcp-usage-guide` |

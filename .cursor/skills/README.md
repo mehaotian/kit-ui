@@ -7,6 +7,7 @@
 - `kit-ui-add-component`：新建组件与 demo 脚手架。
 - `kit-ui-doc-sync`：代码变更后的文档同步。
 - `kit-ui-cross-platform-check`：uni-app x 跨端与约束检查。
+- `kit-ui-app-animation`：APP 端过渡动画（ref + setProperty 标准流程）。
 - `kit-ui-release-checklist`：发布前检查清单。
 - `kit-ui-visual-polish-check`：视觉一致性与精修检查。
 - `kit-ui-mcp-usage-guide`：MCP 使用边界与优先级。

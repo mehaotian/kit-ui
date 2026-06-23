@@ -1,0 +1,31 @@
+---
+description: "APP 端过渡动画：禁止用响应式 :style 驱动会变化的动效属性"
+globs: uni_modules/kit-ui/components/**/*.uvue
+alwaysApply: false
+---
+
+# APP 过渡动画硬约束
+
+## 根因
+
+- APP 对 **class 过渡** 与 **CSS transition + 响应式内联样式** 支持弱。
+- 状态变化时 Vue 重写整个 `:style` 对象，动效属性直接跳变，`transition` 无法介入。
+
+## 必须遵守
+
+1. **动效属性**（如 `left`、`width`、`height`、`background-color`、`border-color`）在 APP 端不得绑定到会随选中/展开等状态变化的 `:style` computed。
+2. APP 端使用 `ref<UniElement | null>`，通过 `element.style!.setProperty()` 更新动效值；过渡用 `setProperty('transition-property' | 'transition-duration' | 'transition-timing-function', ...)` 写入。
+3. APP 端 `setProperty` 使用 **实色**（如 `resolvePrimaryColor()`），禁止 `var(--k-*)`。
+4. 三端分支：`#ifdef APP` 走 ref；`#ifndef APP` 保留 `:style` + 样式表 `transition`。
+5. 在 `onMounted` 初始化静态样式与初始态；`watch` 监听状态、尺寸、主题色并调用 sync 函数。
+
+## 已验证参考
+
+- `k-switch`：滑块 `left`、轨道 `background-color`
+- `k-checkbox`：fill `width/height`、外框 `border-color`
+- `k-radio`：内圈 `width/height`、按钮 `background-color/border-color`
+- `k-collapse-item`：容器 `height`
+
+## 详细流程
+
+新建或修复 APP 动画时执行 skill：`kit-ui-app-animation`。

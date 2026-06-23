@@ -50,4 +50,4 @@ const enabled = ref(true)
 ## 注意事项
 
 - `loading` 状态下点击无效。
-- 滑块动画使用 `transform`，跨端兼容。
+- APP 端滑块位移与轨道变色通过 `UniElement.style.setProperty` 驱动过渡；WEB/MP 仍使用内联 `:style` + CSS transition。
