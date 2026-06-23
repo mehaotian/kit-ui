@@ -1,14 +1,22 @@
 <script setup lang="uts">
 	import { inject, computed } from 'vue'
+	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
 
 	/**
 	 * k-checkbox 复选框
-	 * 可单独使用或与 k-checkbox-group 组合，支持半选态
+	 * solid / inset 均通过内层 fill 缩放动画；WEB/MP 有过渡，APP 无过渡
 	 */
 
 	type SizeStyle = {
-		iconSize : string
+		iconSize : number
 		fontSize : string
+	}
+
+	type MarkMetrics = {
+		width : number
+		height : number
+		border : number
+		offsetY : number
 	}
 
 	type KCheckboxProps = {
@@ -21,6 +29,7 @@
 		size ?: string
 		shape ?: string
 		iconPlacement ?: string
+		fillMode ?: string
 		customStyle ?: string
 	}
 
@@ -34,6 +43,7 @@
 		size: '',
 		shape: 'square',
 		iconPlacement: '',
+		fillMode: '',
 		customStyle: ''
 	})
 
@@ -48,6 +58,7 @@
 	const groupValues = inject<ComputedRef<(string | number)[]> | null>('k-checkbox-group-values', null)
 	const groupDisabled = inject<ComputedRef<boolean> | null>('k-checkbox-group-disabled', null)
 	const groupSize = inject<ComputedRef<string> | null>('k-checkbox-group-size', null)
+	const groupFillMode = inject<ComputedRef<string> | null>('k-checkbox-group-fill-mode', null)
 	const groupToggle = inject<((name: string | number) => void) | null>('k-checkbox-group-toggle', null)
 
 	/**
@@ -62,13 +73,62 @@
 	 */
 	const parseSize = (size: string): SizeStyle => {
 		if (size == 'small') {
-			return { iconSize: '16', fontSize: '12px' }
+			return { iconSize: 16, fontSize: '12px' }
 		}
 		if (size == 'large') {
-			return { iconSize: '22', fontSize: '16px' }
+			return { iconSize: 22, fontSize: '16px' }
 		}
-		return { iconSize: '18', fontSize: '14px' }
+		return { iconSize: 18, fontSize: '14px' }
 	}
+
+	/**
+	 * 按 fillMode 解析内层 fill 目标尺寸
+	 */
+	const getFillSize = (iconSize: number, fillMode: string): number => {
+		if (fillMode == 'inset') {
+			return iconSize - 6
+		}
+		return iconSize - 4
+	}
+
+	/**
+	 * 解析对号比例（三端统一内联尺寸）
+	 */
+	const getMarkMetrics = (size: string): MarkMetrics => {
+		if (size == 'small') {
+			return { width: 4, height: 8, border: 2, offsetY: -2 }
+		}
+		if (size == 'large') {
+			return { width: 6, height: 11, border: 2, offsetY: -2 }
+		}
+		return { width: 5, height: 9, border: 2, offsetY: -2 }
+	}
+
+	/**
+	 * 解析半选横线宽度
+	 */
+	const getIndeterminateWidth = (size: string): number => {
+		if (size == 'small') {
+			return 6
+		}
+		if (size == 'large') {
+			return 10
+		}
+		return 8
+	}
+
+	/**
+	 * 实际生效的 fillMode
+	 */
+	const resolvedFillMode = computed((): string => {
+		if (props.fillMode != '') {
+			return props.fillMode
+		}
+		if (groupFillMode != null && groupFillMode.value != '') {
+			return groupFillMode.value
+		}
+		return 'solid'
+	})
 
 	/**
 	 * 实际生效的尺寸
@@ -111,7 +171,7 @@
 	})
 
 	/**
-	 * 是否选中（组内需依赖 groupValues 触发 computed 更新）
+	 * 是否选中
 	 */
 	const isChecked = computed((): boolean => {
 		if (inGroup.value && groupValues != null) {
@@ -140,31 +200,81 @@
 		return props.label != '' || hasDefaultSlot.value
 	})
 
-	/**
-	 * 注入主题 CSS 变量
-	 */
-	const wrapperThemeStyle = computed((): string => {
-		const styles: string[] = []
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-		if (props.customStyle != '') {
-			styles.push(props.customStyle)
-		}
-		return styles.join('; ')
+	const primaryColor = computed((): string => {
+		return resolvePrimaryColor(themeConfig)
 	})
 
 	/**
-	 * 按下反馈类名
+	 * 图标是否处于激活态
+	 */
+	const isIconActive = computed((): boolean => {
+		return isChecked.value || props.indeterminate
+	})
+
+	const wrapperThemeStyle = computed((): string => {
+		return buildThemeStyle(themeConfig, props.customStyle)
+	})
+
+	/**
+	 * 外框样式（背景透明，选中动画由内层 fill 承担）
+	 */
+	const iconBoxStyle = computed((): UTSJSONObject => {
+		const size = sizeStyle.value
+		return {
+			width: `${size.iconSize}px`,
+			height: `${size.iconSize}px`,
+			backgroundColor: 'transparent',
+			borderColor: isIconActive.value ? primaryColor.value : '#d1d5db'
+		}
+	})
+
+	/**
+	 * 内层 fill 样式（solid / inset 统一缩放动画）
+	 */
+	const fillStyle = computed((): UTSJSONObject => {
+		const fill = getFillSize(sizeStyle.value.iconSize, resolvedFillMode.value)
+		const activeSize = `${fill}px`
+		return {
+			width: isIconActive.value ? activeSize : '0px',
+			height: isIconActive.value ? activeSize : '0px',
+			backgroundColor: primaryColor.value,
+			borderRadius: props.shape == 'round' ? '100px' : '2px'
+		}
+	})
+
+	/**
+	 * 对号样式（三端统一内联）
+	 */
+	const markStyle = computed((): UTSJSONObject => {
+		const mark = getMarkMetrics(resolvedSize.value)
+		return {
+			width: `${mark.width}px`,
+			height: `${mark.height}px`,
+			borderRightWidth: `${mark.border}px`,
+			borderBottomWidth: `${mark.border}px`,
+			marginTop: `${mark.offsetY}px`
+		}
+	})
+
+	/**
+	 * 半选横线样式
+	 */
+	const indeterminateStyle = computed((): UTSJSONObject => {
+		return {
+			width: `${getIndeterminateWidth(resolvedSize.value)}px`
+		}
+	})
+
+	/**
+	 * 按下反馈类名（APP 关闭半透明，避免浅蓝闪变）
 	 */
 	const pressHoverClass = computed((): string => {
 		if (isDisabled.value) {
 			return ''
 		}
+		// #ifdef APP
+		return ''
+		// #endif
 		return 'k-checkbox__icon--pressed'
 	})
 
@@ -177,8 +287,7 @@
 		}
 		if (inGroup.value && groupToggle != null) {
 			groupToggle(props.name)
-			const nextChecked = !isChecked.value
-			emit('change', props.name, nextChecked)
+			emit('change', props.name, !isChecked.value)
 			return
 		}
 		const nextValue = !props.modelValue
@@ -201,31 +310,30 @@
 	<view
 		class="kit-ui--root k-checkbox"
 		:class="[
-			`k-checkbox--${resolvedSize}`,
 			`k-checkbox--${shape}`,
 			`k-checkbox--icon-${resolvedIconPlacement}`,
 			{
-				'k-checkbox--checked': isChecked,
-				'k-checkbox--indeterminate': indeterminate,
-				'k-checkbox--disabled': isDisabled,
-				'k-checkbox--has-label': showLabel
+				'k-checkbox--disabled': isDisabled
 			}
 		]"
 		:style="wrapperThemeStyle"
 	>
 		<view
 			class="k-checkbox__icon"
-			:class="{ 'k-checkbox__icon--checked': isChecked || indeterminate }"
+			:style="iconBoxStyle"
 			:hover-class="pressHoverClass"
 			@click="handleTap"
 		>
+			<view class="k-checkbox__fill" :style="fillStyle"></view>
 			<view
 				v-if="isChecked && !indeterminate"
 				class="k-checkbox__mark"
+				:style="markStyle"
 			></view>
 			<view
 				v-if="indeterminate"
 				class="k-checkbox__indeterminate"
+				:style="indeterminateStyle"
 			></view>
 		</view>
 
@@ -271,63 +379,62 @@
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			width: 18px;
-			height: 18px;
 			flex-shrink: 0;
 			border-width: 2px;
 			border-style: solid;
-			border-color: var(--k-border-color, #d1d5db);
 			border-radius: var(--k-border-radius-sm, 4px);
 			box-sizing: border-box;
-			background-color: transparent;
-			transition:
-				background-color var(--k-transition-duration-fast, 0.2s) ease,
-				border-color var(--k-transition-duration-fast, 0.2s) ease;
+			transition: border-color var(--k-transition-duration-fast, 0.2s) ease;
 		}
+
+		/* #ifdef APP */
+		&__icon {
+			transition: none;
+		}
+		/* #endif */
 
 		&__icon--pressed {
 			opacity: 0.75;
-		}
-
-		&--small &__icon {
-			width: 16px;
-			height: 16px;
-		}
-
-		&--large &__icon {
-			width: 22px;
-			height: 22px;
 		}
 
 		&--round &__icon {
 			border-radius: 100px;
 		}
 
-		&__icon--checked,
-		&--checked &__icon,
-		&--indeterminate &__icon {
-			background-color: var(--k-color-primary, #6366f1);
-			border-color: var(--k-color-primary, #6366f1);
+		&__fill {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			transition:
+				width var(--k-transition-duration-fast, 0.2s) ease,
+				height var(--k-transition-duration-fast, 0.2s) ease;
 		}
 
+		/* #ifdef APP */
+		&__fill {
+			transition: none;
+		}
+		/* #endif */
+
 		&__mark {
-			width: 5px;
-			height: 9px;
-			border-right-width: 2px;
-			border-bottom-width: 2px;
+			position: relative;
+			z-index: 1;
 			border-right-style: solid;
 			border-bottom-style: solid;
 			border-right-color: #ffffff;
 			border-bottom-color: #ffffff;
 			transform: rotate(45deg);
-			margin-top: -2px;
+			flex-shrink: 0;
 		}
 
 		&__indeterminate {
-			width: 10px;
+			position: relative;
+			z-index: 1;
 			height: 2px;
 			background-color: #ffffff;
 			border-radius: 1px;
+			flex-shrink: 0;
 		}
 
 		&__label {

@@ -61,6 +61,26 @@
 				</view>
 			</view>
 
+			<!-- 填充形态 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">填充形态</text>
+					<text class="page-desc">fillMode="solid" / fillMode="inset"</text>
+				</view>
+				<view class="demo-content demo-column">
+					<text class="demo-theme-label">solid 完全填充（默认）</text>
+					<k-checkbox-group v-model="solidFillValue" fill-mode="solid">
+						<k-checkbox name="a" label="选项 A" />
+						<k-checkbox name="b" label="选项 B" />
+					</k-checkbox-group>
+					<text class="demo-theme-label">inset 内留白边</text>
+					<k-checkbox-group v-model="insetFillValue" fill-mode="inset">
+						<k-checkbox name="a" label="选项 A" />
+						<k-checkbox name="b" label="选项 B" />
+					</k-checkbox-group>
+				</view>
+			</view>
+
 			<!-- 状态用法 -->
 			<view class="section">
 				<view class="section-title">
@@ -147,6 +167,8 @@
 	const hobbies = ref<(string | number)[]>([])
 	const sizeValue = ref<(string | number)[]>(['a'])
 	const verticalValue = ref<(string | number)[]>(['1'])
+	const solidFillValue = ref<(string | number)[]>(['a'])
+	const insetFillValue = ref<(string | number)[]>(['a'])
 	const stateValue = ref<(string | number)[]>(['a'])
 	const indeterminateValue = ref<boolean>(false)
 	const maxValue = ref<(string | number)[]>([])

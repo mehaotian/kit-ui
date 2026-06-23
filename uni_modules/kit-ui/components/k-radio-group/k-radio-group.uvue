@@ -1,5 +1,6 @@
 <script setup lang="uts">
 	import { inject, computed, ref, watch } from 'vue'
+	import { buildThemeStyle } from '../../utils/theme.uts'
 
 	/**
 	 * k-radio-group 单选框组
@@ -51,18 +52,7 @@
 	 * 注入主题 CSS 变量到组件根节点
 	 */
 	const wrapperThemeStyle = computed((): string => {
-		const styles: string[] = []
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-		if (props.customStyle != '') {
-			styles.push(props.customStyle)
-		}
-		return styles.join('; ')
+		return buildThemeStyle(themeConfig, props.customStyle)
 	})
 
 	/**
@@ -93,7 +83,6 @@
 		class="kit-ui--root k-radio-group"
 		:class="[
 			`k-radio-group--${direction}`,
-			`k-radio-group--${size}`,
 			`k-radio-group--${shape}`,
 			{ 'k-radio-group--disabled': disabled }
 		]"
@@ -120,6 +109,11 @@
 
 		&--disabled {
 			opacity: 0.6;
+		}
+
+		&--button {
+			flex-direction: row;
+			flex-wrap: wrap;
 		}
 	}
 </style>

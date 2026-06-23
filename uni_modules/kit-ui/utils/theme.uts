@@ -1,0 +1,33 @@
+/**
+ * kit-ui 主题工具函数
+ * 供 choice 类组件（radio / checkbox 等）复用
+ */
+
+/**
+ * 从 kit-theme 配置解析主题主色
+ */
+export function resolvePrimaryColor(themeConfig : UTSJSONObject, fallback : string = '#6366f1') : string {
+	const color = themeConfig['colorPrimary']
+	if (color != null && `${color}` != '') {
+		return `${color}`
+	}
+	return fallback
+}
+
+/**
+ * 将 kit-theme 配置转为根节点内联 CSS 变量字符串
+ */
+export function buildThemeStyle(themeConfig : UTSJSONObject, customStyle : string = '') : string {
+	const styles : string[] = []
+	for (let key in themeConfig) {
+		const value = themeConfig[key]
+		if (key != 'mode' && value != null) {
+			const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
+			styles.push(`--k-${cssVar}: ${value}`)
+		}
+	}
+	if (customStyle != '') {
+		styles.push(customStyle)
+	}
+	return styles.join('; ')
+}

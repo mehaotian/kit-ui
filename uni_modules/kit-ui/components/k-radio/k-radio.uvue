@@ -1,5 +1,6 @@
 <script setup lang="uts">
 	import { inject, computed } from 'vue'
+	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
 
 	/**
 	 * k-radio 单选框
@@ -10,8 +11,6 @@
 		iconSize : number
 		dotSize : number
 		fontSize : string
-		buttonPadV : number
-		buttonPadH : number
 	}
 
 	type KRadioProps = {
@@ -65,30 +64,12 @@
 	 */
 	const parseSize = (size: string): SizeStyle => {
 		if (size == 'small') {
-			return {
-				iconSize: 16,
-				dotSize: 8,
-				fontSize: '12px',
-				buttonPadV: 4,
-				buttonPadH: 10
-			}
+			return { iconSize: 16, dotSize: 8, fontSize: '12px' }
 		}
 		if (size == 'large') {
-			return {
-				iconSize: 22,
-				dotSize: 12,
-				fontSize: '16px',
-				buttonPadV: 8,
-				buttonPadH: 16
-			}
+			return { iconSize: 22, dotSize: 12, fontSize: '16px' }
 		}
-		return {
-			iconSize: 18,
-			dotSize: 10,
-			fontSize: '14px',
-			buttonPadV: 6,
-			buttonPadH: 12
-		}
+		return { iconSize: 18, dotSize: 10, fontSize: '14px' }
 	}
 
 	/**
@@ -171,33 +152,12 @@
 		return props.label != '' || hasDefaultSlot.value
 	})
 
-	/**
-	 * 解析主题主色（内联样式在 APP 端比 CSS 变量更可靠）
-	 */
 	const primaryColor = computed((): string => {
-		const color = themeConfig['colorPrimary']
-		if (color != null && `${color}` != '') {
-			return `${color}`
-		}
-		return '#6366f1'
+		return resolvePrimaryColor(themeConfig)
 	})
 
-	/**
-	 * 注入主题 CSS 变量
-	 */
 	const wrapperThemeStyle = computed((): string => {
-		const styles: string[] = []
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-		if (props.customStyle != '') {
-			styles.push(props.customStyle)
-		}
-		return styles.join('; ')
+		return buildThemeStyle(themeConfig, props.customStyle)
 	})
 
 	/**
@@ -205,16 +165,11 @@
 	 */
 	const iconBoxStyle = computed((): UTSJSONObject => {
 		const size = sizeStyle.value
-		const style: UTSJSONObject = {
+		return {
 			width: `${size.iconSize}px`,
-			height: `${size.iconSize}px`
+			height: `${size.iconSize}px`,
+			borderColor: isChecked.value ? primaryColor.value : '#d1d5db'
 		}
-		if (isChecked.value) {
-			style['borderColor'] = primaryColor.value
-		} else {
-			style['borderColor'] = '#d1d5db'
-		}
-		return style
 	})
 
 	/**
@@ -231,7 +186,7 @@
 	})
 
 	/**
-	 * 按钮形态样式（APP 内联选中色；尺寸走 CSS 避免 MP 内联 px 放大）
+	 * 按钮形态样式（APP 内联选中色；WEB/MP 走 CSS 变量过渡）
 	 */
 	const buttonStyle = computed((): UTSJSONObject => {
 		const style: UTSJSONObject = {}
@@ -248,7 +203,7 @@
 	})
 
 	/**
-	 * 按钮文字样式（仅颜色/字重；字号由 CSS 控制以保障 MP 与 WEB 一致）
+	 * 按钮文字样式（颜色/字重；字号由 CSS 控制以保障 MP 与 WEB 一致）
 	 */
 	const buttonTextStyle = computed((): UTSJSONObject => {
 		if (isChecked.value) {
@@ -260,16 +215,6 @@
 		return {
 			color: '#374151',
 			fontWeight: '400'
-		}
-	})
-
-	/**
-	 * 标签文字样式
-	 */
-	const labelTextStyle = computed((): UTSJSONObject => {
-		return {
-			fontSize: sizeStyle.value.fontSize,
-			color: isDisabled.value ? '#9ca3af' : '#374151'
 		}
 	})
 
@@ -305,13 +250,10 @@
 	<view
 		class="kit-ui--root k-radio"
 		:class="[
-			`k-radio--${resolvedSize}`,
 			`k-radio--${resolvedShape}`,
 			`k-radio--icon-${resolvedIconPlacement}`,
 			{
-				'k-radio--checked': isChecked,
-				'k-radio--disabled': isDisabled,
-				'k-radio--has-label': showLabel
+				'k-radio--disabled': isDisabled
 			}
 		]"
 		:style="wrapperThemeStyle"
@@ -346,7 +288,7 @@
 
 			<view v-if="showLabel" class="k-radio__label" @click="handleLabelTap">
 				<slot>
-					<text class="k-radio__label-text" :style="labelTextStyle">{{ label }}</text>
+					<text class="k-radio__label-text" :style="{ fontSize: sizeStyle.fontSize }">{{ label }}</text>
 				</slot>
 			</view>
 		</template>
@@ -411,6 +353,14 @@
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+		}
+
+		&__label-text {
+			color: var(--k-text-color, #374151);
+		}
+
+		&--disabled &__label-text {
+			color: var(--k-text-color-disabled, #9ca3af);
 		}
 
 		&__button {
@@ -497,10 +447,5 @@
 	.k-radio-group--vertical .k-radio {
 		margin-right: 0;
 		margin-bottom: var(--k-spacing-sm, 8px);
-	}
-
-	.k-radio-group--button {
-		flex-direction: row;
-		flex-wrap: wrap;
 	}
 </style>

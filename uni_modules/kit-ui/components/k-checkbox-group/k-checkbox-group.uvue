@@ -1,5 +1,6 @@
 <script setup lang="uts">
-	import { inject, computed } from 'vue'
+	import { inject, computed, ref, watch } from 'vue'
+	import { buildThemeStyle } from '../../utils/theme.uts'
 	import { CheckboxGroupValue } from './checkbox-group.type.uts'
 
 	/**
@@ -12,6 +13,7 @@
 		disabled ?: boolean
 		direction ?: string
 		size ?: string
+		fillMode ?: string
 		max ?: number
 		min ?: number
 		customStyle ?: string
@@ -22,6 +24,7 @@
 		disabled: false,
 		direction: 'horizontal',
 		size: 'medium',
+		fillMode: 'solid',
 		max: -1,
 		min: 0,
 		customStyle: ''
@@ -35,28 +38,22 @@
 	const themeConfig = inject('kit-theme', {})
 
 	/**
-	 * 获取当前选中值列表
+	 * 组内共享选中值（本地 ref 保证 APP 端子项立即联动更新）
 	 */
-	const getValues = (): CheckboxGroupValue => {
-		return props.modelValue
-	}
+	const innerValues = ref<CheckboxGroupValue>(props.modelValue.slice())
+
+	/**
+	 * 同步外部 v-model 到组内 ref
+	 */
+	watch((): CheckboxGroupValue => props.modelValue, (value: CheckboxGroupValue) => {
+		innerValues.value = value.slice()
+	})
 
 	/**
 	 * 注入主题 CSS 变量到组件根节点
 	 */
 	const wrapperThemeStyle = computed((): string => {
-		const styles: string[] = []
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-		if (props.customStyle != '') {
-			styles.push(props.customStyle)
-		}
-		return styles.join('; ')
+		return buildThemeStyle(themeConfig, props.customStyle)
 	})
 
 	/**
@@ -66,7 +63,7 @@
 		if (props.disabled) {
 			return
 		}
-		const values = getValues().slice()
+		const values = innerValues.value.slice()
 		let foundIndex = -1
 		for (let i = 0; i < values.length; i++) {
 			if (values[i] == name) {
@@ -85,13 +82,15 @@
 			}
 			values.push(name)
 		}
+		innerValues.value = values
 		emit('update:modelValue', values)
 		emit('change', values)
 	}
 
-	provide('k-checkbox-group-values', computed((): CheckboxGroupValue => props.modelValue))
+	provide('k-checkbox-group-values', computed((): CheckboxGroupValue => innerValues.value))
 	provide('k-checkbox-group-disabled', computed((): boolean => props.disabled))
 	provide('k-checkbox-group-size', computed((): string => props.size))
+	provide('k-checkbox-group-fill-mode', computed((): string => props.fillMode))
 	provide('k-checkbox-group-toggle', toggleValue)
 </script>
 
@@ -100,7 +99,6 @@
 		class="kit-ui--root k-checkbox-group"
 		:class="[
 			`k-checkbox-group--${direction}`,
-			`k-checkbox-group--${size}`,
 			{ 'k-checkbox-group--disabled': disabled }
 		]"
 		:style="wrapperThemeStyle"

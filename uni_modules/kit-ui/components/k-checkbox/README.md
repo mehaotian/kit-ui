@@ -29,6 +29,7 @@ const hobbies = ref<string[]>([])
 | indeterminate | Boolean | `false` | 半选态（常用于全选中间态） |
 | size | String | `''` | 尺寸，继承 group |
 | shape | String | `'square'` | 形态：`square` / `round` |
+| fillMode | String | `''` | 填充形态：`solid` 完全填充 / `inset` 内留白边，继承 group |
 | iconPlacement | String | `''` | 图标位置：`left` / `right` |
 | customStyle | String | `''` | 自定义内联样式 |
 
@@ -47,6 +48,7 @@ const hobbies = ref<string[]>([])
 | disabled | Boolean | `false` | 是否禁用整组 |
 | direction | String | `'horizontal'` | 排列方向 |
 | size | String | `'medium'` | 组内默认尺寸 |
+| fillMode | String | `'solid'` | 组内默认填充形态：`solid` / `inset` |
 | max | Number | `-1` | 最大可选数量，`-1` 不限制 |
 | min | Number | `0` | 最小保留数量 |
 | customStyle | String | `''` | 自定义内联样式 |
@@ -62,3 +64,4 @@ const hobbies = ref<string[]>([])
 
 - 达到 `max` 后无法继续选中；达到 `min` 后无法取消最后一项。
 - 半选态 `indeterminate` 仅影响展示，需自行控制选中逻辑。
+- `fillMode="solid"` / `fillMode="inset"` 均通过内层 fill 缩放动画；inset 留白边约 1px。
