@@ -32,4 +32,5 @@ description: "kit-ui 组件硬约束：目录、命名、组件结构"
 - 创建组件流程：`kit-ui-add-component`
 - 组件变更后文档同步：`kit-ui-doc-sync`
 - 合规检查：`kit-ui-cross-platform-check`
+- UTS APP 编译：`kit-ui-uts-app-compat`（见 `docs/UTS与APP编译约束.md`）
 - APP 过渡动画：`kit-ui-app-animation`（状态动效禁止 APP 端用响应式 `:style` 驱动）

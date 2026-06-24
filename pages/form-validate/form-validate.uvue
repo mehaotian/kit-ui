@@ -1,0 +1,322 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">Form|表单-校验增强</text>
+				<text class="page-desc">预设规则、FormRules 工厂、错误汇总与原生控件双轨</text>
+			</view>
+
+			<!-- FormRules 工厂 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">FormRules 工厂</text>
+					<text class="page-desc">required / phone / email / url / range</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form ref="factoryFormRef" :model="factoryForm" :rules="factoryRules">
+						<k-form-item label="手机号" prop="phone">
+							<k-input v-model="factoryForm.phone" type="tel" placeholder="FormRules.phone()" />
+						</k-form-item>
+						<k-form-item label="邮箱" prop="email">
+							<k-input v-model="factoryForm.email" placeholder="FormRules.email()" />
+						</k-form-item>
+						<k-form-item label="个人网站" prop="website">
+							<k-input v-model="factoryForm.website" placeholder="https://example.com" />
+						</k-form-item>
+						<k-form-item label="年龄" prop="age">
+							<k-input v-model="factoryForm.age" type="number" placeholder="FormRules.range(1,120)" />
+						</k-form-item>
+					</k-form>
+					<k-button type="primary" text="校验" @click="handleFactorySubmit" />
+					<text class="demo-tip">校验结果：{{ factoryLog }}</text>
+				</view>
+			</view>
+
+			<!-- type 预设 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">type 预设</text>
+					<text class="page-desc">声明式 type: phone / email / integer</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form ref="typeFormRef" :model="typeForm" :rules="typeRules">
+						<k-form-item label="手机号" prop="phone">
+							<k-input v-model="typeForm.phone" type="tel" placeholder="type: phone" />
+						</k-form-item>
+						<k-form-item label="邮箱" prop="email">
+							<k-input v-model="typeForm.email" placeholder="type: email" />
+						</k-form-item>
+						<k-form-item label="数量" prop="count">
+							<k-input v-model="typeForm.count" type="number" placeholder="type: integer" />
+						</k-form-item>
+					</k-form>
+					<k-button type="primary" text="校验" @click="handleTypeSubmit" />
+					<text class="demo-tip">校验结果：{{ typeLog }}</text>
+				</view>
+			</view>
+
+			<!-- 正则校验 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">正则校验</text>
+					<text class="page-desc">pattern 与 regexp 别名</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form ref="patternFormRef" :model="patternForm" :rules="patternRules">
+						<k-form-item label="验证码" prop="code">
+							<k-input v-model="patternForm.code" placeholder="6 位数字" />
+						</k-form-item>
+						<k-form-item label="邮编" prop="zip">
+							<k-input v-model="patternForm.zip" placeholder="regexp 别名" />
+						</k-form-item>
+					</k-form>
+					<k-button type="primary" text="校验" @click="handlePatternSubmit" />
+					<text class="demo-tip">校验结果：{{ patternLog }}</text>
+				</view>
+			</view>
+
+			<!-- 错误汇总 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">错误汇总</text>
+					<text class="page-desc">getFieldsError() 获取字段错误 map</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form ref="errorFormRef" :model="errorForm" :rules="errorRules">
+						<k-form-item label="用户名" prop="username">
+							<k-input v-model="errorForm.username" placeholder="必填" />
+						</k-form-item>
+						<k-form-item label="手机号" prop="phone">
+							<k-input v-model="errorForm.phone" type="tel" placeholder="手机号" />
+						</k-form-item>
+					</k-form>
+					<k-button type="primary" text="校验并输出错误" @click="handleErrorSubmit" />
+					<text class="demo-tip">错误汇总：{{ errorSummary }}</text>
+				</view>
+			</view>
+
+			<!-- 原生 input 双轨 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">原生 input 双轨</text>
+					<text class="page-desc">v-model 绑定 model，校验不依赖 k-input</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form ref="nativeFormRef" :model="nativeForm" :rules="nativeRules">
+						<k-form-item label="手机号" prop="phone">
+							<input
+								class="demo-native-input"
+								v-model="nativeForm.phone"
+								type="number"
+								placeholder="原生 input"
+								@blur="onNativePhoneBlur"
+							/>
+						</k-form-item>
+					</k-form>
+					<k-button type="primary" text="提交" @click="handleNativeSubmit" />
+					<text class="demo-tip">提交结果：{{ nativeLog }}</text>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	import {
+		ruleRequired,
+		rulePhone,
+		ruleEmail,
+		ruleUrl,
+		ruleRange,
+		ruleMinLength,
+		rulePattern
+	} from '../../uni_modules/kit-ui/components/k-form/validators.uts'
+
+	type FactoryFormData = {
+		phone : string
+		email : string
+		website : string
+		age : string
+	}
+
+	type TypeFormData = {
+		phone : string
+		email : string
+		count : string
+	}
+
+	type PatternFormData = {
+		code : string
+		zip : string
+	}
+
+	type ErrorFormData = {
+		username : string
+		phone : string
+	}
+
+	type NativeFormData = {
+		phone : string
+	}
+
+	const factoryFormRef = ref<KFormComponentPublicInstance | null>(null)
+	const typeFormRef = ref<KFormComponentPublicInstance | null>(null)
+	const patternFormRef = ref<KFormComponentPublicInstance | null>(null)
+	const errorFormRef = ref<KFormComponentPublicInstance | null>(null)
+	const nativeFormRef = ref<KFormComponentPublicInstance | null>(null)
+
+	const factoryForm = reactive<FactoryFormData>({
+		phone: '',
+		email: '',
+		website: '',
+		age: ''
+	})
+
+	const factoryRules = {
+		phone: [ruleRequired('请输入手机号'), rulePhone()],
+		email: [ruleRequired('请输入邮箱'), ruleEmail()],
+		website: [ruleUrl('请输入有效 URL')],
+		age: [ruleRequired('请输入年龄'), ruleRange(1, 120)]
+	}
+
+	const typeForm = reactive<TypeFormData>({
+		phone: '',
+		email: '',
+		count: ''
+	})
+
+	const typeRules = {
+		phone: [{ required: true, type: 'phone', message: '手机号格式不正确' }],
+		email: [{ required: true, type: 'email', message: '邮箱格式不正确' }],
+		count: [{ required: true, type: 'integer', message: '请输入整数' }]
+	}
+
+	const patternForm = reactive<PatternFormData>({
+		code: '',
+		zip: ''
+	})
+
+	const patternRules = {
+		code: [
+			ruleRequired('请输入验证码'),
+			rulePattern('^\\d{6}$', '验证码为 6 位数字')
+		],
+		zip: [
+			{ required: true, regexp: '^\\d{6}$', message: '邮编为 6 位数字' }
+		]
+	}
+
+	const errorForm = reactive<ErrorFormData>({
+		username: '',
+		phone: ''
+	})
+
+	const errorRules = {
+		username: [ruleRequired('请输入用户名'), ruleMinLength(2)],
+		phone: [ruleRequired(), rulePhone()]
+	}
+
+	const nativeForm = reactive<NativeFormData>({
+		phone: ''
+	})
+
+	const nativeRules = {
+		phone: [ruleRequired('请输入手机号'), rulePhone()]
+	}
+
+	const factoryLog = ref<string>('暂无')
+	const typeLog = ref<string>('暂无')
+	const patternLog = ref<string>('暂无')
+	const errorSummary = ref<string>('暂无')
+	const nativeLog = ref<string>('暂无')
+
+	/**
+	 * FormRules 工厂表单校验
+	 */
+	const handleFactorySubmit = () => {
+		const valid = factoryFormRef.value?.validate?.() ?? false
+		factoryLog.value = valid ? '校验通过' : '校验失败，请检查表单项'
+	}
+
+	/**
+	 * type 预设表单校验
+	 */
+	const handleTypeSubmit = () => {
+		const valid = typeFormRef.value?.validate?.() ?? false
+		typeLog.value = valid ? '校验通过' : '校验失败，请检查表单项'
+	}
+
+	/**
+	 * 正则规则表单校验
+	 */
+	const handlePatternSubmit = () => {
+		const valid = patternFormRef.value?.validate?.() ?? false
+		patternLog.value = valid ? '校验通过' : '校验失败，请检查表单项'
+	}
+
+	/**
+	 * 校验并输出 getFieldsError 汇总
+	 */
+	const handleErrorSubmit = () => {
+		const form = errorFormRef.value
+		if (form == null) {
+			return
+		}
+		const valid = form.validate?.() ?? false
+		if (valid) {
+			errorSummary.value = '校验通过'
+			return
+		}
+		const errors = form.getFieldsError?.()
+		errorSummary.value = errors != null ? JSON.stringify(errors) : '校验失败'
+	}
+
+	/**
+	 * 原生 input 失焦触发表单校验
+	 */
+	const onNativePhoneBlur = () => {
+		nativeFormRef.value?.validate?.()
+	}
+
+	/**
+	 * 原生 input 表单提交
+	 */
+	const handleNativeSubmit = () => {
+		const valid = nativeFormRef.value?.validate?.() ?? false
+		nativeLog.value = valid ? '校验通过' : '校验失败，请检查手机号'
+	}
+</script>
+
+<style lang="scss">
+	.demo-column .k-form {
+		margin-bottom: 12px;
+		width: 100%;
+	}
+
+	.demo-column .k-input-wrapper {
+		width: 100%;
+	}
+
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.demo-native-input {
+		width: 100%;
+		padding-top: var(--k-spacing-sm, 8px);
+		padding-bottom: var(--k-spacing-sm, 8px);
+		padding-left: var(--k-spacing-base, 12px);
+		padding-right: var(--k-spacing-base, 12px);
+		border-width: 1px;
+		border-style: solid;
+		border-color: var(--k-border-color, #e5e7eb);
+		border-radius: var(--k-border-radius-base, 8px);
+		font-size: var(--k-font-size-base, 14px);
+		color: var(--k-text-color, #374151);
+	}
+</style>

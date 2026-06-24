@@ -1,0 +1,179 @@
+import { FormValidateResult } from './form.type.uts'
+import {
+	isEmptyValue,
+	readRuleBoolean,
+	readRuleString,
+	readRuleNumber,
+	toNumberValue
+} from './form-utils.uts'
+import { resolvePatternByType } from './validators.uts'
+
+/**
+ * 构建失败结果
+ */
+function failResult(message : string | null, fallback : string) : FormValidateResult {
+	const msg = message != null && message != '' ? message : fallback
+	return { valid: false, message: msg }
+}
+
+/**
+ * 构建成功结果
+ */
+function okResult() : FormValidateResult {
+	return { valid: true, message: '' }
+}
+
+/**
+ * 正则校验
+ */
+function matchPattern(value : any, pattern : string) : boolean {
+	if (pattern == '') {
+		return true
+	}
+	const reg = new RegExp(pattern)
+	return reg.test(`${value}`)
+}
+
+/**
+ * 按 type 预设校验
+ */
+function validateByType(
+	value : any,
+	ruleType : string,
+	message : string | null
+) : FormValidateResult | null {
+	if (ruleType == 'array') {
+		if (!Array.isArray(value)) {
+			return failResult(message, '字段类型必须为 array')
+		}
+		return null
+	}
+	if (ruleType == 'boolean') {
+		if (typeof value != 'boolean') {
+			return failResult(message, '字段类型必须为 boolean')
+		}
+		return null
+	}
+	if (ruleType == 'string') {
+		if (typeof value != 'string') {
+			return failResult(message, '字段类型必须为 string')
+		}
+		return null
+	}
+	if (ruleType == 'number') {
+		const num = toNumberValue(value)
+		if (isNaN(num)) {
+			return failResult(message, '字段类型必须为 number')
+		}
+		return null
+	}
+	if (ruleType == 'integer') {
+		const num = toNumberValue(value)
+		if (isNaN(num) || num % 1 != 0) {
+			return failResult(message, '字段类型必须为 integer')
+		}
+		return null
+	}
+	const presetPattern = resolvePatternByType(ruleType)
+	if (presetPattern != null) {
+		if (!matchPattern(value, presetPattern)) {
+			if (ruleType == 'phone' || ruleType == 'mobile') {
+				return failResult(message, '手机号格式不正确')
+			}
+			if (ruleType == 'email') {
+				return failResult(message, '邮箱格式不正确')
+			}
+			if (ruleType == 'url') {
+				return failResult(message, 'URL 格式不正确')
+			}
+			return failResult(message, '字段格式不正确')
+		}
+	}
+	return null
+}
+
+/**
+ * 同步校验单个字段（规则管道顺序执行）
+ */
+export function validateSync(
+	value : any,
+	rules : any[],
+	model ?: any | null
+) : FormValidateResult {
+	for (let i = 0; i < rules.length; i++) {
+		const rule = rules[i]
+		const required = readRuleBoolean(rule, 'required')
+		const message = readRuleString(rule, 'message')
+		const ruleType = readRuleString(rule, 'type')
+		const minLength = readRuleNumber(rule, 'minLength')
+		const maxLength = readRuleNumber(rule, 'maxLength')
+		const min = readRuleNumber(rule, 'min')
+		const max = readRuleNumber(rule, 'max')
+		const pattern = readRuleString(rule, 'pattern')
+		const regexp = readRuleString(rule, 'regexp')
+		const resolvedPattern = pattern != null && pattern != '' ? pattern : regexp
+
+		if (required == true && isEmptyValue(value)) {
+			return failResult(message, '此字段为必填项')
+		}
+
+		if (required != true && isEmptyValue(value)) {
+			continue
+		}
+
+		if (ruleType != null && ruleType != '') {
+			const typeResult = validateByType(value, ruleType, message)
+			if (typeResult != null) {
+				return typeResult
+			}
+			if (ruleType == 'number' || ruleType == 'integer') {
+				const num = toNumberValue(value)
+				if (min != null && num < min) {
+					return failResult(message, `值不能小于${min}`)
+				}
+				if (max != null && num > max) {
+					return failResult(message, `值不能大于${max}`)
+				}
+			}
+		}
+
+		if (minLength != null && `${value}`.length < minLength) {
+			return failResult(message, `长度不能少于${minLength}个字符`)
+		}
+
+		if (maxLength != null && `${value}`.length > maxLength) {
+			return failResult(message, `长度不能超过${maxLength}个字符`)
+		}
+
+		if (min != null && ruleType != 'number' && ruleType != 'integer') {
+			if (toNumberValue(value) < min) {
+				return failResult(message, `值不能小于${min}`)
+			}
+		}
+
+		if (max != null && ruleType != 'number' && ruleType != 'integer') {
+			if (toNumberValue(value) > max) {
+				return failResult(message, `值不能大于${max}`)
+			}
+		}
+
+		if (resolvedPattern != null && resolvedPattern != '') {
+			if (!matchPattern(value, resolvedPattern)) {
+				return failResult(message, '字段格式不正确')
+			}
+		}
+	}
+
+	return okResult()
+}
+
+/**
+ * 兼容旧 API 名称
+ */
+export function validateFormField(value : any, rules : any[]) : UTSJSONObject {
+	const result = validateSync(value, rules, null)
+	return {
+		valid: result.valid,
+		message: result.message
+	}
+}

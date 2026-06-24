@@ -1,0 +1,103 @@
+/**
+ * 内置正则模式（与 type 预设对应）
+ */
+export const PATTERN_PHONE = '^1[3-9]\\d{9}$'
+
+export const PATTERN_EMAIL = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
+
+export const PATTERN_URL = '^(https?:\\/\\/)[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:\\/~+#]*[\\w\\-\\@?^=%&\\/~+#])?$'
+
+export const PATTERN_INTEGER = '^-?\\d+$'
+
+/**
+ * 根据 type 获取内置正则
+ */
+export function resolvePatternByType(type : string) : string | null {
+	if (type == 'phone' || type == 'mobile') {
+		return PATTERN_PHONE
+	}
+	if (type == 'email') {
+		return PATTERN_EMAIL
+	}
+	if (type == 'url') {
+		return PATTERN_URL
+	}
+	if (type == 'integer') {
+		return PATTERN_INTEGER
+	}
+	return null
+}
+
+/**
+ * 解析规则提示文案（空串时使用默认文案）
+ */
+function resolveRuleMessage(message : string, defaultMessage : string) : string {
+	if (message != '') {
+		return message
+	}
+	return defaultMessage
+}
+
+/**
+ * 必填规则
+ */
+export function ruleRequired(message : string = '') : any {
+	const msg = resolveRuleMessage(message, '此字段为必填项')
+	return { required: true, message: msg }
+}
+
+/**
+ * 手机号规则（大陆 11 位）
+ */
+export function rulePhone(message : string = '') : any {
+	const msg = resolveRuleMessage(message, '手机号格式不正确')
+	return { type: 'phone', message: msg }
+}
+
+/**
+ * 邮箱规则
+ */
+export function ruleEmail(message : string = '') : any {
+	const msg = resolveRuleMessage(message, '邮箱格式不正确')
+	return { type: 'email', message: msg }
+}
+
+/**
+ * URL 规则
+ */
+export function ruleUrl(message : string = '') : any {
+	const msg = resolveRuleMessage(message, 'URL 格式不正确')
+	return { type: 'url', message: msg }
+}
+
+/**
+ * 数值范围规则
+ */
+export function ruleRange(min : number, max : number, message : string = '') : any {
+	const msg = resolveRuleMessage(message, `数值范围 ${min}-${max}`)
+	return { type: 'number', min: min, max: max, message: msg }
+}
+
+/**
+ * 最小长度规则
+ */
+export function ruleMinLength(min : number, message : string = '') : any {
+	const msg = resolveRuleMessage(message, `至少 ${min} 个字符`)
+	return { minLength: min, message: msg }
+}
+
+/**
+ * 最大长度规则
+ */
+export function ruleMaxLength(max : number, message : string = '') : any {
+	const msg = resolveRuleMessage(message, `最多 ${max} 个字符`)
+	return { maxLength: max, message: msg }
+}
+
+/**
+ * 正则规则
+ */
+export function rulePattern(pattern : string, message : string = '') : any {
+	const msg = resolveRuleMessage(message, '格式不正确')
+	return { pattern: pattern, message: msg }
+}

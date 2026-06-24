@@ -30,6 +30,7 @@ alwaysApply: true
 - 新建组件：`kit-ui-add-component`
 - 文档同步：`kit-ui-doc-sync`
 - 跨端检查：`kit-ui-cross-platform-check`
+- UTS APP 编译：`kit-ui-uts-app-compat`（全项目 `.uts`、inject、Kotlin 门禁）
 - 视觉精修：`kit-ui-visual-polish-check`
 - 发布检查：`kit-ui-release-checklist`
 - MCP 使用：`kit-ui-mcp-usage-guide`

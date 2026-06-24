@@ -1,6 +1,25 @@
 <script setup lang="uts">
-	import { inject, computed, onMounted, onUnmounted, ref } from 'vue'
-	import { FormItemInstance, validateFormField, getFieldRules, readObjectProperty, isRuleRequired } from '../k-form/utils.uts'
+	import { inject, computed, onMounted, onUnmounted, provide, ref, type ComputedRef } from 'vue'
+	import {
+		getFieldRules,
+		readModelProperty,
+		isRuleRequired
+	} from '../k-form/form-utils.uts'
+	import { validateSync } from '../k-form/validate-engine.uts'
+	import {
+		K_FORM_MODEL_KEY,
+		K_FORM_RULES_KEY,
+		K_FORM_LABEL_WIDTH_KEY,
+		K_FORM_LABEL_ALIGN_KEY,
+		K_FORM_LABEL_POSITION_KEY,
+		K_FORM_DISABLED_KEY,
+		K_FORM_SHOW_ERROR_KEY,
+		K_FORM_REGISTER_ITEM_KEY,
+		K_FORM_UNREGISTER_ITEM_KEY,
+		K_FORM_ITEM_VALIDATE_KEY,
+		K_FORM_ITEM_PROP_KEY
+	} from '../k-form/form-context.uts'
+	import type { FormItemInstance } from '../k-form/form.type.uts'
 
 	/**
 	 * k-form-item 表单项
@@ -30,15 +49,15 @@
 	})
 
 	const themeConfig = inject('kit-theme', {})
-	const formModel = inject<ComputedRef<any> | null>('k-form-model', null)
-	const formRules = inject<ComputedRef<any> | null>('k-form-rules', null)
-	const formLabelWidth = inject<ComputedRef<string> | null>('k-form-label-width', null)
-	const formLabelAlign = inject<ComputedRef<string> | null>('k-form-label-align', null)
-	const formLabelPosition = inject<ComputedRef<string> | null>('k-form-label-position', null)
-	const formDisabled = inject<ComputedRef<boolean> | null>('k-form-disabled', null)
-	const formShowError = inject<ComputedRef<boolean> | null>('k-form-show-error', null)
-	const registerFormItem = inject<((item: FormItemInstance) => void) | null>('k-form-register-item', null)
-	const unregisterFormItem = inject<((prop: string) => void) | null>('k-form-unregister-item', null)
+	const formModel = inject<ComputedRef<any> | null>(K_FORM_MODEL_KEY, null)
+	const formRules = inject<ComputedRef<any> | null>(K_FORM_RULES_KEY, null)
+	const formLabelWidth = inject<ComputedRef<string> | null>(K_FORM_LABEL_WIDTH_KEY, null)
+	const formLabelAlign = inject<ComputedRef<string> | null>(K_FORM_LABEL_ALIGN_KEY, null)
+	const formLabelPosition = inject<ComputedRef<string> | null>(K_FORM_LABEL_POSITION_KEY, null)
+	const formDisabled = inject<ComputedRef<boolean> | null>(K_FORM_DISABLED_KEY, null)
+	const formShowError = inject<ComputedRef<boolean> | null>(K_FORM_SHOW_ERROR_KEY, null)
+	const registerFormItem = inject<((item: FormItemInstance) => void) | null>(K_FORM_REGISTER_ITEM_KEY, null)
+	const unregisterFormItem = inject<((prop: string) => void) | null>(K_FORM_UNREGISTER_ITEM_KEY, null)
 
 	const innerErrorMessage = ref<string>('')
 
@@ -57,12 +76,22 @@
 	 */
 	const getFieldValue = (): any => {
 		if (formModel != null && props.prop != '') {
-			const value = readObjectProperty(formModel.value, props.prop)
+			const value = readModelProperty(formModel.value, props.prop)
 			if (value != null) {
 				return value
 			}
 		}
 		return ''
+	}
+
+	/**
+	 * 获取当前错误文案
+	 */
+	const getErrorMessage = (): string => {
+		if (props.errorMessage != '') {
+			return props.errorMessage
+		}
+		return innerErrorMessage.value
 	}
 
 	/**
@@ -77,15 +106,18 @@
 			innerErrorMessage.value = ''
 			return true
 		}
-		const result = validateFormField(getFieldValue(), rules)
-		const valid = result['valid'] as boolean
-		if (!valid) {
-			innerErrorMessage.value = result['message'] as string
+		const modelValue = formModel != null ? formModel.value : null
+		const result = validateSync(getFieldValue(), rules, modelValue)
+		if (!result.valid) {
+			innerErrorMessage.value = result.message
 			return false
 		}
 		innerErrorMessage.value = ''
 		return true
 	}
+
+	provide(K_FORM_ITEM_VALIDATE_KEY, validate)
+	provide(K_FORM_ITEM_PROP_KEY, props.prop)
 
 	/**
 	 * 重置校验状态
@@ -218,7 +250,8 @@
 			registerFormItem({
 				prop: props.prop,
 				validate,
-				resetValidation
+				resetValidation,
+				getErrorMessage
 			})
 		}
 	})
@@ -343,6 +376,11 @@
 
 		&--top &__content {
 			width: 100%;
+		}
+
+		&--error .k-input-wrapper,
+		&--error .k-textarea-wrapper {
+			border-color: var(--k-color-error, #ef4444);
 		}
 
 		&__error {

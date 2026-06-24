@@ -5,7 +5,7 @@
 		<view class="page">
 			<view class="page-header">
 				<text class="page-title">k-form 表单</text>
-				<text class="page-desc">表单容器与表单项，支持规则校验与错误提示</text>
+				<text class="page-desc">表单容器与表单项基础能力展示</text>
 			</view>
 
 			<!-- 基础用法 -->
@@ -96,7 +96,7 @@
 			<view class="section">
 				<view class="section-title">
 					<text class="title-text">主题用法</text>
-					<text class="page-desc">默认主题 vs k-config 注入（对比更明显）</text>
+					<text class="page-desc">默认主题 vs k-config 注入</text>
 				</view>
 				<view class="demo-content demo-column">
 					<text class="demo-theme-label">默认主题表单</text>

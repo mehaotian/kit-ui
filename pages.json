@@ -42,6 +42,12 @@
 			}
 		},
 		{
+			"path": "pages/form-validate/form-validate",
+			"style": {
+				"navigationBarTitleText": "Form|表单-校验增强"
+			}
+		},
+		{
 			"path": "pages/button/button",
 			"style": {
 				"navigationBarTitleText": "按钮"

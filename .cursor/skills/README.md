@@ -7,6 +7,7 @@
 - `kit-ui-add-component`：新建组件与 demo 脚手架。
 - `kit-ui-doc-sync`：代码变更后的文档同步。
 - `kit-ui-cross-platform-check`：uni-app x 跨端与约束检查。
+- `kit-ui-uts-app-compat`：全项目 UTS 语法与 APP（Kotlin）编译约束。
 - `kit-ui-app-animation`：APP 端过渡动画（ref + setProperty 标准流程）。
 - `kit-ui-release-checklist`：发布前检查清单。
 - `kit-ui-visual-polish-check`：视觉一致性与精修检查。
@@ -15,5 +16,6 @@
 ## 使用建议
 
 - 先用 `kit-ui-add-component` 建立结构，再用 `kit-ui-cross-platform-check` 自检。
+- 涉及 `.uts` 工具库或 provide/inject 时，额外执行 `kit-ui-uts-app-compat` 并全量编译 APP。
 - 涉及 props/events 变更后，必须执行 `kit-ui-doc-sync`。
 - 准备发布时执行 `kit-ui-release-checklist`。

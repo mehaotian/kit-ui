@@ -118,6 +118,7 @@
 				{ name: 'Checkbox', path: '/pages/checkbox/checkbox', status: 'completed' },
 				{ name: 'Switch', path: '/pages/switch/switch', status: 'completed' },
 				{ name: 'Form', path: '/pages/form/form', status: 'completed' },
+				{ name: 'Form|表单-校验增强', path: '/pages/form-validate/form-validate', status: 'completed' },
 				{ name: 'Slider', path: '/pages/slider/slider', status: 'planning' },
 				{ name: 'Rate', path: '/pages/rate/rate', status: 'planning' },
 				{ name: 'Picker', path: '/pages/picker/picker', status: 'planning' },

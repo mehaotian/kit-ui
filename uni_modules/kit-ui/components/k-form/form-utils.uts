@@ -1,0 +1,178 @@
+/**
+ * 将任意对象转为 UTSJSONObject（JSON 序列化，兼容 reactive 与 typed 对象）
+ * 注意：含函数的对象会丢失函数，rules 含 validator 时请走 readRulesFieldValue
+ */
+export function asJSONObject(value : any | null) : UTSJSONObject {
+	if (value == null) {
+		return {}
+	}
+	if (value instanceof UTSJSONObject) {
+		return value as UTSJSONObject
+	}
+	const jsonStr = JSON.stringify(value)
+	if (jsonStr == '' || jsonStr == 'null') {
+		return {}
+	}
+	const parsed = JSON.parse<UTSJSONObject>(jsonStr)
+	if (parsed == null) {
+		return {}
+	}
+	return parsed
+}
+
+/**
+ * 将任意对象浅拷贝为 UTSJSONObject（用于 submit 等需要纯 JSON 对象的场景）
+ */
+export function toJSONObject(value : any | null) : UTSJSONObject {
+	return asJSONObject(value)
+}
+
+/**
+ * 从 model 读取字段（兼容 reactive / UTSJSONObject）
+ */
+export function readModelProperty(model : any | null, key : string) : any | null {
+	if (model == null || key == '') {
+		return null
+	}
+	if (model instanceof UTSJSONObject) {
+		return (model as UTSJSONObject).get(key)
+	}
+	return asJSONObject(model).get(key)
+}
+
+/**
+ * 从 rules 对象读取某字段规则列表（优先保留引用，避免 JSON 丢失函数）
+ */
+export function readRulesFieldValue(rules : any | null, prop : string) : any | null {
+	if (rules == null || prop == '') {
+		return null
+	}
+	if (rules instanceof UTSJSONObject) {
+		return (rules as UTSJSONObject).get(prop)
+	}
+	// 声明式 rules 无函数时 JSON 路径安全；Phase 2 validator 需 UTSJSONObject 或项级 rules
+	return asJSONObject(rules).get(prop)
+}
+
+/**
+ * 从任意对象读取字段（通用，含 JSON 路径）
+ */
+export function readObjectProperty(obj : any | null, key : string) : any | null {
+	if (obj == null || key == '') {
+		return null
+	}
+	if (obj instanceof UTSJSONObject) {
+		return (obj as UTSJSONObject).get(key)
+	}
+	return asJSONObject(obj).get(key)
+}
+
+/**
+ * 将规则列表规范为可遍历数组
+ */
+export function normalizeRulesList(rules : any | null) : any[] {
+	if (rules == null) {
+		return []
+	}
+	if (!Array.isArray(rules)) {
+		return []
+	}
+	const result : any[] = []
+	for (let i = 0; i < rules.length; i++) {
+		const item = rules[i]
+		if (item != null) {
+			result.push(item)
+		}
+	}
+	return result
+}
+
+/**
+ * 从 rules 对象中读取字段规则列表
+ */
+export function getFieldRules(
+	rules : any | null,
+	prop : string,
+	localRules : any | null
+) : any[] {
+	const local = normalizeRulesList(localRules)
+	if (local.length > 0) {
+		return local
+	}
+	if (prop == '') {
+		return []
+	}
+	return normalizeRulesList(readRulesFieldValue(rules, prop))
+}
+
+/**
+ * 判断值是否为空（用于必填与跳过逻辑）
+ */
+export function isEmptyValue(value : any) : boolean {
+	if (value == null) {
+		return true
+	}
+	if (value == '') {
+		return true
+	}
+	if (Array.isArray(value) && value.length == 0) {
+		return true
+	}
+	return false
+}
+
+/**
+ * 读取规则项布尔字段
+ */
+export function readRuleBoolean(rule : any, key : string) : boolean | null {
+	const value = readObjectProperty(rule, key)
+	if (value == null) {
+		return null
+	}
+	return value as boolean
+}
+
+/**
+ * 读取规则项字符串字段
+ */
+export function readRuleString(rule : any, key : string) : string | null {
+	const value = readObjectProperty(rule, key)
+	if (value == null) {
+		return null
+	}
+	return `${value}`
+}
+
+/**
+ * 读取规则项数字字段
+ */
+export function readRuleNumber(rule : any, key : string) : number | null {
+	const value = readObjectProperty(rule, key)
+	if (value == null) {
+		return null
+	}
+	if (typeof value == 'number') {
+		return value
+	}
+	return parseFloat(`${value}`)
+}
+
+/**
+ * 判断规则项是否标记为必填
+ */
+export function isRuleRequired(rule : any) : boolean {
+	if (rule == null) {
+		return false
+	}
+	return readRuleBoolean(rule, 'required') == true
+}
+
+/**
+ * 将值转为数字（UTS 兼容）
+ */
+export function toNumberValue(value : any) : number {
+	if (typeof value == 'number') {
+		return value
+	}
+	return parseFloat(`${value}`)
+}

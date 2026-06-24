@@ -1,5 +1,5 @@
 <script setup lang="uts">
-	import { inject, computed, ref, watch, onMounted } from 'vue'
+	import { inject, computed, ref, watch, onMounted, type ComputedRef } from 'vue'
 	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
 
 	/**

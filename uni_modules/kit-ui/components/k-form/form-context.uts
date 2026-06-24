@@ -1,0 +1,62 @@
+import { inject } from 'vue'
+
+/**
+ * k-form provide / inject 键名常量
+ */
+export const K_FORM_MODEL_KEY = 'k-form-model'
+
+export const K_FORM_RULES_KEY = 'k-form-rules'
+
+export const K_FORM_LABEL_WIDTH_KEY = 'k-form-label-width'
+
+export const K_FORM_LABEL_ALIGN_KEY = 'k-form-label-align'
+
+export const K_FORM_LABEL_POSITION_KEY = 'k-form-label-position'
+
+export const K_FORM_DISABLED_KEY = 'k-form-disabled'
+
+export const K_FORM_SHOW_ERROR_KEY = 'k-form-show-error'
+
+export const K_FORM_REGISTER_ITEM_KEY = 'k-form-register-item'
+
+export const K_FORM_UNREGISTER_ITEM_KEY = 'k-form-unregister-item'
+
+export const K_FORM_ITEM_VALIDATE_KEY = 'k-form-item-validate'
+
+export const K_FORM_ITEM_PROP_KEY = 'k-form-item-prop'
+
+/**
+ * 表单项上下文（供原生控件等场景使用）
+ */
+export type FormItemContext = {
+	prop : string
+	validate : () => boolean
+}
+
+/**
+ * 获取当前 k-form-item 注入的校验上下文
+ */
+export function useFormItemContext() : FormItemContext | null {
+	const validateFn = inject<(() => boolean) | null>(K_FORM_ITEM_VALIDATE_KEY, null)
+	const prop = inject<string>(K_FORM_ITEM_PROP_KEY, '')
+	if (validateFn == null) {
+		return null
+	}
+	return {
+		prop: prop,
+		validate: validateFn
+	}
+}
+
+/**
+ * 创建失焦校验处理器
+ * 注意：须在能 inject 到 k-form-item 的子组件 setup 内调用；页面级 slot 请用 formRef.validate()
+ */
+export function createFormBlurHandler() : () => void {
+	return () => {
+		const ctx = useFormItemContext()
+		if (ctx != null) {
+			ctx.validate()
+		}
+	}
+}

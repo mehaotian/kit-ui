@@ -1,6 +1,17 @@
 <script setup lang="uts">
 	import { inject, computed, provide } from 'vue'
 	import { FormItemInstance, toJSONObject } from './utils.uts'
+	import {
+		K_FORM_MODEL_KEY,
+		K_FORM_RULES_KEY,
+		K_FORM_LABEL_WIDTH_KEY,
+		K_FORM_LABEL_ALIGN_KEY,
+		K_FORM_LABEL_POSITION_KEY,
+		K_FORM_DISABLED_KEY,
+		K_FORM_SHOW_ERROR_KEY,
+		K_FORM_REGISTER_ITEM_KEY,
+		K_FORM_UNREGISTER_ITEM_KEY
+	} from './form-context.uts'
 
 	defineOptions({
 		name: 'KForm'
@@ -81,19 +92,40 @@
 	}
 
 	/**
+	 * 收集当前各字段错误信息
+	 */
+	const collectFieldErrors = () : UTSJSONObject => {
+		const errors : UTSJSONObject = {}
+		formItems.forEach((item : FormItemInstance) => {
+			const msg = item.getErrorMessage()
+			if (item.prop != '' && msg != '') {
+				errors[item.prop] = msg
+			}
+		})
+		return errors
+	}
+
+	/**
 	 * 校验整个表单
 	 */
 	const validate = (): boolean => {
 		let valid = true
-		const errors : UTSJSONObject = {}
 		formItems.forEach((item : FormItemInstance) => {
 			const itemValid = item.validate()
 			if (!itemValid) {
 				valid = false
 			}
 		})
+		const errors = collectFieldErrors()
 		emit('validate', valid, errors)
 		return valid
+	}
+
+	/**
+	 * 获取各字段错误信息
+	 */
+	const getFieldsError = (): UTSJSONObject => {
+		return collectFieldErrors()
 	}
 
 	/**
@@ -116,25 +148,26 @@
 	}
 
 	/**
-	 * 向下传递 model / rules（保持 reactive 引用，勿强转为 UTSJSONObject）
+	 * 向下传递 model / rules（保持 reactive 引用）
 	 */
 	const resolvedModel = computed((): any => props.model)
 	const resolvedRules = computed((): any => props.rules)
 
-	provide('k-form-model', resolvedModel)
-	provide('k-form-rules', resolvedRules)
-	provide('k-form-label-width', computed((): string => props.labelWidth))
-	provide('k-form-label-align', computed((): string => props.labelAlign))
-	provide('k-form-label-position', computed((): string => props.labelPosition))
-	provide('k-form-disabled', computed((): boolean => props.disabled))
-	provide('k-form-show-error', computed((): boolean => props.showErrorMessage))
-	provide('k-form-register-item', registerFormItem)
-	provide('k-form-unregister-item', unregisterFormItem)
+	provide(K_FORM_MODEL_KEY, resolvedModel)
+	provide(K_FORM_RULES_KEY, resolvedRules)
+	provide(K_FORM_LABEL_WIDTH_KEY, computed((): string => props.labelWidth))
+	provide(K_FORM_LABEL_ALIGN_KEY, computed((): string => props.labelAlign))
+	provide(K_FORM_LABEL_POSITION_KEY, computed((): string => props.labelPosition))
+	provide(K_FORM_DISABLED_KEY, computed((): boolean => props.disabled))
+	provide(K_FORM_SHOW_ERROR_KEY, computed((): boolean => props.showErrorMessage))
+	provide(K_FORM_REGISTER_ITEM_KEY, registerFormItem)
+	provide(K_FORM_UNREGISTER_ITEM_KEY, unregisterFormItem)
 
 	defineExpose({
 		validate,
 		resetValidation,
-		submit
+		submit,
+		getFieldsError
 	})
 </script>
 

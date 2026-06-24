@@ -30,6 +30,39 @@ const handleSubmit = () => {
 </script>
 ```
 
+## FormRules 工厂
+
+推荐使用独立函数（跨端一致）：`ruleRequired`、`rulePhone`、`ruleEmail` 等。
+
+```uts
+import { ruleRequired, rulePhone, ruleEmail, ruleRange } from '@/uni_modules/kit-ui/components/k-form/validators.uts'
+
+const rules = {
+  phone: [ruleRequired('请输入手机号'), rulePhone()],
+  email: [ruleRequired('请输入邮箱'), ruleEmail()],
+  age: [ruleRequired('请输入年龄'), ruleRange(1, 120)]
+}
+```
+
+也可使用 `rulePhone()`、`ruleEmail()` 等独立函数（APP / WEB 均推荐）。
+
+## 原生 input 校验（双轨）
+
+校验绑定在 `model[prop]`，不依赖 k- 组件。原生 `input` 需 `v-model` 到 model：
+
+```vue
+<k-form :model="form" :rules="rules">
+  <k-form-item label="手机号" prop="phone">
+    <input v-model="form.phone" @blur="onPhoneBlur" />
+  </k-form-item>
+</k-form>
+
+<script setup lang="uts">
+import { createFormBlurHandler } from '@/uni_modules/kit-ui/components/k-form/form-context.uts'
+const onPhoneBlur = createFormBlurHandler()
+</script>
+```
+
 ## 组件属性
 
 | 属性名 | 类型 | 默认值 | 说明 |
@@ -58,21 +91,38 @@ const handleSubmit = () => {
 | validate | 校验全部表单项 | `boolean` |
 | resetValidation | 清除全部错误提示 | - |
 | submit | 校验通过后触发 submit 事件 | - |
+| getFieldsError | 获取各字段错误 map | `UTSJSONObject` |
 
 ## 校验规则
 
-规则字段支持：
+### 规则字段
 
 | 字段 | 说明 |
 | --- | --- |
 | required | 是否必填 |
 | message | 错误提示 |
+| type | 见下表 |
 | minLength / maxLength | 字符串长度 |
 | min / max | 数值范围 |
-| pattern | 正则字符串 |
-| type | 类型：`array` / `boolean` 等 |
+| pattern / regexp | 正则字符串 |
+| trigger | `submit` / `blur` / `change`（Phase 2 完整支持） |
+
+### type 预设
+
+| type | 说明 |
+| --- | --- |
+| string | 字符串类型 |
+| number | 数字 |
+| integer | 整数 |
+| phone / mobile | 大陆手机号 |
+| email | 邮箱 |
+| url | URL |
+| array | 数组 |
+| boolean | 布尔 |
 
 ## 注意事项
 
 - 表单项需设置 `prop` 且与 `model` 字段名一致才能参与校验。
 - 复杂控件（radio-group、checkbox-group）需在 rules 中指定 `type: 'array'` 等。
+- APP 页面 ref 使用 `KFormComponentPublicInstance`，勿自定义 `KFormExpose` 强转。
+- 含 `validator` 函数的规则勿经 JSON 序列化（Phase 2）；项级 `rules` 或 `UTSJSONObject` 传递。
