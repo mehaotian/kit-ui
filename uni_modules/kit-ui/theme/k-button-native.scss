@@ -1,9 +1,12 @@
 /**
- * 原生 button 复用 k-button 样式
+ * 原生 button 复用 k-button 样式（轨道 B：小程序等平台开放能力场景）
  * 目标：不依赖 k-button 组件，也可通过 class 获取统一视觉
+ * 注意：
+ * 1. 使用 button.k-button 选择器，仅 WEB/小程序编译（见 index.scss #ifndef APP）
+ * 2. APP 端 k-button 组件样式由 k-button.uvue 自维护
  */
 
-.k-button {
+button.k-button {
 	/* #ifndef APP */
 	display: flex;
 	flex-direction: row;
@@ -272,34 +275,34 @@
 	}
 }
 
-.k-button.k-button--primary,
-.k-button.k-button--success,
-.k-button.k-button--warning,
-.k-button.k-button--danger {
+button.k-button.k-button--primary,
+button.k-button.k-button--success,
+button.k-button.k-button--warning,
+button.k-button.k-button--danger {
 	color: #ffffff;
 	font-weight: 700;
 }
 
-.k-button.k-button--plain.k-button--primary {
+button.k-button.k-button--plain.k-button--primary {
 	color: var(--k-color-primary, #6366f1);
 }
 
-.k-button.k-button--plain.k-button--success {
+button.k-button.k-button--plain.k-button--success {
 	color: var(--k-color-success, #10b981);
 }
 
-.k-button.k-button--plain.k-button--warning {
+button.k-button.k-button--plain.k-button--warning {
 	color: var(--k-color-warning, #f59e0b);
 }
 
-.k-button.k-button--plain.k-button--danger {
+button.k-button.k-button--plain.k-button--danger {
 	color: var(--k-color-error, #ef4444);
 }
 
-.k-button.k-button--small {
+button.k-button.k-button--small {
 	font-size: var(--k-font-size-sm, 12px);
 }
 
-.k-button.k-button--large {
+button.k-button.k-button--large {
 	font-size: var(--k-font-size-lg, 18px);
 }

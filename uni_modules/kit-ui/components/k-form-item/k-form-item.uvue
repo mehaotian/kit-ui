@@ -1,6 +1,6 @@
 <script setup lang="uts">
 	import { inject, computed, onMounted, onUnmounted, ref } from 'vue'
-	import { FormValidationRule, FormItemInstance, validateFormField, getFieldRules } from '../k-form/utils.uts'
+	import { FormItemInstance, validateFormField, getFieldRules, readObjectProperty, isRuleRequired } from '../k-form/utils.uts'
 
 	/**
 	 * k-form-item 表单项
@@ -11,7 +11,7 @@
 		label ?: string
 		prop ?: string
 		required ?: boolean
-		rules ?: FormValidationRule[]
+		rules ?: any | null
 		labelWidth ?: string
 		borderBottom ?: boolean
 		errorMessage ?: string
@@ -22,7 +22,7 @@
 		label: '',
 		prop: '',
 		required: false,
-		rules: (): FormValidationRule[] => [],
+		rules: null,
 		labelWidth: '',
 		borderBottom: true,
 		errorMessage: '',
@@ -30,8 +30,8 @@
 	})
 
 	const themeConfig = inject('kit-theme', {})
-	const formModel = inject<ComputedRef<UTSJSONObject> | null>('k-form-model', null)
-	const formRules = inject<ComputedRef<UTSJSONObject> | null>('k-form-rules', null)
+	const formModel = inject<ComputedRef<any> | null>('k-form-model', null)
+	const formRules = inject<ComputedRef<any> | null>('k-form-rules', null)
 	const formLabelWidth = inject<ComputedRef<string> | null>('k-form-label-width', null)
 	const formLabelAlign = inject<ComputedRef<string> | null>('k-form-label-align', null)
 	const formLabelPosition = inject<ComputedRef<string> | null>('k-form-label-position', null)
@@ -45,11 +45,11 @@
 	/**
 	 * 合并表单级与项级校验规则
 	 */
-	const getMergedRules = (): FormValidationRule[] => {
+	const getMergedRules = (): any[] => {
 		if (formRules != null && props.prop != '') {
 			return getFieldRules(formRules.value, props.prop, props.rules)
 		}
-		return props.rules
+		return getFieldRules(null, props.prop, props.rules)
 	}
 
 	/**
@@ -57,7 +57,7 @@
 	 */
 	const getFieldValue = (): any => {
 		if (formModel != null && props.prop != '') {
-			const value = formModel.value[props.prop]
+			const value = readObjectProperty(formModel.value, props.prop)
 			if (value != null) {
 				return value
 			}
@@ -136,8 +136,7 @@
 		}
 		const rules = getMergedRules()
 		for (let i = 0; i < rules.length; i++) {
-			const rule = rules[i]
-			if (rule.required == true) {
+			if (isRuleRequired(rules[i])) {
 				return true
 			}
 		}
@@ -186,16 +185,32 @@
 	})
 
 	/**
-	 * 标签区域样式
+	 * 标签容器宽度（文本对齐通过 flex 类实现，避免在 view 上写 textAlign）
 	 */
-	const labelStyle = computed((): UTSJSONObject => {
+	const labelWrapStyle = computed((): UTSJSONObject => {
 		if (isLabelTop.value) {
 			return {}
 		}
 		return {
-			width: resolvedLabelWidth.value,
-			textAlign: resolvedLabelAlign.value
+			width: resolvedLabelWidth.value
 		}
+	})
+
+	/**
+	 * 标签对齐类名（left / center / right）
+	 */
+	const labelAlignClass = computed((): string => {
+		if (isLabelTop.value) {
+			return ''
+		}
+		const align = resolvedLabelAlign.value
+		if (align == 'center') {
+			return 'k-form-item__label--align-center'
+		}
+		if (align == 'right') {
+			return 'k-form-item__label--align-right'
+		}
+		return ''
 	})
 
 	onMounted(() => {
@@ -227,7 +242,12 @@
 		:style="wrapperThemeStyle"
 	>
 		<view class="k-form-item__body">
-			<view v-if="label != ''" class="k-form-item__label" :style="labelStyle">
+			<view
+				v-if="label != ''"
+				class="k-form-item__label"
+				:class="labelAlignClass"
+				:style="labelWrapStyle"
+			>
 				<text v-if="showRequiredMark" class="k-form-item__required">*</text>
 				<text class="k-form-item__label-text">{{ label }}</text>
 			</view>
@@ -278,6 +298,14 @@
 			align-items: center;
 			flex-shrink: 0;
 			padding-right: var(--k-spacing-sm, 8px);
+
+			&--align-center {
+				justify-content: center;
+			}
+
+			&--align-right {
+				justify-content: flex-end;
+			}
 		}
 
 		&--top &__label {
@@ -300,7 +328,6 @@
 		&__content {
 			flex: 1;
 			flex-grow: 1;
-			width: 0;
 			min-width: 0;
 			display: flex;
 			flex-direction: column;

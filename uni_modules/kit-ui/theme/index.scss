@@ -5,7 +5,10 @@
 
 @import './variables.scss';
 @import './mixins.scss';
+/* #ifndef APP */
+/* 原生 button 样式：含 button.k-button 选择器，APP uvue 仅支持 classname，故 APP 端不编译 */
 @import './k-button-native.scss';
+/* #endif */
 
 /* ==================== CSS 变量定义 ==================== */
 

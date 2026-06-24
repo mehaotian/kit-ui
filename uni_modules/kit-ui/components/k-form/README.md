@@ -15,19 +15,14 @@
 </template>
 
 <script setup lang="uts">
-import { KFormExpose } from '@/uni_modules/kit-ui/components/k-form/form.type.uts'
-
-const formRef = ref<KFormExpose | null>(null)
+const formRef = ref<KFormComponentPublicInstance | null>(null)
 const form = reactive({ username: '' })
 const rules = {
   username: [{ required: true, message: '请输入用户名' }]
 }
 
 const handleSubmit = () => {
-  if (formRef.value == null) {
-    return
-  }
-  const valid = formRef.value.validate()
+  const valid = formRef.value?.validate?.() ?? false
   if (valid) {
     // 提交逻辑
   }

@@ -1,5 +1,5 @@
 /**
- * 表单校验规则类型
+ * 表单校验规则类型（文档与 TS 提示用；APP 运行时规则项为 UTSJSONObject）
  */
 export type FormValidationRule = {
 	required ?: boolean
@@ -22,6 +22,67 @@ export type FormItemInstance = {
 }
 
 /**
+ * 将任意对象转为 UTSJSONObject（JSON 序列化，兼容 reactive 与 typed 对象）
+ */
+export function asJSONObject(value : any | null) : UTSJSONObject {
+	if (value == null) {
+		return {}
+	}
+	if (value instanceof UTSJSONObject) {
+		return value as UTSJSONObject
+	}
+	const jsonStr = JSON.stringify(value)
+	if (jsonStr == '' || jsonStr == 'null') {
+		return {}
+	}
+	const parsed = JSON.parse<UTSJSONObject>(jsonStr)
+	if (parsed == null) {
+		return {}
+	}
+	return parsed
+}
+
+/**
+ * 将任意对象浅拷贝为 UTSJSONObject（用于 submit 等需要纯 JSON 对象的场景）
+ */
+export function toJSONObject(value : any | null) : UTSJSONObject {
+	return asJSONObject(value)
+}
+
+/**
+ * 从任意对象读取字段（兼容 reactive / UTSJSONObject / plain object）
+ */
+export function readObjectProperty(obj : any | null, key : string) : any | null {
+	if (obj == null || key == '') {
+		return null
+	}
+	if (obj instanceof UTSJSONObject) {
+		return (obj as UTSJSONObject).get(key)
+	}
+	return asJSONObject(obj).get(key)
+}
+
+/**
+ * 将规则列表规范为可遍历数组（避免 APP 端强转崩溃）
+ */
+export function normalizeRulesList(rules : any | null) : any[] {
+	if (rules == null) {
+		return []
+	}
+	if (!Array.isArray(rules)) {
+		return []
+	}
+	const result : any[] = []
+	for (let i = 0; i < rules.length; i++) {
+		const item = rules[i]
+		if (item != null) {
+			result.push(item)
+		}
+	}
+	return result
+}
+
+/**
  * 将值转为数字（UTS 兼容，避免使用 Number() 构造函数）
  */
 function toNumber(value : any) : number {
@@ -32,27 +93,81 @@ function toNumber(value : any) : number {
 }
 
 /**
+ * 读取规则项中的布尔字段
+ */
+function readRuleBoolean(rule : any, key : string) : boolean | null {
+	const value = readObjectProperty(rule, key)
+	if (value == null) {
+		return null
+	}
+	return value as boolean
+}
+
+/**
+ * 读取规则项中的字符串字段
+ */
+function readRuleString(rule : any, key : string) : string | null {
+	const value = readObjectProperty(rule, key)
+	if (value == null) {
+		return null
+	}
+	return `${value}`
+}
+
+/**
+ * 读取规则项中的数字字段
+ */
+function readRuleNumber(rule : any, key : string) : number | null {
+	const value = readObjectProperty(rule, key)
+	if (value == null) {
+		return null
+	}
+	if (typeof value == 'number') {
+		return value
+	}
+	return parseFloat(`${value}`)
+}
+
+/**
+ * 判断规则项是否标记为必填（参数为 any，兼容 APP 端 UTSJSONObject 运行时类型）
+ */
+export function isRuleRequired(rule : any) : boolean {
+	if (rule == null) {
+		return false
+	}
+	return readRuleBoolean(rule, 'required') == true
+}
+
+/**
  * 校验单个字段
  */
 export function validateFormField(
 	value : any,
-	rules : FormValidationRule[]
+	rules : any[]
 ) : UTSJSONObject {
 	for (let i = 0; i < rules.length; i++) {
 		const rule = rules[i]
+		const required = readRuleBoolean(rule, 'required')
+		const message = readRuleString(rule, 'message')
+		const ruleType = readRuleString(rule, 'type')
+		const minLength = readRuleNumber(rule, 'minLength')
+		const maxLength = readRuleNumber(rule, 'maxLength')
+		const min = readRuleNumber(rule, 'min')
+		const max = readRuleNumber(rule, 'max')
+		const pattern = readRuleString(rule, 'pattern')
 
-		if (rule.required == true) {
+		if (required == true) {
 			const isEmpty = value == null || value == '' ||
 				(Array.isArray(value) && value.length == 0)
 			if (isEmpty) {
 				return {
 					valid: false,
-					message: rule.message != null && rule.message != '' ? rule.message : '此字段为必填项'
+					message: message != null && message != '' ? message : '此字段为必填项'
 				}
 			}
 		}
 
-		if (rule.required != true) {
+		if (required != true) {
 			const isEmpty = value == null || value == '' ||
 				(Array.isArray(value) && value.length == 0)
 			if (isEmpty) {
@@ -60,54 +175,54 @@ export function validateFormField(
 			}
 		}
 
-		if (rule.type == 'array' && !Array.isArray(value)) {
+		if (ruleType == 'array' && !Array.isArray(value)) {
 			return {
 				valid: false,
-				message: rule.message != null && rule.message != '' ? rule.message : '字段类型必须为 array'
+				message: message != null && message != '' ? message : '字段类型必须为 array'
 			}
 		}
 
-		if (rule.type == 'boolean' && typeof value != 'boolean') {
+		if (ruleType == 'boolean' && typeof value != 'boolean') {
 			return {
 				valid: false,
-				message: rule.message != null && rule.message != '' ? rule.message : '字段类型必须为 boolean'
+				message: message != null && message != '' ? message : '字段类型必须为 boolean'
 			}
 		}
 
-		if (rule.minLength != null && `${value}`.length < rule.minLength!) {
+		if (minLength != null && `${value}`.length < minLength) {
 			return {
 				valid: false,
-				message: rule.message != null && rule.message != '' ? rule.message : `长度不能少于${rule.minLength}个字符`
+				message: message != null && message != '' ? message : `长度不能少于${minLength}个字符`
 			}
 		}
 
-		if (rule.maxLength != null && `${value}`.length > rule.maxLength!) {
+		if (maxLength != null && `${value}`.length > maxLength) {
 			return {
 				valid: false,
-				message: rule.message != null && rule.message != '' ? rule.message : `长度不能超过${rule.maxLength}个字符`
+				message: message != null && message != '' ? message : `长度不能超过${maxLength}个字符`
 			}
 		}
 
-		if (rule.min != null && toNumber(value) < rule.min!) {
+		if (min != null && toNumber(value) < min) {
 			return {
 				valid: false,
-				message: rule.message != null && rule.message != '' ? rule.message : `值不能小于${rule.min}`
+				message: message != null && message != '' ? message : `值不能小于${min}`
 			}
 		}
 
-		if (rule.max != null && toNumber(value) > rule.max!) {
+		if (max != null && toNumber(value) > max) {
 			return {
 				valid: false,
-				message: rule.message != null && rule.message != '' ? rule.message : `值不能大于${rule.max}`
+				message: message != null && message != '' ? message : `值不能大于${max}`
 			}
 		}
 
-		if (rule.pattern != null && rule.pattern != '') {
-			const reg = new RegExp(rule.pattern!)
+		if (pattern != null && pattern != '') {
+			const reg = new RegExp(pattern)
 			if (!reg.test(`${value}`)) {
 				return {
 					valid: false,
-					message: rule.message != null && rule.message != '' ? rule.message : '字段格式不正确'
+					message: message != null && message != '' ? message : '字段格式不正确'
 				}
 			}
 		}
@@ -117,19 +232,19 @@ export function validateFormField(
 }
 
 /**
- * 从 rules 对象中读取字段规则
+ * 从 rules 对象中读取字段规则列表
  */
 export function getFieldRules(
-	rules : UTSJSONObject,
+	rules : any | null,
 	prop : string,
-	localRules : FormValidationRule[]
-) : FormValidationRule[] {
-	if (localRules.length > 0) {
-		return localRules
+	localRules : any | null
+) : any[] {
+	const local = normalizeRulesList(localRules)
+	if (local.length > 0) {
+		return local
 	}
-	const fieldRules = rules[prop]
-	if (fieldRules == null) {
+	if (prop == '') {
 		return []
 	}
-	return fieldRules as FormValidationRule[]
+	return normalizeRulesList(readObjectProperty(rules, prop))
 }

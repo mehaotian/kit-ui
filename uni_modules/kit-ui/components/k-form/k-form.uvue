@@ -1,6 +1,6 @@
 <script setup lang="uts">
 	import { inject, computed, provide } from 'vue'
-	import { FormItemInstance } from './utils.uts'
+	import { FormItemInstance, toJSONObject } from './utils.uts'
 
 	defineOptions({
 		name: 'KForm'
@@ -12,8 +12,10 @@
 	 */
 
 	type KFormProps = {
-		model ?: UTSJSONObject
-		rules ?: UTSJSONObject
+		/** 表单数据，支持 reactive 对象（APP 端非 UTSJSONObject 字面量） */
+		model ?: any
+		/** 校验规则对象 */
+		rules ?: any
 		labelWidth ?: string
 		labelAlign ?: string
 		labelPosition ?: string
@@ -24,8 +26,8 @@
 	}
 
 	const props = withDefaults(defineProps<KFormProps>(), {
-		model: (): UTSJSONObject => ({}),
-		rules: (): UTSJSONObject => ({}),
+		model: (): any => ({}),
+		rules: (): any => ({}),
 		labelWidth: '80px',
 		labelAlign: 'left',
 		labelPosition: 'left',
@@ -109,12 +111,18 @@
 	const submit = () => {
 		const valid = validate()
 		if (valid) {
-			emit('submit', props.model)
+			emit('submit', toJSONObject(props.model))
 		}
 	}
 
-	provide('k-form-model', computed((): UTSJSONObject => props.model))
-	provide('k-form-rules', computed((): UTSJSONObject => props.rules))
+	/**
+	 * 向下传递 model / rules（保持 reactive 引用，勿强转为 UTSJSONObject）
+	 */
+	const resolvedModel = computed((): any => props.model)
+	const resolvedRules = computed((): any => props.rules)
+
+	provide('k-form-model', resolvedModel)
+	provide('k-form-rules', resolvedRules)
 	provide('k-form-label-width', computed((): string => props.labelWidth))
 	provide('k-form-label-align', computed((): string => props.labelAlign))
 	provide('k-form-label-position', computed((): string => props.labelPosition))
@@ -139,7 +147,9 @@
 		}"
 		:style="wrapperThemeStyle"
 	>
-		<slot></slot>
+		<view class="k-form__body">
+			<slot></slot>
+		</view>
 	</view>
 </template>
 
@@ -150,6 +160,12 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
+
+		&__body {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+		}
 
 		&--border {
 			border-width: 1px;

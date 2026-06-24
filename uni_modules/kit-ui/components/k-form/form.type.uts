@@ -1,5 +1,6 @@
 /**
- * k-form 对外暴露的实例方法类型
+ * k-form defineExpose 方法签名（文档与非 easycom 场景参考）
+ * APP 页面 ref 请使用 easycom 生成的 KFormComponentPublicInstance
  */
 export type KFormExpose = {
 	validate : () => boolean

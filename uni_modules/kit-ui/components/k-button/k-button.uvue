@@ -577,7 +577,8 @@
 		&__text {
 			font-size: var(--k-font-size-base, 14px);
 			font-weight: 400;
-			// text-align: center;
+			text-align: center;
+			line-height: 1;
 			color: var(--k-text-color, #374151);
 		}
 
