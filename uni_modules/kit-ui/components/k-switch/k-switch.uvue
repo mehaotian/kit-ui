@@ -1,7 +1,7 @@
 <script setup lang="uts">
-	import { inject, computed, ref, watch, onMounted } from 'vue'
+	import { inject, computed, ref, watch, onMounted, type ComputedRef } from 'vue'
 	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
-	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY, K_FORM_ITEM_DISABLED_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-switch 开关
@@ -50,6 +50,7 @@
 		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
 		null
 	)
+	const formItemDisabled = inject<ComputedRef<boolean> | null>(K_FORM_ITEM_DISABLED_KEY, null)
 
 	// #ifdef APP
 	const trackRef = ref<UniElement | null>(null)
@@ -72,6 +73,19 @@
 
 	const sizeStyle = computed((): SwitchSizeStyle => {
 		return parseSize(props.size)
+	})
+
+	/**
+	 * 实际禁用状态（组件 disabled 或表单项禁用）
+	 */
+	const resolvedDisabled = computed((): boolean => {
+		if (props.disabled) {
+			return true
+		}
+		if (formItemDisabled != null && formItemDisabled.value) {
+			return true
+		}
+		return false
 	})
 
 	/**
@@ -236,7 +250,7 @@
 	 * 按下反馈类名
 	 */
 	const pressHoverClass = computed((): string => {
-		if (props.disabled || props.loading) {
+		if (resolvedDisabled.value || props.loading) {
 			return ''
 		}
 		return 'k-switch__track--pressed'
@@ -246,7 +260,7 @@
 	 * 处理开关切换
 	 */
 	const handleTap = () => {
-		if (props.disabled || props.loading) {
+		if (resolvedDisabled.value || props.loading) {
 			return
 		}
 		const nextValue = isActive.value ? props.inactiveValue : props.activeValue
@@ -265,7 +279,7 @@
 			`k-switch--${size}`,
 			{
 				'k-switch--checked': isActive,
-				'k-switch--disabled': disabled,
+				'k-switch--disabled': resolvedDisabled,
 				'k-switch--loading': loading
 			}
 		]"

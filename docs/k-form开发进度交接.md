@@ -1,8 +1,10 @@
 # k-form 开发进度交接（复制给新会话用）
 
-> 更新说明：Phase 1 代码主体已落地，APP Kotlin 编译问题已按全项目 UTS 约束修复；**Phase 2（自定义/异步/trigger）尚未开始**。
+> 更新说明：Phase 1 ~ Phase 3 核心目标已完成，`k-form` 三端冒烟验收已通过；当前进入 **Phase 4 收口与沉淀**。
 >
 > 关联：`docs/k-form表单校验开发计划.md`（总计划）、`docs/UTS与APP编译约束.md`（全项目 UTS 红线）
+>
+> 验收清单：`docs/k-form三端冒烟验收清单.md`
 
 ---
 
@@ -20,10 +22,10 @@
 | 阶段 | 状态 | 说明 |
 | --- | --- | --- |
 | **Phase 0** 基线稳定 | ✅ 基本完成 | APP model/rules、ComponentPublicInstance ref、button-native 条件编译 |
-| **Phase 1** 规则+引擎 | ✅ 代码完成 / ⚠️ 三端冒烟待确认 | 见下文「已完成清单」 |
-| **Phase 2** 自定义+异步+trigger | ❌ 未开始 | **建议下一步** |
-| **Phase 3** 体验增强 | ❌ 未开始 | enum、scrollToError、控件协同等 |
-| **Phase 4** 沉淀规范 | 🔶 部分 | UTS 技能/文档已做；表单专项规则参考未写 |
+| **Phase 1** 规则+引擎 | ✅ 已完成 | 三端冒烟已通过 |
+| **Phase 2** 自定义+异步+trigger | ✅ 已完成 | async 链路、trigger、validating、示例、严格提交已落地 |
+| **Phase 3** 体验增强 | ✅ 已完成 | `enum/len/whitespace`、`resetValidation(props?)/clearValidate`、`validateStatus`、message 优先级、disabled 生效已落地 |
+| **Phase 4** 沉淀规范 | 🔶 进行中 | UTS 技能、规则参考、发布说明、看板状态已同步；待专项约束与性能基线实测 |
 
 ---
 
@@ -60,45 +62,43 @@
 | `pages/form/form.uvue` | 基础用法、状态、边界（radio/checkbox/switch/textarea）、主题 |
 | `pages/form-validate/form-validate.uvue` | rule 工厂、type 预设、pattern/regexp、getFieldsError、原生 input |
 
-### 3.4 Phase 1 DoD 自检（待新会话确认）
+### 3.4 Phase 1 DoD 自检（已完成）
 
-- [ ] WEB / APP / 微信 MP 三端冒烟（手机、邮箱、pattern、提交失败展示）
-- [ ] APP 全量编译无 Kotlin 错误
-- [ ] 原生 `input` + v-model 校验在 APP 实测
-- [ ] 计划文档 `k-form表单校验开发计划.md` 中 Phase 1 任务勾选更新
+- [x] WEB / APP / 微信 MP 三端冒烟（手机、邮箱、pattern、提交失败展示）
+- [x] APP 全量编译无 Kotlin 错误
+- [x] 原生 `input` + v-model 校验在 APP 实测
+- [x] 计划文档 `k-form表单校验开发计划.md` 中 Phase 1 任务勾选更新
 
 ---
 
-## 4. 明确未做（Phase 2 及以后）
+## 4. Phase 2 当前进度（2026-06-25）
 
-### 4.1 引擎层（validate-engine.uts）
+### 4.1 已完成（代码已落地）
 
-- [ ] 规则字段 `validator` 同步回调（true/false/string）
-- [ ] `asyncValidator` + `validateAsync`
-- [ ] 按 `trigger` 过滤规则（submit / blur / change）
-- [ ] 含 `validator` 的 rules **不能** JSON 序列化整对象（需直读或项级 rules）
+- [x] `validator` 同步回调（true/false/string）
+- [x] `asyncValidator` + `validateAsync`（含 `ruleAsync`）
+- [x] `k-form.validateAsync()` / `validateFieldAsync()`
+- [x] `trigger`：submit / blur / change
+- [x] `k-input` / `k-textarea` blur/change 联动
+- [x] `k-radio(-group)` / `k-checkbox(-group)` / `k-switch` change 联动
+- [x] `k-form-item--validating` 状态与“校验中...”提示
+- [x] async 防抖（change 300ms）+ 竞态保护（仅回写最新结果）
+- [x] 跨字段校验 demo（密码 / 确认密码）
+- [x] 异步可用性 demo（本地模拟远程查重）
 
-### 4.2 API 层
+### 4.2 待收尾（进入 Phase 3 前）
 
-- [ ] `k-form.validateField(prop)` / 异步校验入口
-- [ ] `k-form-item` 响应 `trigger`（blur/change 自动校验）
-- [ ] `k-input` / `k-textarea` 转发 blur/change 到表单项
-- [ ] `k-form-item--validating` 状态类
-- [ ] async 防抖（同字段约 300ms）
+- [x] 将异步 demo 从 `setTimeout` 升级为 `uni.request`（失败回落本地兜底）
+- [x] WEB / APP / 微信 MP 三端完整冒烟记录
+- [x] `docs/k-form表单校验开发计划.md` 勾选与里程碑状态同步到最新
 
-### 4.3 演示与文档
+### 4.3 Phase 3 进度（下一步）
 
-- [ ] 异步 demo（uni.request 模拟用户名占用）
-- [ ] 跨字段校验 demo（密码/确认密码）
-- [ ] `docs/k-form校验规则参考.md`（Phase 4）
-- [ ] `k-form-item/README.md` 与代码同步（若有 API 变更）
-
-### 4.3 Phase 3 摘录（更远）
-
-- `resetValidation(props?)`、`clearValidate`、`validateStatus` 手动控制
-- radio/checkbox/switch change 触发
-- scrollToError（APP scroll-view）
-- 可选 `k-form-control` 薄包装
+- [x] `enum` / `len` / `whitespace` 规则扩展（引擎 + 工厂 + demo）
+- [x] `resetValidation(props?)`、`clearValidate(props?)`（k-form expose）
+- [x] `validateStatus` 手动控制（k-form-item + demo）
+- [x] 错误文案优先级（项级 > 表单级 > 默认模板）
+- [ ] `scrollToError`（可选，APP `scroll-view` 方案）
 
 ---
 
@@ -119,17 +119,14 @@
 
 ---
 
-## 6. 推荐下一步（Phase 2 实施顺序）
+## 6. 推荐下一步（Phase 2 收尾 → Phase 3）
 
-与计划「关键路径」一致：
+建议按以下顺序推进：
 
 ```text
-1. form-utils：rules 含 validator 时的安全读取（不 JSON 整对象）
-2. validate-engine：validator 同步 → validateAsync + asyncValidator
-3. k-form / k-form-item：validateField、trigger 过滤
-4. k-input / k-textarea：blur/change 转发（或文档约定）
-5. form-validate 页：async demo + 跨字段 demo
-6. 三端冒烟 + README/trigger 说明 + 更新计划文档 Phase 2 勾选
+1. 评估可选项：scrollToError（APP scroll-view 方案）
+2. 补充 Phase 4 沉淀项：规则专项约束、cross-platform 扩展
+3. 完成一期验收清单勾选与性能基线记录
 ```
 
 **Phase 2 任务 ID（计划原文）**：P2-1 ~ P2-10，见 `docs/k-form表单校验开发计划.md` §6 Phase 2。
@@ -141,11 +138,12 @@
 ### 规则工厂用法
 
 ```uts
-import { ruleRequired, rulePhone, ruleRange } from '@/uni_modules/kit-ui/components/k-form/validators.uts'
+import { ruleRequired, rulePhone, ruleRange, ruleWithTrigger } from '@/uni_modules/kit-ui/components/k-form/validators.uts'
 
 const rules = {
-  phone: [ruleRequired('请输入手机号'), rulePhone()],
-  age: [ruleRequired('请输入年龄'), ruleRange(1, 120)]
+  phone: [ruleRequired('请输入手机号'), rulePhone('')],
+  age: [ruleRequired('请输入年龄'), ruleRange(1, 120, '')],
+  username: [ruleWithTrigger({ minLength: 2, message: '至少 2 个字符' }, 'blur')]
 }
 ```
 
@@ -163,20 +161,20 @@ formRef.value?.getFieldsError?.()
 
 ### 原生 input blur
 
-- 在 **能 inject 到 k-form-item 的子组件** 内：`createFormBlurHandler()`
-- 页面级 slot 内原生 input：提交时 `formRef.validate()` 或待 Phase 2 trigger
+- 在 **能 inject 到 k-form-item 的子组件** 内：`createFieldHandler('blur')`
+- 页面级 slot 内原生 input：`formRef.value?.validateField?.('phone', 'blur')`
 
 ---
 
 ## 8. 给新会话的提示词模板
 
 ```text
-继续 kit-ui k-form 开发，从 Phase 2 开始：
-- 先读 docs/k-form开发进度交接.md 与 docs/k-form表单校验开发计划.md Phase 2
+继续 kit-ui k-form 开发，从 Phase 4 收口开始：
+- 先读 docs/k-form开发进度交接.md 与 docs/k-form表单校验开发计划.md Phase 4
 - 遵守 docs/UTS与APP编译约束.md / skill kit-ui-uts-app-compat
-- 实现 validator、asyncValidator、trigger、validateField
-- k-input blur 联动、form-validate 异步 demo
-- 改完后 APP 全量编译 + 更新 README
+- 收口文档与看板状态
+- 评估 scrollToError 可选能力
+- 产出表单专项规则参考文档
 ```
 
 ---

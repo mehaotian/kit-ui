@@ -1,6 +1,7 @@
 <script setup lang="uts">
 	import { inject, computed, provide } from 'vue'
 	import { FormItemInstance, toJSONObject } from './utils.uts'
+	import { buildThemeStyle } from '../../utils/theme.uts'
 	import {
 		K_FORM_MODEL_KEY,
 		K_FORM_RULES_KEY,
@@ -60,32 +61,26 @@
 	 * 注入主题 CSS 变量
 	 */
 	const wrapperThemeStyle = computed((): string => {
-		const styles: string[] = []
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-		if (props.customStyle != '') {
-			styles.push(props.customStyle)
-		}
-		return styles.join('; ')
+		return buildThemeStyle(themeConfig, props.customStyle)
 	})
 
 	/**
 	 * 注册表单项
 	 */
 	const registerFormItem = (item : FormItemInstance) => {
+		const existedIndex = formItems.findIndex((formItem : FormItemInstance) => formItem.id == item.id)
+		if (existedIndex >= 0) {
+			formItems.splice(existedIndex, 1, item)
+			return
+		}
 		formItems.push(item)
 	}
 
 	/**
 	 * 卸载表单项
 	 */
-	const unregisterFormItem = (prop : string) => {
-		const index = formItems.findIndex((item : FormItemInstance) => item.prop == prop)
+	const unregisterFormItem = (id : string) => {
+		const index = formItems.findIndex((item : FormItemInstance) => item.id == id)
 		if (index >= 0) {
 			formItems.splice(index, 1)
 		}
@@ -122,6 +117,34 @@
 	}
 
 	/**
+	 * 异步校验整个表单（顺序执行，避免并发写入状态）
+	 */
+	const validateAsync = (): Promise<boolean> => {
+		return new Promise((resolve : (value : boolean) => void) => {
+			let valid = true
+			let chain : Promise<boolean> = Promise.resolve(true)
+			formItems.forEach((item : FormItemInstance) => {
+				chain = chain.then((_ok : boolean) : Promise<boolean> => {
+					return item.validateAsync().then((itemValid : boolean) : boolean => {
+						if (!itemValid) {
+							valid = false
+						}
+						return true
+					}).catch((_err) : boolean => {
+						valid = false
+						return false
+					})
+				})
+			})
+			chain.then((_ok : boolean) => {
+				const errors = collectFieldErrors()
+				emit('validate', valid, errors)
+				resolve(valid)
+			})
+		})
+	}
+
+	/**
 	 * 获取各字段错误信息
 	 */
 	const getFieldsError = (): UTSJSONObject => {
@@ -144,22 +167,87 @@
 	}
 
 	/**
+	 * 异步校验单个字段（trigger 传空串时等同 submit）
+	 */
+	function validateFieldAsync(prop : string, trigger : string = 'submit') : Promise<boolean> {
+		const item = formItems.find((formItem : FormItemInstance) => formItem.prop == prop)
+		if (item == null) {
+			return Promise.resolve(true)
+		}
+		const resolvedTrigger = trigger != '' ? trigger : 'submit'
+		if (resolvedTrigger == 'submit') {
+			return item.validateAsync()
+		}
+		return item.validateByTriggerAsync(resolvedTrigger)
+	}
+
+	/**
+	 * 规范化字段参数（支持 string / string[] / 空）
+	 */
+	function normalizePropsInput(propsInput : string[] | string | null) : string[] {
+		if (propsInput == null) {
+			return []
+		}
+		if (typeof propsInput == 'string') {
+			return propsInput != '' ? [propsInput] : []
+		}
+		if (!Array.isArray(propsInput)) {
+			return []
+		}
+		const propsList : string[] = []
+		for (let i = 0; i < propsInput.length; i++) {
+			const propName = propsInput[i]
+			if (typeof propName == 'string' && propName != '') {
+				propsList.push(propName)
+			}
+		}
+		return propsList
+	}
+
+	/**
+	 * 判断表单项是否在目标字段集合内
+	 */
+	function shouldHandleItem(item : FormItemInstance, targetProps : string[]) : boolean {
+		if (targetProps.length == 0) {
+			return true
+		}
+		for (let i = 0; i < targetProps.length; i++) {
+			if (item.prop == targetProps[i]) {
+				return true
+			}
+		}
+		return false
+	}
+
+	/**
 	 * 重置校验状态
 	 */
-	const resetValidation = () => {
+	function resetValidation(propsInput : string[] | string | null = null) {
+		const targetProps = normalizePropsInput(propsInput)
 		formItems.forEach((item : FormItemInstance) => {
-			item.resetValidation()
+			if (shouldHandleItem(item, targetProps)) {
+				item.resetValidation()
+			}
 		})
 	}
 
 	/**
-	 * 提交表单：先校验再触发 submit
+	 * 清空校验提示（别名，语义同 resetValidation）
 	 */
-	const submit = () => {
-		const valid = validate()
-		if (valid) {
-			emit('submit', toJSONObject(props.model))
-		}
+	function clearValidate(propsInput : string[] | string | null = null) {
+		resetValidation(propsInput)
+	}
+
+	/**
+	 * 提交表单：严格校验（含异步）通过后触发 submit
+	 */
+	const submit = (): Promise<boolean> => {
+		return validateAsync().then((valid : boolean) : boolean => {
+			if (valid) {
+				emit('submit', toJSONObject(props.model))
+			}
+			return valid
+		})
 	}
 
 	/**
@@ -181,7 +269,10 @@
 	defineExpose({
 		validate,
 		validateField,
+		validateAsync,
+		validateFieldAsync,
 		resetValidation,
+		clearValidate,
 		submit,
 		getFieldsError
 	})

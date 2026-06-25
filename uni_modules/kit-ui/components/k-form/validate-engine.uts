@@ -4,7 +4,9 @@ import {
 	readRuleBoolean,
 	readRuleString,
 	readRuleNumber,
+	readObjectProperty,
 	invokeRuleValidator,
+	invokeRuleAsyncValidator,
 	toNumberValue
 } from './form-utils.uts'
 import { resolvePatternByType } from './validators.uts'
@@ -31,8 +33,50 @@ function matchPattern(value : any, pattern : string) : boolean {
 	if (pattern == '') {
 		return true
 	}
-	const reg = new RegExp(pattern)
-	return reg.test(`${value}`)
+	try {
+		const reg = new RegExp(pattern)
+		return reg.test(`${value}`)
+	} catch (_err) {
+		return false
+	}
+}
+
+/**
+ * 获取值长度（字符串长度 / 数组长度）
+ */
+function getValueLength(value : any) : number {
+	if (value == null) {
+		return 0
+	}
+	if (Array.isArray(value)) {
+		return value.length
+	}
+	return `${value}`.length
+}
+
+/**
+ * 判断文本是否仅包含空白字符
+ */
+function isBlankText(value : any) : boolean {
+	if (typeof value != 'string') {
+		return false
+	}
+	return value.trim() == ''
+}
+
+/**
+ * 判断 enum 列表是否包含当前值
+ */
+function isInEnumList(value : any, enumValues : any) : boolean {
+	if (!Array.isArray(enumValues)) {
+		return true
+	}
+	for (let i = 0; i < enumValues.length; i++) {
+		if (enumValues[i] == value) {
+			return true
+		}
+	}
+	return false
 }
 
 /**
@@ -119,6 +163,135 @@ function runRuleValidator(
 }
 
 /**
+ * 执行自定义 asyncValidator 回调（返回 Promise<boolean | string>）
+ */
+function runRuleAsyncValidator(
+	value : any,
+	rule : any,
+	model : any | null,
+	message : string | null,
+	asyncMessage : string | null
+) : Promise<FormValidateResult | null> {
+	const required = readRuleBoolean(rule, 'required')
+	if (required != true && isEmptyValue(value)) {
+		return Promise.resolve(null)
+	}
+	const promise = invokeRuleAsyncValidator(rule, value, model)
+	if (promise == null) {
+		return Promise.resolve(null)
+	}
+	return promise.then((result : boolean | string) : FormValidateResult | null => {
+		if (result == true) {
+			return null
+		}
+		if (result == false) {
+			const fallbackMessage = asyncMessage != null ? asyncMessage : message
+			return failResult(fallbackMessage, '异步校验失败')
+		}
+		if (typeof result == 'string' && result != '') {
+			return failResult(result, '异步校验失败')
+		}
+		return null
+	}).catch((_err) : FormValidateResult | null => {
+		const fallbackMessage = asyncMessage != null ? asyncMessage : message
+		return failResult(fallbackMessage, '异步校验失败')
+	})
+}
+
+/**
+ * 同步校验单条规则（不包含 asyncValidator）
+ */
+function validateSingleRuleSync(
+	value : any,
+	rule : any,
+	model : any | null
+) : FormValidateResult | null {
+	const required = readRuleBoolean(rule, 'required')
+	const message = readRuleString(rule, 'message')
+	const ruleType = readRuleString(rule, 'type')
+	const minLength = readRuleNumber(rule, 'minLength')
+	const maxLength = readRuleNumber(rule, 'maxLength')
+	const len = readRuleNumber(rule, 'len')
+	const min = readRuleNumber(rule, 'min')
+	const max = readRuleNumber(rule, 'max')
+	const whitespace = readRuleBoolean(rule, 'whitespace')
+	const enumValues = readObjectProperty(rule, 'enum')
+	const pattern = readRuleString(rule, 'pattern')
+	const regexp = readRuleString(rule, 'regexp')
+	const resolvedPattern = pattern != null && pattern != '' ? pattern : regexp
+
+	if (required == true && isEmptyValue(value)) {
+		return failResult(message, '此字段为必填项')
+	}
+
+	if (required != true && isEmptyValue(value)) {
+		return null
+	}
+
+	if (whitespace == false && isBlankText(value)) {
+		return failResult(message, '此字段不能为空白字符')
+	}
+
+	if (ruleType != null && ruleType != '') {
+		const typeResult = validateByType(value, ruleType, message)
+		if (typeResult != null) {
+			return typeResult
+		}
+		if (ruleType == 'number' || ruleType == 'integer') {
+			const num = toNumberValue(value)
+			if (min != null && num < min) {
+				return failResult(message, `值不能小于${min}`)
+			}
+			if (max != null && num > max) {
+				return failResult(message, `值不能大于${max}`)
+			}
+		}
+	}
+
+	const valueLength = getValueLength(value)
+
+	if (len != null && valueLength != len) {
+		return failResult(message, `长度必须为${len}个字符`)
+	}
+
+	if (minLength != null && valueLength < minLength) {
+		return failResult(message, `长度不能少于${minLength}个字符`)
+	}
+
+	if (maxLength != null && valueLength > maxLength) {
+		return failResult(message, `长度不能超过${maxLength}个字符`)
+	}
+
+	if (enumValues != null && !isInEnumList(value, enumValues)) {
+		return failResult(message, '字段值不在允许范围内')
+	}
+
+	if (min != null && ruleType != 'number' && ruleType != 'integer') {
+		if (toNumberValue(value) < min) {
+			return failResult(message, `值不能小于${min}`)
+		}
+	}
+
+	if (max != null && ruleType != 'number' && ruleType != 'integer') {
+		if (toNumberValue(value) > max) {
+			return failResult(message, `值不能大于${max}`)
+		}
+	}
+
+	if (resolvedPattern != null && resolvedPattern != '') {
+		if (!matchPattern(value, resolvedPattern)) {
+			return failResult(message, '字段格式不正确')
+		}
+	}
+
+	const customResult = runRuleValidator(value, rule, model, message)
+	if (customResult != null) {
+		return customResult
+	}
+	return null
+}
+
+/**
  * 同步校验单个字段（规则管道顺序执行）
  */
 export function validateSync(
@@ -128,74 +301,59 @@ export function validateSync(
 ) : FormValidateResult {
 	for (let i = 0; i < rules.length; i++) {
 		const rule = rules[i]
-		const required = readRuleBoolean(rule, 'required')
-		const message = readRuleString(rule, 'message')
-		const ruleType = readRuleString(rule, 'type')
-		const minLength = readRuleNumber(rule, 'minLength')
-		const maxLength = readRuleNumber(rule, 'maxLength')
-		const min = readRuleNumber(rule, 'min')
-		const max = readRuleNumber(rule, 'max')
-		const pattern = readRuleString(rule, 'pattern')
-		const regexp = readRuleString(rule, 'regexp')
-		const resolvedPattern = pattern != null && pattern != '' ? pattern : regexp
-
-		if (required == true && isEmptyValue(value)) {
-			return failResult(message, '此字段为必填项')
-		}
-
-		if (required != true && isEmptyValue(value)) {
-			continue
-		}
-
-		if (ruleType != null && ruleType != '') {
-			const typeResult = validateByType(value, ruleType, message)
-			if (typeResult != null) {
-				return typeResult
-			}
-			if (ruleType == 'number' || ruleType == 'integer') {
-				const num = toNumberValue(value)
-				if (min != null && num < min) {
-					return failResult(message, `值不能小于${min}`)
-				}
-				if (max != null && num > max) {
-					return failResult(message, `值不能大于${max}`)
-				}
-			}
-		}
-
-		if (minLength != null && `${value}`.length < minLength) {
-			return failResult(message, `长度不能少于${minLength}个字符`)
-		}
-
-		if (maxLength != null && `${value}`.length > maxLength) {
-			return failResult(message, `长度不能超过${maxLength}个字符`)
-		}
-
-		if (min != null && ruleType != 'number' && ruleType != 'integer') {
-			if (toNumberValue(value) < min) {
-				return failResult(message, `值不能小于${min}`)
-			}
-		}
-
-		if (max != null && ruleType != 'number' && ruleType != 'integer') {
-			if (toNumberValue(value) > max) {
-				return failResult(message, `值不能大于${max}`)
-			}
-		}
-
-		if (resolvedPattern != null && resolvedPattern != '') {
-			if (!matchPattern(value, resolvedPattern)) {
-				return failResult(message, '字段格式不正确')
-			}
-		}
-
-		const customResult = runRuleValidator(value, rule, model, message)
-		if (customResult != null) {
-			return customResult
+		const result = validateSingleRuleSync(value, rule, model)
+		if (result != null) {
+			return result
 		}
 	}
 
 	return okResult()
+}
+
+/**
+ * 异步校验单个字段（同步规则通过后再执行 asyncValidator）
+ */
+export function validateAsync(
+	value : any,
+	rules : any[],
+	model : any | null = null
+) : Promise<FormValidateResult> {
+	let hasStopped = false
+	let stoppedResult = okResult()
+	let chain : Promise<boolean> = Promise.resolve(true)
+
+	rules.forEach((rule : any) => {
+		chain = chain.then((_ok : boolean) : Promise<boolean> => {
+			if (hasStopped) {
+				return Promise.resolve(false)
+			}
+			const syncResult = validateSingleRuleSync(value, rule, model)
+			if (syncResult != null) {
+				hasStopped = true
+				stoppedResult = syncResult
+				return Promise.resolve(false)
+			}
+			const message = readRuleString(rule, 'message')
+			const asyncMessage = readRuleString(rule, 'asyncMessage')
+			return runRuleAsyncValidator(value, rule, model, message, asyncMessage).then(
+				(asyncResult : FormValidateResult | null) : boolean => {
+					if (asyncResult != null) {
+						hasStopped = true
+						stoppedResult = asyncResult
+						return false
+					}
+					return true
+				}
+			)
+		})
+	})
+
+	return chain.then((_ok : boolean) : FormValidateResult => {
+		if (hasStopped) {
+			return stoppedResult
+		}
+		return okResult()
+	})
 }
 
 /**

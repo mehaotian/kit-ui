@@ -1,12 +1,14 @@
 <script setup lang="uts">
 	import { inject, computed, onMounted, onUnmounted, provide, ref, type ComputedRef } from 'vue'
+	import { buildThemeStyle } from '../../utils/theme.uts'
 	import {
 		getFieldRules,
 		readModelProperty,
 		isRuleRequired,
-		filterRulesByTrigger
+		filterRulesByTrigger,
+		readRuleFunction
 	} from '../k-form/form-utils.uts'
-	import { validateSync } from '../k-form/validate-engine.uts'
+	import { validateSync, validateAsync } from '../k-form/validate-engine.uts'
 	import {
 		K_FORM_MODEL_KEY,
 		K_FORM_RULES_KEY,
@@ -19,7 +21,8 @@
 		K_FORM_UNREGISTER_ITEM_KEY,
 		K_FORM_ITEM_VALIDATE_KEY,
 		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
-		K_FORM_ITEM_PROP_KEY
+		K_FORM_ITEM_PROP_KEY,
+		K_FORM_ITEM_DISABLED_KEY
 	} from '../k-form/form-context.uts'
 	import type { FormItemInstance } from '../k-form/form.type.uts'
 
@@ -35,6 +38,7 @@
 		rules ?: any | null
 		labelWidth ?: string
 		contentAlign ?: string
+		validateStatus ?: string
 		borderBottom ?: boolean
 		errorMessage ?: string
 		customStyle ?: string
@@ -47,6 +51,7 @@
 		rules: null,
 		labelWidth: '',
 		contentAlign: 'center',
+		validateStatus: '',
 		borderBottom: true,
 		errorMessage: '',
 		customStyle: ''
@@ -61,9 +66,15 @@
 	const formDisabled = inject<ComputedRef<boolean> | null>(K_FORM_DISABLED_KEY, null)
 	const formShowError = inject<ComputedRef<boolean> | null>(K_FORM_SHOW_ERROR_KEY, null)
 	const registerFormItem = inject<((item: FormItemInstance) => void) | null>(K_FORM_REGISTER_ITEM_KEY, null)
-	const unregisterFormItem = inject<((prop: string) => void) | null>(K_FORM_UNREGISTER_ITEM_KEY, null)
+	const unregisterFormItem = inject<((id: string) => void) | null>(K_FORM_UNREGISTER_ITEM_KEY, null)
+
+	const formItemId = `k-form-item-${Date.now()}-${Math.floor(Math.random() * 1000000)}`
 
 	const innerErrorMessage = ref<string>('')
+	const isValidating = ref<boolean>(false)
+	const asyncValidateToken = ref<number>(0)
+	const asyncDebounceTimer = ref<number>(0)
+	const ASYNC_VALIDATE_DEBOUNCE_MS = 300
 
 	/**
 	 * 合并表单级与项级校验规则
@@ -99,14 +110,52 @@
 	}
 
 	/**
+	 * 是否包含 asyncValidator 规则
+	 */
+	const hasAsyncRule = (rules : any[]): boolean => {
+		for (let i = 0; i < rules.length; i++) {
+			if (readRuleFunction(rules[i], 'asyncValidator') != null) {
+				return true
+			}
+		}
+		return false
+	}
+
+	/**
+	 * 获取当前 trigger 对应规则
+	 */
+	const getTriggerRules = (trigger : string): any[] => {
+		const allRules = getMergedRules()
+		return filterRulesByTrigger(allRules, trigger)
+	}
+
+	/**
+	 * 清理异步校验防抖定时器
+	 */
+	const clearAsyncDebounceTimer = () => {
+		if (asyncDebounceTimer.value > 0) {
+			clearTimeout(asyncDebounceTimer.value)
+			asyncDebounceTimer.value = 0
+		}
+	}
+
+	/**
+	 * 取消进行中的异步校验（用于避免旧结果回写）
+	 */
+	const cancelPendingAsyncValidate = () => {
+		clearAsyncDebounceTimer()
+		asyncValidateToken.value += 1
+		isValidating.value = false
+	}
+
+	/**
 	 * 内部校验执行（须在使用方之前声明，APP 不支持 const 箭头提前引用）
 	 */
 	function runFieldValidate(trigger : string) : boolean {
 		if (props.prop == '') {
 			return true
 		}
-		const allRules = getMergedRules()
-		const rules = filterRulesByTrigger(allRules, trigger)
+		const rules = getTriggerRules(trigger)
 		if (rules.length == 0) {
 			return true
 		}
@@ -121,9 +170,64 @@
 	}
 
 	/**
+	 * 异步规则校验（含竞态保护，仅回写最新一次结果）
+	 */
+	function runFieldValidateAsync(trigger : string) : Promise<boolean> {
+		if (props.prop == '') {
+			return Promise.resolve(true)
+		}
+		const rules = getTriggerRules(trigger)
+		if (rules.length == 0) {
+			isValidating.value = false
+			return Promise.resolve(true)
+		}
+		const hasAsync = hasAsyncRule(rules)
+		const token = asyncValidateToken.value + 1
+		asyncValidateToken.value = token
+		isValidating.value = hasAsync
+		const modelValue = formModel != null ? formModel.value : null
+		return validateAsync(getFieldValue(), rules, modelValue).then((result) : boolean => {
+			if (token != asyncValidateToken.value) {
+				return true
+			}
+			isValidating.value = false
+			if (!result.valid) {
+				innerErrorMessage.value = result.message
+				return false
+			}
+			innerErrorMessage.value = ''
+			return true
+		}).catch((_err) : boolean => {
+			if (token != asyncValidateToken.value) {
+				return true
+			}
+			isValidating.value = false
+			innerErrorMessage.value = '校验失败'
+			return false
+		})
+	}
+
+	/**
+	 * 触发异步校验（change 防抖，blur / submit 立即执行）
+	 */
+	const scheduleAsyncValidate = (trigger : string) => {
+		if (trigger == 'change') {
+			clearAsyncDebounceTimer()
+			asyncDebounceTimer.value = setTimeout(() => {
+				asyncDebounceTimer.value = 0
+				runFieldValidateAsync(trigger)
+			}, ASYNC_VALIDATE_DEBOUNCE_MS)
+			return
+		}
+		clearAsyncDebounceTimer()
+		runFieldValidateAsync(trigger)
+	}
+
+	/**
 	 * 执行字段校验（全部规则，用于 submit）
 	 */
 	const validate = (): boolean => {
+		cancelPendingAsyncValidate()
 		return runFieldValidate('submit')
 	}
 
@@ -131,17 +235,72 @@
 	 * 按 trigger 执行字段校验（blur / change 仅校验匹配规则）
 	 */
 	const validateByTrigger = (trigger : string): boolean => {
-		return runFieldValidate(trigger)
+		const passed = runFieldValidate(trigger)
+		if (!passed) {
+			cancelPendingAsyncValidate()
+			return false
+		}
+		const triggerRules = getTriggerRules(trigger)
+		if (hasAsyncRule(triggerRules)) {
+			scheduleAsyncValidate(trigger)
+			return true
+		}
+		cancelPendingAsyncValidate()
+		return true
 	}
+
+	/**
+	 * 执行字段异步校验（submit）
+	 */
+	const validateAsyncField = (): Promise<boolean> => {
+		cancelPendingAsyncValidate()
+		return runFieldValidateAsync('submit')
+	}
+
+	/**
+	 * 按 trigger 执行字段异步校验
+	 */
+	const validateByTriggerAsync = (trigger : string): Promise<boolean> => {
+		const passed = runFieldValidate(trigger)
+		if (!passed) {
+			cancelPendingAsyncValidate()
+			return Promise.resolve(false)
+		}
+		const triggerRules = getTriggerRules(trigger)
+		cancelPendingAsyncValidate()
+		if (!hasAsyncRule(triggerRules)) {
+			return Promise.resolve(true)
+		}
+		return runFieldValidateAsync(trigger)
+	}
+
+	/**
+	 * 是否处于异步校验中
+	 */
+	const getValidating = (): boolean => {
+		return isValidating.value
+	}
+
+	/**
+	 * 表单项禁用状态（继承 form.disabled）
+	 */
+	const resolvedItemDisabled = computed((): boolean => {
+		if (formDisabled != null) {
+			return formDisabled.value
+		}
+		return false
+	})
 
 	provide(K_FORM_ITEM_VALIDATE_KEY, validate)
 	provide(K_FORM_ITEM_VALIDATE_TRIGGER_KEY, validateByTrigger)
 	provide(K_FORM_ITEM_PROP_KEY, props.prop)
+	provide(K_FORM_ITEM_DISABLED_KEY, resolvedItemDisabled)
 
 	/**
 	 * 重置校验状态
 	 */
 	const resetValidation = () => {
+		cancelPendingAsyncValidate()
 		innerErrorMessage.value = ''
 	}
 
@@ -205,12 +364,9 @@
 	})
 
 	/**
-	 * 是否显示错误信息
+	 * 是否存在错误（不包含 validating）
 	 */
-	const showError = computed((): boolean => {
-		if (formShowError != null && !formShowError.value) {
-			return false
-		}
+	const hasError = computed((): boolean => {
 		if (props.errorMessage != '') {
 			return true
 		}
@@ -218,31 +374,83 @@
 	})
 
 	/**
-	 * 错误提示文案
+	 * 是否为受支持的手动状态
 	 */
-	const errorText = computed((): string => {
+	const isManualValidateStatus = (status : string): boolean => {
+		return status == 'success' || status == 'error' || status == 'validating'
+	}
+
+	/**
+	 * 最终状态：优先手动 validateStatus，否则走自动校验状态
+	 */
+	const resolvedValidateStatus = computed((): string => {
+		if (isManualValidateStatus(props.validateStatus)) {
+			return props.validateStatus
+		}
+		if (isValidating.value) {
+			return 'validating'
+		}
+		if (hasError.value) {
+			return 'error'
+		}
+		return ''
+	})
+
+	/**
+	 * 当前是否为 error 状态
+	 */
+	const isErrorStatus = computed((): boolean => {
+		return resolvedValidateStatus.value == 'error'
+	})
+
+	/**
+	 * 当前是否为 validating 状态
+	 */
+	const isValidatingStatus = computed((): boolean => {
+		return resolvedValidateStatus.value == 'validating'
+	})
+
+	/**
+	 * 当前是否为 success 状态
+	 */
+	const isSuccessStatus = computed((): boolean => {
+		return resolvedValidateStatus.value == 'success'
+	})
+
+	/**
+	 * 状态提示文案（优先显示 validating）
+	 */
+	const statusText = computed((): string => {
+		if (isValidatingStatus.value) {
+			return '校验中...'
+		}
 		if (props.errorMessage != '') {
 			return props.errorMessage
 		}
+		if (isErrorStatus.value && innerErrorMessage.value == '') {
+			return '校验未通过'
+		}
 		return innerErrorMessage.value
+	})
+
+	/**
+	 * 是否显示下方状态文案（错误或 validating）
+	 */
+	const showStatusMessage = computed((): boolean => {
+		if (formShowError != null && !formShowError.value) {
+			return false
+		}
+		if (!isErrorStatus.value && !isValidatingStatus.value) {
+			return false
+		}
+		return statusText.value != ''
 	})
 
 	/**
 	 * 注入主题 CSS 变量
 	 */
 	const wrapperThemeStyle = computed((): string => {
-		const styles: string[] = []
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-		if (props.customStyle != '') {
-			styles.push(props.customStyle)
-		}
-		return styles.join('; ')
+		return buildThemeStyle(themeConfig, props.customStyle)
 	})
 
 	/**
@@ -277,9 +485,13 @@
 	onMounted(() => {
 		if (registerFormItem != null && props.prop != '') {
 			registerFormItem({
+				id: formItemId,
 				prop: props.prop,
 				validate,
 				validateByTrigger,
+				validateAsync: validateAsyncField,
+				validateByTriggerAsync,
+				isValidating: getValidating,
 				resetValidation,
 				getErrorMessage
 			})
@@ -287,8 +499,9 @@
 	})
 
 	onUnmounted(() => {
-		if (unregisterFormItem != null && props.prop != '') {
-			unregisterFormItem(props.prop)
+		cancelPendingAsyncValidate()
+		if (unregisterFormItem != null) {
+			unregisterFormItem(formItemId)
 		}
 	})
 </script>
@@ -300,7 +513,9 @@
 			'k-form-item--top': isLabelTop,
 			'k-form-item--content-top': isContentTop,
 			'k-form-item--border': borderBottom,
-			'k-form-item--error': showError,
+			'k-form-item--error': isErrorStatus,
+			'k-form-item--validating': isValidatingStatus,
+			'k-form-item--success': isSuccessStatus,
 			'k-form-item--required': showRequiredMark
 		}"
 		:style="wrapperThemeStyle"
@@ -321,8 +536,14 @@
 				</view>
 			</view>
 		</view>
-		<view v-if="showError" class="k-form-item__error">
-			<text class="k-form-item__error-text">{{ errorText }}</text>
+		<view v-if="showStatusMessage" class="k-form-item__error">
+			<text
+				class="k-form-item__error-text"
+				:class="{
+					'k-form-item__error-text--validating': isValidatingStatus,
+					'k-form-item__error-text--success': isSuccessStatus
+				}"
+			>{{ statusText }}</text>
 		</view>
 	</view>
 </template>
@@ -418,6 +639,16 @@
 			border-color: var(--k-color-error, #ef4444);
 		}
 
+		&--validating .k-input-wrapper,
+		&--validating .k-textarea-wrapper {
+			border-color: var(--k-color-primary, #6366f1);
+		}
+
+		&--success .k-input-wrapper,
+		&--success .k-textarea-wrapper {
+			border-color: var(--k-color-success, #22c55e);
+		}
+
 		&__error {
 			margin-top: var(--k-spacing-xs, 4px);
 			padding-left: 0;
@@ -431,6 +662,14 @@
 		&__error-text {
 			font-size: var(--k-font-size-sm, 12px);
 			color: var(--k-color-error, #ef4444);
+
+			&--validating {
+				color: var(--k-color-primary, #6366f1);
+			}
+
+			&--success {
+				color: var(--k-color-success, #22c55e);
+			}
 		}
 	}
 </style>

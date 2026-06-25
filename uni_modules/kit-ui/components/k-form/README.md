@@ -21,8 +21,8 @@ const rules = {
   username: [{ required: true, message: '请输入用户名' }]
 }
 
-const handleSubmit = () => {
-  const valid = formRef.value?.validate?.() ?? false
+const handleSubmit = async () => {
+  const valid = await (formRef.value?.submit?.() ?? Promise.resolve(false))
   if (valid) {
     // 提交逻辑
   }
@@ -32,15 +32,18 @@ const handleSubmit = () => {
 
 ## FormRules 工厂
 
-推荐使用独立函数（跨端一致）：`ruleRequired`、`rulePhone`、`ruleEmail` 等。
+推荐使用独立函数（跨端一致）：`ruleRequired`、`rulePhone`、`ruleEmail`、`ruleEnum`、`ruleLen`、`ruleNoWhitespace` 等。
 
 ```uts
-import { ruleRequired, rulePhone, ruleEmail, ruleRange } from '@/uni_modules/kit-ui/components/k-form/validators.uts'
+import { ruleRequired, rulePhone, ruleEmail, ruleRange, ruleEnum, ruleLen, ruleNoWhitespace } from '@/uni_modules/kit-ui/components/k-form/validators.uts'
 
 const rules = {
   phone: [ruleRequired('请输入手机号'), rulePhone('')],
   email: [ruleRequired('请输入邮箱'), ruleEmail('')],
-  age: [ruleRequired('请输入年龄'), ruleRange(1, 120, '')]
+  age: [ruleRequired('请输入年龄'), ruleRange(1, 120, '')],
+  role: [ruleEnum(['admin', 'user'], '角色不合法')],
+  code: [ruleLen(6, '验证码必须为 6 位')],
+  nickname: [ruleNoWhitespace('昵称不能只有空格')]
 }
 ```
 
@@ -90,6 +93,35 @@ const confirmPasswordRules = [
 
 推荐将含 `validator` 的规则放在 **k-form-item `:rules`** 或 `ruleCustom` 工厂，避免表单级 rules 经 JSON 路径丢失函数。
 
+## 异步校验 asyncValidator
+
+使用 `ruleAsync` 声明异步规则，推荐配置 `trigger: blur`：
+
+```uts
+import { ruleRequired, ruleAsync } from '@/uni_modules/kit-ui/components/k-form/validators.uts'
+
+const usernameRules = [
+  ruleRequired('请输入用户名'),
+  ruleAsync((value, _rule, _model) => {
+    return new Promise((resolve) => {
+      uni.request({
+        url: `https://api.github.com/users/${value}`,
+        method: 'GET',
+        success: (res) => {
+          resolve(res.statusCode == 404 ? true : '用户名已被占用')
+        },
+        fail: () => {
+          // 本地兜底，保证离线或网络异常时示例可验证
+          resolve(value == 'admin' ? '用户名已被占用' : true)
+        }
+      })
+    })
+  }, '用户名校验失败，请稍后重试', 'blur')
+]
+```
+
+异步校验进行中会显示“校验中...”，并在完成后回写最新一次结果（内置防抖与竞态保护，支持 `uni.request` + 本地兜底）。
+
 ## 组件属性
 
 | 属性名 | 类型 | 默认值 | 说明 |
@@ -99,7 +131,7 @@ const confirmPasswordRules = [
 | labelWidth | String | `'80px'` | 默认标签宽度 |
 | labelAlign | String | `'left'` | 标签对齐：`left` / `right` |
 | labelPosition | String | `'left'` | 标签位置：`left` / `top` |
-| disabled | Boolean | `false` | 是否禁用（预留，子控件需自行传递） |
+| disabled | Boolean | `false` | 是否禁用（form 内控件统一禁用） |
 | showErrorMessage | Boolean | `true` | 是否显示错误提示 |
 | border | Boolean | `false` | 是否显示表单外边框 |
 | customStyle | String | `''` | 自定义内联样式 |
@@ -117,8 +149,11 @@ const confirmPasswordRules = [
 | --- | --- | --- |
 | validate | 校验全部表单项（全部规则） | `boolean` |
 | validateField | 校验单个字段，可选 trigger | `boolean` |
-| resetValidation | 清除全部错误提示 | - |
-| submit | 校验通过后触发 submit 事件 | - |
+| validateAsync | 异步校验全部表单项（同步+异步规则全量） | `Promise<boolean>` |
+| validateFieldAsync | 异步校验单字段，可选 trigger | `Promise<boolean>` |
+| resetValidation | 清除校验提示；可传 `prop` 或 `prop[]` 仅清除指定字段 | - |
+| clearValidate | `resetValidation` 别名；参数一致 | - |
+| submit | 严格校验（含异步）通过后触发 submit 事件 | `Promise<boolean>` |
 | getFieldsError | 获取各字段错误 map | `UTSJSONObject` |
 
 ## 校验规则
@@ -129,12 +164,17 @@ const confirmPasswordRules = [
 | --- | --- |
 | required | 是否必填 |
 | message | 错误提示 |
+| enum | 枚举值列表（值必须命中其中之一） |
+| len | 固定长度（字符串/数组） |
 | type | 见下表 |
 | minLength / maxLength | 字符串长度 |
 | min / max | 数值范围 |
+| whitespace | 设为 `false` 时，禁止仅空白字符（string） |
 | pattern / regexp | 正则字符串 |
 | trigger | `submit` / `blur` / `change`（默认仅 submit 时校验） |
 | validator | 自定义同步校验，返回 `true` / `false` / 错误字符串 |
+| asyncValidator | 自定义异步校验，返回 `Promise<boolean \| string>` |
+| asyncMessage | 异步失败默认文案 |
 
 ### type 预设
 
@@ -155,3 +195,6 @@ const confirmPasswordRules = [
 - 复杂控件（radio-group、checkbox-group）需在 rules 中指定 `type: 'array'` 等。
 - APP 页面 ref 使用 `KFormComponentPublicInstance`，勿自定义 `KFormExpose` 强转。
 - 含 `validator` 的规则请用 `ruleCustom` 或项级 `:rules`，勿依赖 JSON 序列化路径。
+- 错误文案优先级：`k-form-item :rules` 的 `message` > `k-form :rules` 的 `message` > 引擎默认文案。
+- `submit()` 为严格校验入口，返回 `Promise<boolean>`；校验通过后才触发 `submit` 事件。
+- `validateField(prop)` 在重复 `prop` 场景默认命中首个已注册项，建议保持 `prop` 唯一。

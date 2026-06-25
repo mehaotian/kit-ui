@@ -1,8 +1,8 @@
 <script setup lang="uts">
-	import { inject, computed, ref, watch } from 'vue'
+	import { inject, computed, ref, watch, type ComputedRef } from 'vue'
 	import { buildThemeStyle } from '../../utils/theme.uts'
 	import { CheckboxGroupValue } from './checkbox-group.type.uts'
-	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY, K_FORM_ITEM_DISABLED_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-checkbox-group 复选框组
@@ -41,6 +41,7 @@
 		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
 		null
 	)
+	const formItemDisabled = inject<ComputedRef<boolean> | null>(K_FORM_ITEM_DISABLED_KEY, null)
 
 	/**
 	 * 组内共享选中值（本地 ref 保证 APP 端子项立即联动更新）
@@ -62,10 +63,23 @@
 	})
 
 	/**
+	 * 组级禁用状态（组件 disabled 或表单项禁用）
+	 */
+	const resolvedGroupDisabled = computed((): boolean => {
+		if (props.disabled) {
+			return true
+		}
+		if (formItemDisabled != null && formItemDisabled.value) {
+			return true
+		}
+		return false
+	})
+
+	/**
 	 * 切换选中状态
 	 */
 	const toggleValue = (name: string | number) => {
-		if (props.disabled) {
+		if (resolvedGroupDisabled.value) {
 			return
 		}
 		const values = innerValues.value.slice()
@@ -96,7 +110,7 @@
 	}
 
 	provide('k-checkbox-group-values', computed((): CheckboxGroupValue => innerValues.value))
-	provide('k-checkbox-group-disabled', computed((): boolean => props.disabled))
+	provide('k-checkbox-group-disabled', resolvedGroupDisabled)
 	provide('k-checkbox-group-size', computed((): string => props.size))
 	provide('k-checkbox-group-fill-mode', computed((): string => props.fillMode))
 	provide('k-checkbox-group-toggle', toggleValue)
@@ -107,7 +121,7 @@
 		class="kit-ui--root k-checkbox-group"
 		:class="[
 			`k-checkbox-group--${direction}`,
-			{ 'k-checkbox-group--disabled': disabled }
+			{ 'k-checkbox-group--disabled': resolvedGroupDisabled }
 		]"
 		:style="wrapperThemeStyle"
 	>

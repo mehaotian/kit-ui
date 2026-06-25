@@ -1,7 +1,7 @@
 <script setup lang="uts">
 	import { inject, computed, ref, watch, onMounted, type ComputedRef } from 'vue'
 	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
-	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY, K_FORM_ITEM_DISABLED_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-checkbox 复选框
@@ -66,6 +66,7 @@
 		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
 		null
 	)
+	const formItemDisabled = inject<ComputedRef<boolean> | null>(K_FORM_ITEM_DISABLED_KEY, null)
 
 	const groupValues = inject<ComputedRef<(string | number)[]> | null>('k-checkbox-group-values', null)
 	const groupDisabled = inject<ComputedRef<boolean> | null>('k-checkbox-group-disabled', null)
@@ -174,6 +175,9 @@
 	 */
 	const isDisabled = computed((): boolean => {
 		if (props.disabled) {
+			return true
+		}
+		if (formItemDisabled != null && formItemDisabled.value) {
 			return true
 		}
 		if (groupDisabled != null && groupDisabled.value) {

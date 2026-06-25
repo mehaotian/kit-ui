@@ -1,7 +1,7 @@
 <script setup lang="uts">
-	import { inject, computed, ref, watch } from 'vue'
+	import { inject, computed, ref, watch, type ComputedRef } from 'vue'
 	import { buildThemeStyle } from '../../utils/theme.uts'
-	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY, K_FORM_ITEM_DISABLED_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-radio-group 单选框组
@@ -38,6 +38,7 @@
 		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
 		null
 	)
+	const formItemDisabled = inject<ComputedRef<boolean> | null>(K_FORM_ITEM_DISABLED_KEY, null)
 
 	/**
 	 * 组内共享选中值（本地 ref 保证 APP 端子项立即联动更新）
@@ -61,10 +62,23 @@
 	})
 
 	/**
+	 * 组级禁用状态（组件 disabled 或表单项禁用）
+	 */
+	const resolvedGroupDisabled = computed((): boolean => {
+		if (props.disabled) {
+			return true
+		}
+		if (formItemDisabled != null && formItemDisabled.value) {
+			return true
+		}
+		return false
+	})
+
+	/**
 	 * 更新选中值并触发事件
 	 */
 	const updateValue = (value: string | number) => {
-		if (props.disabled) {
+		if (resolvedGroupDisabled.value) {
 			return
 		}
 		if (innerValue.value == value) {
@@ -79,7 +93,7 @@
 	}
 
 	provide('k-radio-group-value', computed((): string | number => innerValue.value))
-	provide('k-radio-group-disabled', computed((): boolean => props.disabled))
+	provide('k-radio-group-disabled', resolvedGroupDisabled)
 	provide('k-radio-group-size', computed((): string => props.size))
 	provide('k-radio-group-shape', computed((): string => props.shape))
 	provide('k-radio-group-icon-placement', computed((): string => props.iconPlacement))
@@ -92,7 +106,7 @@
 		:class="[
 			`k-radio-group--${direction}`,
 			`k-radio-group--${shape}`,
-			{ 'k-radio-group--disabled': disabled }
+			{ 'k-radio-group--disabled': resolvedGroupDisabled }
 		]"
 		:style="wrapperThemeStyle"
 	>

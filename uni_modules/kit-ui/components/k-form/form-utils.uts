@@ -1,4 +1,4 @@
-import type { FormRuleValidatorFn } from './form.type.uts'
+import type { FormRuleValidatorFn, FormRuleAsyncValidatorFn } from './form.type.uts'
 
 /**
  * 将任意对象转为 UTSJSONObject（JSON 序列化，兼容 reactive 与 typed 对象）
@@ -90,6 +90,185 @@ export function normalizeRulesList(rules : any | null) : any[] {
 }
 
 /**
+ * 为项级规则补齐 message / asyncMessage（项级缺省时回退表单级）
+ */
+function fillRuleMessageFromFormRule(
+	localRules : any[],
+	index : number,
+	formRule : any
+) {
+	if (index < 0 || index >= localRules.length) {
+		return
+	}
+	const localRule = localRules[index]
+	if (localRule == null || formRule == null) {
+		return
+	}
+	const localMessage = readRuleString(localRule, 'message')
+	const formMessage = readRuleString(formRule, 'message')
+	const localAsyncMessage = readRuleString(localRule, 'asyncMessage')
+	const formAsyncMessage = readRuleString(formRule, 'asyncMessage')
+
+	if (
+		(localMessage != null && localMessage != '') &&
+		(localAsyncMessage != null && localAsyncMessage != '')
+	) {
+		return
+	}
+
+	if (localRule instanceof UTSJSONObject) {
+		const jsonRule = localRule as UTSJSONObject
+		if ((localMessage == null || localMessage == '') && formMessage != null && formMessage != '') {
+			jsonRule.set('message', formMessage)
+		}
+		if ((localAsyncMessage == null || localAsyncMessage == '') && formAsyncMessage != null && formAsyncMessage != '') {
+			jsonRule.set('asyncMessage', formAsyncMessage)
+		}
+		return
+	}
+
+	const normalizedRule = asJSONObject(localRule)
+	if ((localMessage == null || localMessage == '') && formMessage != null && formMessage != '') {
+		normalizedRule.set('message', formMessage)
+	}
+	if ((localAsyncMessage == null || localAsyncMessage == '') && formAsyncMessage != null && formAsyncMessage != '') {
+		normalizedRule.set('asyncMessage', formAsyncMessage)
+	}
+	localRules[index] = normalizedRule
+}
+
+/**
+ * 判断规则是否包含函数回调（validator / asyncValidator）
+ */
+function hasRuleFunction(rule : any, key : string) : boolean {
+	const value = readObjectProperty(rule, key)
+	return value != null && typeof value == 'function'
+}
+
+/**
+ * 规则触发器归一化（空 trigger 视为 submit）
+ */
+function normalizeRuleTrigger(rule : any) : string {
+	const trigger = readRuleString(rule, 'trigger')
+	if (trigger != null && trigger != '') {
+		return trigger
+	}
+	return 'submit'
+}
+
+/**
+ * 将 enum 列表归一化为可比较签名
+ */
+function resolveEnumSignature(value : any | null) : string {
+	if (!Array.isArray(value)) {
+		return ''
+	}
+	const list : string[] = []
+	for (let i = 0; i < value.length; i++) {
+		list.push(`${value[i]}`)
+	}
+	return list.join('|')
+}
+
+/**
+ * 读取规则特征签名（用于 local/form 规则匹配，避免仅按索引绑定）
+ */
+function resolveRuleFeatureKey(rule : any) : string {
+	const segments : string[] = []
+	segments.push(`trigger:${normalizeRuleTrigger(rule)}`)
+
+	const ruleType = readRuleString(rule, 'type')
+	if (ruleType != null && ruleType != '') {
+		segments.push(`type:${ruleType}`)
+	}
+
+	const pattern = readRuleString(rule, 'pattern')
+	const regexp = readRuleString(rule, 'regexp')
+	if (pattern != null && pattern != '') {
+		segments.push(`pattern:${pattern}`)
+	} else if (regexp != null && regexp != '') {
+		segments.push(`regexp:${regexp}`)
+	}
+
+	const required = readRuleBoolean(rule, 'required')
+	if (required != null) {
+		segments.push(`required:${required ? '1' : '0'}`)
+	}
+
+	const whitespace = readRuleBoolean(rule, 'whitespace')
+	if (whitespace != null) {
+		segments.push(`whitespace:${whitespace ? '1' : '0'}`)
+	}
+
+	const len = readRuleNumber(rule, 'len')
+	if (len != null && !isNaN(len)) {
+		segments.push(`len:${len}`)
+	}
+
+	const minLength = readRuleNumber(rule, 'minLength')
+	if (minLength != null && !isNaN(minLength)) {
+		segments.push(`minLength:${minLength}`)
+	}
+
+	const maxLength = readRuleNumber(rule, 'maxLength')
+	if (maxLength != null && !isNaN(maxLength)) {
+		segments.push(`maxLength:${maxLength}`)
+	}
+
+	const min = readRuleNumber(rule, 'min')
+	if (min != null && !isNaN(min)) {
+		segments.push(`min:${min}`)
+	}
+
+	const max = readRuleNumber(rule, 'max')
+	if (max != null && !isNaN(max)) {
+		segments.push(`max:${max}`)
+	}
+
+	const enumSignature = resolveEnumSignature(readObjectProperty(rule, 'enum'))
+	if (enumSignature != '') {
+		segments.push(`enum:${enumSignature}`)
+	}
+
+	if (hasRuleFunction(rule, 'validator')) {
+		segments.push('validator:1')
+	}
+	if (hasRuleFunction(rule, 'asyncValidator')) {
+		segments.push('asyncValidator:1')
+	}
+	return segments.join(';')
+}
+
+/**
+ * 在 form 规则中查找最匹配项（先特征签名，再 trigger）
+ */
+function findMatchedFormRuleIndex(
+	localRule : any,
+	formRules : any[],
+	used : boolean[]
+) : number {
+	const localFeature = resolveRuleFeatureKey(localRule)
+	for (let i = 0; i < formRules.length; i++) {
+		if (used[i]) {
+			continue
+		}
+		if (resolveRuleFeatureKey(formRules[i]) == localFeature) {
+			return i
+		}
+	}
+	const localTrigger = normalizeRuleTrigger(localRule)
+	for (let i = 0; i < formRules.length; i++) {
+		if (used[i]) {
+			continue
+		}
+		if (normalizeRuleTrigger(formRules[i]) == localTrigger) {
+			return i
+		}
+	}
+	return -1
+}
+
+/**
  * 从 rules 对象中读取字段规则列表
  */
 export function getFieldRules(
@@ -98,13 +277,29 @@ export function getFieldRules(
 	localRules : any | null
 ) : any[] {
 	const local = normalizeRulesList(localRules)
-	if (local.length > 0) {
+	if (prop == '') {
 		return local
 	}
-	if (prop == '') {
-		return []
+	const formLevelRules = normalizeRulesList(readRulesFieldValue(rules, prop))
+	if (local.length == 0) {
+		return formLevelRules
 	}
-	return normalizeRulesList(readRulesFieldValue(rules, prop))
+	if (formLevelRules.length == 0) {
+		return local
+	}
+	const usedFormRules : boolean[] = []
+	for (let i = 0; i < formLevelRules.length; i++) {
+		usedFormRules.push(false)
+	}
+	for (let i = 0; i < local.length; i++) {
+		const formRuleIndex = findMatchedFormRuleIndex(local[i], formLevelRules, usedFormRules)
+		if (formRuleIndex < 0) {
+			continue
+		}
+		fillRuleMessageFromFormRule(local, i, formLevelRules[formRuleIndex])
+		usedFormRules[formRuleIndex] = true
+	}
+	return local
 }
 
 /**
@@ -211,6 +406,25 @@ export function invokeRuleValidator(
 		return null
 	}
 	const validator = rawFn as FormRuleValidatorFn
+	return validator(value, rule, model)
+}
+
+/**
+ * 调用规则项 asyncValidator（返回 Promise；未配置时返回 null）
+ */
+export function invokeRuleAsyncValidator(
+	rule : any,
+	value : any,
+	model : any | null
+) : Promise<boolean | string> | null {
+	if (rule == null || !(rule instanceof UTSJSONObject)) {
+		return null
+	}
+	const rawFn = (rule as UTSJSONObject).get('asyncValidator')
+	if (rawFn == null || typeof rawFn != 'function') {
+		return null
+	}
+	const validator = rawFn as FormRuleAsyncValidatorFn
 	return validator(value, rule, model)
 }
 

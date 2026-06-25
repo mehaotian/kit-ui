@@ -1,4 +1,4 @@
-import type { FormRuleValidatorFn } from './form.type.uts'
+import type { FormRuleValidatorFn, FormRuleAsyncValidatorFn } from './form.type.uts'
 
 /**
  * 内置正则模式（与 type 预设对应）
@@ -85,6 +85,23 @@ export function ruleCustom(
 }
 
 /**
+ * 自定义 asyncValidator 规则（UTSJSONObject 保留函数引用，供 APP 编译）
+ * asyncMessage 为异步失败默认提示，可留空走全局兜底
+ */
+export function ruleAsync(
+	asyncValidator : FormRuleAsyncValidatorFn,
+	asyncMessage : string,
+	trigger : string
+) : UTSJSONObject {
+	const rule = new UTSJSONObject()
+	rule.set('asyncValidator', asyncValidator)
+	if (asyncMessage != '') {
+		rule.set('asyncMessage', asyncMessage)
+	}
+	return attachRuleTrigger(rule, trigger)
+}
+
+/**
  * 必填规则
  */
 export function ruleRequired(message : string) : any {
@@ -146,4 +163,29 @@ export function ruleMaxLength(max : number, message : string) : any {
 export function rulePattern(pattern : string, message : string) : any {
 	const msg = resolveRuleMessage(message, '格式不正确')
 	return { pattern: pattern, message: msg }
+}
+
+
+/**
+ * 枚举规则
+ */
+export function ruleEnum(enumValues : any[], message : string) : any {
+	const msg = resolveRuleMessage(message, '字段值不在允许范围内')
+	return { enum: enumValues, message: msg }
+}
+
+/**
+ * 固定长度规则
+ */
+export function ruleLen(len : number, message : string) : any {
+	const msg = resolveRuleMessage(message, `长度必须为${len}个字符`)
+	return { len: len, message: msg }
+}
+
+/**
+ * 禁止纯空白字符规则（仅对 string 生效）
+ */
+export function ruleNoWhitespace(message : string) : any {
+	const msg = resolveRuleMessage(message, '此字段不能为空白字符')
+	return { whitespace: false, message: msg }
 }

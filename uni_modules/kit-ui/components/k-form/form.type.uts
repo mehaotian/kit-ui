@@ -12,12 +12,25 @@ export type FormValidateResult = {
 export type FormRuleValidatorFn = (value : any, rule : any, model : any | null) => boolean | string
 
 /**
+ * 自定义 asyncValidator 回调签名
+ */
+export type FormRuleAsyncValidatorFn = (
+	value : any,
+	rule : any,
+	model : any | null
+) => Promise<boolean | string>
+
+/**
  * 表单项实例（注册到 k-form）
  */
 export type FormItemInstance = {
+	id : string
 	prop : string
 	validate : () => boolean
 	validateByTrigger : (trigger : string) => boolean
+	validateAsync : () => Promise<boolean>
+	validateByTriggerAsync : (trigger : string) => Promise<boolean>
+	isValidating : () => boolean
 	resetValidation : () => void
 	getErrorMessage : () => string
 }
@@ -28,15 +41,20 @@ export type FormItemInstance = {
 export type FormValidationRule = {
 	required ?: boolean
 	message ?: string
+	enum ?: any[]
+	len ?: number
 	minLength ?: number
 	maxLength ?: number
 	min ?: number
 	max ?: number
+	whitespace ?: boolean
 	pattern ?: string
 	regexp ?: string
 	type ?: string
 	trigger ?: string
 	validator ?: (value : any, rule : any, model : any | null) => boolean | string
+	asyncValidator ?: (value : any, rule : any, model : any | null) => Promise<boolean | string>
+	asyncMessage ?: string
 }
 
 /**
@@ -46,7 +64,10 @@ export type FormValidationRule = {
 export type KFormExpose = {
 	validate : () => boolean
 	validateField : (prop : string, trigger ?: string) => boolean
-	resetValidation : () => void
-	submit : () => void
+	validateAsync : () => Promise<boolean>
+	validateFieldAsync : (prop : string, trigger ?: string) => Promise<boolean>
+	resetValidation : (props ?: string[] | string) => void
+	clearValidate : (props ?: string[] | string) => void
+	submit : () => Promise<boolean>
 	getFieldsError : () => UTSJSONObject
 }

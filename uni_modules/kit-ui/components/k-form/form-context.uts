@@ -27,6 +27,8 @@ export const K_FORM_ITEM_VALIDATE_TRIGGER_KEY = 'k-form-item-validate-trigger'
 
 export const K_FORM_ITEM_PROP_KEY = 'k-form-item-prop'
 
+export const K_FORM_ITEM_DISABLED_KEY = 'k-form-item-disabled'
+
 /**
  * 表单项上下文（供 k-input / 原生控件等场景使用）
  */

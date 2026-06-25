@@ -15,7 +15,7 @@
 					<text class="page-desc">手机号、邮箱、网址与年龄范围</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-form ref="factoryFormRef" :model="factoryForm" :rules="factoryRules">
+					<k-form ref="factoryFormRef" :model="factoryForm" :rules="factoryRules" :disabled="factoryDisabled">
 						<k-form-item label="手机号" prop="phone">
 							<k-input v-model="factoryForm.phone" type="tel" placeholder="请输入手机号" />
 						</k-form-item>
@@ -29,7 +29,15 @@
 							<k-input v-model="factoryForm.age" type="number" placeholder="请输入年龄（1-120）" />
 						</k-form-item>
 					</k-form>
-					<k-button type="primary" text="校验" @click="handleFactorySubmit" />
+					<view class="demo-actions">
+						<k-button
+							type="default"
+							:text="factoryDisabled ? '当前禁用，点击启用' : '当前启用，点击禁用'"
+							@click="toggleFactoryDisabled"
+						/>
+						<k-button type="primary" text="校验" @click="handleFactorySubmit" />
+					</view>
+					<text class="demo-tip">表单状态：{{ factoryDisabled ? '禁用中' : '可编辑' }}</text>
 					<text class="demo-tip">校验结果：{{ factoryLog }}</text>
 				</view>
 			</view>
@@ -60,8 +68,8 @@
 			<!-- 正则校验 -->
 			<view class="section">
 				<view class="section-title">
-					<text class="title-text">正则校验</text>
-					<text class="page-desc">pattern 与 regexp 别名</text>
+					<text class="title-text">规则扩展校验</text>
+					<text class="page-desc">pattern / regexp / len / enum / whitespace</text>
 				</view>
 				<view class="demo-content demo-column">
 					<k-form ref="patternFormRef" :model="patternForm" :rules="patternRules">
@@ -70,6 +78,12 @@
 						</k-form-item>
 						<k-form-item label="邮编" prop="zip">
 							<k-input v-model="patternForm.zip" placeholder="regexp 别名" />
+						</k-form-item>
+						<k-form-item label="角色" prop="role">
+							<k-input v-model="patternForm.role" placeholder="请输入 admin 或 user" />
+						</k-form-item>
+						<k-form-item label="昵称" prop="nickname">
+							<k-input v-model="patternForm.nickname" placeholder="不能仅输入空格" />
 						</k-form-item>
 					</k-form>
 					<k-button type="primary" text="校验" @click="handlePatternSubmit" />
@@ -94,6 +108,56 @@
 					</k-form>
 					<k-button type="primary" text="校验并输出错误" @click="handleErrorSubmit" />
 					<text class="demo-tip">错误汇总：{{ errorSummary }}</text>
+				</view>
+			</view>
+
+			<!-- 手动状态控制 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">手动状态控制</text>
+					<text class="page-desc">通过 validate-status 手动切换 validating/error/success</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form :model="manualStatusForm">
+						<k-form-item
+							label="审批金额"
+							prop="amount"
+							:validate-status="manualStatusValue"
+							:error-message="manualStatusMessage"
+						>
+							<k-input v-model="manualStatusForm.amount" type="number" placeholder="请输入审批金额" />
+						</k-form-item>
+					</k-form>
+					<view class="demo-actions">
+						<k-button type="default" text="置为校验中" @click="setManualStatusValidating" />
+						<k-button type="danger" text="置为失败" @click="setManualStatusError" />
+						<k-button type="success" text="置为成功" @click="setManualStatusSuccess" />
+						<k-button type="default" text="恢复自动" @click="clearManualStatus" />
+					</view>
+					<text class="demo-tip">当前状态：{{ manualStatusLog }}</text>
+				</view>
+			</view>
+
+			<!-- 文案优先级 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">文案优先级</text>
+					<text class="page-desc">项级 message > 表单级 message > 默认文案</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form ref="priorityFormRef" :model="priorityForm" :rules="priorityRules">
+						<k-form-item label="申请人" prop="localFirst" :rules="priorityLocalRules">
+							<k-input v-model="priorityForm.localFirst" placeholder="优先走项级文案" />
+						</k-form-item>
+						<k-form-item label="工号" prop="formFallback" :rules="priorityFallbackRules">
+							<k-input v-model="priorityForm.formFallback" placeholder="项级无文案时回退表单级" />
+						</k-form-item>
+						<k-form-item label="备注" prop="defaultFallback" :rules="priorityDefaultRules">
+							<k-input v-model="priorityForm.defaultFallback" placeholder="无配置时回退默认文案" />
+						</k-form-item>
+					</k-form>
+					<k-button type="primary" text="校验文案优先级" @click="handlePrioritySubmit" />
+					<text class="demo-tip">错误汇总：{{ priorityLog }}</text>
 				</view>
 			</view>
 
@@ -188,6 +252,23 @@
 					<text class="demo-tip">校验结果：{{ optionLog }}</text>
 				</view>
 			</view>
+
+			<!-- 异步可用性校验 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">异步可用性校验</text>
+					<text class="page-desc">用户名失焦后优先 uni.request 远程查重，失败回退本地兜底</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-form ref="asyncFormRef" :model="asyncForm" :rules="asyncRules">
+						<k-form-item label="用户名" prop="username">
+							<k-input v-model="asyncForm.username" placeholder="输入 admin 或 root 会提示占用" />
+						</k-form-item>
+					</k-form>
+					<k-button type="primary" text="异步校验提交" @click="handleAsyncSubmit" />
+					<text class="demo-tip">校验结果：{{ asyncLog }}</text>
+				</view>
+			</view>
 		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
@@ -201,10 +282,14 @@
 		ruleEmail,
 		ruleUrl,
 		ruleRange,
+		ruleLen,
+		ruleEnum,
+		ruleNoWhitespace,
 		ruleMinLength,
 		rulePattern,
 		ruleWithTrigger,
-		ruleCustom
+		ruleCustom,
+		ruleAsync
 	} from '../../uni_modules/kit-ui/components/k-form/validators.uts'
 	import { readModelProperty } from '../../uni_modules/kit-ui/components/k-form/form-utils.uts'
 
@@ -224,11 +309,23 @@
 	type PatternFormData = {
 		code : string
 		zip : string
+		role : string
+		nickname : string
 	}
 
 	type ErrorFormData = {
 		username : string
 		phone : string
+	}
+
+	type ManualStatusFormData = {
+		amount : string
+	}
+
+	type PriorityFormData = {
+		localFirst : string
+		formFallback : string
+		defaultFallback : string
 	}
 
 	type NativeFormData = {
@@ -251,14 +348,20 @@
 		notify : boolean
 	}
 
+	type AsyncFormData = {
+		username : string
+	}
+
 	const factoryFormRef = ref<KFormComponentPublicInstance | null>(null)
 	const typeFormRef = ref<KFormComponentPublicInstance | null>(null)
 	const patternFormRef = ref<KFormComponentPublicInstance | null>(null)
 	const errorFormRef = ref<KFormComponentPublicInstance | null>(null)
+	const priorityFormRef = ref<KFormComponentPublicInstance | null>(null)
 	const nativeFormRef = ref<KFormComponentPublicInstance | null>(null)
 	const blurFormRef = ref<KFormComponentPublicInstance | null>(null)
 	const customFormRef = ref<KFormComponentPublicInstance | null>(null)
 	const optionFormRef = ref<KFormComponentPublicInstance | null>(null)
+	const asyncFormRef = ref<KFormComponentPublicInstance | null>(null)
 
 	const factoryForm = reactive<FactoryFormData>({
 		phone: '',
@@ -288,16 +391,27 @@
 
 	const patternForm = reactive<PatternFormData>({
 		code: '',
-		zip: ''
+		zip: '',
+		role: '',
+		nickname: ''
 	})
 
 	const patternRules = {
 		code: [
 			ruleRequired('请输入验证码'),
+			ruleLen(6, '验证码为 6 位数字'),
 			rulePattern('^\\d{6}$', '验证码为 6 位数字')
 		],
 		zip: [
 			{ required: true, regexp: '^\\d{6}$', message: '邮编为 6 位数字' }
+		],
+		role: [
+			ruleRequired('请输入角色'),
+			ruleEnum(['admin', 'user'], '角色仅支持 admin 或 user')
+		],
+		nickname: [
+			ruleRequired('请输入昵称'),
+			ruleNoWhitespace('昵称不能仅输入空白字符')
 		]
 	}
 
@@ -306,10 +420,41 @@
 		phone: ''
 	})
 
+	const manualStatusForm = reactive<ManualStatusFormData>({
+		amount: ''
+	})
+
+	const priorityForm = reactive<PriorityFormData>({
+		localFirst: '',
+		formFallback: '',
+		defaultFallback: ''
+	})
+
 	const errorRules = {
 		username: [ruleRequired('请输入用户名'), ruleMinLength(2, '')],
 		phone: [ruleRequired(''), rulePhone('')]
 	}
+
+	const priorityRules = {
+		localFirst: [
+			{ required: true, message: '表单级：请输入申请人' }
+		],
+		formFallback: [
+			{ required: true, message: '表单级：请输入工号' }
+		]
+	}
+
+	const priorityLocalRules = [
+		{ required: true, message: '项级：请输入申请人姓名' }
+	]
+
+	const priorityFallbackRules = [
+		{ required: true }
+	]
+
+	const priorityDefaultRules = [
+		{ required: true }
+	]
 
 	const nativeForm = reactive<NativeFormData>({
 		phone: ''
@@ -370,6 +515,78 @@
 		]
 	}
 
+	const asyncForm = reactive<AsyncFormData>({
+		username: ''
+	})
+
+	/**
+	 * 本地兜底：保留用户名列表（网络失败时保障示例可验证）
+	 */
+	const RESERVED_USERNAMES = ['admin', 'root', 'system']
+
+	/**
+	 * 本地兜底判断：命中保留用户名即视为占用
+	 */
+	function checkUsernameByFallback(username : string) : boolean | string {
+		for (let i = 0; i < RESERVED_USERNAMES.length; i++) {
+			if (RESERVED_USERNAMES[i] == username) {
+				return '用户名已被占用'
+			}
+		}
+		return true
+	}
+
+	/**
+	 * 远程用户名可用性检查（优先 uni.request，失败自动回落本地兜底）
+	 * 说明：示例使用 GitHub Users 接口，200 表示占用，404 表示可用。
+	 */
+	function requestUsernameAvailability(username : string) : Promise<boolean | string> {
+		return new Promise((resolve : (value : boolean | string) => void) => {
+			if (username == '') {
+				resolve(true)
+				return
+			}
+			let finished = false
+			const finish = (result : boolean | string) => {
+				if (!finished) {
+					finished = true
+					resolve(result)
+				}
+			}
+			uni.request({
+				url: `https://api.github.com/users/${username}`,
+				method: 'GET',
+				timeout: 2500,
+				success: (res) => {
+					const statusCode = res.statusCode
+					if (statusCode == 404) {
+						finish(true)
+						return
+					}
+					if (statusCode == 200) {
+						finish('用户名已被占用')
+						return
+					}
+					finish(checkUsernameByFallback(username))
+				},
+				fail: () => {
+					finish(checkUsernameByFallback(username))
+				}
+			})
+		})
+	}
+
+	const asyncRules = {
+		username: [
+			ruleRequired('请输入用户名'),
+			ruleWithTrigger(ruleMinLength(3, '用户名至少 3 个字符'), 'blur'),
+			ruleAsync((value : any, _rule : any, _model : any | null) : Promise<boolean | string> => {
+				const username = `${value}`.trim().toLowerCase()
+				return requestUsernameAvailability(username)
+			}, '用户名校验失败，请稍后重试', 'blur')
+		]
+	}
+
 	/**
 	 * 确认密码：项级 rules + ruleCustom 保留 validator 函数（APP 兼容）
 	 */
@@ -391,13 +608,26 @@
 	]
 
 	const factoryLog = ref<string>('暂无')
+	const factoryDisabled = ref<boolean>(false)
 	const typeLog = ref<string>('暂无')
 	const patternLog = ref<string>('暂无')
 	const errorSummary = ref<string>('暂无')
+	const manualStatusValue = ref<string>('')
+	const manualStatusMessage = ref<string>('')
+	const manualStatusLog = ref<string>('自动模式')
+	const priorityLog = ref<string>('暂无')
 	const nativeLog = ref<string>('暂无')
 	const blurLog = ref<string>('暂无')
 	const customLog = ref<string>('暂无')
 	const optionLog = ref<string>('暂无')
+	const asyncLog = ref<string>('暂无')
+
+	/**
+	 * 切换基础信息示例的禁用状态
+	 */
+	const toggleFactoryDisabled = () => {
+		factoryDisabled.value = !factoryDisabled.value
+	}
 
 	/**
 	 * 基础信息表单校验
@@ -441,6 +671,59 @@
 	}
 
 	/**
+	 * 手动切换为 validating 状态
+	 */
+	const setManualStatusValidating = () => {
+		manualStatusValue.value = 'validating'
+		manualStatusMessage.value = ''
+		manualStatusLog.value = 'validating（手动）'
+	}
+
+	/**
+	 * 手动切换为 error 状态
+	 */
+	const setManualStatusError = () => {
+		manualStatusValue.value = 'error'
+		manualStatusMessage.value = '审批金额超过当前权限上限'
+		manualStatusLog.value = 'error（手动）'
+	}
+
+	/**
+	 * 手动切换为 success 状态
+	 */
+	const setManualStatusSuccess = () => {
+		manualStatusValue.value = 'success'
+		manualStatusMessage.value = ''
+		manualStatusLog.value = 'success（手动）'
+	}
+
+	/**
+	 * 清空手动状态，恢复自动校验状态
+	 */
+	const clearManualStatus = () => {
+		manualStatusValue.value = ''
+		manualStatusMessage.value = ''
+		manualStatusLog.value = '自动模式'
+	}
+
+	/**
+	 * 校验文案优先级示例提交
+	 */
+	const handlePrioritySubmit = () => {
+		const form = priorityFormRef.value
+		if (form == null) {
+			return
+		}
+		const valid = form.validate?.() ?? false
+		if (valid) {
+			priorityLog.value = '校验通过'
+			return
+		}
+		const errors = form.getFieldsError?.()
+		priorityLog.value = errors != null ? JSON.stringify(errors) : '校验失败'
+	}
+
+	/**
 	 * 原生输入框失焦触发手机号校验
 	 */
 	const onNativePhoneBlur = () => {
@@ -481,6 +764,22 @@
 		const valid = optionFormRef.value?.validate?.() ?? false
 		optionLog.value = valid ? '校验通过' : '校验失败，请检查选项'
 	}
+
+	/**
+	 * 异步可用性校验示例提交
+	 */
+	const handleAsyncSubmit = () => {
+		const form = asyncFormRef.value
+		if (form == null) {
+			return
+		}
+		asyncLog.value = '校验中...'
+		form.validateAsync().then((valid : boolean) => {
+			asyncLog.value = valid ? '校验通过' : '校验失败，请检查用户名'
+		}).catch((_err) => {
+			asyncLog.value = '校验失败，请稍后重试'
+		})
+	}
 </script>
 
 <style lang="scss">
@@ -498,12 +797,21 @@
 		color: var(--k-text-color-secondary, #6b7280);
 	}
 
+	.demo-actions {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.demo-actions .k-button {
+		margin-right: 8px;
+		margin-bottom: 8px;
+	}
+
 	.demo-native-input {
-		display: block;
 		width: 100%;
 		box-sizing: border-box;
 		min-height: 40px;
-		line-height: 22px;
 		padding-top: var(--k-spacing-sm, 8px);
 		padding-bottom: var(--k-spacing-sm, 8px);
 		padding-left: var(--k-spacing-base, 12px);

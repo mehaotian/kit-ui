@@ -1,6 +1,6 @@
 <script setup lang="uts">
-	import { inject, computed, ref, watch } from 'vue'
-	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
+	import { inject, computed, ref, watch, type ComputedRef } from 'vue'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY, K_FORM_ITEM_DISABLED_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-textarea 多行文本输入组件
@@ -85,12 +85,26 @@
 		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
 		null
 	)
+	const formItemDisabled = inject<ComputedRef<boolean> | null>(K_FORM_ITEM_DISABLED_KEY, null)
 
 	const innerValue = ref<string>('')
 	const isFocused = ref<boolean>(false)
 	const isClearPending = ref<boolean>(false)
 	/** 微信小程序 linechange 同步高度（关闭原生 auto-height 后手动撑高） */
 	const mpAutoHeightPx = ref<number>(0)
+
+	/**
+	 * 实际禁用状态（组件 disabled 或表单项禁用）
+	 */
+	const resolvedDisabled = computed((): boolean => {
+		if (props.disabled) {
+			return true
+		}
+		if (formItemDisabled != null && formItemDisabled.value) {
+			return true
+		}
+		return false
+	})
 
 	/**
 	 * 监听外部 v-model，同步到内部值
@@ -167,7 +181,7 @@
 	 * 是否显示清除按钮
 	 */
 	const showClear = computed((): boolean => {
-		if (!props.clearable || props.disabled || props.readonly) {
+		if (!props.clearable || resolvedDisabled.value || props.readonly) {
 			return false
 		}
 		if (innerValue.value == '') {
@@ -302,7 +316,7 @@
 	 * 处理输入事件，同步 v-model
 	 */
 	const handleInput = (event: UniInputEvent) => {
-		if (props.disabled || props.readonly) {
+		if (resolvedDisabled.value || props.readonly) {
 			return
 		}
 		const value = event.detail.value
@@ -325,7 +339,7 @@
 	 * 处理获取焦点
 	 */
 	const handleFocus = (event: UniTextareaFocusEvent) => {
-		if (props.disabled || props.readonly) {
+		if (resolvedDisabled.value || props.readonly) {
 			return
 		}
 		isFocused.value = true
@@ -386,7 +400,7 @@
 	 * 执行清除逻辑
 	 */
 	const handleClearAction = () => {
-		if (props.disabled || props.readonly) {
+		if (resolvedDisabled.value || props.readonly) {
 			isClearPending.value = false
 			return
 		}
@@ -430,7 +444,7 @@
 				{
 					'k-textarea--focused': isFocused,
 					'k-textarea--error': error,
-					'k-textarea--disabled': disabled,
+					'k-textarea--disabled': resolvedDisabled,
 					'k-textarea--readonly': readonly,
 					'k-textarea--borderless': !border,
 					'k-textarea--round': round,
@@ -446,7 +460,7 @@
 				:value="innerValue"
 				:placeholder="placeholder"
 				:placeholder-style="placeholderStyleText"
-				:disabled="disabled || readonly"
+				:disabled="resolvedDisabled || readonly"
 				:maxlength="nativeMaxlength"
 				:auto-height="nativeAutoHeight"
 				:confirm-type="confirmType"
