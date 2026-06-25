@@ -23,14 +23,17 @@ export const K_FORM_UNREGISTER_ITEM_KEY = 'k-form-unregister-item'
 
 export const K_FORM_ITEM_VALIDATE_KEY = 'k-form-item-validate'
 
+export const K_FORM_ITEM_VALIDATE_TRIGGER_KEY = 'k-form-item-validate-trigger'
+
 export const K_FORM_ITEM_PROP_KEY = 'k-form-item-prop'
 
 /**
- * 表单项上下文（供原生控件等场景使用）
+ * 表单项上下文（供 k-input / 原生控件等场景使用）
  */
 export type FormItemContext = {
 	prop : string
 	validate : () => boolean
+	validateByTrigger : (trigger : string) => boolean
 }
 
 /**
@@ -38,25 +41,36 @@ export type FormItemContext = {
  */
 export function useFormItemContext() : FormItemContext | null {
 	const validateFn = inject<(() => boolean) | null>(K_FORM_ITEM_VALIDATE_KEY, null)
+	const validateByTriggerFn = inject<((trigger : string) => boolean) | null>(
+		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
+		null
+	)
 	const prop = inject<string>(K_FORM_ITEM_PROP_KEY, '')
-	if (validateFn == null) {
+	if (validateFn == null || validateByTriggerFn == null) {
 		return null
 	}
 	return {
 		prop: prop,
-		validate: validateFn
+		validate: validateFn,
+		validateByTrigger: validateByTriggerFn
 	}
 }
 
 /**
- * 创建失焦校验处理器
- * 注意：须在能 inject 到 k-form-item 的子组件 setup 内调用；页面级 slot 请用 formRef.validate()
+ * 创建字段级 trigger 校验处理器（须在 k-form-item 子树 setup 内调用）
  */
-export function createFormBlurHandler() : () => void {
+export function createFieldHandler(trigger : string = 'blur') : () => void {
 	return () => {
 		const ctx = useFormItemContext()
 		if (ctx != null) {
-			ctx.validate()
+			ctx.validateByTrigger(trigger)
 		}
 	}
+}
+
+/**
+ * 创建失焦校验处理器（createFieldHandler('blur') 别名）
+ */
+export function createFormBlurHandler() : () => void {
+	return createFieldHandler('blur')
 }

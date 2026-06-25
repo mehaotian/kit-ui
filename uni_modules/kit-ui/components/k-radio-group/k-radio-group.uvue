@@ -1,6 +1,7 @@
 <script setup lang="uts">
 	import { inject, computed, ref, watch } from 'vue'
 	import { buildThemeStyle } from '../../utils/theme.uts'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-radio-group 单选框组
@@ -33,6 +34,10 @@
 	}>()
 
 	const themeConfig = inject('kit-theme', {})
+	const validateByTrigger = inject<((trigger : string) => boolean) | null>(
+		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
+		null
+	)
 
 	/**
 	 * 组内共享选中值（本地 ref 保证 APP 端子项立即联动更新）
@@ -68,6 +73,9 @@
 		innerValue.value = value
 		emit('update:modelValue', value)
 		emit('change', value)
+		if (validateByTrigger != null) {
+			validateByTrigger('change')
+		}
 	}
 
 	provide('k-radio-group-value', computed((): string | number => innerValue.value))

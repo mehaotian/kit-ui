@@ -1,6 +1,7 @@
 <script setup lang="uts">
 	import { inject, computed, ref, watch, onMounted } from 'vue'
 	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-switch 开关
@@ -45,6 +46,10 @@
 	}>()
 
 	const themeConfig = inject('kit-theme', {})
+	const validateByTrigger = inject<((trigger : string) => boolean) | null>(
+		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
+		null
+	)
 
 	// #ifdef APP
 	const trackRef = ref<UniElement | null>(null)
@@ -247,6 +252,9 @@
 		const nextValue = isActive.value ? props.inactiveValue : props.activeValue
 		emit('update:modelValue', nextValue)
 		emit('change', nextValue)
+		if (validateByTrigger != null) {
+			validateByTrigger('change')
+		}
 	}
 </script>
 

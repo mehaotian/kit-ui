@@ -2,6 +2,7 @@
 	import { inject, computed, ref, watch } from 'vue'
 	import { buildThemeStyle } from '../../utils/theme.uts'
 	import { CheckboxGroupValue } from './checkbox-group.type.uts'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-checkbox-group 复选框组
@@ -36,6 +37,10 @@
 	}>()
 
 	const themeConfig = inject('kit-theme', {})
+	const validateByTrigger = inject<((trigger : string) => boolean) | null>(
+		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
+		null
+	)
 
 	/**
 	 * 组内共享选中值（本地 ref 保证 APP 端子项立即联动更新）
@@ -85,6 +90,9 @@
 		innerValues.value = values
 		emit('update:modelValue', values)
 		emit('change', values)
+		if (validateByTrigger != null) {
+			validateByTrigger('change')
+		}
 	}
 
 	provide('k-checkbox-group-values', computed((): CheckboxGroupValue => innerValues.value))

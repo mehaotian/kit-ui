@@ -7,11 +7,17 @@ export type FormValidateResult = {
 }
 
 /**
+ * 自定义 validator 回调签名
+ */
+export type FormRuleValidatorFn = (value : any, rule : any, model : any | null) => boolean | string
+
+/**
  * 表单项实例（注册到 k-form）
  */
 export type FormItemInstance = {
 	prop : string
 	validate : () => boolean
+	validateByTrigger : (trigger : string) => boolean
 	resetValidation : () => void
 	getErrorMessage : () => string
 }
@@ -30,6 +36,7 @@ export type FormValidationRule = {
 	regexp ?: string
 	type ?: string
 	trigger ?: string
+	validator ?: (value : any, rule : any, model : any | null) => boolean | string
 }
 
 /**
@@ -38,6 +45,7 @@ export type FormValidationRule = {
  */
 export type KFormExpose = {
 	validate : () => boolean
+	validateField : (prop : string, trigger ?: string) => boolean
 	resetValidation : () => void
 	submit : () => void
 	getFieldsError : () => UTSJSONObject

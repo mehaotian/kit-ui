@@ -19,6 +19,7 @@
 | required | Boolean | `false` | 是否显示必填星号 |
 | rules | Array | `[]` | 项级规则，优先级高于 form.rules |
 | labelWidth | String | `''` | 标签宽度，空则继承 form |
+| contentAlign | String | `'center'` | 控件区对齐方式：`center`/`top`（多行控件建议 `top`） |
 | borderBottom | Boolean | `true` | 是否显示底部分割线 |
 | errorMessage | String | `''` | 手动错误提示（优先级高于校验结果） |
 | customStyle | String | `''` | 自定义内联样式 |
@@ -31,5 +32,6 @@
 
 ## 注意事项
 
-- 通过 `k-form` 的 `validate()` 触发校验，不会自动监听 input 实时校验（一期最小实现）。
+- 规则可配置 `trigger: 'blur'/'change'`，`k-input` 与 `k-textarea` 在 `k-form-item` 内会自动触发对应校验。
+- `contentAlign='top'` 适合 `k-textarea` 等多行控件，标签与控件顶部对齐更易读。
 - 手动设置 `errorMessage` 可展示服务端返回错误。

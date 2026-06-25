@@ -40,7 +40,7 @@
 							<k-input v-model="stateForm.nickname" placeholder="整表单禁用" />
 						</k-form-item>
 					</k-form>
-					<k-form-item label="备注" error-message="这是一条手动错误提示">
+					<k-form-item label="备注" content-align="top" error-message="这是一条手动错误提示">
 						<k-textarea v-model="stateForm.remark" placeholder="手动错误态" />
 					</k-form-item>
 				</view>
@@ -75,7 +75,7 @@
 						<k-form-item label="接收通知" prop="notify">
 							<k-switch v-model="complexForm.notify" />
 						</k-form-item>
-						<k-form-item label="自我介绍" prop="bio">
+						<k-form-item label="自我介绍" prop="bio" content-align="top">
 							<k-textarea
 								v-model="complexForm.bio"
 								placeholder="至少 10 个字符"

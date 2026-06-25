@@ -16,6 +16,10 @@
 | `No value passed for parameter 'message'` | 函数 `?:` 可选参 | `message : string = ''` + `resolveRuleMessage` | `validators.uts` |
 | `Anonymous functions cannot specify default values` | 对象内箭头函数默认参 | 不用 `FormRules` 对象字面量 | `validators.uts` |
 | `找不到名称 value`（error18） | `inject<any>` + `.value` | `inject<ComputedRef<T> \| null>` + `type ComputedRef` | `k-form-item.uvue` |
+| `找不到名称 validatorFn` / any 函数不可 invoke | 将 `any` 变量当函数调用 | 顶层 `invokeRuleValidator` + `FormRuleValidatorFn` 强转 | `form-utils.uts`、`validate-engine.uts` |
+| `找不到名称 runFieldValidate` | const 箭头函数无提升 | 改用 `function runFieldValidate` 并置于调用方之前 | `k-form-item.uvue` |
+| `Anonymous functions cannot specify default values` | 箭头函数默认参 | 改用 `function validateField(prop, trigger = 'submit')` | `k-form.uvue` |
+| `找不到名称 validateField` | `?.validateField?.()` 可选链 | `if (form != null) form.validateField(...)` | `pages/form-validate/*.uvue` |
 | `getErrorMessage` 缺失 | 注册表单项不完整 | `registerFormItem` 传入 `getErrorMessage` | `k-form-item.uvue` |
 | `form-utils.uts` 语法错误 / 重复定义 | HMR 损坏注释块 | 恢复文件；全量重编译 APP | `form-utils.uts` |
 

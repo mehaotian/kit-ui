@@ -1,3 +1,5 @@
+import type { FormRuleValidatorFn } from './form.type.uts'
+
 /**
  * 内置正则模式（与 type 预设对应）
  */
@@ -39,9 +41,53 @@ function resolveRuleMessage(message : string, defaultMessage : string) : string 
 }
 
 /**
+ * 为规则对象附加 trigger（空串时不写入）
+ */
+function attachRuleTrigger(rule : UTSJSONObject, trigger : string) : UTSJSONObject {
+	if (trigger != '') {
+		rule.set('trigger', trigger)
+	}
+	return rule
+}
+
+/**
+ * 为规则附加 trigger（纯数据规则经 JSON 路径，勿用于含 validator 的 UTSJSONObject）
+ */
+export function ruleWithTrigger(rule : any, trigger : string) : UTSJSONObject {
+	const jsonStr = JSON.stringify(rule)
+	if (jsonStr != '' && jsonStr != 'null') {
+		const parsed = JSON.parse<UTSJSONObject>(jsonStr)
+		if (parsed != null) {
+			parsed.set('trigger', trigger)
+			return parsed
+		}
+	}
+	const fallback = new UTSJSONObject()
+	fallback.set('trigger', trigger)
+	return fallback
+}
+
+/**
+ * 自定义 validator 规则（UTSJSONObject 保留函数引用，供 APP 编译）
+ * 三参均必填，避免跨模块默认参 NoSuchMethodError
+ */
+export function ruleCustom(
+	validator : FormRuleValidatorFn,
+	message : string,
+	trigger : string
+) : UTSJSONObject {
+	const rule = new UTSJSONObject()
+	rule.set('validator', validator)
+	if (message != '') {
+		rule.set('message', message)
+	}
+	return attachRuleTrigger(rule, trigger)
+}
+
+/**
  * 必填规则
  */
-export function ruleRequired(message : string = '') : any {
+export function ruleRequired(message : string) : any {
 	const msg = resolveRuleMessage(message, '此字段为必填项')
 	return { required: true, message: msg }
 }
@@ -49,7 +95,7 @@ export function ruleRequired(message : string = '') : any {
 /**
  * 手机号规则（大陆 11 位）
  */
-export function rulePhone(message : string = '') : any {
+export function rulePhone(message : string) : any {
 	const msg = resolveRuleMessage(message, '手机号格式不正确')
 	return { type: 'phone', message: msg }
 }
@@ -57,7 +103,7 @@ export function rulePhone(message : string = '') : any {
 /**
  * 邮箱规则
  */
-export function ruleEmail(message : string = '') : any {
+export function ruleEmail(message : string) : any {
 	const msg = resolveRuleMessage(message, '邮箱格式不正确')
 	return { type: 'email', message: msg }
 }
@@ -65,7 +111,7 @@ export function ruleEmail(message : string = '') : any {
 /**
  * URL 规则
  */
-export function ruleUrl(message : string = '') : any {
+export function ruleUrl(message : string) : any {
 	const msg = resolveRuleMessage(message, 'URL 格式不正确')
 	return { type: 'url', message: msg }
 }
@@ -73,7 +119,7 @@ export function ruleUrl(message : string = '') : any {
 /**
  * 数值范围规则
  */
-export function ruleRange(min : number, max : number, message : string = '') : any {
+export function ruleRange(min : number, max : number, message : string) : any {
 	const msg = resolveRuleMessage(message, `数值范围 ${min}-${max}`)
 	return { type: 'number', min: min, max: max, message: msg }
 }
@@ -81,7 +127,7 @@ export function ruleRange(min : number, max : number, message : string = '') : a
 /**
  * 最小长度规则
  */
-export function ruleMinLength(min : number, message : string = '') : any {
+export function ruleMinLength(min : number, message : string) : any {
 	const msg = resolveRuleMessage(message, `至少 ${min} 个字符`)
 	return { minLength: min, message: msg }
 }
@@ -89,7 +135,7 @@ export function ruleMinLength(min : number, message : string = '') : any {
 /**
  * 最大长度规则
  */
-export function ruleMaxLength(max : number, message : string = '') : any {
+export function ruleMaxLength(max : number, message : string) : any {
 	const msg = resolveRuleMessage(message, `最多 ${max} 个字符`)
 	return { maxLength: max, message: msg }
 }
@@ -97,7 +143,7 @@ export function ruleMaxLength(max : number, message : string = '') : any {
 /**
  * 正则规则
  */
-export function rulePattern(pattern : string, message : string = '') : any {
+export function rulePattern(pattern : string, message : string) : any {
 	const msg = resolveRuleMessage(message, '格式不正确')
 	return { pattern: pattern, message: msg }
 }

@@ -4,6 +4,7 @@ import {
 	readRuleBoolean,
 	readRuleString,
 	readRuleNumber,
+	invokeRuleValidator,
 	toNumberValue
 } from './form-utils.uts'
 import { resolvePatternByType } from './validators.uts'
@@ -93,12 +94,37 @@ function validateByType(
 }
 
 /**
+ * 执行自定义 validator 同步回调（返回 true / false / string）
+ */
+function runRuleValidator(
+	value : any,
+	rule : any,
+	model : any | null,
+	message : string | null
+) : FormValidateResult | null {
+	const result = invokeRuleValidator(rule, value, model)
+	if (result == null) {
+		return null
+	}
+	if (result == true) {
+		return null
+	}
+	if (result == false) {
+		return failResult(message, '校验失败')
+	}
+	if (typeof result == 'string' && result != '') {
+		return failResult(result, '校验失败')
+	}
+	return null
+}
+
+/**
  * 同步校验单个字段（规则管道顺序执行）
  */
 export function validateSync(
 	value : any,
 	rules : any[],
-	model ?: any | null
+	model : any | null = null
 ) : FormValidateResult {
 	for (let i = 0; i < rules.length; i++) {
 		const rule = rules[i]
@@ -161,6 +187,11 @@ export function validateSync(
 			if (!matchPattern(value, resolvedPattern)) {
 				return failResult(message, '字段格式不正确')
 			}
+		}
+
+		const customResult = runRuleValidator(value, rule, model, message)
+		if (customResult != null) {
+			return customResult
 		}
 	}
 

@@ -1,5 +1,6 @@
 <script setup lang="uts">
 	import { inject, computed, ref, watch } from 'vue'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-textarea 多行文本输入组件
@@ -80,6 +81,10 @@
 	}>()
 
 	const themeConfig = inject('kit-theme', {})
+	const validateByTrigger = inject<((trigger : string) => boolean) | null>(
+		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
+		null
+	)
 
 	const innerValue = ref<string>('')
 	const isFocused = ref<boolean>(false)
@@ -285,6 +290,15 @@
 	})
 
 	/**
+	 * 触发表单项 trigger 校验（在 k-form-item 内时生效）
+	 */
+	const triggerFormValidate = (trigger : string) => {
+		if (validateByTrigger != null) {
+			validateByTrigger(trigger)
+		}
+	}
+
+	/**
 	 * 处理输入事件，同步 v-model
 	 */
 	const handleInput = (event: UniInputEvent) => {
@@ -295,6 +309,7 @@
 		innerValue.value = value
 		emit('update:modelValue', value)
 		emit('input', value)
+		triggerFormValidate('change')
 	}
 
 	/**
@@ -303,6 +318,7 @@
 	const handleChange = (event: UniInputChangeEvent) => {
 		const value = event.detail.value
 		emit('change', value)
+		triggerFormValidate('change')
 	}
 
 	/**
@@ -330,6 +346,7 @@
 			isFocused.value = false
 		}, 150)
 		emit('blur', event.detail.value)
+		triggerFormValidate('blur')
 	}
 
 	/**

@@ -129,6 +129,21 @@
 	}
 
 	/**
+	 * 校验单个字段（trigger 传空串时等同 submit）
+	 */
+	function validateField(prop : string, trigger : string = 'submit') : boolean {
+		const item = formItems.find((formItem : FormItemInstance) => formItem.prop == prop)
+		if (item == null) {
+			return true
+		}
+		const resolvedTrigger = trigger != '' ? trigger : 'submit'
+		if (resolvedTrigger == 'submit') {
+			return item.validate()
+		}
+		return item.validateByTrigger(resolvedTrigger)
+	}
+
+	/**
 	 * 重置校验状态
 	 */
 	const resetValidation = () => {
@@ -165,6 +180,7 @@
 
 	defineExpose({
 		validate,
+		validateField,
 		resetValidation,
 		submit,
 		getFieldsError

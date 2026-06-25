@@ -1,6 +1,7 @@
 <script setup lang="uts">
 	import { inject, computed, ref, watch, onMounted, type ComputedRef } from 'vue'
 	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
+	import { K_FORM_ITEM_VALIDATE_TRIGGER_KEY } from '../k-form/form-context.uts'
 
 	/**
 	 * k-checkbox 复选框
@@ -61,6 +62,10 @@
 
 	const themeConfig = inject('kit-theme', {})
 	const slots = useSlots()
+	const validateByTrigger = inject<((trigger : string) => boolean) | null>(
+		K_FORM_ITEM_VALIDATE_TRIGGER_KEY,
+		null
+	)
 
 	const groupValues = inject<ComputedRef<(string | number)[]> | null>('k-checkbox-group-values', null)
 	const groupDisabled = inject<ComputedRef<boolean> | null>('k-checkbox-group-disabled', null)
@@ -379,6 +384,9 @@
 		const nextValue = !props.modelValue
 		emit('update:modelValue', nextValue)
 		emit('change', props.name, nextValue)
+		if (validateByTrigger != null) {
+			validateByTrigger('change')
+		}
 	}
 
 	/**

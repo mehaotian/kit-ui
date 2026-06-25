@@ -1,3 +1,5 @@
+import type { FormRuleValidatorFn } from './form.type.uts'
+
 /**
  * 将任意对象转为 UTSJSONObject（JSON 序列化，兼容 reactive 与 typed 对象）
  * 注意：含函数的对象会丢失函数，rules 含 validator 时请走 readRulesFieldValue
@@ -175,4 +177,70 @@ export function toNumberValue(value : any) : number {
 		return value
 	}
 	return parseFloat(`${value}`)
+}
+
+/**
+ * 从规则项读取函数字段（仅 UTSJSONObject 直读，避免 JSON 丢失）
+ */
+export function readRuleFunction(rule : any, key : string) : any | null {
+	if (rule == null || key == '') {
+		return null
+	}
+	if (rule instanceof UTSJSONObject) {
+		const value = (rule as UTSJSONObject).get(key)
+		if (value != null && typeof value == 'function') {
+			return value
+		}
+	}
+	return null
+}
+
+/**
+ * 调用规则项 validator（顶层命名函数，避免 APP 上 any 变量不可 invoke）
+ */
+export function invokeRuleValidator(
+	rule : any,
+	value : any,
+	model : any | null
+) : boolean | string | null {
+	if (rule == null || !(rule instanceof UTSJSONObject)) {
+		return null
+	}
+	const rawFn = (rule as UTSJSONObject).get('validator')
+	if (rawFn == null || typeof rawFn != 'function') {
+		return null
+	}
+	const validator = rawFn as FormRuleValidatorFn
+	return validator(value, rule, model)
+}
+
+/**
+ * 判断规则是否匹配指定 trigger（未配置 trigger 视为仅 submit）
+ */
+export function isRuleMatchTrigger(rule : any, trigger : string) : boolean {
+	if (trigger == 'submit' || trigger == '') {
+		return true
+	}
+	const ruleTrigger = readRuleString(rule, 'trigger')
+	if (ruleTrigger == null || ruleTrigger == '') {
+		return false
+	}
+	return ruleTrigger == trigger
+}
+
+/**
+ * 按 trigger 过滤规则列表（submit 返回全部规则）
+ */
+export function filterRulesByTrigger(rules : any[], trigger : string) : any[] {
+	if (trigger == 'submit' || trigger == '') {
+		return rules
+	}
+	const result : any[] = []
+	for (let i = 0; i < rules.length; i++) {
+		const rule = rules[i]
+		if (isRuleMatchTrigger(rule, trigger)) {
+			result.push(rule)
+		}
+	}
+	return result
 }
