@@ -315,8 +315,7 @@
 		}
 		// #endif
 
-
-		// 处理自定义样式
+		// 先合并 customStyle，再补默认尺寸（允许调用方覆盖 width/height）
 		if (props.customStyle != '') {
 			if (typeof props.customStyle == 'string') {
 				// 简单的字符串样式解析
@@ -334,14 +333,13 @@
 					}
 				}
 			}
-			// TODO 只支持 string类型，通 style ，暂不支持对象格式
-			// else {
-			// 	// 对象样式
-			// 	const customObj = props.customStyle as UTSJSONObject
-			// 	for (const key in customObj) {
-			// 		style[key] = customObj[key]
-			// 	}
-			// }
+		}
+
+		if (style['width'] == null) {
+			style.width = iconSize.value
+		}
+		if (style['height'] == null) {
+			style.height = iconSize.value
 		}
 
 		// 处理自定义旋转速度
@@ -364,10 +362,12 @@
 	})
 
 	const textStyle = computed(() : UTSJSONObject => {
+		const size = iconSize.value
 		const style : UTSJSONObject = {
-			fontSize: iconSize.value,
+			fontSize: size,
 			color: iconColor.value,
-			lineHeight: '1'
+			lineHeight: size,
+			textAlign: 'center'
 		}
 		if (iconType.value == 'text') {
 			style['fontFamily'] = 'KIconRoot'
@@ -469,12 +469,30 @@
 	/* #endif */
 
 
-	// 基础图标字体类
+	.k-icon {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		box-sizing: border-box;
+	}
+
+	.k-icon--loading {
+		overflow: hidden;
+	}
+
+	// 基础图标字体类（字号由 textStyle 控制，勿写 dead font-size）
 	.k-icon-font {
 		font-family: KIconRoot;
-		font-size: 18px;
 		font-style: normal;
 		color: #333;
+		text-align: center;
+		line-height: 1;
+	}
+
+	.k-icon__image {
+		flex-shrink: 0;
 	}
 
 	/* #ifndef APP*/
@@ -482,6 +500,7 @@
 	.k-icon--loading {
 		animation: k-icon-loading 1s linear infinite;
 		transform: rotate(0);
+		transform-origin: center center;
 	}
 
 	.k-icon--loading-reverse {

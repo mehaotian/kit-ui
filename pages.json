@@ -161,6 +161,18 @@
 			"style": {
 				"navigationBarTitleText": "弹出层"
 			}
+		},
+		{
+			"path": "pages/toast/toast",
+			"style": {
+				"navigationBarTitleText": "轻提示"
+			}
+		},
+		{
+			"path": "pages/modal/modal",
+			"style": {
+				"navigationBarTitleText": "模态框"
+			}
 		}
 	],
 	"globalStyle": {

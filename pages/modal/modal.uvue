@@ -1,0 +1,337 @@
+<template>
+	<!-- 弹层打开时锁定页面滚动 -->
+	<page-meta :page-style="'overflow:' + pageOverflow" />
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-modal 模态框</text>
+				<text class="page-desc">基于 k-popup center 预设，Z_INDEX_MODAL 层级</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">标题 + 内容 + 确认/取消</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="打开确认框" @click="basicShow = true" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">仅确认 / 自定义文案 / 异步关闭</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block text="仅确认按钮" @click="alertShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="自定义文案" @click="customTextShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="异步关闭（模拟请求）" @click="asyncCloseShow = true" />
+					</view>
+				</view>
+			</view>
+
+			<!-- beforeClose -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">关闭拦截</text>
+					<text class="page-desc">未勾选禁用确定 + beforeClose 拦截</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block text="未勾选不可确认" @click="beforeCloseShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-tip">拦截日志：{{ interceptLog }}</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 组合链路 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">组合链路</text>
+					<text class="page-desc">表单提交 → modal 确认 → toast 反馈</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-input v-model="submitName" placeholder="请输入昵称" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="提交" @click="openSubmitModal" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">遮罩不可关闭 / 自定义 slot</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block text="遮罩不可关闭" @click="maskLockShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="自定义内容 slot" @click="slotShow = true" />
+					</view>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+
+	<!-- 基础确认框 -->
+	<k-modal
+		v-model:show="basicShow"
+		title="提示"
+		content="确认执行此操作吗？"
+		@confirm="appendLog('basic confirm')"
+		@cancel="appendLog('basic cancel')"
+	/>
+
+	<!-- 仅确认 -->
+	<k-modal
+		v-model:show="alertShow"
+		title="通知"
+		content="您的申请已提交，请耐心等待审核。"
+		:show-cancel-button="false"
+		confirm-text="知道了"
+	/>
+
+	<!-- 自定义文案 -->
+	<k-modal
+		v-model:show="customTextShow"
+		title="删除确认"
+		content="删除后数据无法恢复，是否继续？"
+		confirm-text="删除"
+		cancel-text="再想想"
+		confirm-type="danger"
+	/>
+
+	<!-- 异步 beforeClose：确认后 loading，请求结束再关闭 -->
+	<k-modal
+		v-model:show="asyncCloseShow"
+		title="异步提交"
+		content="点击确定后将模拟 1.5s 网络请求，期间按钮 loading。"
+		:before-close="handleAsyncBeforeClose"
+		@confirm="appendLog('async confirm')"
+	/>
+
+	<!-- beforeClose 拦截：勾选在弹窗内，未勾选时禁用确定 -->
+	<k-modal
+		v-model:show="beforeCloseShow"
+		title="协议确认"
+		:confirm-disabled="!agreeChecked"
+		:before-close="handleBeforeClose"
+		@open="resetAgreeChecked"
+		@confirm="appendLog('agree confirm')"
+	>
+		<view class="modal-agree-body">
+			<text class="modal-agree-tip">请先勾选同意后再确认。</text>
+			<view class="modal-agree-check">
+				<k-checkbox v-model="agreeChecked" label="我已阅读并同意" />
+			</view>
+		</view>
+	</k-modal>
+
+	<!-- 提交确认 -->
+	<k-modal
+		v-model:show="submitModalShow"
+		title="提交确认"
+		:content="'确认提交昵称：' + submitName + ' ？'"
+		@confirm="handleSubmitConfirm"
+	/>
+
+	<!-- 遮罩不可关闭 -->
+	<k-modal
+		v-model:show="maskLockShow"
+		title="重要提示"
+		content="请点击按钮关闭，点击遮罩无效。"
+		:close-on-click-overlay="false"
+		:show-cancel-button="false"
+	/>
+
+	<!-- 自定义 slot -->
+	<k-modal v-model:show="slotShow" title="自定义内容">
+		<view class="modal-slot-body">
+			<k-icon name="checkbox-circle-fill" size="32" color="#6366f1" />
+			<text class="modal-slot-text">通过 default slot 插入任意内容。</text>
+		</view>
+	</k-modal>
+
+	<!-- toast 反馈 -->
+	<k-toast
+		v-model:show="feedbackToastShow"
+		:message="feedbackToastMessage"
+		:type="feedbackToastType"
+	/>
+</template>
+
+<script setup lang="uts">
+	import { resolvePageMetaOverflow } from '@/uni_modules/kit-ui/components/k-popup/popup-utils.uts'
+
+	const basicShow = ref<boolean>(false)
+	const alertShow = ref<boolean>(false)
+	const customTextShow = ref<boolean>(false)
+	const asyncCloseShow = ref<boolean>(false)
+	const beforeCloseShow = ref<boolean>(false)
+	const submitModalShow = ref<boolean>(false)
+	const maskLockShow = ref<boolean>(false)
+	const slotShow = ref<boolean>(false)
+
+	const agreeChecked = ref<boolean>(false)
+	const interceptLog = ref<string>('暂无')
+	const submitName = ref<string>('')
+
+	const feedbackToastShow = ref<boolean>(false)
+	const feedbackToastMessage = ref<string>('')
+	const feedbackToastType = ref<string>('text')
+
+	/**
+	 * 任一弹层打开时锁定页面滚动
+	 */
+	const anyModalVisible = computed((): boolean => {
+		return basicShow.value
+			|| alertShow.value
+			|| customTextShow.value
+			|| asyncCloseShow.value
+			|| beforeCloseShow.value
+			|| submitModalShow.value
+			|| maskLockShow.value
+			|| slotShow.value
+	})
+
+	const pageOverflow = computed((): string => {
+		return resolvePageMetaOverflow(anyModalVisible.value)
+	})
+
+	/**
+	 * 展示 toast 反馈（modal 仍打开时切换 toast 内容，依赖 k-toast switchToastContent）
+	 */
+	function showFeedbackToast(message : string, type : string = 'text') {
+		feedbackToastMessage.value = message
+		feedbackToastType.value = type
+		if (!feedbackToastShow.value) {
+			feedbackToastShow.value = true
+		}
+	}
+
+	/**
+	 * 记录 modal 动作日志
+	 */
+	const appendLog = (message : string) => {
+		const time = Date.now() % 100000
+		interceptLog.value = `[${time}] ${message}`
+	}
+
+	/**
+	 * 每次打开协议弹窗时重置勾选（勾选控件在弹窗内，避免打开前勾选被清空）
+	 */
+	function resetAgreeChecked() {
+		agreeChecked.value = false
+	}
+
+	/**
+	 * 异步 beforeClose：模拟网络请求，resolve(true) 后关闭 modal
+	 */
+	function handleAsyncBeforeClose(action : string) : boolean | Promise<boolean> {
+		appendLog(`beforeClose: ${action}`)
+		if (action != 'confirm') {
+			return true
+		}
+		return new Promise((resolve : (value : boolean) => void) => {
+			setTimeout(() => {
+				showFeedbackToast('提交成功', 'success')
+				resolve(true)
+			}, 1500)
+		})
+	}
+
+	/**
+	 * beforeClose 同步拦截：未勾选时 confirm 返回 false 并 toast 提示
+	 */
+	function handleBeforeClose(action : string) : boolean {
+		appendLog(`beforeClose: ${action}`)
+		if (action == 'confirm' && !agreeChecked.value) {
+			showFeedbackToast('请先勾选同意', 'fail')
+			return false
+		}
+		return true
+	}
+
+	/**
+	 * 打开提交确认 modal
+	 */
+	const openSubmitModal = () => {
+		if (submitName.value == '') {
+			showFeedbackToast('请输入昵称', 'fail')
+			return
+		}
+		submitModalShow.value = true
+	}
+
+	/**
+	 * 提交确认后 toast 成功反馈
+	 */
+	const handleSubmitConfirm = () => {
+		showFeedbackToast('提交成功', 'success')
+	}
+</script>
+
+<style lang="scss">
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+		line-height: 18px;
+	}
+
+	.modal-agree-body {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.modal-agree-tip {
+		font-size: 14px;
+		color: var(--k-text-color-secondary, #6b7280);
+		line-height: 22px;
+		text-align: center;
+	}
+
+	.modal-agree-check {
+		width: 100%;
+		margin-top: 16px;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
+
+	.modal-slot-body {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 12px 0 4px 0;
+	}
+
+	.modal-slot-text {
+		font-size: 14px;
+		color: var(--k-text-color-secondary, #6b7280);
+		margin-top: 12px;
+		text-align: center;
+		line-height: 22px;
+	}
+</style>

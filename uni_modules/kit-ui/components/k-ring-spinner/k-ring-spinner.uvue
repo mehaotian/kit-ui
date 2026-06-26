@@ -1,0 +1,154 @@
+<script setup lang="uts">
+	import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+
+	defineOptions({
+		name: 'KRingSpinner'
+	})
+
+	/**
+	 * 同心圆环 loading（toast / button 等共用，避免字体 loader 旋转偏心）
+	 */
+
+	type KRingSpinnerProps = {
+		size ?: string
+		color ?: string
+		trackColor ?: string
+		speed ?: number
+	}
+
+	const props = withDefaults(defineProps<KRingSpinnerProps>(), {
+		size: '16',
+		color: '#ffffff',
+		trackColor: '',
+		speed: 800
+	})
+
+	// #ifdef APP
+	const rotateAngle = ref<number>(0)
+	const animationFrameId = ref<number | null>(null)
+
+	/**
+	 * 停止旋转动画
+	 */
+	function stopAnimation() : void {
+		if (animationFrameId.value != null) {
+			cancelAnimationFrame(animationFrameId.value)
+			animationFrameId.value = null
+		}
+	}
+
+	/**
+	 * APP 端 rAF 驱动旋转
+	 */
+	function startAnimation() : void {
+		stopAnimation()
+		let lastTimestamp = 0
+		const speed = props.speed
+		if (speed <= 0) {
+			return
+		}
+
+		function animate(timestamp : number) {
+			if (lastTimestamp != 0) {
+				const deltaTime = timestamp - lastTimestamp
+				rotateAngle.value = rotateAngle.value + (360 / speed) * deltaTime
+				if (rotateAngle.value >= 360) {
+					rotateAngle.value = rotateAngle.value - 360
+				}
+			}
+			lastTimestamp = timestamp
+			animationFrameId.value = requestAnimationFrame((ts : number) => {
+				animate(ts)
+			})
+		}
+
+		animationFrameId.value = requestAnimationFrame((ts : number) => {
+			animate(ts)
+		})
+	}
+
+	onMounted(() => {
+		startAnimation()
+	})
+
+	onBeforeUnmount(() => {
+		stopAnimation()
+	})
+	// #endif
+
+	/**
+	 * 解析边长 px
+	 */
+	function resolveSpinnerPx() : number {
+		const raw = props.size
+		if (/^\d+$/.test(raw)) {
+			return parseInt(raw)
+		}
+		return 16
+	}
+
+	/**
+	 * 默认轨道色（主色半透明）
+	 */
+	function resolveDefaultTrackColor(color : string) : string {
+		if (color == '#ffffff' || color == '#fff') {
+			return 'rgba(255, 255, 255, 0.35)'
+		}
+		if (color.indexOf('#') == 0 && color.length == 7) {
+			return `${color}59`
+		}
+		return 'rgba(0, 0, 0, 0.15)'
+	}
+
+	/**
+	 * 圆环 inline 样式
+	 */
+	const ringStyle = computed((): string => {
+		const px = resolveSpinnerPx()
+		const radius = px / 2
+		let track = props.trackColor
+		if (track == '') {
+			track = resolveDefaultTrackColor(props.color)
+		}
+		let style = `width:${px}px;height:${px}px;min-width:${px}px;min-height:${px}px;border-radius:${radius}px;border-color:${track};border-left-color:${props.color}`
+		// #ifdef APP
+		style += `;transform:rotate(${rotateAngle.value}deg)`
+		// #endif
+		return style
+	})
+</script>
+
+<template>
+	<!-- #ifdef APP -->
+	<view class="k-ring-spinner" :style="ringStyle"></view>
+	<!-- #endif -->
+	<!-- #ifndef APP -->
+	<view class="k-ring-spinner k-ring-spinner--spin" :style="ringStyle"></view>
+	<!-- #endif -->
+</template>
+
+<style lang="scss">
+	.k-ring-spinner {
+		flex-shrink: 0;
+		box-sizing: border-box;
+		border-width: 2px;
+		border-style: solid;
+		transform-origin: center center;
+	}
+
+	/* #ifndef APP */
+	.k-ring-spinner--spin {
+		animation: k-ring-spinner-spin 0.8s linear infinite;
+	}
+
+	@keyframes k-ring-spinner-spin {
+		from {
+			transform: rotate(0deg);
+		}
+
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	/* #endif */
+</style>

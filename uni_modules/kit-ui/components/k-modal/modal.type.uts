@@ -1,0 +1,8 @@
+/**
+ * k-modal 类型定义
+ */
+
+export type ModalCloseAction = 'confirm' | 'cancel' | 'overlay'
+
+/** 返回 false 阻止关闭；返回 Promise 时 modal 确认按钮进入 loading */
+export type BeforeCloseHandler = (action : string) => boolean | Promise<boolean> | null

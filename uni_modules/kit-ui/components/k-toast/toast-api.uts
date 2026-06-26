@@ -1,0 +1,58 @@
+import { ref } from 'vue'
+import { type ToastShowOptions } from './toast.type.uts'
+
+/**
+ * 命令式 toast 全局状态（独立 ref，避免 APP 端 reactive 对象属性不可访问）
+ * 页面需挂载 `<k-toast global />`
+ */
+export const toastGlobalShow = ref<boolean>(false)
+export const toastGlobalMessage = ref<string>('')
+export const toastGlobalType = ref<string>('text')
+export const toastGlobalPosition = ref<string>('center')
+export const toastGlobalDuration = ref<number>(2000)
+export const toastGlobalOverlay = ref<boolean>(false)
+export const toastGlobalIcon = ref<string>('')
+
+/**
+ * 写入全局 toast 状态；已显示时仅更新内容，不重置 show（避免重播进入动画）
+ */
+export function applyToastOptions(options : ToastShowOptions) : void {
+	toastGlobalMessage.value = options.message
+	toastGlobalType.value = options.type
+	toastGlobalPosition.value = options.position
+	toastGlobalDuration.value = options.duration
+	toastGlobalOverlay.value = options.overlay
+	toastGlobalIcon.value = options.icon
+	if (!toastGlobalShow.value) {
+		toastGlobalShow.value = true
+	}
+}
+
+/**
+ * 显示轻提示（命令式 API 预研，字符串快捷形式）
+ */
+export function showToast(message : string, duration : number = 2000) : void {
+	const options : ToastShowOptions = {
+		message: message,
+		type: 'text',
+		position: 'center',
+		duration: duration,
+		overlay: false,
+		icon: ''
+	}
+	applyToastOptions(options)
+}
+
+/**
+ * 显示轻提示（命令式 API 预研，完整配置）
+ */
+export function showToastOptions(options : ToastShowOptions) : void {
+	applyToastOptions(options)
+}
+
+/**
+ * 关闭当前命令式 toast
+ */
+export function hideToast() : void {
+	toastGlobalShow.value = false
+}

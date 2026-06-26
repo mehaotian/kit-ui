@@ -3,6 +3,7 @@
 		inject,
 		computed
 	} from 'vue'
+	import KRingSpinner from '../k-ring-spinner/k-ring-spinner.uvue'
 
 	/**
 	 * k-button 按钮组件
@@ -36,6 +37,11 @@
 		},
 		// 是否加载中
 		loading: {
+			type: Boolean,
+			default: false
+		},
+		// 是否通栏（宽度 100%）
+		block: {
 			type: Boolean,
 			default: false
 		},
@@ -170,6 +176,7 @@
 			{
 				'k-button--disabled': disabled,
 				'k-button--loading': loading,
+				'k-button--block': block,
 				'k-button--plain': plain,
 				'k-button--round': round,
 				'k-button--circle': circle,
@@ -177,8 +184,12 @@
 				'k-button--shadow': shadow
 			}
 		]" :style="buttonStyle" :hover-class="hoverClass" @click="handleClick">
-		<k-icon v-if="loading" class="k-button__loading-icon" name="loader-4-fill" :size="iconSize" :color="contentColor" loading></k-icon>
-		<k-icon v-else-if="icon != ''" class="k-button__icon" :name="icon" :size="iconSize" :color="contentColor"></k-icon>
+		<view v-if="loading" class="k-button__loading-icon">
+			<k-ring-spinner :size="iconSize" :color="contentColor" />
+		</view>
+		<view v-else-if="icon != ''" class="k-button__icon">
+			<k-icon class="k-button__icon-inner" :name="icon" :size="iconSize" :color="contentColor"></k-icon>
+		</view>
 		<text class="k-button__text">
 			<slot>{{ text }}</slot>
 		</text>
@@ -351,21 +362,39 @@
 			border-top-right-radius: var(--k-border-radius-sm, 6px);
 			border-bottom-left-radius: var(--k-border-radius-sm, 6px);
 			border-bottom-right-radius: var(--k-border-radius-sm, 6px);
+			/* #ifdef APP */
+			height: 30px;
+			/* #endif */
+			/* #ifndef APP */
+			min-height: 30px;
+			/* #endif */
 
 			// 圆形按钮
 			&.k-button--circle {
 				width: var(--k-component-size-sm, 32px);
 				height: var(--k-component-size-sm, 32px);
+				/* #ifndef APP */
+				min-height: var(--k-component-size-sm, 32px);
+				/* #endif */
 			}
 		}
 
 		&--medium {
 
 			// 默认尺寸，使用基础样式
+			/* #ifdef APP */
+			height: 40px;
+			/* #endif */
+			/* #ifndef APP */
+			min-height: 40px;
+			/* #endif */
 			// 圆形按钮
 			&.k-button--circle {
 				width: var(--k-component-size-md, 40px);
 				height: var(--k-component-size-md, 40px);
+				/* #ifndef APP */
+				min-height: var(--k-component-size-md, 40px);
+				/* #endif */
 			}
 		}
 
@@ -378,10 +407,19 @@
 			border-top-right-radius: var(--k-border-radius-lg, 12px);
 			border-bottom-left-radius: var(--k-border-radius-lg, 12px);
 			border-bottom-right-radius: var(--k-border-radius-lg, 12px);
+			/* #ifdef APP */
+			height: 50px;
+			/* #endif */
+			/* #ifndef APP */
+			min-height: 50px;
+			/* #endif */
 
 			&.k-button--circle {
 				width: var(--k-component-size-lg, 56px);
 				height: var(--k-component-size-lg, 56px);
+				/* #ifndef APP */
+				min-height: var(--k-component-size-lg, 56px);
+				/* #endif */
 			}
 		}
 
@@ -565,13 +603,42 @@
 			/* #endif */
 		}
 
-		// 内部元素
-		&__loading-icon {
-			margin-right: 6px;
+		// 通栏按钮（演示页 / 表单提交等）
+		&--block {
+			width: 100%;
+			align-self: stretch;
 		}
 
+		// 内部元素
+		&__loading-icon,
 		&__icon {
+			flex-shrink: 0;
+			width: 16px;
+			height: 16px;
 			margin-right: 6px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+		}
+
+		&__icon-inner {
+			flex-shrink: 0;
+			width: 100%;
+			height: 100%;
+		}
+
+		&--small &__loading-icon,
+		&--small &__icon {
+			width: 14px;
+			height: 14px;
+		}
+
+		&--large &__loading-icon,
+		&--large &__icon {
+			width: 18px;
+			height: 18px;
 		}
 
 		&__text {
@@ -580,6 +647,10 @@
 			text-align: center;
 			line-height: 1;
 			color: var(--k-text-color, #374151);
+			/* #ifdef APP */
+			// APP 端 text 在 flex 行内视觉偏上，line-height 与图标槽同高以对齐
+			line-height: 16px;
+			/* #endif */
 		}
 
 		// 不同按钮类型的文字颜色
@@ -627,10 +698,16 @@
 		// 不同尺寸的文字大小
 		&--small &__text {
 			font-size: var(--k-font-size-sm, 12px);
+			/* #ifdef APP */
+			line-height: 14px;
+			/* #endif */
 		}
 
 		&--large &__text {
 			font-size: var(--k-font-size-lg, 18px);
+			/* #ifdef APP */
+			line-height: 18px;
+			/* #endif */
 		}
 
 		&--circle &__loading-icon,

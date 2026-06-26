@@ -1,0 +1,23 @@
+import { type BeforeCloseHandler } from './modal.type.uts'
+
+/**
+ * 执行 beforeClose（同步 boolean 或 Promise<boolean>）
+ */
+export function invokeBeforeClose(handler : BeforeCloseHandler, action : string) : Promise<boolean> {
+	const result = handler(action)
+	if (result == false) {
+		return Promise.resolve(false)
+	}
+	if (result == true) {
+		return Promise.resolve(true)
+	}
+	if (result == null) {
+		return Promise.resolve(true)
+	}
+	const promise = result as Promise<boolean>
+	return promise.then((allowed : boolean) : boolean => {
+		return allowed != false
+	}).catch((_err) : boolean => {
+		return false
+	})
+}

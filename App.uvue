@@ -46,12 +46,12 @@
 	// }
 
 	.page {
-		padding: 16px;
+		padding: 20px;
 		background-color: var(--k-bg-color-page, #f8fafc);
 	}
 
 	.page-header {
-		margin-bottom: 12px;
+		margin-bottom: 16px;
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
@@ -74,8 +74,8 @@
 	.section {
 		display: flex;
 		flex-direction: column;
-		margin-bottom: 12px;
-		padding: 12px;
+		margin-bottom: 16px;
+		padding: 16px;
 		border-radius: 12px;
 		border: 1px solid var(--k-border-color-light, #f3f4f6);
 		background-color: var(--k-bg-color, #ffffff);
@@ -86,7 +86,7 @@
 	}
 
 	.section-title {
-		margin-bottom: 10px;
+		margin-bottom: 12px;
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
@@ -109,7 +109,7 @@
 	}
 
 	.demo-content + .demo-content {
-		margin-top: 10px;
+		margin-top: 12px;
 	}
 
 	.demo-row {
@@ -130,5 +130,18 @@
 	.demo-column {
 		display: flex;
 		flex-direction: column;
+		align-items: stretch;
+	}
+
+	/** 演示项垂直间距（包 native view，WEB/APP/MP 均生效，勿直接 margin 自定义组件） */
+	.demo-stack-item {
+		width: 100%;
+		margin-bottom: 12px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.demo-stack-item:last-child {
+		margin-bottom: 0;
 	}
 </style>

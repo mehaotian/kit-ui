@@ -15,9 +15,8 @@
 			<view class="category-list">
 				<view v-for="(category, index) in componentCategories" :key="index" class="category-card">
 					<view class="category-header">
-						<view class="category-icon">
-							<!-- <text class="icon-text">{{ category.icon }}</text> -->
-							<k-icon :name="category.icon" color="#fff" :custom-style="`background-image: ${category.color}; border-radius: 10px; padding: 10px;border：1px red solid;`"></k-icon>
+						<view class="category-icon" :style="{ backgroundImage: category.color }">
+							<k-icon :name="category.icon" color="#ffffff" size="22" />
 						</view>
 						<view class="category-info">
 							<text class="category-title">{{ category.name }}</text>
@@ -136,8 +135,8 @@
 			path: '/pages/category/feedback',
 			components: [
 				{ name: 'Popup', path: '/pages/popup/popup', status: 'completed' },
-				{ name: 'Toast', path: '/pages/toast/toast', status: 'planning' },
-				{ name: 'Modal', path: '/pages/modal/modal', status: 'planning' },
+				{ name: 'Toast', path: '/pages/toast/toast', status: 'completed' },
+				{ name: 'Modal', path: '/pages/modal/modal', status: 'completed' },
 				{ name: 'ActionSheet', path: '/pages/actionsheet/actionsheet', status: 'planning' },
 				{ name: 'Loading', path: '/pages/loading/loading', status: 'completed' },
 				{ name: 'Progress', path: '/pages/progress/progress', status: 'planning' },
@@ -419,7 +418,17 @@
 	}
 
 	.category-icon {
+		width: 44px;
+		height: 44px;
+		min-width: 44px;
+		min-height: 44px;
+		border-radius: 10px;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
 		margin-right: 16px;
+		flex-shrink: 0;
 	}
 
 	.icon-text {

@@ -1,0 +1,102 @@
+import { type ToastPosition } from './toast.type.uts'
+import { POPUP_TRANSITION_EASING, POPUP_APP_FRAME_DELAY } from '../k-overlay/overlay-stack.uts'
+
+export { POPUP_TRANSITION_EASING, POPUP_APP_FRAME_DELAY }
+
+/** top/bottom 进入时的轻微位移 px（退出不再滑动，仅淡出） */
+export const TOAST_OFFSET_Y = 12
+
+/** top/bottom 距屏幕边缘 + 安全区的额外间距 px（WEB 演示页导航下 48px 仍适用，APP/MP 用 12px） */
+export const TOAST_EDGE_INSET = 12
+export const TOAST_EDGE_INSET_WEB = 48
+
+export type SafeAreaInsets = {
+	top : number
+	bottom : number
+}
+
+/**
+ * 读取安全区（APP 端 safeAreaInsets 可能为 0，回退 safeArea 矩形计算）
+ */
+export function readToastSafeAreaInsets() : SafeAreaInsets {
+	let top = 0
+	let bottom = 0
+	const info = uni.getWindowInfo()
+	if (info.safeAreaInsets != null) {
+		top = info.safeAreaInsets!.top
+		bottom = info.safeAreaInsets!.bottom
+	}
+	if (info.safeArea != null) {
+		if (top == 0) {
+			top = info.safeArea!.top
+		}
+		if (bottom == 0) {
+			const fromWindow = info.windowHeight - info.safeArea!.bottom
+			if (fromWindow > 0) {
+				bottom = fromWindow
+			} else {
+				bottom = info.screenHeight - info.safeArea!.bottom
+			}
+		}
+	}
+	return {
+		top: top,
+		bottom: bottom
+	} as SafeAreaInsets
+}
+
+/**
+ * 计算 top/bottom 容器 padding（与 MP env(safe-area)+12 对齐，WEB 用 48）
+ */
+export function getToastEdgePadding(
+	position : ToastPosition,
+	safeTop : number,
+	safeBottom : number,
+	useWebInset : boolean
+) : number {
+	const edge = useWebInset ? TOAST_EDGE_INSET_WEB : TOAST_EDGE_INSET
+	if (position == 'top') {
+		return safeTop + edge
+	}
+	if (position == 'bottom') {
+		return safeBottom + edge
+	}
+	return 0
+}
+
+/**
+ * 获取 toast 进入动画起点 transform
+ */
+export function getToastEnterTransform(position : ToastPosition) : string {
+	if (position == 'top') {
+		return `translateY(-${TOAST_OFFSET_Y}px)`
+	}
+	if (position == 'bottom') {
+		return `translateY(${TOAST_OFFSET_Y}px)`
+	}
+	return 'scale(0.85)'
+}
+
+/**
+ * 获取 toast 展开后的 transform（退出阶段保持此值，避免滑出停顿）
+ */
+export function getToastActiveTransform(position : ToastPosition) : string {
+	if (position == 'center') {
+		return 'scale(1)'
+	}
+	return 'translate(0, 0)'
+}
+
+/**
+ * 获取 toast opacity（全位置统一淡入淡出）
+ */
+export function getToastOpacity(active : boolean) : string {
+	return active ? '1' : '0'
+}
+
+/**
+ * 获取 APP 端 transition-property
+ */
+export function getToastTransitionProperty() : string {
+	return 'transform, opacity'
+}

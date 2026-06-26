@@ -1,6 +1,18 @@
 /**
  * 弹层 z-index 栈管理
  * 借鉴 Element Plus nextZIndex，避免同页多弹层手动传 z-index
+ *
+ * ## 分配规则
+ * - 各组件传入「语义基准」：popup=2000、toast=3000、modal=4000
+ * - 每次调用 nextZIndex(base) 返回 base + stackCounter，且 **全局单调递增**
+ * - 若 candidate <= topZIndex，则 bump 为 topZIndex + 1
+ *
+ * ## 典型序列
+ * 1. modal 打开 → 4001
+ * 2. toast 在 modal 未关时打开 → max(3002, 4002) = 4002（叠在 modal 上）
+ * 3. 再开 popup → 继续递增
+ *
+ * 语义基准仅作下限参考，**后打开的层始终高于已打开层**。
  */
 
 /** 主题层级基准（与 variables.scss 对齐） */
@@ -10,6 +22,8 @@ export const Z_INDEX_MODAL = 4000
 export const Z_INDEX_LOADING = 5000
 
 let stackCounter = 0
+/** 已分配的最高 z-index，保证后打开的 toast 能叠在 modal 之上 */
+let topZIndex = Z_INDEX_POPPER - 1
 
 /** 三端统一缓动（与 WEB 弹层 cubic-bezier 一致，轻缓动无回弹） */
 export const POPUP_TRANSITION_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)'
@@ -25,11 +39,16 @@ export const POPUP_WEB_ANIM_FRAME_GAP_WEB = 8
 export const POPUP_WEB_ANIM_FRAME_GAP_MP = 20
 
 /**
- * 分配递增 z-index
+ * 分配递增 z-index（跨 popup/toast/modal 单调递增，避免 toast 基准低于 modal）
  */
 export function nextZIndex(base : number = Z_INDEX_POPPER) : number {
 	stackCounter = stackCounter + 1
-	return base + stackCounter
+	let candidate = base + stackCounter
+	if (candidate <= topZIndex) {
+		candidate = topZIndex + 1
+	}
+	topZIndex = candidate
+	return candidate
 }
 
 /**
@@ -37,6 +56,7 @@ export function nextZIndex(base : number = Z_INDEX_POPPER) : number {
  */
 export function resetZIndexStack() : void {
 	stackCounter = 0
+	topZIndex = Z_INDEX_POPPER - 1
 }
 
 /**

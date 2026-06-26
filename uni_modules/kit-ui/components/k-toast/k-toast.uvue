@@ -1,0 +1,910 @@
+<script setup lang="uts">
+	import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+	import KOverlay from '../k-overlay/k-overlay.uvue'
+	import KRingSpinner from '../k-ring-spinner/k-ring-spinner.uvue'
+	import KIcon from '../k-icon/k-icon.uvue'
+	import {
+		nextZIndex,
+		Z_INDEX_TOAST,
+		POPUP_WEB_ANIM_FRAME_GAP_WEB,
+		POPUP_WEB_ANIM_FRAME_GAP_MP
+	} from '../k-overlay/overlay-stack.uts'
+	import {
+		getToastEnterTransform,
+		getToastActiveTransform,
+		getToastTransitionProperty,
+		POPUP_TRANSITION_EASING,
+		POPUP_APP_FRAME_DELAY,
+		readToastSafeAreaInsets,
+		getToastEdgePadding
+	} from './toast-animation.uts'
+	import {
+		toastGlobalShow,
+		toastGlobalMessage,
+		toastGlobalType,
+		toastGlobalPosition,
+		toastGlobalDuration,
+		toastGlobalOverlay,
+		toastGlobalIcon
+	} from './toast-api.uts'
+	import { type ToastPosition, type ToastType } from './toast.type.uts'
+
+	defineOptions({
+		name: 'KToast'
+	})
+
+	/**
+	 * k-toast 轻提示
+	 * 声明式 v-model 或 global 命令式宿主；动画与 k-popup 同模式（APP setProperty / WEB·MP CSS + 双帧）
+	 */
+
+	type KToastProps = {
+		show ?: boolean
+		global ?: boolean
+		message ?: string
+		type ?: string
+		position ?: string
+		duration ?: number
+		overlay ?: boolean
+		overlayOpacity ?: number
+		icon ?: string
+		durationAnim ?: number
+		zIndex ?: number
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KToastProps>(), {
+		show: false,
+		global: false,
+		message: '',
+		type: 'text',
+		position: 'center',
+		duration: 2000,
+		overlay: false,
+		overlayOpacity: 0,
+		icon: '',
+		durationAnim: 300,
+		zIndex: 0,
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		'update:show' : [value: boolean]
+		open : []
+		opened : []
+		close : []
+		closed : []
+	}>()
+
+	// #ifdef APP
+	const panelRef = ref<UniElement | null>(null)
+	// #endif
+
+	const displayed = ref<boolean>(false)
+	const panelVisible = ref<boolean>(false)
+	const panelLeaving = ref<boolean>(false)
+	const displayMessage = ref<string>('')
+	const displayType = ref<string>('text')
+	const displayPosition = ref<string>('center')
+	const resolvedZIndex = ref<number>(Z_INDEX_TOAST)
+	let animTimer : number = 0
+	let autoHideTimer : number = 0
+	let toastSignature = ''
+	/** 动画代次：开/关/重进时使用，内容切换不 bump */
+	let animGeneration : number = 0
+	/** toast 会话：autoHide 仅关闭当前会话，避免 A 的定时器关掉 B */
+	let toastSession : number = 0
+	/** 合并同一帧内多次 props 变更，避免双 watch 竞态 */
+	let reconcileTimer : number = 0
+
+	/**
+	 * global / props 有效态（须在 buildToastSignature 之前声明，避免 APP error18）
+	 */
+	const effectiveShow = computed((): boolean => {
+		if (props.global) {
+			return toastGlobalShow.value
+		}
+		return props.show
+	})
+
+	const effectiveMessage = computed((): string => {
+		if (props.global) {
+			return toastGlobalMessage.value
+		}
+		return props.message
+	})
+
+	const effectiveType = computed((): string => {
+		if (props.global) {
+			return toastGlobalType.value
+		}
+		return props.type
+	})
+
+	const effectivePosition = computed((): string => {
+		if (props.global) {
+			return toastGlobalPosition.value
+		}
+		return props.position
+	})
+
+	const effectiveDuration = computed((): number => {
+		if (props.global) {
+			return toastGlobalDuration.value
+		}
+		return props.duration
+	})
+
+	const effectiveOverlay = computed((): boolean => {
+		if (props.global) {
+			return toastGlobalOverlay.value
+		}
+		return props.overlay
+	})
+
+	const effectiveIcon = computed((): string => {
+		if (props.global) {
+			return toastGlobalIcon.value
+		}
+		return props.icon
+	})
+
+	/**
+	 * 解析 position（渲染态，切换内容时延迟更新）
+	 */
+	const toastPosition = computed((): ToastPosition => {
+		const pos = displayPosition.value
+		if (pos == 'top' || pos == 'bottom' || pos == 'center') {
+			return pos as ToastPosition
+		}
+		return 'center'
+	})
+
+	/**
+	 * 解析 type（渲染态）
+	 */
+	const toastType = computed((): ToastType => {
+		const value = displayType.value
+		if (value == 'success' || value == 'fail' || value == 'loading') {
+			return value as ToastType
+		}
+		return 'text'
+	})
+
+	/**
+	 * 生成 toast 内容签名，用于判断是否需要重播动画
+	 */
+	function buildToastSignature() : string {
+		return `${effectiveMessage.value}|${effectiveType.value}|${effectivePosition.value}|${effectiveDuration.value}`
+	}
+
+	/**
+	 * 同步渲染态内容与签名
+	 */
+	function applyDisplayContent() {
+		displayMessage.value = effectiveMessage.value
+		displayType.value = effectiveType.value
+		displayPosition.value = effectivePosition.value
+		toastSignature = buildToastSignature()
+	}
+
+	/**
+	 * 清除自动关闭定时器
+	 */
+	function clearAutoHideTimer() {
+		if (autoHideTimer != 0) {
+			clearTimeout(autoHideTimer)
+			autoHideTimer = 0
+		}
+	}
+
+	/**
+	 * 更新 v-model:show
+	 */
+	function updateShow(value : boolean) {
+		if (props.global) {
+			toastGlobalShow.value = value
+			return
+		}
+		emit('update:show', value)
+	}
+
+	/**
+	 * 自动关闭（duration > 0 且非 loading；绑定 toastSession 防 A 误关 B）
+	 */
+	function scheduleAutoHide() {
+		clearAutoHideTimer()
+		if (toastType.value == 'loading') {
+			return
+		}
+		if (effectiveDuration.value <= 0) {
+			return
+		}
+		const session = toastSession
+		autoHideTimer = setTimeout(() => {
+			if (session != toastSession) {
+				return
+			}
+			if (!effectiveShow.value) {
+				return
+			}
+			updateShow(false)
+			autoHideTimer = 0
+		}, effectiveDuration.value) as number
+	}
+
+	// #ifndef APP
+	// #ifdef WEB
+	const WEB_ANIM_FRAME_GAP = POPUP_WEB_ANIM_FRAME_GAP_WEB
+	// #endif
+	// #ifndef WEB
+	const WEB_ANIM_FRAME_GAP = POPUP_WEB_ANIM_FRAME_GAP_MP
+	// #endif
+
+	/**
+	 * WEB/MP 启动进入动画
+	 */
+	function scheduleWebEnterAnim(gen : number) {
+		animTimer = setTimeout(() => {
+			if (gen != animGeneration || !effectiveShow.value) {
+				return
+			}
+			panelVisible.value = true
+			animTimer = setTimeout(() => {
+				if (gen != animGeneration) {
+					return
+				}
+				emit('opened')
+				scheduleAutoHide()
+				animTimer = 0
+			}, props.durationAnim) as number
+		}, WEB_ANIM_FRAME_GAP) as number
+	}
+
+	// #endif
+
+	/**
+	 * 清除动画定时器
+	 */
+	function clearAnimTimer() {
+		if (animTimer != 0) {
+			clearTimeout(animTimer)
+			animTimer = 0
+		}
+	}
+
+	/**
+	 * 递增动画代次并清定时器，使旧回调失效
+	 */
+	function bumpAnimGeneration() : number {
+		clearAnimTimer()
+		animGeneration = animGeneration + 1
+		return animGeneration
+	}
+
+	/**
+	 * 是否处于应可见但未展开的状态（切换中断后的卡死态）
+	 */
+	function isToastStuckVisible() : boolean {
+		return displayed.value
+			&& effectiveShow.value
+			&& !panelVisible.value
+			&& !panelLeaving.value
+			&& animTimer == 0
+	}
+
+	/**
+	 * 分配 z-index
+	 */
+	function ensureZIndex() {
+		if (props.zIndex > 0) {
+			resolvedZIndex.value = props.zIndex
+			return
+		}
+		resolvedZIndex.value = nextZIndex(Z_INDEX_TOAST)
+	}
+
+	// #ifdef APP
+	/**
+	 * APP 端写入面板 transition
+	 */
+	function applyPanelStaticStyles() {
+		if (panelRef.value == null) {
+			return
+		}
+		const node = panelRef.value!.style!
+		node.setProperty('transition-property', getToastTransitionProperty())
+		node.setProperty('transition-duration', `${props.durationAnim}ms`)
+		node.setProperty('transition-timing-function', POPUP_TRANSITION_EASING)
+	}
+
+	/**
+	 * APP 端同步 transform + opacity
+	 * leaving 时保持展开 transform，仅 opacity 降为 0
+	 */
+	function syncPanelVisual(active : boolean, leaving : boolean) {
+		if (panelRef.value == null) {
+			return
+		}
+		const pos = toastPosition.value
+		const useActiveTransform = active || leaving
+		const transformValue = useActiveTransform
+			? getToastActiveTransform(pos)
+			: getToastEnterTransform(pos)
+		const opacityValue = (active && !leaving) ? '1' : '0'
+		panelRef.value!.style!.setProperty('transform', transformValue)
+		panelRef.value!.style!.setProperty('opacity', opacityValue)
+	}
+
+	/**
+	 * APP 端等待 ref 就绪后启动进入动画
+	 */
+	function beginPanelEnterAnim(gen : number) {
+		if (gen != animGeneration || !effectiveShow.value) {
+			return
+		}
+		if (panelRef.value == null) {
+			animTimer = setTimeout(() => {
+				beginPanelEnterAnim(gen)
+			}, POPUP_APP_FRAME_DELAY) as number
+			return
+		}
+		applyPanelStaticStyles()
+		syncPanelVisual(false, false)
+		animTimer = setTimeout(() => {
+			if (gen != animGeneration || !effectiveShow.value) {
+				return
+			}
+			panelVisible.value = true
+			syncPanelVisual(true, false)
+			animTimer = setTimeout(() => {
+				if (gen != animGeneration) {
+					return
+				}
+				emit('opened')
+				scheduleAutoHide()
+				animTimer = 0
+			}, props.durationAnim) as number
+		}, POPUP_APP_FRAME_DELAY) as number
+	}
+
+	/** APP 端安全区 inset（uvue CSS 不支持 calc(env(...))） */
+	const appSafeTop = ref<number>(0)
+	const appSafeBottom = ref<number>(0)
+
+	/**
+	 * 读取 APP 安全区并缓存（展示前刷新，与 MP env(safe-area) 对齐）
+	 */
+	function readAppSafeAreaInsets() {
+		const insets = readToastSafeAreaInsets()
+		appSafeTop.value = insets.top
+		appSafeBottom.value = insets.bottom
+	}
+
+	/**
+	 * APP 切换完成后同步面板可见态
+	 */
+	function finishSwitchToastVisual() {
+		panelVisible.value = true
+		panelLeaving.value = false
+		if (panelRef.value != null) {
+			applyPanelStaticStyles()
+			syncPanelVisual(true, false)
+		}
+		emit('opened')
+		scheduleAutoHide()
+	}
+	// #endif
+
+	/**
+	 * 启动进入动画（APP / WEB·MP 统一入口）
+	 */
+	function kickEnterAnim(gen : number) {
+		// #ifdef APP
+		beginPanelEnterAnim(gen)
+		// #endif
+		// #ifndef APP
+		animTimer = setTimeout(() => {
+			if (gen != animGeneration) {
+				return
+			}
+			scheduleWebEnterAnim(gen)
+		}, WEB_ANIM_FRAME_GAP) as number
+		// #endif
+	}
+
+	/**
+	 * 播放进入动画
+	 */
+	function playEnter() {
+		toastSession = toastSession + 1
+		const gen = bumpAnimGeneration()
+		clearAutoHideTimer()
+		panelLeaving.value = false
+		// #ifdef APP
+		readAppSafeAreaInsets()
+		// #endif
+		applyDisplayContent()
+		ensureZIndex()
+		displayed.value = true
+		panelVisible.value = false
+		emit('open')
+		kickEnterAnim(gen)
+	}
+
+	/**
+	 * 播放离开动画（退出仅淡出，不再 slide 滑出）
+	 */
+	function playLeave() {
+		toastSession = toastSession + 1
+		const gen = bumpAnimGeneration()
+		clearAutoHideTimer()
+		if (!displayed.value) {
+			return
+		}
+		panelLeaving.value = true
+		// #ifdef APP
+		syncPanelVisual(true, true)
+		// #endif
+		emit('close')
+		animTimer = setTimeout(() => {
+			if (gen != animGeneration) {
+				return
+			}
+			panelVisible.value = false
+			panelLeaving.value = false
+			displayed.value = false
+			emit('closed')
+			animTimer = 0
+		}, props.durationAnim) as number
+	}
+
+	/**
+	 * 已展示时切换内容（不 bump 动画代次、不重播进入，避免 APP 切换闪退）
+	 */
+	function switchToastContent() {
+		if (!displayed.value || !effectiveShow.value) {
+			return
+		}
+		toastSession = toastSession + 1
+		clearAutoHideTimer()
+		panelLeaving.value = false
+		// #ifdef APP
+		readAppSafeAreaInsets()
+		// #endif
+		ensureZIndex()
+		applyDisplayContent()
+		// #ifdef APP
+		if (panelRef.value == null) {
+			animTimer = setTimeout(() => {
+				if (!displayed.value || !effectiveShow.value) {
+					return
+				}
+				finishSwitchToastVisual()
+				animTimer = 0
+			}, POPUP_APP_FRAME_DELAY) as number
+			return
+		}
+		finishSwitchToastVisual()
+		// #endif
+		// #ifndef APP
+		panelVisible.value = true
+		emit('opened')
+		scheduleAutoHide()
+		// #endif
+	}
+
+	/**
+	 * 卡死恢复：重播完整进入动画
+	 */
+	function recoverToastVisible() {
+		if (!displayed.value || !effectiveShow.value) {
+			return
+		}
+		toastSession = toastSession + 1
+		const gen = bumpAnimGeneration()
+		clearAutoHideTimer()
+		panelLeaving.value = false
+		applyDisplayContent()
+		panelVisible.value = false
+		kickEnterAnim(gen)
+	}
+
+	/**
+	 * 统一协调 show + 内容态（单入口，消除双 watch 竞态）
+	 */
+	function reconcileToastState() {
+		if (!effectiveShow.value) {
+			if (displayed.value) {
+				playLeave()
+			}
+			return
+		}
+		if (!displayed.value) {
+			playEnter()
+			return
+		}
+		const signatureChanged = buildToastSignature() != toastSignature
+		if (signatureChanged) {
+			switchToastContent()
+			return
+		}
+		if (isToastStuckVisible()) {
+			recoverToastVisible()
+			return
+		}
+		if (displayed.value && panelLeaving.value) {
+			const gen = bumpAnimGeneration()
+			panelLeaving.value = false
+			panelVisible.value = false
+			kickEnterAnim(gen)
+		}
+	}
+
+	/**
+	 * 合并同一帧内多次变更后再协调
+	 */
+	function scheduleReconcileToastState() {
+		if (reconcileTimer != 0) {
+			clearTimeout(reconcileTimer)
+		}
+		reconcileTimer = setTimeout(() => {
+			reconcileTimer = 0
+			reconcileToastState()
+		}, 0) as number
+	}
+
+	/**
+	 * 内置 type 对应图标
+	 */
+	const resolvedIcon = computed((): string => {
+		if (effectiveIcon.value != '') {
+			return effectiveIcon.value
+		}
+		if (toastType.value == 'success') {
+			return 'checkbox-circle-fill'
+		}
+		if (toastType.value == 'fail') {
+			return 'close-circle-fill'
+		}
+		return ''
+	})
+
+	/**
+	 * 是否展示图标区
+	 */
+	const showIconArea = computed((): boolean => {
+		return toastType.value == 'loading' || resolvedIcon.value != ''
+	})
+
+	/**
+	 * 根节点样式
+	 */
+	const rootStyle = computed((): string => {
+		let style = `z-index: ${resolvedZIndex.value}; pointer-events: none`
+		if (props.customStyle != '') {
+			style += `; ${props.customStyle}`
+		}
+		return style
+	})
+
+	/**
+	 * toast 容器样式（APP 端 padding 走 UTS，与 MP calc(env+12) 一致）
+	 */
+	const toastContainerStyle = computed((): string => {
+		let style = `z-index:${resolvedZIndex.value + 1}`
+		// #ifdef APP
+		const pos = toastPosition.value
+		if (pos == 'top') {
+			const paddingTop = getToastEdgePadding(pos, appSafeTop.value, appSafeBottom.value, false)
+			style += `;padding-top:${paddingTop}px`
+		} else if (pos == 'bottom') {
+			const paddingBottom = getToastEdgePadding(pos, appSafeTop.value, appSafeBottom.value, false)
+			style += `;padding-bottom:${paddingBottom}px`
+		}
+		// #endif
+		return style
+	})
+
+	/**
+	 * 面板 class
+	 */
+	const panelClass = computed((): string => {
+		let classes = `k-toast__panel k-toast__panel--${toastPosition.value}`
+		if (panelVisible.value) {
+			classes += ' k-toast__panel--visible'
+		}
+		if (panelLeaving.value) {
+			classes += ' k-toast__panel--leaving'
+		}
+		if (toastType.value != 'text') {
+			classes += ` k-toast__panel--${toastType.value}`
+		}
+		return classes
+	})
+
+	/**
+	 * WEB/MP 面板静态样式
+	 */
+	const panelStaticStyle = computed((): string => {
+		// #ifndef APP
+		return `transition: transform ${props.durationAnim}ms ${POPUP_TRANSITION_EASING}, opacity ${props.durationAnim}ms ${POPUP_TRANSITION_EASING}`
+		// #endif
+		// #ifdef APP
+		return ''
+		// #endif
+	})
+
+	watch(
+		(): any[] => [
+			effectiveShow.value,
+			effectiveMessage.value,
+			effectiveType.value,
+			effectiveDuration.value,
+			effectivePosition.value
+		],
+		() => {
+			scheduleReconcileToastState()
+		}
+	)
+
+	// #ifdef APP
+	watch(
+		(): UniElement | null => panelRef.value,
+		(el : UniElement | null) => {
+			if (el == null || !displayed.value || !effectiveShow.value) {
+				return
+			}
+			applyPanelStaticStyles()
+			syncPanelVisual(panelVisible.value, panelLeaving.value)
+			if (isToastStuckVisible()) {
+				finishSwitchToastVisual()
+			}
+		}
+	)
+	// #endif
+
+	onMounted(() => {
+		// #ifdef APP
+		readAppSafeAreaInsets()
+		// #endif
+		scheduleReconcileToastState()
+	})
+
+	onUnmounted(() => {
+		clearAnimTimer()
+		clearAutoHideTimer()
+		if (reconcileTimer != 0) {
+			clearTimeout(reconcileTimer)
+			reconcileTimer = 0
+		}
+	})
+
+	/**
+	 * 程序化打开
+	 */
+	const open = () => {
+		if (props.global) {
+			toastGlobalShow.value = true
+		} else {
+			emit('update:show', true)
+		}
+		scheduleReconcileToastState()
+	}
+
+	/**
+	 * 程序化关闭
+	 */
+	const close = () => {
+		if (props.global) {
+			toastGlobalShow.value = false
+		} else {
+			emit('update:show', false)
+		}
+		scheduleReconcileToastState()
+	}
+
+	defineExpose({
+		open,
+		close
+	})
+</script>
+
+<template>
+	<view v-if="displayed" class="k-toast-root" :style="rootStyle">
+		<k-overlay
+			v-if="effectiveOverlay"
+			:show="panelVisible"
+			:opacity="overlayOpacity"
+			:z-index="resolvedZIndex"
+			:duration="durationAnim"
+		/>
+		<view
+			class="k-toast-root__container"
+			:class="'k-toast-root__container--' + toastPosition"
+			:style="toastContainerStyle"
+		>
+			<view
+				ref="panelRef"
+				:class="panelClass"
+				:style="panelStaticStyle"
+			>
+				<view v-if="showIconArea" class="k-toast__icon-wrap">
+					<k-ring-spinner
+						v-if="toastType == 'loading'"
+						size="20"
+						color="#ffffff"
+						track-color="rgba(255, 255, 255, 0.25)"
+					/>
+					<k-icon
+						v-else-if="resolvedIcon != ''"
+						:name="resolvedIcon"
+						size="20"
+						:color="toastType == 'fail' ? '#ef4444' : '#10b981'"
+					/>
+				</view>
+				<view class="k-toast__text-wrap">
+					<text class="k-toast__text">{{ displayMessage }}</text>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	.k-toast-root {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+	}
+
+	.k-toast-root__container {
+		position: fixed;
+		left: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		pointer-events: none;
+	}
+
+	.k-toast-root__container--top {
+		top: 0;
+		bottom: auto;
+		height: auto;
+		justify-content: flex-start;
+		/* #ifdef WEB */
+		padding-top: calc(env(safe-area-inset-top) + 48px);
+		/* #endif */
+		/* #ifndef WEB */
+		/* #ifndef APP */
+		padding-top: calc(env(safe-area-inset-top) + 12px);
+		/* #endif */
+		/* #endif */
+	}
+
+	.k-toast-root__container--center {
+		top: 0;
+		bottom: 0;
+		height: auto;
+		justify-content: center;
+	}
+
+	.k-toast-root__container--bottom {
+		top: auto;
+		bottom: 0;
+		height: auto;
+		justify-content: flex-end;
+		/* #ifdef WEB */
+		padding-bottom: calc(env(safe-area-inset-bottom) + 48px);
+		/* #endif */
+		/* #ifndef WEB */
+		/* #ifndef APP */
+		padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+		/* #endif */
+		/* #endif */
+	}
+
+	.k-toast__panel {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		box-sizing: border-box;
+		/* #ifndef APP */
+		max-width: 70%;
+		/* #endif */
+		/* #ifdef APP */
+		max-width: 280px;
+		/* #endif */
+		min-width: 0;
+		padding: 12px 16px;
+		border-radius: 8px;
+		background-color: rgba(17, 24, 39, 0.88);
+		pointer-events: auto;
+		/* #ifndef APP */
+		opacity: 0;
+		/* #endif */
+	}
+
+	.k-toast__panel--top {
+		/* #ifndef APP */
+		transform: translateY(-12px);
+		/* #endif */
+	}
+
+	.k-toast__panel--bottom {
+		/* #ifndef APP */
+		transform: translateY(12px);
+		/* #endif */
+	}
+
+	.k-toast__panel--center {
+		/* #ifndef APP */
+		transform: scale(0.85);
+		/* #endif */
+	}
+
+	.k-toast__panel--top.k-toast__panel--visible,
+	.k-toast__panel--top.k-toast__panel--leaving {
+		/* #ifndef APP */
+		transform: translateY(0);
+		/* #endif */
+	}
+
+	.k-toast__panel--bottom.k-toast__panel--visible,
+	.k-toast__panel--bottom.k-toast__panel--leaving {
+		/* #ifndef APP */
+		transform: translateY(0);
+		/* #endif */
+	}
+
+	.k-toast__panel--center.k-toast__panel--visible,
+	.k-toast__panel--center.k-toast__panel--leaving {
+		/* #ifndef APP */
+		transform: scale(1);
+		/* #endif */
+	}
+
+	.k-toast__panel--visible:not(.k-toast__panel--leaving) {
+		/* #ifndef APP */
+		opacity: 1;
+		/* #endif */
+	}
+
+	.k-toast__panel--leaving {
+		/* #ifndef APP */
+		opacity: 0;
+		/* #endif */
+	}
+
+	.k-toast__icon-wrap {
+		width: 20px;
+		height: 20px;
+		min-width: 20px;
+		min-height: 20px;
+		flex-shrink: 0;
+		margin-right: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.k-toast__text-wrap {
+		flex: 1;
+		min-width: 0;
+		max-width: 280px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.k-toast__text {
+		font-size: 14px;
+		color: #ffffff;
+		line-height: 20px;
+		width: 100%;
+	}
+</style>

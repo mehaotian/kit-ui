@@ -17,7 +17,9 @@
 					<text class="page-desc">底部弹出（默认 position=bottom）</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button type="primary" text="打开底部弹层" @click="bottomShow = true" />
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="打开底部弹层" @click="bottomShow = true" />
+					</view>
 				</view>
 			</view>
 
@@ -28,10 +30,18 @@
 					<text class="page-desc">top / center / left / right</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button text="顶部" @click="topShow = true" />
-					<k-button text="居中" @click="centerShow = true" />
-					<k-button text="左侧" @click="leftShow = true" />
-					<k-button text="右侧" @click="rightShow = true" />
+					<view class="demo-stack-item">
+						<k-button block text="顶部" @click="topShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="居中" @click="centerShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="左侧" @click="leftShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="右侧" @click="rightShow = true" />
+					</view>
 				</view>
 			</view>
 
@@ -42,9 +52,15 @@
 					<text class="page-desc">round / closeable / 无遮罩</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button text="圆角底部面板" @click="roundShow = true" />
-					<k-button text="带关闭图标" @click="closeableShow = true" />
-					<k-button text="无遮罩" @click="noOverlayShow = true" />
+					<view class="demo-stack-item">
+						<k-button block text="圆角底部面板" @click="roundShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="带关闭图标" @click="closeableShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="无遮罩" @click="noOverlayShow = true" />
+					</view>
 				</view>
 			</view>
 
@@ -55,8 +71,12 @@
 					<text class="page-desc">点击遮罩不关闭 / 生命周期日志</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button text="遮罩不可关闭" @click="maskLockShow = true" />
-					<text class="demo-tip">事件日志：{{ eventLog }}</text>
+					<view class="demo-stack-item">
+						<k-button block text="遮罩不可关闭" @click="maskLockShow = true" />
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-tip">事件日志：{{ eventLog }}</text>
+					</view>
 				</view>
 			</view>
 
@@ -67,7 +87,9 @@
 					<text class="page-desc">自定义蒙层内容</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button text="仅遮罩层" @click="overlayShow = true" />
+					<view class="demo-stack-item">
+						<k-button block text="仅遮罩层" @click="overlayShow = true" />
+					</view>
 				</view>
 			</view>
 		</view>
@@ -83,7 +105,7 @@
 			</template>
 			<text class="popup-text">适用于操作菜单、筛选面板等场景。</text>
 			<view class="popup-actions">
-				<k-button type="primary" text="确定" @click="bottomShow = false" />
+				<k-button block type="primary" text="确定" @click="bottomShow = false" />
 			</view>
 		</k-popup>
 
@@ -123,7 +145,7 @@
 		<!-- 无遮罩 -->
 		<k-popup v-model:show="noOverlayShow" position="center" :overlay="false">
 			<text class="popup-text">overlay=false，无遮罩层。</text>
-			<k-button text="关闭" @click="closeNoOverlay" />
+			<k-button block text="关闭" @click="closeNoOverlay" />
 		</k-popup>
 
 		<!-- 遮罩不可关闭 -->
@@ -140,7 +162,7 @@
 		>
 			<text class="popup-title">遮罩不可关闭</text>
 			<text class="popup-text">需点击按钮关闭，用于强确认场景。</text>
-			<k-button type="primary" text="我知道了" @click="closeMaskLock" />
+			<k-button block type="primary" text="我知道了" @click="closeMaskLock" />
 		</k-popup>
 
 		<!-- 独立 overlay：包裹在同一 fixed 根节点内，保证层级 -->
@@ -215,12 +237,10 @@
 </script>
 
 <style lang="scss">
-	.demo-column .k-button {
-		margin-bottom: 10px;
-	}
-
-	.demo-column .k-button:last-child {
-		margin-bottom: 0;
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+		line-height: 18px;
 	}
 
 	.popup-title {

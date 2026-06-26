@@ -1,0 +1,16 @@
+/**
+ * k-toast 类型定义
+ */
+
+export type ToastPosition = 'top' | 'center' | 'bottom'
+
+export type ToastType = 'text' | 'success' | 'fail' | 'loading'
+
+export type ToastShowOptions = {
+	message : string
+	type : string
+	position : string
+	duration : number
+	overlay : boolean
+	icon : string
+}

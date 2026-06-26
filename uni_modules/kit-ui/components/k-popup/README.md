@@ -33,6 +33,10 @@
 | destroyOnClose | 关闭后销毁内容 | `boolean` | `false` |
 | width / height | 内容区尺寸 | `string` | `''` |
 | customStyle | 自定义样式 | `string` | `''` |
+| bodyPadding | 内容区内边距 CSS 值 | `string` | `'16px'` |
+| defaultSafeArea | 是否按 position 应用默认安全区 | `boolean` | `true` |
+
+`defaultSafeArea=false` 用于 center 浮层（如 `k-modal`），避免底部多余 safe-area 空隙。`bodyPadding="0"` 时由子组件自行控制 padding。
 
 ## Events
 

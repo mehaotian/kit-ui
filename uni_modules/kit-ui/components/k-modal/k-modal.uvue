@@ -1,0 +1,439 @@
+<script setup lang="uts">
+	import { computed, ref, watch } from 'vue'
+	import KPopup from '../k-popup/k-popup.uvue'
+	import KButton from '../k-button/k-button.uvue'
+	import { nextZIndex, Z_INDEX_MODAL } from '../k-overlay/overlay-stack.uts'
+	import { type BeforeCloseHandler } from './modal.type.uts'
+	import { invokeBeforeClose } from './modal-utils.uts'
+
+	defineOptions({
+		name: 'KModal'
+	})
+
+	/**
+	 * k-modal 模态对话框
+	 * 基于 k-popup center 预设布局，不 fork 动画逻辑
+	 */
+
+	type KModalProps = {
+		show ?: boolean
+		title ?: string
+		content ?: string
+		showCancelButton ?: boolean
+		showConfirmButton ?: boolean
+		confirmText ?: string
+		cancelText ?: string
+		confirmType ?: string
+		cancelType ?: string
+		confirmDisabled ?: boolean
+		confirmLoading ?: boolean
+		closeOnClickOverlay ?: boolean
+		beforeClose ?: BeforeCloseHandler | null
+		duration ?: number
+		overlayOpacity ?: number
+		width ?: string
+		lazyRender ?: boolean
+		destroyOnClose ?: boolean
+		zIndex ?: number
+	}
+
+	const props = withDefaults(defineProps<KModalProps>(), {
+		show: false,
+		title: '',
+		content: '',
+		showCancelButton: true,
+		showConfirmButton: true,
+		confirmText: '确定',
+		cancelText: '取消',
+		confirmType: 'primary',
+		cancelType: 'default',
+		confirmDisabled: false,
+		confirmLoading: false,
+		closeOnClickOverlay: false,
+		beforeClose: null,
+		duration: 300,
+		overlayOpacity: 0.5,
+		width: '',
+		lazyRender: true,
+		destroyOnClose: false,
+		zIndex: 0
+	})
+
+	const emit = defineEmits<{
+		'update:show' : [value: boolean]
+		open : []
+		opened : []
+		close : []
+		closed : []
+		confirm : []
+		cancel : []
+		clickOverlay : []
+	}>()
+
+	const slots = useSlots()
+	const resolvedZIndex = ref<number>(Z_INDEX_MODAL)
+	/** 当前打开周期是否已分配 z-index（避免 watch/open/handlePopupOpen 重复 nextZIndex） */
+	const zIndexAssignedForOpen = ref<boolean>(false)
+	/** beforeClose 异步执行中 */
+	const actionPending = ref<boolean>(false)
+	/** 当前 beforeClose 触发的 action（用于 confirm loading 展示） */
+	const pendingCloseAction = ref<string>('')
+	/** 关闭动作序号，丢弃过期 Promise 结果 */
+	const closeActionSeq = ref<number>(0)
+
+	/**
+	 * 确认按钮是否处于 loading（prop 或 beforeClose 异步 confirm）
+	 */
+	const effectiveConfirmLoading = computed((): boolean => {
+		if (props.confirmLoading) {
+			return true
+		}
+		return actionPending.value && pendingCloseAction.value == 'confirm'
+	})
+
+	/**
+	 * beforeClose 异步进行中禁止重复操作
+	 */
+	const footerLocked = computed((): boolean => {
+		return props.confirmLoading || actionPending.value
+	})
+
+	/**
+	 * 是否展示标题区
+	 */
+	const showHeader = computed((): boolean => {
+		return props.title != '' || slots['title'] != null
+	})
+
+	/**
+	 * 是否展示底部按钮区
+	 */
+	const showFooter = computed((): boolean => {
+		return props.showCancelButton || props.showConfirmButton
+	})
+
+	/**
+	 * 底部按钮区 class（双按钮时增加间距）
+	 */
+	const footerClass = computed((): string => {
+		let classes = 'k-modal__footer'
+		if (props.showCancelButton && props.showConfirmButton) {
+			classes += ' k-modal__footer--dual'
+		}
+		return classes
+	})
+
+	/** 全端统一：8px 圆角，非胶囊 round */
+	const footerBtnRound = false
+
+	/**
+	 * 传给 k-popup 的 z-index
+	 */
+	const popupZIndex = computed((): number => {
+		if (props.zIndex > 0) {
+			return props.zIndex
+		}
+		return resolvedZIndex.value
+	})
+
+	/**
+	 * 分配 modal 层级
+	 */
+	function ensureZIndex() {
+		if (props.zIndex > 0) {
+			resolvedZIndex.value = props.zIndex
+			return
+		}
+		resolvedZIndex.value = nextZIndex(Z_INDEX_MODAL)
+	}
+
+	/**
+	 * 每个打开周期仅分配一次 z-index（对齐 popup/toast 层级栈预期）
+	 */
+	function ensureZIndexOnce() {
+		if (zIndexAssignedForOpen.value) {
+			return
+		}
+		ensureZIndex()
+		zIndexAssignedForOpen.value = true
+	}
+
+	/**
+	 * 关闭完成后重置 z-index 分配标记
+	 */
+	function resetOpenZIndexFlag() {
+		zIndexAssignedForOpen.value = false
+	}
+
+	/**
+	 * 更新 v-model:show
+	 */
+	function updateShow(value : boolean) {
+		emit('update:show', value)
+	}
+
+	/**
+	 * 关闭并派发动作事件（overlay 仅关闭，不 emit confirm/cancel）
+	 */
+	function finishCloseWithAction(action : string) {
+		updateShow(false)
+		if (action == 'confirm') {
+			emit('confirm')
+		}
+		if (action == 'cancel') {
+			emit('cancel')
+		}
+	}
+
+	/**
+	 * 重置 beforeClose 异步态
+	 */
+	function resetClosePending() {
+		actionPending.value = false
+		pendingCloseAction.value = ''
+	}
+
+	/**
+	 * 尝试关闭并派发动作事件（beforeClose 返回 false 时不改 show、不 emit confirm/cancel）
+	 */
+	function tryCloseWithAction(action : string) {
+		if (footerLocked.value) {
+			return
+		}
+		if (props.beforeClose == null) {
+			finishCloseWithAction(action)
+			return
+		}
+		const result = props.beforeClose!(action)
+		if (result == false) {
+			return
+		}
+		if (result == true || result == null) {
+			finishCloseWithAction(action)
+			return
+		}
+		const seq = closeActionSeq.value + 1
+		closeActionSeq.value = seq
+		pendingCloseAction.value = action
+		actionPending.value = true
+		invokeBeforeClose(props.beforeClose!, action).then((allowed : boolean) => {
+			if (seq != closeActionSeq.value) {
+				return
+			}
+			resetClosePending()
+			if (allowed) {
+				finishCloseWithAction(action)
+			}
+		})
+	}
+
+	/**
+	 * 确认按钮点击
+	 */
+	function handleConfirm() {
+		tryCloseWithAction('confirm')
+	}
+
+	/**
+	 * 取消按钮点击
+	 */
+	function handleCancel() {
+		tryCloseWithAction('cancel')
+	}
+
+	/**
+	 * 遮罩点击：受 closeOnClickOverlay 与 beforeClose 控制
+	 */
+	function handleOverlayClick() {
+		emit('clickOverlay')
+		if (!props.closeOnClickOverlay || footerLocked.value) {
+			return
+		}
+		tryCloseWithAction('overlay')
+	}
+
+	/**
+	 * popup 关闭前同步 close 事件
+	 */
+	function handlePopupClose() {
+		emit('close')
+	}
+
+	/**
+	 * popup 打开时分配 z-index 并同步 open
+	 */
+	function handlePopupOpen() {
+		ensureZIndexOnce()
+		emit('open')
+	}
+
+	/**
+	 * popup 关闭动画结束后重置 z-index 标记
+	 */
+	function handlePopupClosed() {
+		resetOpenZIndexFlag()
+		resetClosePending()
+		closeActionSeq.value = closeActionSeq.value + 1
+		emit('closed')
+	}
+
+	watch(
+		(): boolean => props.show,
+		(showValue : boolean) => {
+			if (showValue) {
+				ensureZIndexOnce()
+				return
+			}
+			resetOpenZIndexFlag()
+			resetClosePending()
+			closeActionSeq.value = closeActionSeq.value + 1
+		}
+	)
+
+	/**
+	 * 程序化打开
+	 */
+	function open() {
+		ensureZIndexOnce()
+		updateShow(true)
+	}
+
+	/**
+	 * 程序化关闭（不经过 beforeClose，与 v-model 置 false 行为一致）
+	 */
+	function close() {
+		updateShow(false)
+	}
+
+	defineExpose({
+		open,
+		close
+	})
+</script>
+
+<template>
+	<k-popup
+		:show="show"
+		position="center"
+		round
+		:zoom="true"
+		:overlay="true"
+		:overlay-opacity="overlayOpacity"
+		:close-on-click-overlay="false"
+		:duration="duration"
+		:z-index="popupZIndex"
+		:width="width"
+		:lazy-render="lazyRender"
+		:destroy-on-close="destroyOnClose"
+		:bg-color="'#ffffff'"
+		body-padding="0"
+		:default-safe-area="false"
+		@update:show="updateShow"
+		@open="handlePopupOpen"
+		@opened="emit('opened')"
+		@close="handlePopupClose"
+		@closed="handlePopupClosed"
+		@click-overlay="handleOverlayClick"
+	>
+		<view class="k-modal">
+			<view v-if="showHeader" class="k-modal__header">
+				<slot name="title">
+					<text class="k-modal__title">{{ title }}</text>
+				</slot>
+			</view>
+			<view class="k-modal__body" :class="showFooter ? '' : 'k-modal__body--solo'">
+				<slot>
+					<text class="k-modal__content">{{ content }}</text>
+				</slot>
+			</view>
+			<view v-if="showFooter" :class="footerClass">
+				<view v-if="showCancelButton" class="k-modal__btn-wrap">
+					<k-button
+						block
+						class="k-modal__btn"
+						:round="footerBtnRound"
+						:type="cancelType"
+						:text="cancelText"
+						:disabled="footerLocked"
+						@click="handleCancel"
+					/>
+				</view>
+				<view
+					v-if="showConfirmButton"
+					class="k-modal__btn-wrap k-modal__btn-wrap--confirm"
+				>
+					<k-button
+						block
+						class="k-modal__btn"
+						:round="footerBtnRound"
+						:type="confirmType"
+						:text="confirmText"
+						:disabled="confirmDisabled || effectiveConfirmLoading"
+						:loading="effectiveConfirmLoading"
+						@click="handleConfirm"
+					/>
+				</view>
+			</view>
+		</view>
+	</k-popup>
+</template>
+
+<style lang="scss">
+	.k-modal {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.k-modal__header {
+		padding: 20px 20px 8px 20px;
+	}
+
+	.k-modal__title {
+		font-size: 17px;
+		font-weight: bold;
+		color: var(--k-text-color-primary, #111827);
+		text-align: center;
+		line-height: 24px;
+	}
+
+	.k-modal__body {
+		padding: 8px 20px 4px 20px;
+	}
+
+	.k-modal__body--solo {
+		padding-bottom: 20px;
+	}
+
+	.k-modal__content {
+		font-size: 14px;
+		color: var(--k-text-color-secondary, #6b7280);
+		line-height: 22px;
+		text-align: center;
+	}
+
+	.k-modal__footer {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 100%;
+		box-sizing: border-box;
+		padding: 12px 16px 12px 16px;
+	}
+
+	.k-modal__btn-wrap {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.k-modal__footer--dual .k-modal__btn-wrap--confirm {
+		margin-left: 12px;
+	}
+
+	.k-modal__btn {
+		width: 100%;
+	}
+</style>

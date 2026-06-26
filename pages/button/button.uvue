@@ -14,11 +14,11 @@
 					<text class="title-text">基础用法</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" type="default" text="默认按钮" @click="handleClick('default')"></k-button>
-					<k-button class="k-btn" type="primary" text="主要按钮" @click="handleClick('primary')"></k-button>
-					<k-button class="k-btn" type="success" text="成功按钮" @click="handleClick('success')"></k-button>
-					<k-button class="k-btn" type="warning" text="警告按钮" @click="handleClick('warning')"></k-button>
-					<k-button class="k-btn" type="danger" text="危险按钮" @click="handleClick('danger')"></k-button>
+					<k-button block class="k-btn" type="default" text="默认按钮" @click="handleClick('default')"></k-button>
+					<k-button block class="k-btn" type="primary" text="主要按钮" @click="handleClick('primary')"></k-button>
+					<k-button block class="k-btn" type="success" text="成功按钮" @click="handleClick('success')"></k-button>
+					<k-button block class="k-btn" type="warning" text="警告按钮" @click="handleClick('warning')"></k-button>
+					<k-button block class="k-btn" type="danger" text="危险按钮" @click="handleClick('danger')"></k-button>
 				</view>
 			</view>
 
@@ -27,11 +27,11 @@
 					<text class="title-text">朴素按钮</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" plain text="默认按钮" @click="handleClick('plain-primary')"></k-button>
-					<k-button class="k-btn" type="primary" plain text="朴素主要" @click="handleClick('plain-primary')"></k-button>
-					<k-button class="k-btn" type="success" plain text="朴素成功" @click="handleClick('plain-success')"></k-button>
-					<k-button class="k-btn" type="warning" plain text="朴素警告" @click="handleClick('plain-warning')"></k-button>
-					<k-button class="k-btn" type="danger" plain text="朴素危险" @click="handleClick('plain-danger')"></k-button>
+					<k-button block class="k-btn" plain text="默认按钮" @click="handleClick('plain-primary')"></k-button>
+					<k-button block class="k-btn" type="primary" plain text="朴素主要" @click="handleClick('plain-primary')"></k-button>
+					<k-button block class="k-btn" type="success" plain text="朴素成功" @click="handleClick('plain-success')"></k-button>
+					<k-button block class="k-btn" type="warning" plain text="朴素警告" @click="handleClick('plain-warning')"></k-button>
+					<k-button block class="k-btn" type="danger" plain text="朴素危险" @click="handleClick('plain-danger')"></k-button>
 
 				</view>
 			</view>
@@ -41,10 +41,10 @@
 					<text class="title-text">渐变按钮</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" type="primary" gradient>渐变主要</k-button>
-					<k-button class="k-btn" type="success" gradient>渐变成功</k-button>
-					<k-button class="k-btn" type="warning" gradient>渐变警告</k-button>
-					<k-button class="k-btn" type="danger" gradient>渐变危险</k-button>
+					<k-button block class="k-btn" type="primary" gradient>渐变主要</k-button>
+					<k-button block class="k-btn" type="success" gradient>渐变成功</k-button>
+					<k-button block class="k-btn" type="warning" gradient>渐变警告</k-button>
+					<k-button block class="k-btn" type="danger" gradient>渐变危险</k-button>
 				</view>
 			</view>
 
@@ -53,9 +53,9 @@
 					<text class="title-text">图标按钮</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" type="primary" icon="ball-pen-fill" text="编辑按钮"></k-button>
-					<k-button class="k-btn" type="success" plain icon="layout-3-line" text="布局按钮"></k-button>
-					<k-button class="k-btn" type="warning" icon="mail-line">插槽图标按钮</k-button>
+					<k-button block class="k-btn" type="primary" icon="ball-pen-fill" text="编辑按钮"></k-button>
+					<k-button block class="k-btn" type="success" plain icon="layout-3-line" text="布局按钮"></k-button>
+					<k-button block class="k-btn" type="warning" icon="mail-line">插槽图标按钮</k-button>
 				</view>
 			</view>
 
@@ -64,10 +64,10 @@
 					<text class="title-text">加载状态</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" type="primary" :loading="isLoading" text="点击触发加载"
+					<k-button block class="k-btn" type="primary" :loading="isLoading" text="点击触发加载"
 						@click="handleLoading"></k-button>
-					<k-button class="k-btn" type="success" loading text="静态加载"></k-button>
-					<k-button class="k-btn" type="warning" plain loading text="朴素加载"></k-button>
+					<k-button block class="k-btn" type="success" loading text="静态加载"></k-button>
+					<k-button block class="k-btn" type="warning" plain loading text="朴素加载"></k-button>
 				</view>
 			</view>
 
@@ -76,9 +76,9 @@
 					<text class="title-text">阴影按钮</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" type="default" shadow text="默认阴影"></k-button>
-					<k-button class="k-btn" type="primary" shadow text="主要阴影"></k-button>
-					<k-button class="k-btn" type="success" shadow text="成功阴影"></k-button>
+					<k-button block class="k-btn" type="default" shadow text="默认阴影"></k-button>
+					<k-button block class="k-btn" type="primary" shadow text="主要阴影"></k-button>
+					<k-button block class="k-btn" type="success" shadow text="成功阴影"></k-button>
 				</view>
 			</view>
 
@@ -87,9 +87,9 @@
 					<text class="title-text">按钮尺寸</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" type="primary" size="small" text="小按钮" @click="handleClick('small')"></k-button>
-					<k-button class="k-btn" type="primary" size="medium" text="中按钮" @click="handleClick('medium')"></k-button>
-					<k-button class="k-btn" type="primary" size="large" text="大按钮" @click="handleClick('large')"></k-button>
+					<k-button block class="k-btn" type="primary" size="small" text="小按钮" @click="handleClick('small')"></k-button>
+					<k-button block class="k-btn" type="primary" size="medium" text="中按钮" @click="handleClick('medium')"></k-button>
+					<k-button block class="k-btn" type="primary" size="large" text="大按钮" @click="handleClick('large')"></k-button>
 
 				</view>
 			</view>
@@ -99,15 +99,15 @@
 					<text class="title-text">特殊形状</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" type="primary" round size="small" text="圆角按钮" @click="handleClick('round')"></k-button>
-					<k-button class="k-btn" type="primary" round text="圆角按钮" @click="handleClick('round')"></k-button>
-					<k-button class="k-btn" type="primary" round size="large" text="圆角按钮" @click="handleClick('round')"></k-button>
+					<k-button block class="k-btn" type="primary" round size="small" text="圆角按钮" @click="handleClick('round')"></k-button>
+					<k-button block class="k-btn" type="primary" round text="圆角按钮" @click="handleClick('round')"></k-button>
+					<k-button block class="k-btn" type="primary" round size="large" text="圆角按钮" @click="handleClick('round')"></k-button>
 
 					<view class="demo-row">
 
-						<k-button class="k-btn" type="primary" circle size="small" text="+" @click="handleClick('small')"></k-button>
-						<k-button class="k-btn" type="primary" circle text="+" @click="handleClick('circle')">字</k-button>
-						<k-button class="k-btn" type="primary" circle size="large" text="+" @click="handleClick('small')"></k-button>
+						<k-button block class="k-btn" type="primary" circle size="small" text="+" @click="handleClick('small')"></k-button>
+						<k-button block class="k-btn" type="primary" circle text="+" @click="handleClick('circle')">字</k-button>
+						<k-button block class="k-btn" type="primary" circle size="large" text="+" @click="handleClick('small')"></k-button>
 					</view>
 				</view>
 			</view>
@@ -117,9 +117,9 @@
 					<text class="title-text">按钮状态</text>
 				</view>
 				<view class="demo-content demo-column">
-					<k-button class="k-btn" disabled>禁用按钮</k-button>
-					<k-button class="k-btn" type="primary" disabled>禁用按钮</k-button>
-					<k-button class="k-btn" type="success" disabled gradient>禁用渐变</k-button>
+					<k-button block class="k-btn" disabled>禁用按钮</k-button>
+					<k-button block class="k-btn" type="primary" disabled>禁用按钮</k-button>
+					<k-button block class="k-btn" type="success" disabled gradient>禁用渐变</k-button>
 				</view>
 			</view>
 

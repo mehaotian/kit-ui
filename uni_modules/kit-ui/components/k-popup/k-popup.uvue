@@ -35,6 +35,8 @@
 		zIndex ?: number
 		safeAreaInsetTop ?: boolean
 		safeAreaInsetBottom ?: boolean
+		/** 是否按 position 应用默认安全区（modal 等居中浮层应设为 false） */
+		defaultSafeArea ?: boolean
 		bgColor ?: string
 		closeable ?: boolean
 		closeIcon ?: string
@@ -45,6 +47,7 @@
 		width ?: string
 		height ?: string
 		customStyle ?: string
+		bodyPadding ?: string
 	}
 
 	const props = withDefaults(defineProps<KPopupProps>(), {
@@ -58,6 +61,7 @@
 		zIndex: 0,
 		safeAreaInsetTop: false,
 		safeAreaInsetBottom: false,
+		defaultSafeArea: true,
 		bgColor: '#ffffff',
 		closeable: false,
 		closeIcon: 'close-line',
@@ -67,7 +71,8 @@
 		destroyOnClose: false,
 		width: '',
 		height: '',
-		customStyle: ''
+		customStyle: '',
+		bodyPadding: '16px'
 	})
 
 	const emit = defineEmits<{
@@ -147,21 +152,27 @@
 	})
 
 	/**
-	 * 底部安全区：prop 为 true 时开启；bottom/center 在未显式关闭时默认开启
+	 * 底部安全区：prop 为 true 时开启；bottom/center 在 defaultSafeArea 为 true 时默认开启
 	 */
 	const useSafeAreaBottom = computed((): boolean => {
 		if (props.safeAreaInsetBottom) {
 			return true
 		}
+		if (!props.defaultSafeArea) {
+			return false
+		}
 		return defaultSafeAreaBottom(popupPosition.value)
 	})
 
 	/**
-	 * 顶部安全区：prop 为 true 或 position=top 时开启
+	 * 顶部安全区：prop 为 true 或 position=top 时在 defaultSafeArea 下默认开启
 	 */
 	const useSafeAreaTop = computed((): boolean => {
 		if (props.safeAreaInsetTop) {
 			return true
+		}
+		if (!props.defaultSafeArea) {
+			return false
 		}
 		return defaultSafeAreaTop(popupPosition.value)
 	})
@@ -219,6 +230,16 @@
 		}
 		// #endif
 		return `z-index: ${resolvedZIndex.value + 1}; pointer-events: ${pointerEvents}`
+	})
+
+	/**
+	 * 内容区 padding（modal 等场景可传 0 由子组件自控间距）
+	 */
+	const bodyAreaStyle = computed((): string => {
+		if (props.bodyPadding == '') {
+			return 'padding:16px'
+		}
+		return `padding:${props.bodyPadding}`
 	})
 
 	/**
@@ -286,6 +307,18 @@
 		}
 		if (props.height != '') {
 			node.setProperty('height', props.height)
+		}
+		if (props.round && supportRound(pos)) {
+			if (pos == 'center') {
+				node.setProperty('border-radius', '16px')
+			} else if (pos == 'bottom') {
+				node.setProperty('border-top-left-radius', '16px')
+				node.setProperty('border-top-right-radius', '16px')
+			} else if (pos == 'top') {
+				node.setProperty('border-bottom-left-radius', '16px')
+				node.setProperty('border-bottom-right-radius', '16px')
+			}
+			node.setProperty('overflow', 'hidden')
 		}
 	}
 
@@ -479,7 +512,7 @@
 	)
 
 	watch(
-		(): any[] => [props.duration, props.bgColor, popupPosition.value, props.zoom],
+		(): any[] => [props.duration, props.bgColor, popupPosition.value, props.zoom, props.round],
 		() => {
 			// #ifdef APP
 			if (rendered.value) {
@@ -552,7 +585,7 @@
 				<view v-if="slots['header'] != null" class="k-popup__header">
 					<slot name="header" />
 				</view>
-				<view v-if="shouldRenderContent" class="k-popup__body">
+				<view v-if="shouldRenderContent" class="k-popup__body" :style="bodyAreaStyle">
 					<slot />
 				</view>
 			</view>
@@ -704,18 +737,21 @@
 		/* #endif */
 	}
 
+	.k-popup__panel--round.k-popup__panel--center {
+		border-radius: 16px;
+		overflow: hidden;
+	}
+
 	.k-popup__panel--round.k-popup__panel--bottom {
 		border-top-left-radius: 16px;
 		border-top-right-radius: 16px;
+		overflow: hidden;
 	}
 
 	.k-popup__panel--round.k-popup__panel--top {
 		border-bottom-left-radius: 16px;
 		border-bottom-right-radius: 16px;
-	}
-
-	.k-popup__panel--round.k-popup__panel--center {
-		border-radius: 16px;
+		overflow: hidden;
 	}
 
 	.k-popup__panel--safe-bottom {
@@ -731,7 +767,7 @@
 	}
 
 	.k-popup__body {
-		padding: 16px;
+		box-sizing: border-box;
 	}
 
 	.k-popup__close-wrap {

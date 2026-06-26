@@ -1,0 +1,246 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-toast 轻提示</text>
+				<text class="page-desc">三位置提示、类型图标、命令式 showToast API</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">声明式 v-model 控制</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="文字提示" @click="openTextToast" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">success / fail / loading 类型</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block text="成功提示" @click="openSuccessToast" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="失败提示" @click="openFailToast" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="加载提示" @click="openLoadingToast" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 位置 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">弹出位置</text>
+					<text class="page-desc">top / center / bottom</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block text="顶部" @click="openPositionToast('top')" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="居中" @click="openPositionToast('center')" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="底部" @click="openPositionToast('bottom')" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 命令式 API -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">命令式 API（预研）</text>
+					<text class="page-desc">需挂载 global 宿主，调用 showToast()</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="showToast('保存成功')" @click="handleShowToast" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="showToastOptions 失败样式" @click="handleShowToastOptions" />
+					</view>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">长文本换行 / loading 模拟 / 手动关闭</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block text="长文本换行" @click="openLongTextToast" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="加载提示（1.5s 后自动关）" @click="openLoadingToast" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="常驻提示（手动关）" @click="openPersistentToast" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="关闭当前 toast" @click="closeLoadingToast" />
+					</view>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+
+	<!-- 声明式 toast 实例 -->
+	<k-toast
+		v-model:show="toastShow"
+		:message="toastMessage"
+		:type="toastType"
+		:position="toastPosition"
+		:duration="toastDuration"
+	/>
+
+	<!-- 命令式 API 全局宿主 -->
+	<k-toast global />
+</template>
+
+<script setup lang="uts">
+	import { showToast, showToastOptions, hideToast } from '@/uni_modules/kit-ui/components/k-toast/toast-api.uts'
+
+	const toastShow = ref<boolean>(false)
+	const toastMessage = ref<string>('')
+	const toastType = ref<string>('text')
+	const toastPosition = ref<string>('center')
+	const toastDuration = ref<number>(2000)
+	let loadingSimTimer : number = 0
+
+	/**
+	 * 打开声明式 toast（先关命令式宿主，避免双实例叠加）
+	 */
+	function openDeclarativeToast(
+		message : string,
+		type : string = 'text',
+		position : string = 'center',
+		duration : number = 2000
+	) {
+		hideToast()
+		toastMessage.value = message
+		toastType.value = type
+		toastPosition.value = position
+		toastDuration.value = duration
+		toastShow.value = true
+	}
+
+	/**
+	 * 清除 loading 模拟定时器
+	 */
+	const clearLoadingSimTimer = () => {
+		if (loadingSimTimer != 0) {
+			clearTimeout(loadingSimTimer)
+			loadingSimTimer = 0
+		}
+	}
+
+	/**
+	 * 基础文字提示
+	 */
+	const openTextToast = () => {
+		openDeclarativeToast('这是一条文字提示')
+	}
+
+	/**
+	 * 成功提示
+	 */
+	const openSuccessToast = () => {
+		openDeclarativeToast('操作成功', 'success')
+	}
+
+	/**
+	 * 失败提示
+	 */
+	const openFailToast = () => {
+		openDeclarativeToast('操作失败，请重试', 'fail')
+	}
+
+	/**
+	 * 加载提示：模拟异步请求，1.5s 后自动关闭并提示成功
+	 */
+	const openLoadingToast = () => {
+		clearLoadingSimTimer()
+		openDeclarativeToast('加载中...', 'loading', 'center', 0)
+		loadingSimTimer = setTimeout(() => {
+			toastShow.value = false
+			loadingSimTimer = setTimeout(() => {
+				openDeclarativeToast('加载完成', 'success')
+				loadingSimTimer = 0
+			}, 320) as number
+		}, 1500) as number
+	}
+
+	/**
+	 * 长文本换行
+	 */
+	const openLongTextToast = () => {
+		openDeclarativeToast(
+			'这是一段较长的提示文案，用于验证在不同平台下是否能够正常换行显示，避免出现单行溢出或布局错乱。'
+		)
+	}
+
+	/**
+	 * 不同位置
+	 */
+	const openPositionToast = (position : string) => {
+		openDeclarativeToast(`位置：${position}`, 'text', position)
+	}
+
+	/**
+	 * 命令式 showToast
+	 */
+	const handleShowToast = () => {
+		clearLoadingSimTimer()
+		toastShow.value = false
+		showToast('保存成功', 2000)
+	}
+
+	/**
+	 * 命令式 showToastOptions
+	 */
+	const handleShowToastOptions = () => {
+		clearLoadingSimTimer()
+		toastShow.value = false
+		showToastOptions({
+			message: '网络连接失败',
+			type: 'fail',
+			position: 'top',
+			duration: 2500,
+			overlay: false,
+			icon: ''
+		})
+	}
+
+	/**
+	 * 常驻提示
+	 */
+	const openPersistentToast = () => {
+		openDeclarativeToast('不会自动关闭，点下方按钮或再次打开其他 toast', 'text', 'center', 0)
+	}
+
+	/**
+	 * 关闭当前 toast
+	 */
+	const closeLoadingToast = () => {
+		clearLoadingSimTimer()
+		toastShow.value = false
+		hideToast()
+	}
+</script>

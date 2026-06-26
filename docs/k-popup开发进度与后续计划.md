@@ -1,7 +1,7 @@
 # k-popup / k-overlay 开发进度与后续计划
 
-> 更新日期：2026-06-25  
-> 状态：**v1 三端动画验收通过，可进入 k-toast 开发**
+> 更新日期：2026-06-26  
+> 状态：**k-toast / k-modal v1 已交付，k-popup 冒烟清单已归档**
 
 ---
 
@@ -38,14 +38,16 @@
 
 ### 待 v1.x 完善（不阻塞 k-toast / k-modal）
 
+> 详细缺陷 ID、验收标准与实现顺序见 **`docs/k-popup系列已知缺陷与后续计划.md`**
+
 | 项 | 优先级 | 说明 |
 | --- | --- | --- |
-| 三端冒烟验收记录 | P0 | 写入 `docs/k-popup三端冒烟验收清单.md` |
-| `beforeClose` | P1 | 关闭拦截（同步 boolean 先行） |
-| `safeAreaInsetBottom` 显式关闭 | P1 | bottom 模式 tri-state |
-| k-loading 复用 k-overlay | P1 | 消除 loading overlay 重复 |
-| 单定时器重命名 + 注释 | P2 | `closeTimer` → `animTimer` |
-| 嵌套 popup z-index 实测 | P2 | nextZIndex 多实例 |
+| 三端冒烟验收记录 | P0 | 写入 `docs/k-popup三端冒烟验收清单.md` | ✅ 已归档（2026-06-26） |
+| `beforeClose` | P1 | 关闭拦截（k-modal 已实现，k-popup 待补） | 见缺陷 D-01 |
+| `safeAreaInsetBottom` 显式关闭 | P1 | bottom 模式 tri-state | 见缺陷 D-02 |
+| k-loading 复用 k-overlay | P1 | 消除 loading overlay 重复 | 见缺陷 D-03 |
+| 单定时器重命名 + 注释 | P2 | `closeTimer` → `animTimer` | 见缺陷 D-06 |
+| 嵌套 popup z-index 实测 | P2 | nextZIndex 多实例 | 见缺陷 D-05 |
 
 ---
 
@@ -92,9 +94,9 @@
 | 顺序 | 组件 | 依赖 | 预估 | 状态 |
 | --- | --- | --- | --- | --- |
 | ~~1~~ | ~~k-popup + k-overlay~~ | — | — | ✅ v1 三端动画 OK |
-| 2 | **k-toast** | 复用 k-overlay | 1~2 天 | **← 下一步** |
-| 3 | **k-modal** | 内部复用 k-popup | 2~3 天 | 待开发 |
-| 4 | k-popup 三端冒烟 + P1 完善 | — | 0.5~1 天 | 待执行 |
+| 2 | **k-toast** | 复用 k-overlay | 1~2 天 | ✅ v1 最小可用 |
+| 3 | **k-modal** | 内部复用 k-popup | 2~3 天 | ✅ v1 最小可用 |
+| 4 | k-popup 三端冒烟 + P1 完善 | — | 0.5~1 天 | ✅ 冒烟清单已写，P1 待 v1.x |
 
 **k-toast 要点（基于 review 结论）**
 
@@ -130,10 +132,10 @@
 - [x] k-popup API 与 README 一致
 - [x] demo 已注册 pages.json
 - [x] APP / WEB / MP 动画冒烟通过（用户确认 2026-06-25）
-- [ ] 冒烟记录写入验收清单文档
-- [ ] k-toast 最小可用
-- [ ] k-modal 最小可用
-- [ ] 表单提交 → modal 确认 → toast 反馈 可串联 demo
+- [x] 冒烟记录写入验收清单文档
+- [x] k-toast 最小可用
+- [x] k-modal 最小可用
+- [x] 表单提交 → modal 确认 → toast 反馈 可串联 demo（见 `pages/modal/modal.uvue` 组合链路区块）
 - [ ] k-list 空态/长内容/边界项
 
 ---
@@ -151,11 +153,11 @@
 
 ```text
 1. ~~三端动画冒烟~~ ✅
-2. 开发 k-toast（复用 k-overlay + overlay-stack 常量，1~2 天）← 当前
-3. 开发 k-modal（基于 k-popup 预设，2~3 天）
-4. 补写 docs/k-popup三端冒烟验收清单.md
-5. 组合 demo：form 提交 → modal 确认 → toast 结果
-6. 并行 k-list / k-list-item
+2. ~~开发 k-toast~~ ✅
+3. ~~开发 k-modal~~ ✅
+4. ~~补写 docs/k-popup三端冒烟验收清单.md~~ ✅
+5. 组合 demo：form 提交 → modal 确认 → toast 结果（modal 页已含最小链路）
+6. 并行 k-list / k-list-item ← 下一步
 ```
 
 ---
@@ -164,6 +166,7 @@
 
 | 文档 | 用途 |
 | --- | --- |
+| `docs/k-popup系列已知缺陷与后续计划.md` | v1.x 缺陷台账与实现顺序 |
 | `docs/k-popup方案分析报告.md` | 架构与竞品分析 |
 | `docs/一期下一步开发计划.md` | 迭代 2 总排期 |
 | `docs/一期组件迭代看板.md` | Issue 级任务 |
