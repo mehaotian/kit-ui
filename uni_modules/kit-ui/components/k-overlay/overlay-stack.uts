@@ -1,0 +1,54 @@
+/**
+ * 弹层 z-index 栈管理
+ * 借鉴 Element Plus nextZIndex，避免同页多弹层手动传 z-index
+ */
+
+/** 主题层级基准（与 variables.scss 对齐） */
+export const Z_INDEX_POPPER = 2000
+export const Z_INDEX_TOAST = 3000
+export const Z_INDEX_MODAL = 4000
+export const Z_INDEX_LOADING = 5000
+
+let stackCounter = 0
+
+/** 三端统一缓动（与 WEB 弹层 cubic-bezier 一致，轻缓动无回弹） */
+export const POPUP_TRANSITION_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)'
+
+/** APP 端等待 ref 就绪的单帧延迟 ms */
+export const POPUP_APP_FRAME_DELAY = 8
+
+/**
+ * WEB/MP 动画帧间隔 ms（WEB 编译为 8，小程序编译为 20，在组件内条件编译赋值）
+ * 与 POPUP_APP_FRAME_DELAY 职责相同，供 k-popup / k-overlay 非 APP 分支双帧延迟使用
+ */
+export const POPUP_WEB_ANIM_FRAME_GAP_WEB = 8
+export const POPUP_WEB_ANIM_FRAME_GAP_MP = 20
+
+/**
+ * 分配递增 z-index
+ */
+export function nextZIndex(base : number = Z_INDEX_POPPER) : number {
+	stackCounter = stackCounter + 1
+	return base + stackCounter
+}
+
+/**
+ * 重置栈计数（测试或页面卸载时可选调用）
+ */
+export function resetZIndexStack() : void {
+	stackCounter = 0
+}
+
+/**
+ * 根据透明度生成遮罩背景色
+ */
+export function buildOverlayBackground(opacity : number) : string {
+	let alpha = opacity
+	if (alpha < 0) {
+		alpha = 0
+	}
+	if (alpha > 1) {
+		alpha = 1
+	}
+	return `rgba(0, 0, 0, ${alpha})`
+}

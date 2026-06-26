@@ -135,6 +135,7 @@
 			count: 8,
 			path: '/pages/category/feedback',
 			components: [
+				{ name: 'Popup', path: '/pages/popup/popup', status: 'completed' },
 				{ name: 'Toast', path: '/pages/toast/toast', status: 'planning' },
 				{ name: 'Modal', path: '/pages/modal/modal', status: 'planning' },
 				{ name: 'ActionSheet', path: '/pages/actionsheet/actionsheet', status: 'planning' },

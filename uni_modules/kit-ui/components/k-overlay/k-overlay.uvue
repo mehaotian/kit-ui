@@ -1,0 +1,297 @@
+<script setup lang="uts">
+	import { computed, ref, watch, onMounted } from 'vue'
+	import { buildOverlayBackground, POPUP_TRANSITION_EASING, POPUP_APP_FRAME_DELAY, POPUP_WEB_ANIM_FRAME_GAP_WEB, POPUP_WEB_ANIM_FRAME_GAP_MP } from './overlay-stack.uts'
+
+	defineOptions({
+		name: 'KOverlay'
+	})
+
+	/**
+	 * k-overlay 遮罩层原语
+	 * 受控组件：仅跟随 props.show，displayed 负责 DOM 留存至关闭动画结束
+	 * APP 端 opacity 动效走 ref + setProperty
+	 */
+
+	type KOverlayProps = {
+		show ?: boolean
+		opacity ?: number
+		zIndex ?: number
+		duration ?: number
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KOverlayProps>(), {
+		show: false,
+		opacity: 0.5,
+		zIndex: 2000,
+		duration: 300,
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		click : []
+		open : []
+		opened : []
+		close : []
+		closed : []
+	}>()
+
+	// #ifdef APP
+	const overlayRef = ref<UniElement | null>(null)
+	// #endif
+	// #ifndef APP
+	// #ifdef WEB
+	const WEB_ANIM_FRAME_GAP = POPUP_WEB_ANIM_FRAME_GAP_WEB
+	// #endif
+	// #ifndef WEB
+	const WEB_ANIM_FRAME_GAP = POPUP_WEB_ANIM_FRAME_GAP_MP
+	// #endif
+
+	/**
+	 * WEB/MP 双帧延迟后再切 visible，避免 transition 被合并跳过
+	 */
+	function scheduleWebOverlayEnterAnim() {
+		animTimer = setTimeout(() => {
+			visible.value = true
+			animTimer = setTimeout(() => {
+				emit('opened')
+				animTimer = 0
+			}, props.duration) as number
+		}, WEB_ANIM_FRAME_GAP) as number
+	}
+	// #endif
+
+	/** 是否在 DOM 中（关闭动画结束后才移除） */
+	const displayed = ref<boolean>(false)
+	/** WEB/MP 可见态；APP 由 setProperty 控制 opacity */
+	const visible = ref<boolean>(false)
+	let animTimer : number = 0
+
+	/**
+	 * 遮罩背景色
+	 */
+	const overlayBackground = computed((): string => {
+		return buildOverlayBackground(props.opacity)
+	})
+
+	/**
+	 * 根节点样式
+	 */
+	const rootStyle = computed((): string => {
+		const styles : string[] = []
+		styles.push(`z-index: ${props.zIndex}`)
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * WEB/MP class
+	 */
+	const overlayClass = computed((): string => {
+		let classes = 'k-overlay'
+		if (visible.value) {
+			classes += ' k-overlay--visible'
+		}
+		return classes
+	})
+
+	/**
+	 * WEB/MP inline 样式
+	 */
+	const overlayStaticStyle = computed((): string => {
+		// #ifdef APP
+		return rootStyle.value
+		// #endif
+		// #ifndef APP
+		return `${rootStyle.value}; background-color: ${overlayBackground.value}; transition: opacity ${props.duration}ms ${POPUP_TRANSITION_EASING}`
+		// #endif
+	})
+
+	/**
+	 * 清除动画定时器
+	 */
+	const clearAnimTimer = () => {
+		if (animTimer != 0) {
+			clearTimeout(animTimer)
+			animTimer = 0
+		}
+	}
+
+	// #ifdef APP
+	/**
+	 * APP 端写入静态样式
+	 */
+	const applyStaticStyles = () => {
+		if (overlayRef.value == null) {
+			return
+		}
+		const node = overlayRef.value!.style!
+		node.setProperty('background-color', overlayBackground.value)
+		node.setProperty('transition-property', 'opacity')
+		node.setProperty('transition-duration', `${props.duration}ms`)
+		node.setProperty('transition-timing-function', POPUP_TRANSITION_EASING)
+	}
+
+	/**
+	 * APP 端同步 opacity
+	 */
+	const syncOverlayVisual = (active : boolean) => {
+		if (overlayRef.value == null) {
+			return
+		}
+		overlayRef.value!.style!.setProperty('opacity', active ? '1' : '0')
+	}
+
+	/**
+	 * APP 端等待 ref 就绪后启动遮罩进入动画（命名函数，支持 ref 未就绪时重试）
+	 */
+	function beginOverlayEnterAnim() {
+		if (overlayRef.value == null) {
+			animTimer = setTimeout(() => {
+				beginOverlayEnterAnim()
+			}, POPUP_APP_FRAME_DELAY) as number
+			return
+		}
+		applyStaticStyles()
+		syncOverlayVisual(false)
+		animTimer = setTimeout(() => {
+			visible.value = true
+			syncOverlayVisual(true)
+			animTimer = setTimeout(() => {
+				emit('opened')
+				animTimer = 0
+			}, props.duration) as number
+		}, POPUP_APP_FRAME_DELAY) as number
+	}
+	// #endif
+
+	/**
+	 * 播放进入动画
+	 */
+	const playEnter = () => {
+		visible.value = false
+		// #ifdef APP
+		syncOverlayVisual(false)
+		beginOverlayEnterAnim()
+		// #endif
+		// #ifndef APP
+		animTimer = setTimeout(() => {
+			scheduleWebOverlayEnterAnim()
+		}, WEB_ANIM_FRAME_GAP) as number
+		// #endif
+	}
+
+	/**
+	 * 播放离开动画
+	 */
+	const playLeave = () => {
+		visible.value = false
+		// #ifdef APP
+		applyStaticStyles()
+		syncOverlayVisual(false)
+		// #endif
+		animTimer = setTimeout(() => {
+			displayed.value = false
+			emit('closed')
+			animTimer = 0
+		}, props.duration) as number
+	}
+
+	/**
+	 * 根据 props.show 同步遮罩
+	 */
+	const syncFromShow = (showValue : boolean) => {
+		clearAnimTimer()
+		if (showValue) {
+			if (!displayed.value) {
+				displayed.value = true
+				emit('open')
+				playEnter()
+				return
+			}
+			// 已在 DOM 中但未处于可见态时补播进入动画
+			if (!visible.value) {
+				playEnter()
+			}
+			return
+		}
+		if (!displayed.value) {
+			return
+		}
+		emit('close')
+		playLeave()
+	}
+
+	/**
+	 * 遮罩点击
+	 */
+	const handleClick = () => {
+		emit('click')
+	}
+
+	watch(
+		(): boolean => props.show,
+		(showValue : boolean) => {
+			syncFromShow(showValue)
+		}
+	)
+
+	watch(
+		(): any[] => [props.opacity, props.duration],
+		() => {
+			// #ifdef APP
+			if (displayed.value) {
+				applyStaticStyles()
+				syncOverlayVisual(visible.value)
+			}
+			// #endif
+		}
+	)
+
+	onMounted(() => {
+		if (props.show) {
+			syncFromShow(true)
+		}
+	})
+
+	defineExpose({
+		open: (): void => {
+			syncFromShow(true)
+		},
+		close: (): void => {
+			syncFromShow(false)
+		}
+	})
+</script>
+
+<template>
+	<view
+		v-if="displayed"
+		ref="overlayRef"
+		class="k-overlay"
+		:class="overlayClass"
+		:style="overlayStaticStyle"
+		@click="handleClick"
+	>
+	</view>
+</template>
+
+<style lang="scss">
+	.k-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: auto;
+		opacity: 0;
+	}
+
+	.k-overlay--visible {
+		/* #ifndef APP */
+		opacity: 1;
+		/* #endif */
+	}
+</style>

@@ -1,0 +1,766 @@
+<script setup lang="uts">
+	import { computed, ref, watch, onMounted } from 'vue'
+	import KOverlay from '../k-overlay/k-overlay.uvue'
+	import { nextZIndex, Z_INDEX_POPPER, POPUP_WEB_ANIM_FRAME_GAP_WEB, POPUP_WEB_ANIM_FRAME_GAP_MP } from '../k-overlay/overlay-stack.uts'
+	import {
+		getPopupEnterTransform,
+		getPopupActiveTransform,
+		getPopupPanelOpacity,
+		getPopupTransitionProperty,
+		POPUP_TRANSITION_EASING,
+		POPUP_APP_FRAME_DELAY,
+		supportRound,
+		defaultSafeAreaBottom,
+		defaultSafeAreaTop
+	} from './popup-animation.uts'
+	import { type PopupPosition } from './popup.type.uts'
+
+	defineOptions({
+		name: 'KPopup'
+	})
+
+	/**
+	 * k-popup 弹出层容器
+	 * 支持五方向弹出、遮罩、圆角、安全区与生命周期事件
+	 */
+
+	type KPopupProps = {
+		show ?: boolean
+		position ?: string
+		overlay ?: boolean
+		overlayOpacity ?: number
+		closeOnClickOverlay ?: boolean
+		round ?: boolean
+		duration ?: number
+		zIndex ?: number
+		safeAreaInsetTop ?: boolean
+		safeAreaInsetBottom ?: boolean
+		bgColor ?: string
+		closeable ?: boolean
+		closeIcon ?: string
+		closeIconPosition ?: string
+		zoom ?: boolean
+		lazyRender ?: boolean
+		destroyOnClose ?: boolean
+		width ?: string
+		height ?: string
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KPopupProps>(), {
+		show: false,
+		position: 'bottom',
+		overlay: true,
+		overlayOpacity: 0.5,
+		closeOnClickOverlay: true,
+		round: false,
+		duration: 300,
+		zIndex: 0,
+		safeAreaInsetTop: false,
+		safeAreaInsetBottom: false,
+		bgColor: '#ffffff',
+		closeable: false,
+		closeIcon: 'close-line',
+		closeIconPosition: 'top-right',
+		zoom: true,
+		lazyRender: true,
+		destroyOnClose: false,
+		width: '',
+		height: '',
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		'update:show' : [value: boolean]
+		open : []
+		opened : []
+		close : []
+		closed : []
+		clickOverlay : []
+	}>()
+
+	const slots = useSlots()
+
+	// #ifdef APP
+	const panelRef = ref<UniElement | null>(null)
+	// #endif
+
+	const rendered = ref<boolean>(false)
+	const panelVisible = ref<boolean>(false)
+	const contentMounted = ref<boolean>(false)
+	const internalOverlayShow = ref<boolean>(false)
+	const resolvedZIndex = ref<number>(Z_INDEX_POPPER)
+	let closeTimer : number = 0
+
+	// #ifndef APP
+	// #ifdef WEB
+	const WEB_ANIM_FRAME_GAP = POPUP_WEB_ANIM_FRAME_GAP_WEB
+	// #endif
+	// #ifndef WEB
+	const WEB_ANIM_FRAME_GAP = POPUP_WEB_ANIM_FRAME_GAP_MP
+	// #endif
+
+	/**
+	 * WEB/MP 双帧延迟启动进入动画，确保隐藏态先完成绘制再切 visible
+	 */
+	function scheduleWebEnterAnim() {
+		closeTimer = setTimeout(() => {
+			if (!props.show) {
+				return
+			}
+			if (props.overlay) {
+				internalOverlayShow.value = true
+			}
+			closeTimer = setTimeout(() => {
+				if (!props.show) {
+					return
+				}
+				panelVisible.value = true
+				closeTimer = setTimeout(() => {
+					emit('opened')
+					closeTimer = 0
+				}, props.duration) as number
+			}, WEB_ANIM_FRAME_GAP) as number
+		}, WEB_ANIM_FRAME_GAP) as number
+	}
+	// #endif
+
+	/**
+	 * 解析 position
+	 */
+	const popupPosition = computed((): PopupPosition => {
+		const pos = props.position
+		if (pos == 'top' || pos == 'bottom' || pos == 'left' || pos == 'right' || pos == 'center') {
+			return pos as PopupPosition
+		}
+		return 'bottom'
+	})
+
+	/**
+	 * 是否渲染 slot 内容
+	 */
+	const shouldRenderContent = computed((): boolean => {
+		if (!props.lazyRender) {
+			return rendered.value
+		}
+		return contentMounted.value
+	})
+
+	/**
+	 * 底部安全区：prop 为 true 时开启；bottom/center 在未显式关闭时默认开启
+	 */
+	const useSafeAreaBottom = computed((): boolean => {
+		if (props.safeAreaInsetBottom) {
+			return true
+		}
+		return defaultSafeAreaBottom(popupPosition.value)
+	})
+
+	/**
+	 * 顶部安全区：prop 为 true 或 position=top 时开启
+	 */
+	const useSafeAreaTop = computed((): boolean => {
+		if (props.safeAreaInsetTop) {
+			return true
+		}
+		return defaultSafeAreaTop(popupPosition.value)
+	})
+
+	/**
+	 * 面板 class
+	 */
+	const panelClass = computed((): string => {
+		let classes = `k-popup__panel k-popup__panel--${popupPosition.value}`
+		if (panelVisible.value) {
+			classes += ' k-popup__panel--visible'
+		}
+		if (props.round && supportRound(popupPosition.value)) {
+			classes += ' k-popup__panel--round'
+		}
+		if (popupPosition.value == 'center' && !props.zoom) {
+			classes += ' k-popup__panel--no-zoom'
+		}
+		if (useSafeAreaBottom.value) {
+			classes += ' k-popup__panel--safe-bottom'
+		}
+		if (useSafeAreaTop.value) {
+			classes += ' k-popup__panel--safe-top'
+		}
+		return classes
+	})
+
+	/**
+	 * 关闭图标位置 class
+	 */
+	const closeIconClass = computed((): string => {
+		return `k-popup__close k-popup__close--${props.closeIconPosition}`
+	})
+
+	/**
+	 * 根容器样式
+	 */
+	const rootStyle = computed((): string => {
+		return `z-index: ${resolvedZIndex.value}; pointer-events: auto`
+	})
+
+	/**
+	 * 面板容器层级（高于遮罩）
+	 * 有遮罩：容器 pointer-events auto 接管空白区点击
+	 * 无遮罩 APP：父级 none 会阻断子元素点击，需改为 auto
+	 */
+	const containerStyle = computed((): string => {
+		let pointerEvents = 'none'
+		if (props.overlay) {
+			pointerEvents = 'auto'
+		}
+		// #ifdef APP
+		if (!props.overlay) {
+			pointerEvents = 'auto'
+		}
+		// #endif
+		return `z-index: ${resolvedZIndex.value + 1}; pointer-events: ${pointerEvents}`
+	})
+
+	/**
+	 * 面板静态样式（背景、尺寸，不含 transform）
+	 */
+	const panelStaticStyle = computed((): string => {
+		const styles : string[] = []
+		styles.push(`background-color: ${props.bgColor}`)
+		if (props.width != '') {
+			styles.push(`width: ${props.width}`)
+		}
+		if (props.height != '') {
+			styles.push(`height: ${props.height}`)
+		}
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		// #ifndef APP
+		styles.push(`transition: transform ${props.duration}ms ${POPUP_TRANSITION_EASING}, opacity ${props.duration}ms ${POPUP_TRANSITION_EASING}`)
+		// #endif
+		return styles.join('; ')
+	})
+
+	/**
+	 * 清除动画定时器
+	 */
+	const clearCloseTimer = () => {
+		if (closeTimer != 0) {
+			clearTimeout(closeTimer)
+			closeTimer = 0
+		}
+	}
+
+	/**
+	 * 分配 z-index
+	 */
+	const ensureZIndex = () => {
+		if (props.zIndex > 0) {
+			resolvedZIndex.value = props.zIndex
+			return
+		}
+		resolvedZIndex.value = nextZIndex(Z_INDEX_POPPER)
+	}
+
+	// #ifdef APP
+	/**
+	 * APP 端写入面板 transition（center 含 opacity，与 WEB 一致）
+	 */
+	const applyPanelStaticStyles = () => {
+		if (panelRef.value == null) {
+			return
+		}
+		const node = panelRef.value!.style!
+		const pos = popupPosition.value
+		node.setProperty('transition-property', getPopupTransitionProperty(pos))
+		node.setProperty('transition-duration', `${props.duration}ms`)
+		node.setProperty('transition-timing-function', POPUP_TRANSITION_EASING)
+		if (props.bgColor != '') {
+			node.setProperty('background-color', props.bgColor)
+		}
+		if (props.width != '') {
+			node.setProperty('width', props.width)
+		} else if (pos == 'center') {
+			node.setProperty('width', '320px')
+		}
+		if (props.height != '') {
+			node.setProperty('height', props.height)
+		}
+	}
+
+	/**
+	 * APP 端同步面板 transform + opacity
+	 */
+	const syncPanelVisual = (active : boolean) => {
+		if (panelRef.value == null) {
+			return
+		}
+		const pos = popupPosition.value
+		const transformValue = active
+			? getPopupActiveTransform(pos, props.zoom)
+			: getPopupEnterTransform(pos, props.zoom)
+		panelRef.value!.style!.setProperty('transform', transformValue)
+		panelRef.value!.style!.setProperty('opacity', getPopupPanelOpacity(active, pos))
+	}
+
+	/**
+	 * APP 端按当前 panelVisible 同步面板样式（watch 与 ref 重建共用）
+	 */
+	const syncAppPanelState = () => {
+		if (panelRef.value == null || !rendered.value) {
+			return
+		}
+		applyPanelStaticStyles()
+		syncPanelVisual(panelVisible.value)
+	}
+
+	/**
+	 * APP 端等待 ref 就绪后启动面板进入动画（命名函数，支持 ref 未就绪时重试）
+	 */
+	function beginPanelEnterAnim() {
+		if (!props.show) {
+			return
+		}
+		if (panelRef.value == null) {
+			closeTimer = setTimeout(() => {
+				beginPanelEnterAnim()
+			}, POPUP_APP_FRAME_DELAY) as number
+			return
+		}
+		applyPanelStaticStyles()
+		syncPanelVisual(false)
+		closeTimer = setTimeout(() => {
+			if (!props.show) {
+				return
+			}
+			panelVisible.value = true
+			syncPanelVisual(true)
+			closeTimer = setTimeout(() => {
+				emit('opened')
+				closeTimer = 0
+			}, props.duration) as number
+		}, POPUP_APP_FRAME_DELAY) as number
+	}
+
+	/**
+	 * APP 端播放面板离开动画（与遮罩同帧启动）
+	 */
+	const runPanelLeaveAnimation = () => {
+		if (panelRef.value != null) {
+			applyPanelStaticStyles()
+		}
+		panelVisible.value = false
+		syncPanelVisual(false)
+		closeTimer = setTimeout(() => {
+			if (props.destroyOnClose) {
+				contentMounted.value = false
+			}
+			rendered.value = false
+			emit('closed')
+			closeTimer = 0
+		}, props.duration) as number
+	}
+	// #endif
+
+	/**
+	 * 更新 v-model:show
+	 */
+	const updateShow = (value : boolean) => {
+		emit('update:show', value)
+	}
+
+	/**
+	 * 打开弹层
+	 */
+	const openPopup = () => {
+		clearCloseTimer()
+		if (rendered.value && panelVisible.value) {
+			return
+		}
+		ensureZIndex()
+		rendered.value = true
+		contentMounted.value = true
+		panelVisible.value = false
+		internalOverlayShow.value = false
+		emit('open')
+		// #ifdef APP
+		closeTimer = setTimeout(() => {
+			if (!props.show) {
+				return
+			}
+			if (props.overlay) {
+				internalOverlayShow.value = true
+			}
+			beginPanelEnterAnim()
+		}, POPUP_APP_FRAME_DELAY) as number
+		// #endif
+		// #ifndef APP
+		scheduleWebEnterAnim()
+		// #endif
+	}
+
+	/**
+	 * 关闭弹层
+	 */
+	const closePopup = () => {
+		clearCloseTimer()
+		if (!rendered.value) {
+			return
+		}
+		emit('close')
+		internalOverlayShow.value = false
+		// #ifdef APP
+		runPanelLeaveAnimation()
+		// #endif
+		// #ifndef APP
+		panelVisible.value = false
+		closeTimer = setTimeout(() => {
+			if (props.destroyOnClose) {
+				contentMounted.value = false
+			}
+			rendered.value = false
+			emit('closed')
+			closeTimer = 0
+		}, props.duration) as number
+		// #endif
+	}
+
+	/**
+	 * 同步外部 show
+	 */
+	const syncShowState = (showValue : boolean) => {
+		if (showValue) {
+			openPopup()
+		} else {
+			closePopup()
+		}
+	}
+
+	/**
+	 * 遮罩区域点击：容器层接管（层级高于 k-overlay）；无遮罩时不关闭
+	 */
+	const handleMaskClick = () => {
+		if (!props.overlay) {
+			return
+		}
+		emit('clickOverlay')
+		if (props.closeOnClickOverlay) {
+			updateShow(false)
+		}
+	}
+
+	/**
+	 * 关闭图标点击
+	 */
+	const handleCloseIconClick = () => {
+		updateShow(false)
+	}
+
+	/**
+	 * 程序化打开
+	 */
+	const open = () => {
+		updateShow(true)
+	}
+
+	/**
+	 * 程序化关闭
+	 */
+	const close = () => {
+		updateShow(false)
+	}
+
+	watch(
+		(): boolean => props.show,
+		(showValue : boolean) => {
+			syncShowState(showValue)
+		}
+	)
+
+	watch(
+		(): any[] => [props.duration, props.bgColor, popupPosition.value, props.zoom],
+		() => {
+			// #ifdef APP
+			if (rendered.value) {
+				syncAppPanelState()
+			}
+			// #endif
+		}
+	)
+
+	// #ifdef APP
+	watch(
+		(): UniElement | null => panelRef.value,
+		(el : UniElement | null) => {
+			if (el == null || !rendered.value || !props.show) {
+				return
+			}
+			syncAppPanelState()
+		}
+	)
+
+	watch(
+		(): boolean => panelVisible.value,
+		() => {
+			syncAppPanelState()
+		}
+	)
+	// #endif
+
+	onMounted(() => {
+		if (props.show) {
+			syncShowState(true)
+		}
+	})
+
+	defineExpose({
+		open,
+		close
+	})
+</script>
+
+<template>
+	<view v-if="rendered" class="k-popup-root" :style="rootStyle">
+		<k-overlay
+			v-if="overlay"
+			:show="internalOverlayShow"
+			:opacity="overlayOpacity"
+			:z-index="resolvedZIndex"
+			:duration="duration"
+		/>
+		<view
+			class="k-popup-root__container"
+			:class="'k-popup-root__container--' + popupPosition"
+			:style="containerStyle"
+			@click="handleMaskClick"
+		>
+			<view
+				ref="panelRef"
+				:class="panelClass"
+				:style="panelStaticStyle"
+				@click.stop
+			>
+				<view
+					v-if="closeable"
+					class="k-popup__close-wrap"
+					:class="closeIconClass"
+					@click.stop="handleCloseIconClick"
+				>
+					<k-icon :name="closeIcon" size="20" color="#6b7280" />
+				</view>
+				<view v-if="slots['header'] != null" class="k-popup__header">
+					<slot name="header" />
+				</view>
+				<view v-if="shouldRenderContent" class="k-popup__body">
+					<slot />
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<style lang="scss">
+	.k-popup-root {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	.k-popup-root__container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.k-popup-root__container--bottom {
+		justify-content: flex-end;
+	}
+
+	.k-popup-root__container--top {
+		justify-content: flex-start;
+	}
+
+	.k-popup-root__container--left {
+		flex-direction: row;
+		justify-content: flex-start;
+	}
+
+	.k-popup-root__container--right {
+		flex-direction: row;
+		justify-content: flex-end;
+	}
+
+	.k-popup-root__container--center {
+		justify-content: center;
+		align-items: center;
+	}
+
+	.k-popup__panel {
+		position: relative;
+		pointer-events: auto;
+		/* #ifndef APP */
+		max-width: 100%;
+		/* #endif */
+	}
+
+	.k-popup__panel--bottom {
+		/* #ifndef APP */
+		width: 100%;
+		transform: translateY(100%);
+		/* #endif */
+		/* #ifdef APP */
+		width: 100%;
+		/* #endif */
+	}
+
+	.k-popup__panel--top {
+		/* #ifndef APP */
+		width: 100%;
+		transform: translateY(-100%);
+		/* #endif */
+		/* #ifdef APP */
+		width: 100%;
+		/* #endif */
+	}
+
+	.k-popup__panel--left {
+		height: 100%;
+		width: 280px;
+		/* #ifndef APP */
+		transform: translateX(-100%);
+		/* #endif */
+	}
+
+	.k-popup__panel--right {
+		height: 100%;
+		width: 280px;
+		/* #ifndef APP */
+		transform: translateX(100%);
+		/* #endif */
+	}
+
+	.k-popup__panel--center {
+		/* #ifndef APP */
+		width: 85%;
+		max-width: 360px;
+		transform: scale(0.85);
+		opacity: 0;
+		/* #endif */
+		/* #ifdef APP */
+		width: 320px;
+		/* opacity/transform 由 setProperty 驱动，勿在 CSS 写死 opacity:0 避免节点重建后丢失 */
+		/* #endif */
+	}
+
+	.k-popup__panel--center.k-popup__panel--no-zoom {
+		/* #ifndef APP */
+		transform: none;
+		opacity: 0;
+		/* #endif */
+	}
+
+	.k-popup__panel--bottom.k-popup__panel--visible {
+		/* #ifndef APP */
+		transform: translateY(0);
+		/* #endif */
+	}
+
+	.k-popup__panel--top.k-popup__panel--visible {
+		/* #ifndef APP */
+		transform: translateY(0);
+		/* #endif */
+	}
+
+	.k-popup__panel--left.k-popup__panel--visible {
+		/* #ifndef APP */
+		transform: translateX(0);
+		/* #endif */
+	}
+
+	.k-popup__panel--right.k-popup__panel--visible {
+		/* #ifndef APP */
+		transform: translateX(0);
+		/* #endif */
+	}
+
+	.k-popup__panel--center.k-popup__panel--visible {
+		/* #ifndef APP */
+		transform: scale(1);
+		opacity: 1;
+		/* #endif */
+	}
+
+	.k-popup__panel--center.k-popup__panel--no-zoom.k-popup__panel--visible {
+		/* #ifndef APP */
+		transform: none;
+		opacity: 1;
+		/* #endif */
+	}
+
+	.k-popup__panel--round.k-popup__panel--bottom {
+		border-top-left-radius: 16px;
+		border-top-right-radius: 16px;
+	}
+
+	.k-popup__panel--round.k-popup__panel--top {
+		border-bottom-left-radius: 16px;
+		border-bottom-right-radius: 16px;
+	}
+
+	.k-popup__panel--round.k-popup__panel--center {
+		border-radius: 16px;
+	}
+
+	.k-popup__panel--safe-bottom {
+		padding-bottom: env(safe-area-inset-bottom);
+	}
+
+	.k-popup__panel--safe-top {
+		padding-top: env(safe-area-inset-top);
+	}
+
+	.k-popup__header {
+		padding: 16px 16px 8px 16px;
+	}
+
+	.k-popup__body {
+		padding: 16px;
+	}
+
+	.k-popup__close-wrap {
+		position: absolute;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 2;
+	}
+
+	.k-popup__close--top-right {
+		top: 8px;
+		right: 8px;
+	}
+
+	.k-popup__close--top-left {
+		top: 8px;
+		left: 8px;
+	}
+
+	.k-popup__close--bottom-right {
+		bottom: 8px;
+		right: 8px;
+	}
+
+	.k-popup__close--bottom-left {
+		bottom: 8px;
+		left: 8px;
+	}
+</style>

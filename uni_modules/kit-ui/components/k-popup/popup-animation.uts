@@ -1,0 +1,83 @@
+import { type PopupPosition } from './popup.type.uts'
+import { POPUP_TRANSITION_EASING, POPUP_APP_FRAME_DELAY } from '../k-overlay/overlay-stack.uts'
+
+export { POPUP_TRANSITION_EASING, POPUP_APP_FRAME_DELAY }
+
+/**
+ * 获取弹层初始 transform（进入动画起点）
+ */
+export function getPopupEnterTransform(position : PopupPosition, zoom : boolean) : string {
+	if (position == 'bottom') {
+		return 'translateY(100%)'
+	}
+	if (position == 'top') {
+		return 'translateY(-100%)'
+	}
+	if (position == 'left') {
+		return 'translateX(-100%)'
+	}
+	if (position == 'right') {
+		return 'translateX(100%)'
+	}
+	if (position == 'center' && zoom) {
+		return 'scale(0.85)'
+	}
+	if (position == 'center') {
+		return 'none'
+	}
+	return 'none'
+}
+
+/**
+ * 获取弹层展开后的 transform
+ */
+export function getPopupActiveTransform(position : PopupPosition, zoom : boolean) : string {
+	if (position == 'center' && zoom) {
+		return 'scale(1)'
+	}
+	if (position == 'center') {
+		return 'none'
+	}
+	return 'translate(0, 0)'
+}
+
+/**
+ * 获取面板 opacity（center 模式开/关，其余恒为 1）
+ */
+export function getPopupPanelOpacity(active : boolean, position : PopupPosition) : string {
+	if (position == 'center') {
+		return active ? '1' : '0'
+	}
+	return '1'
+}
+
+/**
+ * 获取 APP 端 transition-property
+ */
+export function getPopupTransitionProperty(position : PopupPosition) : string {
+	if (position == 'center') {
+		return 'transform, opacity'
+	}
+	return 'transform'
+}
+
+/**
+ * 判断 position 是否默认开启底部安全区
+ */
+export function defaultSafeAreaBottom(position : PopupPosition) : boolean {
+	return position == 'bottom' || position == 'center'
+}
+
+/**
+ * 判断 position 是否默认开启顶部安全区
+ */
+export function defaultSafeAreaTop(position : PopupPosition) : boolean {
+	return position == 'top'
+}
+
+/**
+ * 是否支持 round 圆角
+ */
+export function supportRound(position : PopupPosition) : boolean {
+	return position == 'top' || position == 'bottom' || position == 'center'
+}

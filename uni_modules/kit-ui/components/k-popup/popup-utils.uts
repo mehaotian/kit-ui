@@ -1,0 +1,14 @@
+/**
+ * k-popup 工具：滚动锁定说明与辅助
+ * 组件内不直接操作 page-meta（每页仅允许一个），由业务页配合
+ */
+
+/**
+ * 返回 page-meta overflow 建议值
+ */
+export function resolvePageMetaOverflow(popupVisible : boolean) : string {
+	if (popupVisible) {
+		return 'hidden'
+	}
+	return 'visible'
+}

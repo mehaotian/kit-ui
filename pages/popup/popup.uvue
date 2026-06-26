@@ -1,0 +1,272 @@
+<template>
+	<!-- 弹层打开时锁定页面滚动（含 WEB） -->
+	<page-meta :page-style="'overflow:' + pageOverflow" />
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-popup 弹出层</text>
+				<text class="page-desc">遮罩 + 五方向弹出，k-overlay 为底层遮罩原语</text>
+			</view>
+
+			<!-- 基础用法：bottom -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">底部弹出（默认 position=bottom）</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-button type="primary" text="打开底部弹层" @click="bottomShow = true" />
+				</view>
+			</view>
+
+			<!-- 不同方向 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">弹出位置</text>
+					<text class="page-desc">top / center / left / right</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-button text="顶部" @click="topShow = true" />
+					<k-button text="居中" @click="centerShow = true" />
+					<k-button text="左侧" @click="leftShow = true" />
+					<k-button text="右侧" @click="rightShow = true" />
+				</view>
+			</view>
+
+			<!-- 状态用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态用法</text>
+					<text class="page-desc">round / closeable / 无遮罩</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-button text="圆角底部面板" @click="roundShow = true" />
+					<k-button text="带关闭图标" @click="closeableShow = true" />
+					<k-button text="无遮罩" @click="noOverlayShow = true" />
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">点击遮罩不关闭 / 生命周期日志</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-button text="遮罩不可关闭" @click="maskLockShow = true" />
+					<text class="demo-tip">事件日志：{{ eventLog }}</text>
+				</view>
+			</view>
+
+			<!-- k-overlay 独立用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">k-overlay 独立用法</text>
+					<text class="page-desc">自定义蒙层内容</text>
+				</view>
+				<view class="demo-content demo-column">
+					<k-button text="仅遮罩层" @click="overlayShow = true" />
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+
+	<!-- 弹层统一挂载在页面内容之外，避免层级与点击穿透 -->
+		<!-- 底部弹层 -->
+		<k-popup v-model:show="bottomShow" position="bottom" round>
+			<template #header>
+				<text class="popup-title">底部面板</text>
+			</template>
+			<text class="popup-text">适用于操作菜单、筛选面板等场景。</text>
+			<view class="popup-actions">
+				<k-button type="primary" text="确定" @click="bottomShow = false" />
+			</view>
+		</k-popup>
+
+		<!-- 顶部 -->
+		<k-popup v-model:show="topShow" position="top" round>
+			<text class="popup-text">顶部通知栏样式弹层</text>
+		</k-popup>
+
+		<!-- 居中 -->
+		<k-popup v-model:show="centerShow" position="center" round closeable>
+			<text class="popup-title">居中弹窗</text>
+			<text class="popup-text">center 模式默认带缩放动画（zoom=true）。</text>
+		</k-popup>
+
+		<!-- 左侧 -->
+		<k-popup v-model:show="leftShow" position="left">
+			<text class="popup-title">左侧抽屉</text>
+			<text class="popup-text">默认宽度 280px，可通过 width 属性覆盖。</text>
+		</k-popup>
+
+		<!-- 右侧 -->
+		<k-popup v-model:show="rightShow" position="right">
+			<text class="popup-title">右侧抽屉</text>
+			<text class="popup-text">适用于筛选、设置面板。</text>
+		</k-popup>
+
+		<!-- 圆角 -->
+		<k-popup v-model:show="roundShow" position="bottom" round>
+			<text class="popup-text">round 仅在 top / bottom / center 生效。</text>
+		</k-popup>
+
+		<!-- 关闭图标 -->
+		<k-popup v-model:show="closeableShow" position="bottom" round closeable>
+			<text class="popup-text">点击右上角图标或遮罩关闭。</text>
+		</k-popup>
+
+		<!-- 无遮罩 -->
+		<k-popup v-model:show="noOverlayShow" position="center" :overlay="false">
+			<text class="popup-text">overlay=false，无遮罩层。</text>
+			<k-button text="关闭" @click="closeNoOverlay" />
+		</k-popup>
+
+		<!-- 遮罩不可关闭 -->
+		<k-popup
+			v-model:show="maskLockShow"
+			position="center"
+			round
+			:close-on-click-overlay="false"
+			@open="appendEvent('open')"
+			@opened="appendEvent('opened')"
+			@close="appendEvent('close')"
+			@closed="appendEvent('closed')"
+			@click-overlay="appendEvent('clickOverlay')"
+		>
+			<text class="popup-title">遮罩不可关闭</text>
+			<text class="popup-text">需点击按钮关闭，用于强确认场景。</text>
+			<k-button type="primary" text="我知道了" @click="closeMaskLock" />
+		</k-popup>
+
+		<!-- 独立 overlay：包裹在同一 fixed 根节点内，保证层级 -->
+		<view v-if="overlayShow" class="overlay-demo-root">
+			<k-overlay :show="true" :z-index="overlayDemoZIndex" @click="overlayShow = false" />
+			<view class="overlay-content" :style="'z-index:' + (overlayDemoZIndex + 1)">
+				<text class="overlay-content__text">自定义浮层内容</text>
+				<k-button size="small" text="关闭" @click="overlayShow = false" />
+			</view>
+		</view>
+</template>
+
+<script setup lang="uts">
+	import { resolvePageMetaOverflow } from '@/uni_modules/kit-ui/components/k-popup/popup-utils.uts'
+	import { Z_INDEX_POPPER } from '@/uni_modules/kit-ui/components/k-overlay/overlay-stack.uts'
+
+	const overlayDemoZIndex = Z_INDEX_POPPER + 100
+
+	const bottomShow = ref<boolean>(false)
+	const topShow = ref<boolean>(false)
+	const centerShow = ref<boolean>(false)
+	const leftShow = ref<boolean>(false)
+	const rightShow = ref<boolean>(false)
+	const roundShow = ref<boolean>(false)
+	const closeableShow = ref<boolean>(false)
+	const noOverlayShow = ref<boolean>(false)
+	const maskLockShow = ref<boolean>(false)
+	const overlayShow = ref<boolean>(false)
+	const eventLog = ref<string>('暂无')
+
+	/**
+	 * 任一弹层打开时锁定页面滚动
+	 */
+	const anyPopupVisible = computed((): boolean => {
+		return bottomShow.value
+			|| topShow.value
+			|| centerShow.value
+			|| leftShow.value
+			|| rightShow.value
+			|| roundShow.value
+			|| closeableShow.value
+			|| noOverlayShow.value
+			|| maskLockShow.value
+			|| overlayShow.value
+	})
+
+	const pageOverflow = computed((): string => {
+		return resolvePageMetaOverflow(anyPopupVisible.value)
+	})
+
+	/**
+	 * 记录 popup 生命周期事件
+	 */
+	const appendEvent = (name: string) => {
+		const time = Date.now() % 100000
+		eventLog.value = `[${time}] ${name}`
+	}
+
+	/**
+	 * 关闭无遮罩弹层
+	 */
+	const closeNoOverlay = () => {
+		noOverlayShow.value = false
+	}
+
+	/**
+	 * 关闭遮罩不可点击弹层
+	 */
+	const closeMaskLock = () => {
+		maskLockShow.value = false
+	}
+</script>
+
+<style lang="scss">
+	.demo-column .k-button {
+		margin-bottom: 10px;
+	}
+
+	.demo-column .k-button:last-child {
+		margin-bottom: 0;
+	}
+
+	.popup-title {
+		font-size: 16px;
+		font-weight: bold;
+		color: var(--k-text-color-primary, #111827);
+		margin-bottom: 8px;
+	}
+
+	.popup-text {
+		font-size: 14px;
+		color: var(--k-text-color-secondary, #6b7280);
+		line-height: 22px;
+	}
+
+	.popup-actions {
+		margin-top: 16px;
+	}
+
+	.overlay-demo-root {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: auto;
+		z-index: 2100;
+	}
+
+	.overlay-content {
+		position: fixed;
+		top: 40%;
+		left: 10%;
+		right: 10%;
+		padding: 20px;
+		border-radius: 12px;
+		background-color: #ffffff;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		pointer-events: auto;
+	}
+
+	.overlay-content__text {
+		font-size: 14px;
+		color: var(--k-text-color-primary, #111827);
+		margin-bottom: 12px;
+	}
+</style>

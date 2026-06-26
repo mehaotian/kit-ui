@@ -1,0 +1,16 @@
+/**
+ * k-popup 类型定义
+ */
+
+export type PopupPosition = 'top' | 'bottom' | 'left' | 'right' | 'center'
+
+export type PopupCloseIconPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+
+export type BeforeCloseAction = 'overlay' | 'close-icon' | 'programmatic'
+
+export type BeforeCloseHandler = (action : BeforeCloseAction) => boolean
+
+export type PopupExpose = {
+	open : () => void
+	close : () => void
+}
