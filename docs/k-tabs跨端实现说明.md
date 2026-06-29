@@ -1,8 +1,8 @@
 # k-tabs 跨端实现说明
 
-> 版本：v1  
+> 版本：v1（v1.1 2026-06-29 复验）  
 > 日期：2026-06-29  
-> 状态：与 v1 验收代码一致  
+> 状态：三端验收通过，与代码一致  
 > 关联：`uni_modules/kit-ui/components/k-tabs/README.md`、`docs/k-tabs开发计划.md`
 
 ---
@@ -66,6 +66,16 @@ k-tabs (k-tabs.uvue)
 ### 3.3 swipeThreshold
 
 `scrollable=false` 且 `stretch=false` 时，pane 数量 > `swipeThreshold` 自动开启横向滚动。
+
+### 3.4 宽度溢出自动 scrollable
+
+未显式 `scrollable` 且未 `stretch`、Tab 数量 ≤ `swipeThreshold` 时，若各 Tab 总宽超出导航容器（徽标/长标题等），`measureScrollNavWidth` 会设置 `forceScrollByOverflow`。
+
+**维护注意**：
+
+- **禁止**对 `forceScrollByOverflow` 添加 `watch` 并回调 `scheduleNavLayoutSync` — 会与 scroll / 非 scroll DOM 切换形成死循环，导致三端页面抖动或 WEB 卡死
+- 模式切换仅在测量回调内完成，切换后 **一次** `nextTick` 补测
+- 使用 `OVERFLOW_SCROLL_HYSTERESIS`（8px）避免临界宽度来回切换
 
 ---
 

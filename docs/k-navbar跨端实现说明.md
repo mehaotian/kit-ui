@@ -1,8 +1,8 @@
 # k-navbar 跨端实现说明
 
-> 版本：v1  
+> 版本：v1（v1.1 2026-06-29 复验）  
 > 日期：2026-06-29  
-> 状态：与 v1 验收代码一致  
+> 状态：三端验收通过，与代码一致  
 > 关联：`uni_modules/kit-ui/components/k-navbar/README.md`、`docs/k-navbar开发计划.md`
 
 ---

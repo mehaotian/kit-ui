@@ -92,6 +92,8 @@
 | 动态增删 Tab | ☑ | ☑ | ☑ | 指示器与宽度重测 |
 | value-type=index | ☑ | ☑ | ☑ | 按索引绑定 |
 | nav-left / nav-right | ☑ | ☑ | ☑ | 附加区不挤压导航 |
+| 徽标导致宽度溢出自动 scrollable | ☑ | ☑ | ☑ | 自动横向滚动，页面不抖动 |
+| navbar + tabs 组合页 | ☑ | ☑ | ☑ | 切换 Tab 无布局循环抖动 |
 
 ---
 
@@ -101,6 +103,8 @@
 | --- | --- |
 | scroll-view 位置 | 放在 `k-tabs-nav-wrap` 内，满足 MP `scroll-into-view` |
 | nav-wrap 模板双分支 | scrollable / 非 scrollable 各一份 DOM，避免跨组件滚动失效 |
+| 溢出自动 scrollable | `measureScrollNavWidth` 检测宽度溢出；**禁止**对 `forceScrollByOverflow` 设 watch，避免 scroll 模式来回切换死循环 |
+| 溢出滞后阈值 | `OVERFLOW_SCROLL_HYSTERESIS=8px`，临界宽度不反复横跳 |
 | 指示器首次无动画 | `indicatorLayoutReady` 避免首屏飞入 |
 | icon 替代 label | 一期 slot 转发限制，见开发计划 R-01 |
 

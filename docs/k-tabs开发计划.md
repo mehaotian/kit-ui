@@ -2,7 +2,7 @@
 
 > 版本：v1.0  
 > 日期：2026-06-29  
-> 状态：**v1 已验收收尾（2026-06-29）** — WEB / APP / 微信三端通过；文档见 `docs/k-tabs三端冒烟验收清单.md`、`docs/k-tabs跨端实现说明.md`  
+> 状态：**v1 已验收收尾（2026-06-29，v1.1 三端复验通过）** — WEB / APP / 微信三端通过；文档见 `docs/k-tabs三端冒烟验收清单.md`、`docs/k-tabs跨端实现说明.md`  
 > 关联：`docs/一期下一步开发计划.md`、`docs/k-popup方案分析报告.md`（方案文档结构参考）
 
 ---
@@ -375,3 +375,12 @@ APP 场景整页滚动：`#ifdef APP` 包裹 `scroll-view`。
 
 - `swipeable`、`k-sticky-tabs`、垂直 `placement`、`label` slot、`beforeChange` Promise
 - 与 `k-form` validateTrigger 联动
+
+### 15.4 v1.1 验收补丁（2026-06-29）
+
+| 项 | 变更 |
+| --- | --- |
+| 溢出自动 scrollable 死循环 | 移除 `forceScrollByOverflow` 的 watch；仅在测量回调内切换 scroll 模式 |
+| 滞后阈值 | `OVERFLOW_SCROLL_HYSTERESIS=8px`，避免临界宽度反复横跳 |
+| 测量合并 | `measureScrollNavWidth(onSettled)` 模式切换后只补一次 `nextTick` 重测 |
+| 三端验收 | WEB / APP / 微信 MP 及 navbar-composite 组合页无抖动，验收通过 |

@@ -2,7 +2,7 @@
 
 > 版本：v1.0  
 > 日期：2026-06-29  
-> 状态：**v1 已验收收尾（2026-06-29）** — 见 `docs/k-navbar三端冒烟验收清单.md`、`docs/k-navbar跨端实现说明.md`  
+> 状态：**v1 已验收收尾（2026-06-29，v1.1 三端复验通过）** — 见 `docs/k-navbar三端冒烟验收清单.md`、`docs/k-navbar跨端实现说明.md`  
 > 前置：`k-tabs` v1 已验收（`docs/k-tabs三端冒烟验收清单.md`）  
 > 关联：`docs/一期下一步开发计划.md`、`docs/k-tabbar二期规划备忘.md`
 
@@ -199,6 +199,7 @@ k-navbar
 | --- | --- |
 | 基础用法 | title + leftArrow |
 | 左右文字 | leftText / rightText |
+| 长标题省略 | 单行 ellipsis + 左右操作区示例 |
 | 自定义 slot | title 插槽、right 双图标 |
 | 无返回 | leftArrow=false |
 | 禁用 autoBack | 自定义 click-left 逻辑 |
@@ -256,11 +257,23 @@ k-navbar
 | 决策 | 原因 |
 | --- | --- |
 | `isPageNavLayout` 门控 | 内嵌 demo 不套状态栏/胶囊 |
-| 三列 flex 布局 | 避免绝对定位导致 WEB/MP 错乱 |
+| fixed 标题整屏居中 | absolute 全宽 overlay，对齐原生 navbar |
+| 内嵌三列 flex | `:fixed="false"` 卡片内等宽侧栏，避免 WEB 错乱 |
+| `estimateTitleSafePadding` | 长标题 ellipsis 时对称 padding，不压左右按钮 |
+| 默认右色 = 主文字色 | 与标题/左侧一致，避免默认主题蓝突兀 |
 | `leftArrow + leftText` | 常见「← 返回」组合 |
 | `onWindowResize` 重算 | WEB/MP 横竖屏；APP 用 `syncLayout()` 手动重算 |
 | `getCurrentPages` 守卫 | 无栈时不 navigateBack |
 | `MP_CAPSULE_CONTENT_GAP=10` | 右侧内容与胶囊间距 |
+
+### 13.3 v1.1 验收补丁（2026-06-29）
+
+| 项 | 变更 |
+| --- | --- |
+| 标题居中 | fixed 顶栏改为 absolute 整屏居中（MP 右侧有按钮时不再偏左） |
+| 长标题 | 演示页新增「长标题省略」；`overflow` + `max-lines` + APP `lines:1` |
+| 右侧默认色 | `resolvePrimaryTextColor`，三端统一黑色系 |
+| 三端验收 | WEB / APP / 微信 MP 冒烟通过，见验收清单 §3～§4 |
 
 ### 13.2 相关文件
 

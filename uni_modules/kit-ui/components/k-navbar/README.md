@@ -104,7 +104,9 @@
 1. `placeholder` 仅在与 `fixed` 组合时有意义。
 2. 内嵌 `:fixed="false"` 时固定 44px，无状态栏/胶囊。
 3. 无右侧内容时点击右侧不会触发 `click-right`。
-4. WEB / 微信 MP 横竖屏切换时通过 `uni.onWindowResize` 自动重算；APP 请按需调用 `syncLayout()`。
+4. fixed 顶栏标题相对**整屏**居中；内嵌 demo 为 flex 中间列居中。
+5. 标题过长时单行省略（`overflow` + `max-lines`）；演示见「长标题省略」区块。
+6. WEB / 微信 MP 横竖屏切换时通过 `uni.onWindowResize` 自动重算；APP 请按需调用 `syncLayout()`。
 
 ## 相关文档
 

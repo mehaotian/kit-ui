@@ -1,7 +1,7 @@
 # k-navbar v1 三端冒烟验收清单
 
 > 目标：验证 `k-navbar` 一期 v1 能力  
-> 适用版本：k-navbar v1（2026-06-29 验收）  
+> 适用版本：k-navbar v1（2026-06-29 验收通过）  
 > 演示页：`pages-demo/navbar/navbar.uvue`、`pages-demo/navbar-composite/navbar-composite.uvue`
 
 ---
@@ -27,14 +27,16 @@
 - `border` / `background` / 颜色 props
 - `disabled`
 - `autoBack` / `click-left` / `click-right`
-- `defineExpose`：`getNavbarHeight()`
+- `defineExpose`：`getNavbarHeight()` / `syncLayout()`
 
 ### 2.2 跨端专项
 
 - MP fixed：胶囊避让 + 右侧 10px 间距
 - MP / APP fixed：状态栏高度正确
 - 内嵌 `:fixed="false"`：无状态栏、无胶囊，标题完整
-- 三列布局：右侧文字在最右，不贴箭头
+- fixed 顶栏：标题相对**整屏**居中（非 flex 中间列居中）
+- 内嵌 demo：三列 flex，右侧文字在最右
+- 长标题单行 ellipsis
 - 横竖屏切换后顶栏高度仍正确（抽测）
 
 ### 2.3 一期不包含
@@ -47,9 +49,9 @@
 
 | 端 | 环境信息 | 结果 | 备注 |
 | --- | --- | --- | --- |
-| WEB | | ☐ 待测 | |
-| APP | | ☐ 待测 | Kotlin 编译 |
-| 微信 MP | | ☐ 待测 | custom 导航 + 胶囊 |
+| WEB | Chrome | ☑ 通过 | fixed 顶栏、内嵌 demo、组合页 |
+| APP | Kotlin 编译 | ☑ 通过 | 状态栏、指示器联动 tabs 无抖动 |
+| 微信 MP | custom 导航 | ☑ 通过 | 胶囊避让、标题整屏居中、右侧「说明」 |
 
 ---
 
@@ -59,31 +61,32 @@
 
 | 用例 | WEB | APP | MP | 预期 |
 | --- | --- | --- | --- | --- |
-| fixed + placeholder | ☐ | ☐ | ☐ | 内容不被遮挡 |
-| 状态栏区域 | ☐ | ☐ | ☐ | fixed 有；内嵌无 |
-| 标题居中 | ☐ | ☐ | ☐ | 屏幕/区域居中 |
-| 右侧「说明/筛选」 | ☐ | ☐ | ☐ | 最右侧，MP 距胶囊有间距 |
-| 返回 navigateBack | ☐ | ☐ | ☐ | 有栈时返回 |
-| 首页无栈点击返回 | ☐ | ☐ | ☐ | 不报错、不崩溃 |
+| fixed + placeholder | ☑ | ☑ | ☑ | 内容不被遮挡 |
+| 状态栏区域 | ☑ | ☑ | ☑ | fixed 有；内嵌无 |
+| 标题整屏居中 | ☑ | ☑ | ☑ | 相对屏幕居中，非中间 flex 区居中 |
+| 右侧「说明/筛选」 | ☑ | ☑ | ☑ | 最右侧，MP 距胶囊有间距；默认主文字色 |
+| 返回 navigateBack | ☑ | ☑ | ☑ | 有栈时返回 |
+| 首页无栈点击返回 | ☑ | ☑ | ☑ | 不报错、不崩溃 |
 
 ### 4.2 内嵌示例（navbar 演示页卡片内）
 
 | 用例 | WEB | APP | MP | 预期 |
 | --- | --- | --- | --- | --- |
-| 基础 title + arrow | ☐ | ☐ | ☐ | 标题完整、44px |
-| 左右文字 | ☐ | ☐ | ☐ | 分享在最右 |
-| 箭头 + 返回文字 | ☐ | ☐ | ☐ | 箭头在左、文字紧随其后 |
-| 自定义 slot | ☐ | ☐ | ☐ | 标题/图标/右侧图标分区正确 |
-| 品牌色 background | ☐ | ☐ | ☐ | 白字可读 |
-| disabled | ☐ | ☐ | ☐ | 点击无响应 |
+| 基础 title + arrow | ☑ | ☑ | ☑ | 标题完整、44px |
+| 左右文字 | ☑ | ☑ | ☑ | 分享在最右 |
+| 箭头 + 返回文字 | ☑ | ☑ | ☑ | 箭头在左、文字紧随其后 |
+| 长标题省略 | ☑ | ☑ | ☑ | 单行 ellipsis，左右操作区不被挤占 |
+| 自定义 slot | ☑ | ☑ | ☑ | 标题/图标/右侧图标分区正确 |
+| 品牌色 background | ☑ | ☑ | ☑ | 白字可读 |
+| disabled | ☑ | ☑ | ☑ | 点击无响应 |
 
 ### 4.3 组合页
 
 | 用例 | WEB | APP | MP | 预期 |
 | --- | --- | --- | --- | --- |
-| navbar + tabs(stretch) + list | ☐ | ☐ | ☐ | Tab 均分、不被截断 |
-| 切换 Tab | ☐ | ☐ | ☐ | 列表/空态正常 |
-| load-more | ☐ | ☐ | ☐ | 加载更多可用 |
+| navbar + tabs(stretch) + list | ☑ | ☑ | ☑ | Tab 均分、不被截断 |
+| 切换 Tab | ☑ | ☑ | ☑ | 列表/空态正常 |
+| load-more | ☑ | ☑ | ☑ | 加载更多可用 |
 
 ---
 
@@ -92,7 +95,9 @@
 | 项 | 说明 |
 | --- | --- |
 | fixed 门控 | 非 fixed 不套安全区/胶囊 |
-| 三列 flex | 替代绝对定位，避免 WEB 错乱 |
+| 页面级标题居中 | absolute 全宽 overlay + 对称安全 padding |
+| 内嵌三列 flex | `:fixed="false"` 卡片内用等宽侧栏，避免绝对定位错乱 |
+| 默认右色 | 与标题一致（主文字色），非主题蓝 |
 | MP 仅 WEIXIN 胶囊 | 其它 MP 走 16px 内边距 |
 | navigateBack | 无栈静默跳过 |
 
