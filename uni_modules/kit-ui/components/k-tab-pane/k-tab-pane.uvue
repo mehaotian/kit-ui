@@ -1,0 +1,157 @@
+<script setup lang="uts">
+	import { inject, computed, ref, watch, onMounted, onBeforeUnmount, type ComputedRef } from 'vue'
+	import type { TabPanePatch } from '../k-tabs/tab.type.uts'
+
+	defineOptions({
+		name: 'KTabPane'
+	})
+
+	type KTabPaneProps = {
+		name ?: string | number
+		title ?: string
+		disabled ?: boolean
+		dot ?: boolean
+		badge ?: string | number
+		icon ?: string
+		lazy ?: boolean
+		customStyle ?: string
+	}
+
+	const props = withDefaults(defineProps<KTabPaneProps>(), {
+		name: '',
+		title: '',
+		disabled: false,
+		dot: false,
+		badge: '',
+		icon: '',
+		customStyle: ''
+	})
+
+	const elId = `Kit_tab_pane_${Math.ceil(Math.random() * 10e5).toString(36)}`
+	const paneIndex = ref<number>(0)
+	const hasVisited = ref<boolean>(false)
+
+	const activeValue = inject<ComputedRef<string | number> | null>('k-tabs-active-value', null)
+	const valueType = inject<ComputedRef<string> | null>('k-tabs-value-type', null)
+	const tabsLazy = inject<ComputedRef<boolean> | null>('k-tabs-lazy', null)
+	const tabsDestroyOnHide = inject<ComputedRef<boolean> | null>('k-tabs-destroy-on-hide', null)
+	const registerPane = inject<((elId : string) => number) | null>('k-tabs-register-pane', null)
+	const unregisterPane = inject<((elId : string) => void) | null>('k-tabs-unregister-pane', null)
+	const updatePaneMeta = inject<((elId : string, patch : TabPanePatch) => void) | null>('k-tabs-update-pane', null)
+
+	/**
+	 * 解析面板在 v-model 中使用的 name（空 name 回退为注册索引）
+	 */
+	const resolvedName = computed((): string | number => {
+		if (props.name != '' && props.name != null) {
+			return props.name as string | number
+		}
+		return paneIndex.value
+	})
+
+	/**
+	 * 当前面板是否激活
+	 */
+	const isActive = computed((): boolean => {
+		if (activeValue == null || valueType == null) {
+			return false
+		}
+		const current = activeValue.value
+		const type = valueType.value
+		if (type == 'index') {
+			return current == paneIndex.value
+		}
+		return current == resolvedName.value
+	})
+
+	/**
+	 * 是否继承父级 lazy
+	 */
+	const resolvedLazy = computed((): boolean => {
+		const lazyVal = props.lazy
+		if (lazyVal == true || lazyVal == false) {
+			return lazyVal
+		}
+		if (tabsLazy != null) {
+			return tabsLazy.value
+		}
+		return false
+	})
+
+	/**
+	 * 是否在 DOM 中渲染内容区
+	 */
+	const shouldRender = computed((): boolean => {
+		if (!resolvedLazy.value) {
+			return true
+		}
+		if (tabsDestroyOnHide != null && tabsDestroyOnHide.value) {
+			return isActive.value
+		}
+		return hasVisited.value || isActive.value
+	})
+
+	/**
+	 * 同步访问状态（lazy 非 destroy 模式）
+	 */
+	watch(isActive, (active : boolean) => {
+		if (active) {
+			hasVisited.value = true
+		}
+	}, { immediate: true })
+
+	/**
+	 * 构建元数据补丁
+	 */
+	const buildPatch = (): TabPanePatch => {
+		return {
+			name: props.name as string | number,
+			title: props.title,
+			disabled: props.disabled,
+			dot: props.dot,
+			badge: props.badge as string | number,
+			icon: props.icon
+		}
+	}
+
+	watch(
+		(): string => `${props.name}|${props.title}|${props.disabled}|${props.dot}|${props.badge}|${props.icon}`,
+		() => {
+			if (updatePaneMeta != null) {
+				updatePaneMeta(elId, buildPatch())
+			}
+		}
+	)
+
+	onMounted(() => {
+		if (registerPane != null) {
+			paneIndex.value = registerPane(elId)
+			if (updatePaneMeta != null) {
+				updatePaneMeta(elId, buildPatch())
+			}
+		}
+	})
+
+	onBeforeUnmount(() => {
+		if (unregisterPane != null) {
+			unregisterPane(elId)
+		}
+	})
+</script>
+
+<template>
+	<view
+		v-if="shouldRender"
+		v-show="isActive"
+		class="k-tab-pane"
+		:style="props.customStyle"
+	>
+		<slot></slot>
+	</view>
+</template>
+
+<style lang="scss">
+	.k-tab-pane {
+		width: 100%;
+	}
+</style>

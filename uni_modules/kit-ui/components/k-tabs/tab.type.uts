@@ -1,0 +1,25 @@
+/**
+ * k-tabs / k-tab-pane 共享类型
+ */
+
+/** 子面板注册记录（由 k-tab-pane 上报，k-tabs 用于渲染导航） */
+export type TabPaneRecord = {
+	elId : string
+	index : number
+	name : string | number
+	title : string
+	disabled : boolean
+	dot : boolean
+	badge : string | number
+	icon : string
+}
+
+/** 面板元数据更新（props 变化时同步） */
+export type TabPanePatch = {
+	name ?: string | number
+	title ?: string
+	disabled ?: boolean
+	dot ?: boolean
+	badge ?: string | number
+	icon ?: string
+}

@@ -211,6 +211,12 @@
 				"style": {
 					"navigationBarTitleText": "标准列表页"
 				}
+			},
+			{
+				"path": "tabs/tabs",
+				"style": {
+					"navigationBarTitleText": "标签页"
+				}
 			}
 		]
 	}],

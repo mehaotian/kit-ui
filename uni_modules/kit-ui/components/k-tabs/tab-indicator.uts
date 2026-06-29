@@ -1,0 +1,83 @@
+/**
+ * 解析 px 长度字符串
+ */
+export function parseCssPx(value : string, fallback : number) : number {
+	if (value.length > 2 && value.endsWith('px')) {
+		const num = parseFloat(value.substring(0, value.length - 2))
+		if (!isNaN(num)) {
+			return num
+		}
+	}
+	return fallback
+}
+
+/**
+ * 解析 line 指示器宽度：默认按内容区宽度略缩（约 94%），显式 lineWidth 时用手动值
+ */
+export function resolveLineIndicatorWidth(
+	anchorWidth : number,
+	lineWidthProp : string,
+	size : string
+) : number {
+	if (lineWidthProp != '') {
+		return parseCssPx(lineWidthProp, 36)
+	}
+	let minW = 20
+	if (size == 'small') {
+		minW = 18
+	} else if (size == 'large') {
+		minW = 24
+	}
+	const ratio = 0.94
+	let width = anchorWidth * ratio
+	if (width < minW) {
+		width = minW
+	}
+	if (width > anchorWidth) {
+		width = anchorWidth
+	}
+	return width
+}
+
+/**
+ * 计算 line 型指示器位置（固定宽度，居中于文字/内容区）
+ */
+export function calcLineIndicator(
+	itemLeft : number,
+	itemWidth : number,
+	navLeft : number,
+	lineWidth : number,
+	lineHeight : number,
+	navHeight : number
+) : UTSJSONObject {
+	const width = lineWidth
+	const left = itemLeft - navLeft + (itemWidth - width) / 2
+	const top = navHeight - lineHeight
+	return {
+		left: `${left}px`,
+		width: `${width}px`,
+		height: `${lineHeight}px`,
+		top: `${top}px`,
+		opacity: '1'
+	}
+}
+
+/**
+ * 计算 card / button 型滑动轨道位置（贴合 Tab 项）
+ */
+export function calcTrackIndicator(
+	itemLeft : number,
+	itemWidth : number,
+	itemHeight : number,
+	itemTop : number,
+	navLeft : number,
+	navTop : number
+) : UTSJSONObject {
+	return {
+		left: `${itemLeft - navLeft}px`,
+		width: `${itemWidth}px`,
+		height: `${itemHeight}px`,
+		top: `${itemTop - navTop}px`,
+		opacity: '1'
+	}
+}

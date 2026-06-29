@@ -1,0 +1,630 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-tabs 标签页</text>
+				<text class="page-desc">页内分区切换，适用于订单、消息、筛选等场景</text>
+			</view>
+
+			<!-- 基础用法：订单状态 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">v-model 按 name 绑定，常见订单状态切换</text>
+				</view>
+				<view class="demo-content">
+					<k-tabs v-model="basicActive" @change="handleBasicChange">
+						<k-tab-pane name="all" title="全部">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">全部订单</text>
+									<text class="tabs-pane__desc">展示所有状态的订单记录</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="pending" title="待付款">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">待付款订单</text>
+									<text class="tabs-pane__desc">请在 24 小时内完成支付</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="done" title="已完成">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">已完成订单</text>
+									<text class="tabs-pane__desc">可查看物流与评价</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+				<text class="demo-tip">当前选中：{{ basicActive }}</text>
+			</view>
+
+			<!-- 视觉类型 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">视觉类型</text>
+					<text class="page-desc">line / card / button 三种导航样式</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">Line 下划线</text>
+						<k-tabs v-model="typeLine" type="line">
+							<k-tab-pane name="todo" title="待处理">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__title">3 项待处理</text>
+										<text class="tabs-pane__desc">审批、退款申请等待办事项</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="doing" title="进行中">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__title">2 项进行中</text>
+										<text class="tabs-pane__desc">正在跟进的工单与任务</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">Card 卡片</text>
+						<k-tabs v-model="typeCard" type="card">
+							<k-tab-pane name="goods" title="商品">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__title">商品详情</text>
+										<text class="tabs-pane__desc">规格、参数与图文介绍</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="review" title="评价">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__title">用户评价</text>
+										<text class="tabs-pane__desc">好评率 98%，共 326 条</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">Button 胶囊</text>
+						<k-tabs v-model="typeButton" type="button">
+							<k-tab-pane name="day" title="今日">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__title">今日数据</text>
+										<text class="tabs-pane__desc">访问量 1,280，转化 3.2%</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="week" title="本周">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__title">本周数据</text>
+										<text class="tabs-pane__desc">访问量 8,640，转化 2.8%</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+				</view>
+			</view>
+
+			<!-- 自定义颜色 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义颜色</text>
+					<text class="page-desc">active-color / inactive-color 适配品牌色</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">翠绿主题</text>
+						<k-tabs v-model="themeGreenActive" active-color="#10b981" inactive-color="#9ca3af">
+							<k-tab-pane name="a" title="已发货">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">物流信息已更新</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="b" title="已签收">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">包裹已送达</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">橙色胶囊</text>
+						<k-tabs
+							v-model="themeOrangeActive"
+							type="button"
+							active-color="#f97316"
+							inactive-color="#9ca3af"
+						>
+							<k-tab-pane name="a" title="热销">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">本周销量 TOP 10</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="b" title="新品">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">近 7 天上架商品</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">玫红卡片</text>
+						<k-tabs
+							v-model="themeRoseActive"
+							type="card"
+							active-color="#e11d48"
+							inactive-color="#94a3b8"
+						>
+							<k-tab-pane name="a" title="关注">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">12 位创作者有更新</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="b" title="推荐">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">根据兴趣推荐内容</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+				</view>
+			</view>
+
+			<!-- 尺寸 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">尺寸</text>
+					<text class="page-desc">small / medium / large</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">Small</text>
+						<k-tabs v-model="sizeActive" size="small" stretch>
+							<k-tab-pane name="1" title="选项一">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">小号导航栏</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="2" title="选项二">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">适合信息密集页面</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">Medium（默认）</text>
+						<k-tabs v-model="sizeActive" stretch>
+							<k-tab-pane name="1" title="选项一">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">默认尺寸</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="2" title="选项二">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">多数场景推荐使用</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">Large</text>
+						<k-tabs v-model="sizeActive" size="large" stretch>
+							<k-tab-pane name="1" title="选项一">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">大号导航栏</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="2" title="选项二">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">适合强调型页面头部</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+				</view>
+			</view>
+
+			<!-- 徽标 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">徽标</text>
+					<text class="page-desc">dot 红点 / badge 数字，常用于消息中心</text>
+				</view>
+				<view class="demo-content">
+					<k-tabs v-model="badgeActive">
+						<k-tab-pane name="msg" title="消息" :dot="true">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">系统通知</text>
+									<text class="tabs-pane__desc">您有未读消息</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="cart" title="购物车" badge="12">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">购物车</text>
+									<text class="tabs-pane__desc">12 件商品待结算</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="mine" title="我的">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">个人中心</text>
+									<text class="tabs-pane__desc">账户与设置</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+			</view>
+
+			<!-- 图标标题 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">图标 + 标题</text>
+					<text class="page-desc">底部导航、工作台等场景</text>
+				</view>
+				<view class="demo-content">
+					<k-tabs v-model="iconActive">
+						<k-tab-pane name="home" title="首页" icon="home-4-line">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">首页推荐</text>
+									<text class="tabs-pane__desc">今日热点与精选内容</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="user" title="我的" icon="user-3-line">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">个人主页</text>
+									<text class="tabs-pane__desc">资料与订单管理</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+			</view>
+
+			<!-- 滚动导航 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">滚动导航</text>
+					<text class="page-desc">scrollable 或 Tab 数量超过阈值时横向滚动</text>
+				</view>
+				<view class="demo-content">
+					<k-tabs v-model="scrollActive" scrollable>
+						<k-tab-pane
+							v-for="(item, index) in scrollTabList"
+							:key="index"
+							:name="item.name"
+							:title="item.title"
+						>
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">{{ item.title }}</text>
+									<text class="tabs-pane__desc">{{ item.desc }}</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+			</view>
+
+			<!-- 禁用 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">禁用</text>
+					<text class="page-desc">单项 disabled / 整组 disabled</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">单项禁用</text>
+						<k-tabs v-model="disabledActive">
+							<k-tab-pane name="a" title="可选">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">可正常切换</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="b" title="禁用项" disabled>
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">不可进入</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="c" title="可选">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">可正常切换</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">整组禁用</text>
+						<k-tabs v-model="disabledActive" disabled>
+							<k-tab-pane name="a" title="Tab A">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">整组不可操作</text>
+									</view>
+								</view>
+							</k-tab-pane>
+							<k-tab-pane name="b" title="Tab B">
+								<view class="tabs-pane">
+									<view class="tabs-pane__card">
+										<text class="tabs-pane__desc">整组不可操作</text>
+									</view>
+								</view>
+							</k-tab-pane>
+						</k-tabs>
+					</view>
+				</view>
+			</view>
+
+			<!-- beforeChange -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">切换拦截</text>
+					<text class="page-desc">beforeChange 返回 false 阻止切换</text>
+				</view>
+				<view class="demo-content">
+					<k-tabs v-model="blockActive" :before-change="handleBeforeChange">
+						<k-tab-pane name="open" title="可切换">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">点击其他 Tab 可切换</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="locked" title="锁定">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">需要权限验证</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="other" title="其他">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">普通 Tab 内容</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+				<text class="demo-tip">「锁定」Tab 点击后不会切换</text>
+			</view>
+
+			<!-- 懒加载 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">懒加载</text>
+					<text class="page-desc">lazy：未访问的 Tab 内容不挂载</text>
+				</view>
+				<view class="demo-content">
+					<k-tabs v-model="lazyActive" lazy @change="handleLazyChange">
+						<k-tab-pane name="overview" title="概览">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">数据概览</text>
+									<text class="tabs-pane__desc">首屏默认展示，已挂载</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="heavy" title="列表">
+							<view class="tabs-pane">
+								<k-list>
+									<k-cell title="懒加载列表" label="切换到本 Tab 后才挂载" />
+									<k-cell title="第二行" label="减轻首屏开销" border />
+								</k-list>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="empty" title="空态">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card tabs-pane__card--highlight">
+									<text class="tabs-pane__desc">首次切换后挂载并展示</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+				<text class="demo-tip">已访问：{{ lazyVisitedText }}</text>
+			</view>
+
+			<!-- valueType index -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">按索引绑定</text>
+					<text class="page-desc">value-type=index</text>
+				</view>
+				<view class="demo-content">
+					<k-tabs v-model="indexActive" value-type="index" stretch>
+						<k-tab-pane title="面板一">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">索引 0 对应内容</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane title="面板二">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">索引 1 对应内容</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane title="面板三">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">索引 2 对应内容</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+				<text class="demo-tip">当前索引：{{ indexActive }}</text>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	type ScrollTabItem = {
+		name : string
+		title : string
+		desc : string
+	}
+
+	const basicActive = ref<string>('all')
+	const typeLine = ref<string>('todo')
+	const typeCard = ref<string>('goods')
+	const typeButton = ref<string>('day')
+	const themeGreenActive = ref<string>('a')
+	const themeOrangeActive = ref<string>('a')
+	const themeRoseActive = ref<string>('a')
+	const sizeActive = ref<string>('1')
+	const disabledActive = ref<string>('a')
+	const badgeActive = ref<string>('msg')
+	const iconActive = ref<string>('home')
+	const scrollActive = ref<string>('tab0')
+	const blockActive = ref<string>('open')
+	const lazyActive = ref<string>('overview')
+	const lazyVisited = ref<string[]>(['overview'])
+	const indexActive = ref<number>(0)
+
+	const scrollTabList = ref<ScrollTabItem[]>([
+		{ name: 'tab0', title: '推荐', desc: '为你推荐的热门资讯' },
+		{ name: 'tab1', title: '科技资讯', desc: '前沿科技与行业动态' },
+		{ name: 'tab2', title: '体育竞技', desc: '赛事赛程与战报' },
+		{ name: 'tab3', title: '娱乐八卦', desc: '影视综艺与明星动态' },
+		{ name: 'tab4', title: '财经股票', desc: '市场行情与解读' },
+		{ name: 'tab5', title: '军事国防', desc: '国防建设与战略分析' },
+		{ name: 'tab6', title: '数码产品', desc: '新品评测与选购指南' },
+		{ name: 'tab7', title: '汽车出行', desc: '新车发布与出行服务' }
+	])
+
+	/**
+	 * 懒加载演示：已访问 Tab 列表文案
+	 */
+	const lazyVisitedText = computed((): string => {
+		return lazyVisited.value.join('、')
+	})
+
+	/**
+	 * 懒加载 Tab 切换时记录访问
+	 */
+	const handleLazyChange = (name : string | number, _index : number) => {
+		const key = `${name}`
+		if (!lazyVisited.value.includes(key)) {
+			lazyVisited.value.push(key)
+		}
+	}
+
+	/**
+	 * 记录基础用法 change 事件
+	 */
+	const handleBasicChange = (name : string | number, index : number) => {
+		console.log('tabs change', name, index)
+	}
+
+	/**
+	 * 拦截切换到 locked Tab
+	 */
+	const handleBeforeChange = (name : string | number, index : number) : boolean => {
+		if (name == 'locked') {
+			return false
+		}
+		return true
+	}
+</script>
+
+<style lang="scss">
+	.demo-case-label {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+		margin-bottom: 8px;
+	}
+
+	.demo-tip {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+		margin-top: 8px;
+	}
+
+	.tabs-pane {
+		padding-top: 12px;
+		width: 100%;
+	}
+
+	.tabs-pane__card {
+		padding: 12px;
+		border-radius: 8px;
+		background-color: var(--k-bg-color-page, #f8fafc);
+		border-width: 1px;
+		border-style: solid;
+		border-color: var(--k-border-color-light, #f3f4f6);
+	}
+
+	.tabs-pane__card--highlight {
+		border-color: var(--k-color-primary, #6366f1);
+		border-style: dashed;
+	}
+
+	.tabs-pane__title {
+		font-size: 14px;
+		color: var(--k-text-color, #374151);
+		margin-bottom: 4px;
+	}
+
+	.tabs-pane__desc {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+</style>
