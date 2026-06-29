@@ -127,16 +127,29 @@
 	})
 
 	/**
-	 * 注入给子面板：当前 v-model 值（与 valueType 一致）
+	 * 注入给子面板：直接提供 ref，避免小程序 inject ComputedRef 响应失效
 	 */
-	const activeValueForPane = computed((): string | number => {
-		return innerValue.value
+	provide('k-tabs-active-value', innerValue)
+
+	const valueTypeRef = ref<string>(props.valueType)
+	const lazyRef = ref<boolean>(props.lazy)
+	const destroyOnHideRef = ref<boolean>(props.destroyOnHide)
+
+	watch((): string => props.valueType, (val : string) => {
+		valueTypeRef.value = val
 	})
 
-	provide('k-tabs-active-value', activeValueForPane)
-	provide('k-tabs-value-type', computed((): string => props.valueType))
-	provide('k-tabs-lazy', computed((): boolean => props.lazy))
-	provide('k-tabs-destroy-on-hide', computed((): boolean => props.destroyOnHide))
+	watch((): boolean => props.lazy, (val : boolean) => {
+		lazyRef.value = val
+	})
+
+	watch((): boolean => props.destroyOnHide, (val : boolean) => {
+		destroyOnHideRef.value = val
+	})
+
+	provide('k-tabs-value-type', valueTypeRef)
+	provide('k-tabs-lazy', lazyRef)
+	provide('k-tabs-destroy-on-hide', destroyOnHideRef)
 
 	/**
 	 * 根节点主题样式

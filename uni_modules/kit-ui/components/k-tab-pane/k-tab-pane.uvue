@@ -1,5 +1,5 @@
 <script setup lang="uts">
-	import { inject, computed, ref, watch, onMounted, onBeforeUnmount, type ComputedRef } from 'vue'
+	import { inject, computed, ref, watch, onMounted, onBeforeUnmount, type Ref } from 'vue'
 	import type { TabPanePatch } from '../k-tabs/tab.type.uts'
 
 	defineOptions({
@@ -31,10 +31,10 @@
 	const paneIndex = ref<number>(0)
 	const hasVisited = ref<boolean>(false)
 
-	const activeValue = inject<ComputedRef<string | number> | null>('k-tabs-active-value', null)
-	const valueType = inject<ComputedRef<string> | null>('k-tabs-value-type', null)
-	const tabsLazy = inject<ComputedRef<boolean> | null>('k-tabs-lazy', null)
-	const tabsDestroyOnHide = inject<ComputedRef<boolean> | null>('k-tabs-destroy-on-hide', null)
+	const activeValue = inject<Ref<string | number> | null>('k-tabs-active-value', null)
+	const valueType = inject<Ref<string> | null>('k-tabs-value-type', null)
+	const tabsLazy = inject<Ref<boolean> | null>('k-tabs-lazy', null)
+	const tabsDestroyOnHide = inject<Ref<boolean> | null>('k-tabs-destroy-on-hide', null)
 	const registerPane = inject<((elId : string) => number) | null>('k-tabs-register-pane', null)
 	const unregisterPane = inject<((elId : string) => void) | null>('k-tabs-unregister-pane', null)
 	const updatePaneMeta = inject<((elId : string, patch : TabPanePatch) => void) | null>('k-tabs-update-pane', null)
@@ -79,16 +79,53 @@
 	})
 
 	/**
+	 * 懒加载 destroy 模式：未访问不挂载
+	 */
+	const resolvedDestroyOnHide = computed((): boolean => {
+		if (tabsDestroyOnHide != null) {
+			return tabsDestroyOnHide.value
+		}
+		return false
+	})
+
+	/**
 	 * 是否在 DOM 中渲染内容区
 	 */
 	const shouldRender = computed((): boolean => {
 		if (!resolvedLazy.value) {
 			return true
 		}
-		if (tabsDestroyOnHide != null && tabsDestroyOnHide.value) {
+		if (resolvedDestroyOnHide.value) {
 			return isActive.value
 		}
 		return hasVisited.value || isActive.value
+	})
+
+	/**
+	 * 是否挂载面板（非 lazy / destroy 模式仅挂载激活项；小程序 v-show 不可靠）
+	 */
+	const mountPane = computed((): boolean => {
+		if (!shouldRender.value) {
+			return false
+		}
+		if (!resolvedLazy.value) {
+			return isActive.value
+		}
+		if (resolvedDestroyOnHide.value) {
+			return isActive.value
+		}
+		return true
+	})
+
+	/**
+	 * 懒加载保留模式：已访问但未激活时通过 display:none 隐藏
+	 */
+	const paneContentClass = computed((): string[] => {
+		const classes = ['k-tab-pane']
+		if (shouldRender.value && !isActive.value && resolvedLazy.value && !resolvedDestroyOnHide.value) {
+			classes.push('k-tab-pane--hidden')
+		}
+		return classes
 	})
 
 	/**
@@ -141,9 +178,8 @@
 
 <template>
 	<view
-		v-if="shouldRender"
-		v-show="isActive"
-		class="k-tab-pane"
+		v-if="mountPane"
+		:class="paneContentClass"
 		:style="props.customStyle"
 	>
 		<slot></slot>
@@ -153,5 +189,9 @@
 <style lang="scss">
 	.k-tab-pane {
 		width: 100%;
+	}
+
+	.k-tab-pane--hidden {
+		display: none;
 	}
 </style>
