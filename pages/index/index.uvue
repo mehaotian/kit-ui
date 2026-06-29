@@ -97,7 +97,10 @@
 				{ name: 'Avatar | 头像', path: '/pages/avatar/avatar', status: 'completed' },
 				{ name: 'Collapse | 折叠面板', path: '/pages/collapse/collapse', status: 'completed' },
 				{ name: 'Timeline | 时间轴', path: '/pages/timeline/timeline', status: 'completed' },
-				{ name: 'List｜列表', path: '/pages/list/list', status: 'planning' },
+				{ name: 'List｜列表', path: '/pages/list/list', status: 'completed' },
+				{ name: 'Empty｜空状态', path: '/pages/empty/empty', status: 'completed' },
+				{ name: 'LoadMore｜加载更多', path: '/pages/load-more/load-more', status: 'completed' },
+				{ name: 'PullRefresh｜下拉刷新', path: '/pages/pull-refresh/pull-refresh', status: 'planning' },
 				{ name: 'Swiper | 轮播图', path: '/pages/swiper/swiper', status: 'planning' },
 				{ name: 'Calendar｜日历', path: '/pages/calendar/calendar', status: 'planning' },
 				{ name: 'Table｜表格', path: '/pages/table/table', status: 'planning' },
@@ -176,8 +179,7 @@
 				{ name: 'AddressPicker', path: '/pages/addresspicker/addresspicker', status: 'planning' },
 				{ name: 'ShareSheet', path: '/pages/sharesheet/sharesheet', status: 'planning' },
 				{ name: 'PayKeyboard', path: '/pages/paykeyboard/paykeyboard', status: 'planning' },
-				{ name: 'Coupon', path: '/pages/coupon/coupon', status: 'planning' },
-				{ name: 'Empty', path: '/pages/empty/empty', status: 'planning' }
+				{ name: 'Coupon', path: '/pages/coupon/coupon', status: 'planning' }
 			]
 		}
 	])

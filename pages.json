@@ -173,6 +173,36 @@
 			"style": {
 				"navigationBarTitleText": "模态框"
 			}
+		},
+		{
+			"path": "pages/list/list",
+			"style": {
+				"navigationBarTitleText": "列表"
+			}
+		},
+		{
+			"path": "pages/empty/empty",
+			"style": {
+				"navigationBarTitleText": "空状态"
+			}
+		},
+		{
+			"path": "pages/load-more/load-more",
+			"style": {
+				"navigationBarTitleText": "加载更多"
+			}
+		},
+		{
+			"path": "pages/pull-refresh/pull-refresh",
+			"style": {
+				"navigationBarTitleText": "下拉刷新"
+			}
+		},
+		{
+			"path": "pages/list-scroll/list-scroll",
+			"style": {
+				"navigationBarTitleText": "标准列表页"
+			}
 		}
 	],
 	"globalStyle": {

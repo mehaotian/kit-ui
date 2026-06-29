@@ -1,0 +1,1032 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-list 列表状态容器</text>
+				<text class="page-desc">三态壳 + k-cell 行 + k-empty / k-load-more 完整能力演示</text>
+			</view>
+
+			<!-- 相关组件入口 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">相关组件</text>
+					<text class="page-desc">独立示例页可单独验收</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list>
+						<k-cell title="k-empty 空状态" label="图标 / 操作按钮 / 自定义 slot" is-link url="/pages/empty/empty" />
+						<k-cell title="k-load-more 加载更多" label="各态切换 / k-list footer 联动" is-link url="/pages/load-more/load-more" />
+						<k-cell title="k-pull-refresh 下拉刷新" label="一期暂不交付，见二期规划" is-link url="/pages/pull-refresh/pull-refresh" />
+						<k-cell title="k-cell 单元格" label="列表行原语" is-link url="/pages/cell/cell" />
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">finished 默认 true，无 footer；平铺 k-cell 自动分割线</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list>
+						<k-cell title="订单 #1024" label="2026-06-26 14:30 · 待发货" right-text="详情" is-link />
+						<k-cell title="订单 #1023" label="2026-06-25 09:12 · 已完成" right-text="详情" is-link />
+						<k-cell title="订单 #1022" label="2026-06-24 18:05 · 已取消" right-text="详情" is-link />
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 自定义 cell slot -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">cell 自定义 slot</text>
+					<text class="page-desc">#icon / #extra 与 clickable</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list>
+						<k-cell
+							v-for="(item, index) in messageList"
+							:key="index"
+							:title="item.title"
+							:label="item.description"
+							clickable
+							@click="handleItemClick(item.title)"
+						>
+							<template #icon>
+								<k-avatar :src="item.avatar" :size="40" />
+							</template>
+							<template #extra>
+								<k-tag :text="item.status" type="primary" size="12" />
+							</template>
+						</k-cell>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 业务自定义块 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">业务自定义块</text>
+					<text class="page-desc">default slot 不限于 k-cell，可放卡片等业务结构</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list :empty="orderCards.length == 0">
+						<view
+							v-for="(order, index) in orderCards"
+							:key="index"
+							class="demo-order-card"
+							@click="handleOrderClick(order.id)"
+						>
+							<view class="demo-order-card__header">
+								<text class="demo-order-card__title">{{ order.title }}</text>
+								<k-tag :text="order.status" :type="order.tagType" size="12" />
+							</view>
+							<text class="demo-order-card__desc">{{ order.desc }}</text>
+							<text class="demo-order-card__price">¥ {{ order.amount }}</text>
+						</view>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 完整链路 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">完整链路</text>
+					<text class="page-desc">首屏 loading → 列表 → load-more → 没有更多</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="一键演示完整链路" @click="startFullFlow" />
+					</view>
+					<text class="demo-log">{{ fullFlowDemo.log }}</text>
+					<k-list
+						class="demo-list-panel"
+						:loading="fullFlowDemo.loading"
+						:empty="fullFlowEmpty"
+						:finished="fullFlowDemo.finished"
+						:loading-more="fullFlowDemo.loadingMore"
+						:load-more-error="fullFlowDemo.loadMoreError"
+						@load-more="handleFullFlowLoadMore"
+						@load-more-retry="handleFullFlowLoadMoreRetry"
+					>
+						<k-cell
+							v-for="(item, index) in fullFlowDemo.items"
+							:key="item"
+							:title="item"
+							label="完整链路演示项"
+						/>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 容器三态 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">容器三态</text>
+					<text class="page-desc">loading > error > empty > default；:empty 必须显式绑定</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-btn-row">
+						<view class="demo-btn-col">
+							<k-button block type="primary" text="加载中" size="small" @click="setListState('loading')" />
+						</view>
+						<view class="demo-btn-col">
+							<k-button block text="空数据" size="small" @click="setListState('empty')" />
+						</view>
+						<view class="demo-btn-col">
+							<k-button block text="失败" size="small" @click="setListState('error')" />
+						</view>
+						<view class="demo-btn-col">
+							<k-button block text="恢复" size="small" @click="setListState('normal')" />
+						</view>
+					</view>
+					<text class="demo-log">{{ stateLog }}</text>
+					<k-list
+						class="demo-list-panel"
+						:loading="stateLoading"
+						:error="stateError"
+						:empty="stateEmpty"
+						loading-text="正在拉取列表..."
+						error-text="网络异常，请重试"
+						empty-text="暂时没有数据"
+						@retry="handleRetry"
+					>
+						<k-cell
+							v-for="(item, index) in dynamicItems"
+							:key="index"
+							:title="item"
+							label="动态列表项"
+						/>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 自定义 loading slot -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义 loading</text>
+					<text class="page-desc">#loading slot，推荐 k-ring-spinner 避免 MP 变形</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list loading>
+						<template #loading>
+							<view class="demo-custom-loading">
+								<view class="demo-custom-loading__spinner">
+									<k-ring-spinner size="24" color="#6366f1" />
+								</view>
+								<text class="demo-custom-loading__text">自定义加载中...</text>
+							</view>
+						</template>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 自定义 error slot -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义 error</text>
+					<text class="page-desc">#error slot + @retry</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list error @retry="handleCustomErrorRetry">
+						<template #error>
+							<view class="demo-custom-error">
+								<k-icon name="emotion-unhappy-line" size="40" color="#969799" />
+								<text class="demo-custom-error__text">服务开小差了</text>
+								<k-button text="点我重试" size="small" type="primary" />
+							</view>
+						</template>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 自定义 empty slot -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义 empty</text>
+					<text class="page-desc">#empty slot 完全覆盖默认 k-empty</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list :empty="true">
+						<template #empty>
+							<view class="demo-custom-empty">
+								<k-icon name="search-line" size="48" color="#dcdee0" />
+								<text class="demo-custom-empty__text">未找到相关结果</text>
+								<text class="demo-custom-empty__hint">试试更换关键词</text>
+							</view>
+						</template>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 默认 k-empty + empty-action -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">empty-action</text>
+					<text class="page-desc">emptyIcon + #empty-action 操作按钮</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list :empty="true" empty-text="暂无收藏" empty-icon="heart-line">
+						<template #empty-action>
+							<k-button type="primary" text="去发现" size="small" @click="handleEmptyAction" />
+						</template>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 分页 load-more -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">分页 load-more</text>
+					<text class="page-desc">@load-more / @load-more-retry / 自定义 footer 文案</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="开始分页演示" @click="startPageDemo" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="模拟加载更多失败" @click="simulateLoadMoreError" />
+					</view>
+					<k-list
+						class="demo-list-panel"
+						:loading="pageDemo.loading"
+						:empty="pageEmpty"
+						:finished="pageDemo.finished"
+						:loading-more="pageDemo.loadingMore"
+						:load-more-error="pageDemo.loadMoreError"
+						load-more-idle-text="上拉或点击加载更多"
+						finished-text="— 没有更多了 —"
+						load-more-error-text="加载失败，点此重试"
+						@load-more="handlePageLoadMore"
+						@load-more-retry="handlePageLoadMoreRetry"
+					>
+						<k-cell
+							v-for="(item, index) in pageDemo.items"
+							:key="item"
+							:title="item"
+							label="分页列表示例"
+						/>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- loadMoreTexts 对象 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">loadMoreTexts 对象</text>
+					<text class="page-desc">一次性配置四套 footer 文案，优先于独立 prop</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-btn-row">
+						<view class="demo-btn-col">
+							<k-button block text="idle" size="small" @click="setTextsDemoState('idle')" />
+						</view>
+						<view class="demo-btn-col">
+							<k-button block text="loading" size="small" @click="setTextsDemoState('loading')" />
+						</view>
+						<view class="demo-btn-col">
+							<k-button block text="error" size="small" @click="setTextsDemoState('error')" />
+						</view>
+						<view class="demo-btn-col">
+							<k-button block text="finished" size="small" @click="setTextsDemoState('finished')" />
+						</view>
+					</view>
+					<k-list
+						class="demo-list-panel"
+						:finished="textsDemo.finished"
+						:loading-more="textsDemo.loadingMore"
+						:load-more-error="textsDemo.loadMoreError"
+						:load-more-texts="textsDemoTexts"
+					>
+						<k-cell
+							v-for="(item, index) in textsDemoItems"
+							:key="index"
+							:title="item"
+							label="loadMoreTexts 演示项"
+						/>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- hideFinishedFooter -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">hideFinishedFooter</text>
+					<text class="page-desc">分页完成后对比：默认显示「没有更多了」 vs 隐藏 finished footer</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="设为 finished（对比 footer）" @click="markHideFooterFinished" />
+					</view>
+					<text class="demo-log">{{ hideFooterLog }}</text>
+					<text class="demo-subtitle">hideFinishedFooter = false（默认）</text>
+					<k-list
+						class="demo-list-panel demo-list-panel--spaced"
+						:finished="hideFooterFinished"
+						:hide-finished-footer="false"
+					>
+						<k-cell
+							v-for="(item, index) in hideFooterItems"
+							:key="index"
+							:title="item"
+							label="默认保留 finished footer"
+						/>
+					</k-list>
+					<text class="demo-subtitle">hideFinishedFooter = true</text>
+					<k-list
+						class="demo-list-panel"
+						:finished="hideFooterFinished"
+						:hide-finished-footer="true"
+					>
+						<k-cell
+							v-for="(item, index) in hideFooterItems"
+							:key="`hide-${index}`"
+							:title="item"
+							label="finished 后隐藏 footer"
+						/>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 自定义 footer -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义 footer</text>
+					<text class="page-desc">#footer slot 覆盖内置 k-load-more</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list :finished="false">
+						<k-cell title="自定义底部项 A" label="footer 由 slot 完全控制" />
+						<k-cell title="自定义底部项 B" label="可嵌入任意内容" />
+						<template #footer>
+							<view class="demo-custom-footer">
+								<text class="demo-custom-footer__text">— 以上为全部内容 —</text>
+							</view>
+						</template>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 分组 cell-group -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">分组列表</text>
+					<text class="page-desc">k-cell-group inset 卡片 + 多分组</text>
+				</view>
+				<view class="demo-content demo-group-wrap">
+					<k-list :empty="false">
+						<k-cell-group title="账户设置" inset border>
+							<k-cell title="个人信息" is-link />
+							<k-cell title="安全中心" is-link />
+							<k-cell title="消息通知" is-link />
+						</k-cell-group>
+						<k-cell-group title="通用" inset border>
+							<k-cell title="深色模式" is-link />
+							<k-cell title="语言" right-text="简体中文" is-link />
+							<k-cell title="关于 Kit UI" is-link />
+						</k-cell-group>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 长内容 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">长内容</text>
+					<text class="page-desc">cell label 多行展示边界</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list>
+						<k-cell
+							title="系统通知"
+							label="这是一段较长的描述文本，用于验证在不同平台下 cell 是否能够正常换行或省略，避免出现单行溢出或布局错乱的问题。"
+						/>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 动态删项底线 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">动态删项</text>
+					<text class="page-desc">v-for 删项后最后一项无多余横线（cell-border unregister）</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="删除首项" @click="removeBorderDemoItem" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="恢复三项" @click="resetBorderDemoItems" />
+					</view>
+					<k-list class="demo-list-panel">
+						<k-cell
+							v-for="(item, index) in borderDemoItems"
+							:key="item"
+							:title="item"
+							:label="`第 ${index + 1} 项 · 观察底部分割线`"
+						/>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">clickable / disabled / 点击反馈</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list>
+						<k-cell title="可点击项" label="点击查看反馈" clickable @click="handleBoundaryClick" />
+						<k-cell title="禁用项" label="不可点击" clickable disabled />
+						<k-cell title="普通项" label="默认 cell 行" />
+					</k-list>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	import {
+		buildDemoListItems,
+		createListPaginationDemoState,
+		isDemoListEmpty,
+		runDemoFirstPageLoad,
+		runDemoLoadMoreError,
+		runDemoLoadMorePage,
+		ListPaginationDemoState
+	} from './list-demo-utils.uts'
+
+	type MessageItemType = {
+		title : string
+		description : string
+		avatar : string
+		status : string
+	}
+
+	type OrderCardType = {
+		id : string
+		title : string
+		desc : string
+		amount : string
+		status : string
+		tagType : string
+	}
+
+	const messageList = reactive<MessageItemType[]>([
+		{
+			title: 'Kit UI 更新',
+			description: 'k-list 状态容器能力增强',
+			avatar: 'https://picsum.photos/200/200?random=11',
+			status: '新'
+		},
+		{
+			title: '表单校验',
+			description: '迭代 1 三端验收通过',
+			avatar: 'https://picsum.photos/200/200?random=12',
+			status: '完成'
+		},
+		{
+			title: 'Popup 系列',
+			description: 'popup / toast / modal 已就绪',
+			avatar: 'https://picsum.photos/200/200?random=13',
+			status: '稳定'
+		}
+	])
+
+	const orderCards = reactive<OrderCardType[]>([
+		{
+			id: 'A001',
+			title: '无线耳机 Pro',
+			desc: '2026-06-26 下单 · 1 件',
+			amount: '299.00',
+			status: '待付款',
+			tagType: 'warning'
+		},
+		{
+			id: 'A002',
+			title: '机械键盘',
+			desc: '2026-06-25 下单 · 1 件',
+			amount: '459.00',
+			status: '已发货',
+			tagType: 'primary'
+		}
+	])
+
+	const stateLoading = ref<boolean>(false)
+	const stateError = ref<boolean>(false)
+	const dynamicItems = ref<string[]>(['动态项 A', '动态项 B'])
+	const stateLog = ref<string>('当前：正常列表')
+
+	const stateEmpty = computed(() : boolean => {
+		return !stateLoading.value && !stateError.value && dynamicItems.value.length == 0
+	})
+
+	const pageDemo = ref<ListPaginationDemoState>(createListPaginationDemoState())
+	const fullFlowDemo = ref<ListPaginationDemoState>(
+		createListPaginationDemoState('点击按钮开始：loading → 列表 → load-more → 完成')
+	)
+	let pageDemoTimer : number = 0
+	let fullFlowTimer : number = 0
+
+	const pageEmpty = computed(() : boolean => {
+		return isDemoListEmpty(pageDemo.value)
+	})
+
+	const fullFlowEmpty = computed(() : boolean => {
+		return isDemoListEmpty(fullFlowDemo.value)
+	})
+
+	const borderDemoItems = ref<string[]>(['底线项 A', '底线项 B', '底线项 C'])
+
+	type LoadMoreTextsDemoState = {
+		loadingMore : boolean
+		finished : boolean
+		loadMoreError : boolean
+	}
+
+	const textsDemo = ref<LoadMoreTextsDemoState>({
+		loadingMore: false,
+		finished: false,
+		loadMoreError: false
+	})
+
+	const textsDemoTexts = {
+		loadingText: '文案对象 · 加载中',
+		finishedText: '文案对象 · 已全部加载',
+		errorText: '文案对象 · 加载失败，点此重试',
+		idleText: '文案对象 · 点击加载更多'
+	}
+
+	const textsDemoItems = ref<string[]>(['文案项 1', '文案项 2', '文案项 3'])
+
+	const hideFooterFinished = ref<boolean>(false)
+	const hideFooterItems = ref<string[]>(['对比项 1', '对比项 2', '对比项 3'])
+	const hideFooterLog = ref<string>('初始 finished=false，已进入分页流程；点击按钮设为 finished 后对比 footer')
+
+	/**
+	 * 切换 loadMoreTexts 演示 footer 状态
+	 */
+	const setTextsDemoState = (state : string) => {
+		textsDemo.value.loadingMore = false
+		textsDemo.value.loadMoreError = false
+		textsDemo.value.finished = false
+		if (state == 'loading') {
+			textsDemo.value.loadingMore = true
+			return
+		}
+		if (state == 'error') {
+			textsDemo.value.loadMoreError = true
+			return
+		}
+		if (state == 'finished') {
+			textsDemo.value.finished = true
+		}
+	}
+
+	/**
+	 * hideFinishedFooter 对比：设为 finished 后观察两个列表 footer 差异
+	 */
+	const markHideFooterFinished = () => {
+		hideFooterFinished.value = true
+		hideFooterLog.value = 'finished=true：左列表显示「没有更多了」；右列表 footer 已隐藏'
+	}
+
+	/**
+	 * 同步分页演示状态
+	 */
+	const syncPageDemo = (next : ListPaginationDemoState) => {
+		pageDemo.value = next
+	}
+
+	/**
+	 * 同步完整链路演示状态
+	 */
+	const syncFullFlowDemo = (next : ListPaginationDemoState) => {
+		fullFlowDemo.value = next
+	}
+
+	/**
+	 * 清除分页演示定时器
+	 */
+	const clearPageDemoTimer = () => {
+		if (pageDemoTimer != 0) {
+			clearTimeout(pageDemoTimer)
+			pageDemoTimer = 0
+		}
+	}
+
+	/**
+	 * 清除完整链路定时器
+	 */
+	const clearFullFlowTimer = () => {
+		if (fullFlowTimer != 0) {
+			clearTimeout(fullFlowTimer)
+			fullFlowTimer = 0
+		}
+	}
+
+	/**
+	 * 动态删项：验证 cell-border unregister
+	 */
+	const removeBorderDemoItem = () => {
+		if (borderDemoItems.value.length == 0) {
+			return
+		}
+		borderDemoItems.value = borderDemoItems.value.slice(1)
+	}
+
+	/**
+	 * 恢复动态删项演示数据
+	 */
+	const resetBorderDemoItems = () => {
+		borderDemoItems.value = ['底线项 A', '底线项 B', '底线项 C']
+	}
+
+	/**
+	 * 列表项点击反馈
+	 */
+	const handleItemClick = (title : string) => {
+		uni.showToast({
+			title: `点击：${title}`,
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 订单卡片点击
+	 */
+	const handleOrderClick = (id : string) => {
+		uni.showToast({
+			title: `查看订单 ${id}`,
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 边界区块点击
+	 */
+	const handleBoundaryClick = () => {
+		uni.showToast({
+			title: '单元格被点击',
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 切换列表容器三态演示
+	 */
+	const setListState = (state : string) => {
+		stateLoading.value = false
+		stateError.value = false
+		if (state == 'loading') {
+			stateLoading.value = true
+			stateLog.value = '当前：loading（最高优先级）'
+			return
+		}
+		if (state == 'empty') {
+			dynamicItems.value = []
+			stateLog.value = '当前：empty（:empty=true 且非 loading/error）'
+			return
+		}
+		if (state == 'error') {
+			stateError.value = true
+			dynamicItems.value = []
+			stateLog.value = '当前：error（点击区域触发 @retry）'
+			return
+		}
+		dynamicItems.value = ['动态项 A', '动态项 B']
+		stateLog.value = '当前：正常列表（default slot）'
+	}
+
+	/**
+	 * 空态操作按钮点击
+	 */
+	const handleEmptyAction = () => {
+		uni.showToast({
+			title: '前往发现页',
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 自定义 error slot 重试反馈
+	 */
+	const handleCustomErrorRetry = () => {
+		uni.showToast({
+			title: '触发自定义 error @retry',
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 一键演示完整链路
+	 */
+	const startFullFlow = () => {
+		clearFullFlowTimer()
+		fullFlowTimer = runDemoFirstPageLoad(
+			fullFlowDemo.value,
+			buildDemoListItems('链路项', 1, 3),
+			'步骤 2/4：列表就绪，点击底部 load-more',
+			900,
+			(next : ListPaginationDemoState) => {
+				if (next.loading) {
+					next.log = '步骤 1/4：首屏 loading...'
+				}
+				syncFullFlowDemo(next)
+			}
+		)
+	}
+
+	/**
+	 * 完整链路 load-more
+	 */
+	const handleFullFlowLoadMore = () => {
+		clearFullFlowTimer()
+		fullFlowTimer = runDemoLoadMorePage(
+			fullFlowDemo.value,
+			buildDemoListItems('链路项', 4, 2),
+			true,
+			'步骤 4/4：finished，显示「没有更多了」',
+			1000,
+			(next : ListPaginationDemoState) => {
+				if (next.loadingMore) {
+					next.log = '步骤 3/4：load-more loading...'
+				}
+				syncFullFlowDemo(next)
+			}
+		)
+	}
+
+	/**
+	 * 完整链路 load-more 重试
+	 */
+	const handleFullFlowLoadMoreRetry = () => {
+		handleFullFlowLoadMore()
+	}
+
+	/**
+	 * 重置并模拟首屏分页加载
+	 */
+	const startPageDemo = () => {
+		clearPageDemoTimer()
+		pageDemoTimer = runDemoFirstPageLoad(
+			pageDemo.value,
+			buildDemoListItems('分页项', 1, 3),
+			'',
+			800,
+			syncPageDemo
+		)
+	}
+
+	/**
+	 * 加载下一页数据
+	 */
+	const handlePageLoadMore = () => {
+		clearPageDemoTimer()
+		const currentPage = pageDemo.value.page
+		if (currentPage == 1) {
+			pageDemoTimer = runDemoLoadMorePage(
+				pageDemo.value,
+				buildDemoListItems('分页项', 4, 2),
+				false,
+				'',
+				1000,
+				syncPageDemo
+			)
+			return
+		}
+		if (currentPage == 2) {
+			pageDemoTimer = runDemoLoadMorePage(
+				pageDemo.value,
+				[],
+				true,
+				'',
+				1000,
+				syncPageDemo
+			)
+		}
+	}
+
+	/**
+	 * 模拟 load-more 失败态
+	 */
+	const simulateLoadMoreError = () => {
+		if (pageDemo.value.items.length == 0) {
+			uni.showToast({
+				title: '请先开始分页演示',
+				icon: 'none'
+			})
+			return
+		}
+		runDemoLoadMoreError(pageDemo.value, syncPageDemo)
+	}
+
+	/**
+	 * load-more 失败重试
+	 */
+	const handlePageLoadMoreRetry = () => {
+		handlePageLoadMore()
+	}
+
+	/**
+	 * 错误态重试：模拟重新加载
+	 */
+	const handleRetry = () => {
+		stateError.value = false
+		stateLoading.value = true
+		stateLog.value = '重试中：loading...'
+		setTimeout(() => {
+			stateLoading.value = false
+			dynamicItems.value = ['重试成功 A', '重试成功 B']
+			stateLog.value = '重试成功，恢复列表'
+		}, 1200)
+	}
+
+	onBeforeUnmount(() => {
+		clearPageDemoTimer()
+		clearFullFlowTimer()
+	})
+</script>
+
+<style lang="scss" scoped>
+	.demo-content {
+		overflow: hidden;
+	}
+
+	.demo-block {
+		background-color: #ffffff;
+	}
+
+	.demo-column {
+		padding: 0;
+	}
+
+	.demo-group-wrap {
+		padding: 16px 0;
+	}
+
+	.demo-stack-item {
+		margin-bottom: 12px;
+	}
+
+	.demo-list-panel {
+		border-width: 1px;
+		border-style: solid;
+		border-color: #ebedf0;
+		border-radius: 8px;
+		background-color: #ffffff;
+	}
+
+	.demo-log {
+		font-size: 12px;
+		color: #969799;
+		margin-bottom: 12px;
+		line-height: 18px;
+	}
+
+	.demo-subtitle {
+		font-size: 13px;
+		color: #646566;
+		margin-bottom: 8px;
+		line-height: 20px;
+	}
+
+	.demo-list-panel--spaced {
+		margin-bottom: 16px;
+	}
+
+	.demo-btn-row {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		margin-bottom: 12px;
+	}
+
+	.demo-btn-col {
+		width: 25%;
+		padding-right: 8px;
+		padding-bottom: 8px;
+		box-sizing: border-box;
+	}
+
+	.demo-order-card {
+		padding: 16px;
+		border-bottom-width: 1px;
+		border-bottom-style: solid;
+		border-bottom-color: #ebedf0;
+		background-color: #ffffff;
+	}
+
+	.demo-order-card:last-child {
+		border-bottom-width: 0;
+	}
+
+	.demo-order-card__header {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 8px;
+	}
+
+	.demo-order-card__title {
+		font-size: 15px;
+		color: #323233;
+		font-weight: bold;
+	}
+
+	.demo-order-card__desc {
+		font-size: 12px;
+		color: #969799;
+		line-height: 18px;
+		margin-bottom: 8px;
+	}
+
+	.demo-order-card__price {
+		font-size: 16px;
+		color: #6366f1;
+		font-weight: bold;
+	}
+
+	.demo-custom-loading {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 32px 16px;
+	}
+
+	.demo-custom-loading__spinner {
+		width: 24px;
+		height: 24px;
+		min-width: 24px;
+		min-height: 24px;
+		flex-shrink: 0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.demo-custom-loading__text {
+		font-size: 14px;
+		color: #969799;
+		margin-top: 12px;
+	}
+
+	.demo-custom-error {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 32px 16px;
+	}
+
+	.demo-custom-error__text {
+		font-size: 14px;
+		color: #969799;
+		margin-top: 12px;
+		margin-bottom: 12px;
+	}
+
+	.demo-custom-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 32px 16px;
+	}
+
+	.demo-custom-empty__text {
+		font-size: 15px;
+		color: #323233;
+		margin-top: 16px;
+	}
+
+	.demo-custom-empty__hint {
+		font-size: 12px;
+		color: #969799;
+		margin-top: 8px;
+	}
+
+	.demo-custom-footer {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		padding: 16px;
+		background-color: #fafafa;
+	}
+
+	.demo-custom-footer__text {
+		font-size: 12px;
+		color: #969799;
+	}
+</style>

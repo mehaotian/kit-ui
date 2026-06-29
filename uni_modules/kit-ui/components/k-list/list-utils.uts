@@ -1,0 +1,102 @@
+/**
+ * k-list footer / load-more 显示规则（与 README 一致，便于单测与文档对照）
+ */
+
+import { ListLoadMoreTexts } from './list.type.uts'
+
+export type LoadMoreTextKey = 'loading' | 'finished' | 'error' | 'idle'
+
+export type ResolvedLoadMoreTexts = {
+	loadingText : string
+	finishedText : string
+	errorText : string
+	idleText : string
+}
+
+/**
+ * 合并 load-more 文案：loadMoreTexts 对象优先，其次独立 prop，最后默认值
+ */
+export function resolveLoadMoreText(
+	texts : ListLoadMoreTexts | null,
+	objectKey : LoadMoreTextKey,
+	propText : string,
+	defaultText : string
+) : string {
+	if (texts != null) {
+		if (objectKey == 'loading' && texts.loadingText != null && texts.loadingText != '') {
+			return texts.loadingText as string
+		}
+		if (objectKey == 'finished' && texts.finishedText != null && texts.finishedText != '') {
+			return texts.finishedText as string
+		}
+		if (objectKey == 'error' && texts.errorText != null && texts.errorText != '') {
+			return texts.errorText as string
+		}
+		if (objectKey == 'idle' && texts.idleText != null && texts.idleText != '') {
+			return texts.idleText as string
+		}
+	}
+	if (propText != '') {
+		return propText
+	}
+	return defaultText
+}
+
+/**
+ * 一次性解析 footer 四套文案
+ */
+export function resolveAllLoadMoreTexts(
+	texts : ListLoadMoreTexts | null,
+	loadMoreLoadingText : string,
+	finishedText : string,
+	loadMoreErrorText : string,
+	loadMoreIdleText : string
+) : ResolvedLoadMoreTexts {
+	return {
+		loadingText: resolveLoadMoreText(texts, 'loading', loadMoreLoadingText, '加载中...'),
+		finishedText: resolveLoadMoreText(texts, 'finished', finishedText, '没有更多了'),
+		errorText: resolveLoadMoreText(texts, 'error', loadMoreErrorText, '加载失败，点击重试'),
+		idleText: resolveLoadMoreText(texts, 'idle', loadMoreIdleText, '点击加载更多')
+	}
+}
+
+/**
+ * 是否展示内置 k-load-more（未传 #footer 时）
+ */
+export function shouldShowBuiltInLoadMore(
+	hasFooterSlot : boolean,
+	isStatusState : boolean,
+	finished : boolean,
+	loadingMore : boolean,
+	loadMoreError : boolean,
+	hasLoadMoreSession : boolean,
+	forceHideFinishedFooter : boolean
+) : boolean {
+	if (hasFooterSlot || isStatusState) {
+		return false
+	}
+	if (finished == false || loadingMore || loadMoreError) {
+		return true
+	}
+	if (hasLoadMoreSession && finished && forceHideFinishedFooter == false) {
+		return true
+	}
+	return false
+}
+
+/**
+ * 是否进入过分页/load-more 流程（用于 finished 后保留「没有更多了」）
+ */
+export function shouldMarkLoadMoreSession(
+	finished : boolean,
+	loadingMore : boolean,
+	loadMoreError : boolean
+) : boolean {
+	if (finished == false) {
+		return true
+	}
+	if (loadingMore || loadMoreError) {
+		return true
+	}
+	return false
+}

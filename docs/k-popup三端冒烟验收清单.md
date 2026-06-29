@@ -155,19 +155,19 @@
 - safeArea 底部（center 默认开启）
 - lazyRender / page-meta 滚动锁定
 
-### 8.2 modal 专项用例
+### 8.2 modal 专项用例（2026-06-26 用户确认通过）
 
 | 用例 | WEB | APP | 微信 MP | 预期结果 |
 | --- | --- | --- | --- | --- |
-| 基础 confirm/cancel | ☐ | ☐ | ☐ | 按钮关闭，事件顺序正确 |
-| beforeClose 返回 false | ☐ | ☐ | ☐ | modal 不关闭，可继续操作 |
-| beforeClose Promise 异步 | ☐ | ☐ | ☐ | 确认 loading、底栏锁定，完成后才关 |
-| beforeClose 异步期间点取消 | ☐ | ☐ | ☐ | 取消无效（footerLocked），无重复提交 |
-| beforeClose + toast 反馈 | ☐ | ☐ | ☐ | modal 仍显示，toast 切换内容不闪退 |
-| 提交确认 → toast 成功 | ☐ | ☐ | ☐ | modal 关闭后 toast 正常 |
-| 打开期间 content 变更 | ☐ | ☐ | ☐ | 文案响应式更新，无闪退 |
-| 遮罩不可关闭 | ☐ | ☐ | ☐ | closeOnClickOverlay=false |
-| z-index 高于 popup/toast | ☐ | ☐ | ☐ | 同页多组件层级正确 |
+| 基础 confirm/cancel | ☑ | ☑ | ☑ | 按钮关闭，事件顺序正确 |
+| beforeClose 返回 false | ☑ | ☑ | ☑ | modal 不关闭，可继续操作 |
+| beforeClose Promise 异步 | ☑ | ☑ | ☑ | 确认 loading、底栏锁定，完成后才关 |
+| beforeClose 异步期间点取消 | ☑ | ☑ | ☑ | 取消无效（footerLocked），无重复提交 |
+| beforeClose + toast 反馈 | ☑ | ☑ | ☑ | modal 仍显示，toast 切换内容不闪退 |
+| 提交确认 → toast 成功 | ☑ | ☑ | ☑ | modal 关闭后 toast 正常 |
+| 打开期间 content 变更 | ☑ | ☑ | ☑ | 文案响应式更新，无闪退 |
+| 遮罩不可关闭 | ☑ | ☑ | ☑ | closeOnClickOverlay=false |
+| z-index 高于 popup/toast | ☑ | ☑ | ☑ | 同页多组件层级正确 |
 
 ### 8.3 已知差异（document only）
 
@@ -179,12 +179,28 @@
 
 ---
 
-## 9. 相关文档（modal / toast）
+## 9. k-toast 验收补充（2026-06-26）
+
+> toast 动画基于 `k-overlay` + 面板分轨，与 popup 模式一致；命令式 API 见 `toast-api.uts`。
+
+| 用例 | WEB | APP | 微信 MP | 预期结果 |
+| --- | --- | --- | --- | --- |
+| 声明式 v-model 开关 | ☑ | ☑ | ☑ | 三位置显示/隐藏正常 |
+| showToast 命令式 | ☑ | ☑ | ☑ | global 宿主下调用成功 |
+| 自动消失 duration | ☑ | ☑ | ☑ | 到时关闭，可 hideToast 提前关 |
+| loading 类型 + k-ring-spinner | ☑ | ☑ | ☑ | 圆环 spinner 显示 |
+| 打开期间切换 message | ☑ | ☑ | ☑ | 不重播开启动画 |
+| 与 modal 同页层级 | ☑ | ☑ | ☑ | toast z-index 高于 modal |
+
+---
+
+## 10. 相关文档（modal / toast）
 
 | 文档 | 用途 |
 | --- | --- |
 | `docs/k-popup系列已知缺陷与后续计划.md` | v1.x 缺陷台账 |
-| `docs/k-popup开发进度与后续计划.md` | 进度与下一步 |
+| `docs/k-popup开发进度与后续计划.md` | 进度与 v1.x 待办 |
+| `docs/k-list开发计划.md` | 迭代 2 当前主线 |
 | `docs/k-popup方案分析报告.md` | 架构与竞品分析 |
 | `uni_modules/kit-ui/components/k-popup/README.md` | popup API |
 | `uni_modules/kit-ui/components/k-modal/README.md` | modal API 与 popup/toast 对照 |

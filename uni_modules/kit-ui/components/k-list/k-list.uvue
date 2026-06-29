@@ -1,0 +1,324 @@
+<template>
+	<view :class="listClass" :style="listStyle">
+		<!-- 加载态：优先级最高 -->
+		<view v-if="props.loading" class="k-list__status k-list__status--loading">
+			<slot name="loading">
+				<view class="k-list__loading-inner">
+					<view class="k-list__spinner-box">
+						<k-ring-spinner size="24" :color="loadingSpinnerColor" />
+					</view>
+					<text class="k-list__loading-text">{{ props.loadingText }}</text>
+				</view>
+			</slot>
+		</view>
+
+		<!-- 错误态：默认内层可点击重试，自定义 #error 不冒泡 -->
+		<view v-else-if="showErrorState" class="k-list__status k-list__status--error">
+			<slot name="error">
+				<view class="k-list__error-inner" @click="handleRetry">
+					<k-icon name="error-warning-line" size="40" :color="secondaryIconColor" />
+					<text class="k-list__error-text">{{ props.errorText }}</text>
+					<text class="k-list__retry-hint">点击重试</text>
+				</view>
+			</slot>
+		</view>
+
+		<!-- 空态：padding 由 k-empty 控制 -->
+		<view v-else-if="showEmptyState" class="k-list__status k-list__status--empty">
+			<slot name="empty">
+				<k-empty :description="props.emptyText" :icon="props.emptyIcon">
+					<slot name="empty-action"></slot>
+				</k-empty>
+			</slot>
+		</view>
+
+		<!-- 内容区：行由 k-cell / 业务 slot 承载 -->
+		<view v-else class="k-list__body">
+			<slot></slot>
+		</view>
+
+		<!-- 底部 load-more -->
+		<view v-if="showFooterArea" class="k-list__footer">
+			<slot name="footer">
+				<k-load-more
+					v-if="showBuiltInLoadMore"
+					:loading="props.loadingMore"
+					:finished="props.finished"
+					:error="props.loadMoreError"
+					:loading-text="resolvedLoadMoreTexts.loadingText"
+					:finished-text="resolvedLoadMoreTexts.finishedText"
+					:error-text="resolvedLoadMoreTexts.errorText"
+					:idle-text="resolvedLoadMoreTexts.idleText"
+					@load="handleLoadMore"
+					@retry="handleLoadMoreRetry"
+				/>
+			</slot>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { createCellBorderRegistry, wrapCellBorderRegister } from '../k-cell/cell-border.uts'
+	import { buildThemeStyle, resolvePrimaryColor, resolveSecondaryColor } from '../../utils/theme.uts'
+	import { shouldMarkLoadMoreSession, shouldShowBuiltInLoadMore, resolveAllLoadMoreTexts } from './list-utils.uts'
+	import { ListLoadMoreTexts } from './list.type.uts'
+
+	type KListProps = {
+		loading ?: boolean
+		finished ?: boolean
+		error ?: boolean
+		empty ?: boolean
+		emptyText ?: string
+		emptyIcon ?: string
+		errorText ?: string
+		loadingText ?: string
+		loadingMore ?: boolean
+		loadMoreError ?: boolean
+		finishedText ?: string
+		loadMoreLoadingText ?: string
+		loadMoreErrorText ?: string
+		loadMoreIdleText ?: string
+		loadMoreTexts ?: ListLoadMoreTexts | null
+		/** 分页完成后是否隐藏「没有更多了」，默认 false 即保留展示 */
+		hideFinishedFooter ?: boolean
+		customStyle ?: string
+	}
+
+	defineOptions({
+		name: 'KList'
+	})
+
+	const props = withDefaults(defineProps<KListProps>(), {
+		loading: false,
+		finished: true,
+		error: false,
+		empty: false,
+		emptyText: '暂无数据',
+		emptyIcon: 'file-list-3-line',
+		errorText: '加载失败，请重试',
+		loadingText: '加载中...',
+		loadingMore: false,
+		loadMoreError: false,
+		finishedText: '没有更多了',
+		loadMoreLoadingText: '加载中...',
+		loadMoreErrorText: '加载失败，点击重试',
+		loadMoreIdleText: '点击加载更多',
+		loadMoreTexts: null,
+		hideFinishedFooter: false,
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		retry : []
+		loadMore : []
+		loadMoreRetry : []
+	}>()
+
+	const slots = useSlots()
+	const themeConfig = inject('kit-theme', {})
+
+	/** 是否曾进入过分页/load-more 流程，用于 finished 后仍展示「没有更多了」 */
+	const hasLoadMoreSession = ref<boolean>(false)
+
+	const cellBorderRegistry = createCellBorderRegistry()
+
+	/**
+	 * 平铺 k-cell 时默认项间分割线，最后一项隐藏底线（与 k-cell-group 一致）
+	 */
+	provide('k-cell-group', {
+		border: true,
+		inset: false
+	})
+
+	provide('k-collapse-register-child', wrapCellBorderRegister(cellBorderRegistry))
+	provide('k-cell-unregister-child', cellBorderRegistry.unregister)
+
+	/**
+	 * 监听分页相关 props，标记是否进入过 load-more 流程
+	 */
+	watch((): string => {
+		return `${props.finished}|${props.loadingMore}|${props.loadMoreError}`
+	}, () => {
+		if (shouldMarkLoadMoreSession(props.finished, props.loadingMore, props.loadMoreError)) {
+			hasLoadMoreSession.value = true
+		}
+	})
+
+	const showErrorState = computed(() : boolean => {
+		return !props.loading && props.error
+	})
+
+	/**
+	 * 三态优先级：loading > error > empty > default
+	 */
+	const showEmptyState = computed(() : boolean => {
+		return !props.loading && !props.error && props.empty
+	})
+
+	const isStatusState = computed(() : boolean => {
+		return props.loading || showErrorState.value || showEmptyState.value
+	})
+
+	const hasFooterSlot = computed(() : boolean => {
+		return slots['footer'] != null
+	})
+
+	/**
+	 * 未传 footer slot 时，根据 finished / loadingMore 自动展示 load-more
+	 */
+	const showBuiltInLoadMore = computed(() : boolean => {
+		return shouldShowBuiltInLoadMore(
+			hasFooterSlot.value,
+			isStatusState.value,
+			props.finished,
+			props.loadingMore,
+			props.loadMoreError,
+			hasLoadMoreSession.value,
+			props.hideFinishedFooter
+		)
+	})
+
+	const showFooterArea = computed(() : boolean => {
+		if (isStatusState.value) {
+			return false
+		}
+		return hasFooterSlot.value || showBuiltInLoadMore.value
+	})
+
+	const listClass = computed(() : string[] => {
+		const classes = ['k-list']
+		if (props.loading) {
+			classes.push('k-list--loading')
+		}
+		if (showErrorState.value) {
+			classes.push('k-list--error')
+		}
+		if (showEmptyState.value) {
+			classes.push('k-list--empty')
+		}
+		return classes
+	})
+
+	const loadingSpinnerColor = computed(() : string => {
+		return resolvePrimaryColor(themeConfig)
+	})
+
+	const secondaryIconColor = computed(() : string => {
+		return resolveSecondaryColor(themeConfig)
+	})
+
+	const resolvedLoadMoreTexts = computed(() => {
+		return resolveAllLoadMoreTexts(
+			props.loadMoreTexts,
+			props.loadMoreLoadingText,
+			props.finishedText,
+			props.loadMoreErrorText,
+			props.loadMoreIdleText
+		)
+	})
+
+	const listStyle = computed(() : string => {
+		return buildThemeStyle(themeConfig, props.customStyle)
+	})
+
+	/**
+	 * 错误态点击触发重试
+	 */
+	function handleRetry() {
+		emit('retry')
+	}
+
+	/**
+	 * 触发加载更多
+	 */
+	function handleLoadMore() {
+		emit('loadMore')
+	}
+
+	/**
+	 * 加载更多失败重试
+	 */
+	function handleLoadMoreRetry() {
+		emit('loadMoreRetry')
+	}
+</script>
+
+<style lang="scss">
+	.k-list {
+		background-color: transparent;
+		position: relative;
+
+		&__body {
+			position: relative;
+		}
+
+		&__status {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 32px 16px;
+			min-height: 120px;
+			box-sizing: border-box;
+		}
+
+		&__status--empty {
+			padding: 0;
+			min-height: 0;
+		}
+
+		&__loading-inner {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+
+		&__spinner-box {
+			width: 24px;
+			height: 24px;
+			min-width: 24px;
+			min-height: 24px;
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+		}
+
+		&__error-inner {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+
+		&__loading-text {
+			font-size: 14px;
+			color: var(--k-text-color-secondary, #969799);
+			line-height: 20px;
+			margin-top: 12px;
+			text-align: center;
+		}
+
+		&__error-text {
+			font-size: 14px;
+			color: var(--k-text-color-secondary, #969799);
+			line-height: 20px;
+			margin-top: 12px;
+			text-align: center;
+		}
+
+		&__retry-hint {
+			font-size: 14px;
+			color: var(--k-color-primary, #6366f1);
+			line-height: 20px;
+			margin-top: 8px;
+			text-align: center;
+		}
+
+		&__footer {
+			padding: 0;
+		}
+	}
+</style>

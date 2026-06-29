@@ -59,36 +59,52 @@
   &--xs {
     width: 16px;
     height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    flex-shrink: 0;
   }
   
   &--sm {
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    flex-shrink: 0;
   }
   
   &--md {
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    flex-shrink: 0;
   }
   
   &--lg {
     width: 32px;
     height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    flex-shrink: 0;
   }
   
   &--xl {
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    flex-shrink: 0;
   }
 }
 
 // Spinner 旋转加载器
 .k-loading-spinner {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transform-origin: center center;
   border: 2px solid rgba(0, 0, 0, 0.1);
   border-left-color: #007AFF; // 默认颜色
   border-radius: 100px; // 使用具体数值替代百分比，App端不支持百分比圆角
-  width: 100%;
-  height: 100%;
   // #ifndef APP
   animation: k-loading-spin 1s linear infinite;
   // #endif

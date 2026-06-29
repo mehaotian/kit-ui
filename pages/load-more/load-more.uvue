@@ -1,0 +1,247 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-load-more 加载更多</text>
+				<text class="page-desc">底部 loading / 完成 / 失败 / 可点击加载 UI</text>
+			</view>
+
+			<!-- 状态切换 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">状态切换</text>
+					<text class="page-desc">点击按钮切换 load-more 各态</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="可点击加载" @click="setLoadState('idle')" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="加载中" @click="setLoadState('loading')" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="没有更多了" @click="setLoadState('finished')" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="加载失败" @click="setLoadState('error')" />
+					</view>
+					<view class="demo-block">
+						<k-load-more
+							:loading="demoLoading"
+							:finished="demoFinished"
+							:error="demoError"
+							@load="handleDemoLoad"
+							@retry="handleDemoRetry"
+						/>
+					</view>
+					<text class="demo-log">{{ demoLog }}</text>
+				</view>
+			</view>
+
+			<!-- 自定义文案 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义文案</text>
+					<text class="page-desc">loadingText / finishedText / errorText / idleText</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-load-more
+						:loading="false"
+						:finished="true"
+						finished-text="— 已经到底啦 —"
+					/>
+				</view>
+			</view>
+
+			<!-- k-list 联动 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">k-list 联动</text>
+					<text class="page-desc">finished=false 时 k-list 自动渲染 footer</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="模拟分页加载" @click="startListDemo" />
+					</view>
+					<k-list
+						class="demo-list-panel"
+						:loading="listLoading"
+						:empty="listEmpty"
+						:finished="listFinished"
+						:loading-more="listLoadingMore"
+						:load-more-error="listLoadMoreError"
+						@load-more="handleListLoadMore"
+						@load-more-retry="handleListLoadMoreRetry"
+					>
+						<k-cell
+							v-for="(item, index) in listItems"
+							:key="index"
+							:title="item"
+							label="k-list footer 内置 load-more"
+						/>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">loading 时不可点击；finished 时不可点击</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-load-more :loading="true" loading-text="努力加载中..." />
+				</view>
+				<view class="demo-content demo-block demo-block--stack">
+					<k-load-more :finished="true" />
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	const demoLoading = ref<boolean>(false)
+	const demoFinished = ref<boolean>(false)
+	const demoError = ref<boolean>(false)
+	const demoLog = ref<string>('当前：可点击加载')
+
+	const listItems = ref<string[]>([])
+	const listLoading = ref<boolean>(false)
+	const listLoadingMore = ref<boolean>(false)
+	const listFinished = ref<boolean>(true)
+	const listLoadMoreError = ref<boolean>(false)
+	const listPage = ref<number>(0)
+
+	const listEmpty = computed(() : boolean => {
+		return !listLoading.value && listItems.value.length == 0 && listPage.value > 0
+	})
+
+	/**
+	 * 切换 load-more 独立组件演示状态
+	 */
+	const setLoadState = (state : string) => {
+		demoLoading.value = false
+		demoFinished.value = false
+		demoError.value = false
+		if (state == 'loading') {
+			demoLoading.value = true
+			demoLog.value = '当前：加载中（不可点击）'
+			return
+		}
+		if (state == 'finished') {
+			demoFinished.value = true
+			demoLog.value = '当前：没有更多了（不可点击）'
+			return
+		}
+		if (state == 'error') {
+			demoError.value = true
+			demoLog.value = '当前：加载失败（点击重试）'
+			return
+		}
+		demoLog.value = '当前：可点击加载'
+	}
+
+	/**
+	 * 独立 load-more 点击加载
+	 */
+	const handleDemoLoad = () => {
+		demoLog.value = '触发 @load 事件'
+		demoLoading.value = true
+		setTimeout(() => {
+			demoLoading.value = false
+			demoFinished.value = true
+			demoLog.value = '加载完成，进入 finished 态'
+		}, 1200)
+	}
+
+	/**
+	 * 独立 load-more 失败重试
+	 */
+	const handleDemoRetry = () => {
+		demoError.value = false
+		handleDemoLoad()
+	}
+
+	/**
+	 * 启动 k-list 分页演示
+	 */
+	const startListDemo = () => {
+		listPage.value = 0
+		listItems.value = []
+		listFinished.value = true
+		listLoadMoreError.value = false
+		listLoadingMore.value = false
+		listLoading.value = true
+		setTimeout(() => {
+			listLoading.value = false
+			listItems.value = ['列表项 1', '列表项 2', '列表项 3']
+			listPage.value = 1
+			listFinished.value = false
+		}, 800)
+	}
+
+	/**
+	 * k-list 触发加载更多
+	 */
+	const handleListLoadMore = () => {
+		if (listLoadingMore.value) {
+			return
+		}
+		listLoadingMore.value = true
+		listLoadMoreError.value = false
+		setTimeout(() => {
+			listLoadingMore.value = false
+			listItems.value = [...listItems.value, '列表项 4', '列表项 5']
+			listFinished.value = true
+			listPage.value = 2
+		}, 1000)
+	}
+
+	/**
+	 * k-list load-more 失败重试
+	 */
+	const handleListLoadMoreRetry = () => {
+		handleListLoadMore()
+	}
+</script>
+
+<style lang="scss" scoped>
+	.demo-content {
+		overflow: hidden;
+	}
+
+	.demo-block {
+		background-color: #ffffff;
+	}
+
+	.demo-block--stack {
+		margin-top: 12px;
+	}
+
+	.demo-column {
+		padding: 0;
+	}
+
+	.demo-stack-item {
+		margin-bottom: 12px;
+	}
+
+	.demo-log {
+		font-size: 12px;
+		color: #969799;
+		margin-top: 8px;
+	}
+
+	.demo-list-panel {
+		border-width: 1px;
+		border-style: solid;
+		border-color: #ebedf0;
+		border-radius: 8px;
+		background-color: #ffffff;
+	}
+</style>

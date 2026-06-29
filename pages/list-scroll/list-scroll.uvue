@@ -1,0 +1,99 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page page--fill">
+			<view class="page-header">
+				<text class="page-title">标准列表页范式</text>
+				<text class="page-desc">一期暂不单独交付，请在 k-list 演示页验收列表能力</text>
+			</view>
+
+			<view class="section">
+				<view class="notice-card">
+					<text class="notice-title">一期范围说明</text>
+					<text class="notice-text">独立「标准列表页」在 scroll-view 与 k-list 嵌套滚动上仍存在平台差异，本期不单独展示与验收。</text>
+					<text class="notice-text">首屏 loading、空态、错误重试、分页 load-more 等能力，请直接在 k-list 演示页各区块验证。</text>
+					<k-button block text="前往 k-list 演示页" @click="goListDemo" />
+				</view>
+			</view>
+
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">二期规划</text>
+					<text class="page-desc">scroll-view + k-list + load-more 整页范式</text>
+				</view>
+				<view class="demo-content demo-fill demo-disabled">
+					<text class="demo-disabled__text">整页滚动容器 + 触底自动加载</text>
+					<text class="demo-disabled__text">与 k-pull-refresh 组合的标准列表模板</text>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	/**
+	 * 跳转 k-list 演示页
+	 */
+	const goListDemo = () => {
+		uni.navigateTo({
+			url: '/pages/list/list'
+		})
+	}
+</script>
+
+<style lang="scss" scoped>
+	.page--fill {
+		min-height: 100%;
+	}
+
+	.notice-card {
+		padding: 16px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: #ffe58f;
+		border-radius: 8px;
+		background-color: #fffbe6;
+	}
+
+	.notice-title {
+		font-size: 16px;
+		font-weight: 700;
+		color: #323233;
+		line-height: 24px;
+		margin-bottom: 8px;
+	}
+
+	.notice-text {
+		font-size: 14px;
+		color: #646566;
+		line-height: 22px;
+		margin-bottom: 8px;
+	}
+
+	.demo-fill {
+		height: 160px;
+		overflow: hidden;
+		border-width: 1px;
+		border-style: dashed;
+		border-color: #dcdee0;
+		border-radius: 8px;
+		background-color: #fafafa;
+	}
+
+	.demo-disabled {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.demo-disabled__text {
+		font-size: 14px;
+		color: #969799;
+		line-height: 22px;
+		text-align: center;
+	}
+</style>

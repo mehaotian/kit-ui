@@ -1,7 +1,7 @@
 # k-popup / k-overlay 开发进度与后续计划
 
 > 更新日期：2026-06-26  
-> 状态：**k-toast / k-modal v1 已交付，k-popup 冒烟清单已归档**
+> 状态：**反馈闭环已验收；迭代 2 主线切换至 k-list**
 
 ---
 
@@ -89,35 +89,22 @@
 
 ## 2. 迭代 2 剩余任务（按推荐顺序）
 
-### 阶段 A：反馈闭环（当前主线）
+### 阶段 A：反馈闭环 ✅ 已验收（2026-06-26）
 
 | 顺序 | 组件 | 依赖 | 预估 | 状态 |
 | --- | --- | --- | --- | --- |
-| ~~1~~ | ~~k-popup + k-overlay~~ | — | — | ✅ v1 三端动画 OK |
-| 2 | **k-toast** | 复用 k-overlay | 1~2 天 | ✅ v1 最小可用 |
-| 3 | **k-modal** | 内部复用 k-popup | 2~3 天 | ✅ v1 最小可用 |
-| 4 | k-popup 三端冒烟 + P1 完善 | — | 0.5~1 天 | ✅ 冒烟清单已写，P1 待 v1.x |
+| ~~1~~ | ~~k-popup + k-overlay~~ | — | — | ✅ v1 三端验收 |
+| ~~2~~ | ~~k-toast~~ | k-overlay | 1~2 天 | ✅ v1 |
+| ~~3~~ | ~~k-modal~~ | k-popup | 2~3 天 | ✅ v1 |
+| ~~4~~ | ~~三端冒烟 + 文档归档~~ | — | 0.5~1 天 | ✅ 见冒烟清单 |
 
-**k-toast 要点（基于 review 结论）**
-
-- 直接 import `k-overlay` + `Z_INDEX_TOAST` + `POPUP_TRANSITION_EASING`
-- WEB/MP 走 CSS transition + 双帧延迟常量；APP 走 ref + setProperty（与 popup 同模式）
-- 命令式 API 预研（`showToast`），备选声明式 + ref
-- 自动消失、位置 top/center/bottom
-- 无需 `internalOverlayShow` 解耦（toast 无面板分轨问题）
-
-**k-modal 要点**
-
-- `<k-popup position="center" :close-on-click-overlay="false">` + 标题/内容/按钮区
-- props：title、content、showCancelButton、confirmText/cancelText
-- z-index：`Z_INDEX_MODAL (4000)`；可包一层默认 props 而非 fork 动画逻辑
-
-### 阶段 B：列表承载
+### 阶段 B：列表承载 ⬅️ 当前主线
 
 | 顺序 | 组件 | 预估 | 状态 |
 | --- | --- | --- | --- |
-| 5 | k-list | 2~3 天 | 待开发 |
-| 6 | k-list-item | 1~2 天 | 待开发 |
+| 5 | **k-list v2** | — | ✅ 状态壳 + k-cell |
+
+> 详细 API 草案、演示规划、DoD 见 **`docs/k-list开发计划.md`**
 
 ### 阶段 C：增强（可并行）
 
@@ -156,8 +143,9 @@
 2. ~~开发 k-toast~~ ✅
 3. ~~开发 k-modal~~ ✅
 4. ~~补写 docs/k-popup三端冒烟验收清单.md~~ ✅
-5. 组合 demo：form 提交 → modal 确认 → toast 结果（modal 页已含最小链路）
-6. 并行 k-list / k-list-item ← 下一步
+5. ~~组合 demo：form 提交 → modal 确认 → toast 结果~~ ✅
+6. ~~k-list v2~~ ✅ 见 `docs/k-list架构重构与二期列表规划.md`
+7. v1.x 缺陷（beforeClose 等）可与 list 并行，不阻塞
 ```
 
 ---
@@ -168,6 +156,7 @@
 | --- | --- |
 | `docs/k-popup系列已知缺陷与后续计划.md` | v1.x 缺陷台账与实现顺序 |
 | `docs/k-popup方案分析报告.md` | 架构与竞品分析 |
+| `docs/k-list开发计划.md` | 迭代 2 当前主线 |
 | `docs/一期下一步开发计划.md` | 迭代 2 总排期 |
 | `docs/一期组件迭代看板.md` | Issue 级任务 |
 | `uni_modules/kit-ui/components/k-popup/README.md` | API 说明 |

@@ -118,7 +118,7 @@
 			if (/^\d+$/.test(sizeValue)) {
 				sizeValue += 'px'
 			}
-			styles += `width: ${sizeValue}; height: ${sizeValue};`
+			styles += `width: ${sizeValue}; height: ${sizeValue}; min-width: ${sizeValue}; min-height: ${sizeValue}; flex-shrink: 0;`
 		}
 		return styles
 	})

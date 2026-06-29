@@ -1,0 +1,138 @@
+/**
+ * list 演示页分页 mock 工具（演示专用，非组件 API）
+ */
+
+export type ListPaginationDemoState = {
+	items : string[]
+	loading : boolean
+	loadingMore : boolean
+	finished : boolean
+	loadMoreError : boolean
+	page : number
+	log : string
+}
+
+/**
+ * 创建分页演示初始状态
+ */
+export function createListPaginationDemoState(log : string = '') : ListPaginationDemoState {
+	return {
+		items: [],
+		loading: false,
+		loadingMore: false,
+		finished: true,
+		loadMoreError: false,
+		page: 0,
+		log: log
+	}
+}
+
+/**
+ * 生成演示列表项
+ */
+export function buildDemoListItems(prefix : string, startIndex : number, count : number) : string[] {
+	const result : string[] = []
+	for (let i = 0; i < count; i++) {
+		result.push(`${prefix} ${startIndex + i}`)
+	}
+	return result
+}
+
+/**
+ * 模拟首屏加载（展示 k-list loading 三态）
+ */
+export function runDemoFirstPageLoad(
+	state : ListPaginationDemoState,
+	firstItems : string[],
+	logAfter : string,
+	delayMs : number,
+	onUpdate : (next : ListPaginationDemoState) => void
+) : number {
+	const loadingState = cloneDemoState(state)
+	loadingState.page = 0
+	loadingState.items = []
+	loadingState.finished = true
+	loadingState.loadMoreError = false
+	loadingState.loadingMore = false
+	loadingState.loading = true
+	loadingState.log = '首屏 loading...'
+	onUpdate(loadingState)
+	return setTimeout(() => {
+		const nextState = cloneDemoState(loadingState)
+		nextState.loading = false
+		nextState.items = firstItems
+		nextState.page = 1
+		nextState.finished = false
+		nextState.log = logAfter
+		onUpdate(nextState)
+	}, delayMs) as number
+}
+
+/**
+ * 模拟加载下一页
+ */
+export function runDemoLoadMorePage(
+	state : ListPaginationDemoState,
+	appendItems : string[],
+	finishAfter : boolean,
+	logAfter : string,
+	delayMs : number,
+	onUpdate : (next : ListPaginationDemoState) => void
+) : number {
+	if (state.loadingMore) {
+		return 0
+	}
+	const loadingState = cloneDemoState(state)
+	loadingState.loadingMore = true
+	loadingState.loadMoreError = false
+	loadingState.log = 'load-more loading...'
+	onUpdate(loadingState)
+	return setTimeout(() => {
+		const nextState = cloneDemoState(loadingState)
+		nextState.loadingMore = false
+		nextState.items = [...nextState.items, ...appendItems]
+		nextState.page = nextState.page + 1
+		if (finishAfter) {
+			nextState.finished = true
+		}
+		nextState.log = logAfter
+		onUpdate(nextState)
+	}, delayMs) as number
+}
+
+/**
+ * 模拟 load-more 失败
+ */
+export function runDemoLoadMoreError(
+	state : ListPaginationDemoState,
+	onUpdate : (next : ListPaginationDemoState) => void
+) : void {
+	const nextState = cloneDemoState(state)
+	nextState.finished = false
+	nextState.loadMoreError = true
+	nextState.loadingMore = false
+	nextState.log = 'load-more 失败，点击重试'
+	onUpdate(nextState)
+}
+
+/**
+ * 复制演示状态（避免 reactive 引用污染）
+ */
+export function cloneDemoState(state : ListPaginationDemoState) : ListPaginationDemoState {
+	return {
+		items: [...state.items],
+		loading: state.loading,
+		loadingMore: state.loadingMore,
+		finished: state.finished,
+		loadMoreError: state.loadMoreError,
+		page: state.page,
+		log: state.log
+	}
+}
+
+/**
+ * 是否为空列表（首屏加载完成后）
+ */
+export function isDemoListEmpty(state : ListPaginationDemoState) : boolean {
+	return !state.loading && state.items.length == 0 && state.page > 0
+}

@@ -1,0 +1,135 @@
+<template>
+	<view :class="loadMoreClass" :style="loadMoreStyle" @click="handleClick">
+		<view v-if="props.loading" class="k-load-more__loading">
+			<view class="k-load-more__spinner-box">
+						<k-ring-spinner size="16" :color="spinnerColor" />
+			</view>
+			<text class="k-load-more__text k-load-more__text--loading">{{ props.loadingText }}</text>
+		</view>
+		<text v-else-if="props.finished" class="k-load-more__text">{{ props.finishedText }}</text>
+		<text v-else-if="props.error" class="k-load-more__text k-load-more__text--error">{{ props.errorText }}</text>
+		<text v-else class="k-load-more__text k-load-more__text--idle">{{ props.idleText }}</text>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { buildThemeStyle, resolveSecondaryColor } from '../../utils/theme.uts'
+
+	type KLoadMoreProps = {
+		loading ?: boolean
+		finished ?: boolean
+		error ?: boolean
+		loadingText ?: string
+		finishedText ?: string
+		errorText ?: string
+		idleText ?: string
+		customStyle ?: string
+	}
+
+	defineOptions({
+		name: 'KLoadMore'
+	})
+
+	const props = withDefaults(defineProps<KLoadMoreProps>(), {
+		loading: false,
+		finished: false,
+		error: false,
+		loadingText: '加载中...',
+		finishedText: '没有更多了',
+		errorText: '加载失败，点击重试',
+		idleText: '点击加载更多',
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		load : []
+		retry : []
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+
+	const spinnerColor = computed(() : string => {
+		return resolveSecondaryColor(themeConfig)
+	})
+
+	const loadMoreClass = computed(() : string[] => {
+		const classes = ['k-load-more']
+		if (props.loading) {
+			classes.push('k-load-more--loading')
+		}
+		if (props.finished) {
+			classes.push('k-load-more--finished')
+		}
+		if (props.error) {
+			classes.push('k-load-more--error')
+		}
+		return classes
+	})
+
+	const loadMoreStyle = computed(() : string => {
+		return buildThemeStyle(themeConfig, props.customStyle)
+	})
+
+	/**
+	 * 点击加载更多或错误重试
+	 */
+	function handleClick() {
+		if (props.loading || props.finished) {
+			return
+		}
+		if (props.error) {
+			emit('retry')
+			return
+		}
+		emit('load')
+	}
+</script>
+
+<style lang="scss">
+	.k-load-more {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		padding: 16px;
+		box-sizing: border-box;
+
+		&__loading {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+		}
+
+		&__spinner-box {
+			width: 16px;
+			height: 16px;
+			min-width: 16px;
+			min-height: 16px;
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+		}
+
+		&__text {
+			font-size: 14px;
+			color: var(--k-load-more-text-color, #969799);
+			line-height: 20px;
+			text-align: center;
+
+			&--loading {
+				margin-left: 8px;
+			}
+
+			&--error {
+				color: var(--k-color-primary, #6366f1);
+			}
+
+			&--idle {
+				color: var(--k-load-more-idle-color, #969799);
+			}
+		}
+	}
+</style>

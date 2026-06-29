@@ -1,0 +1,69 @@
+import { ItemChildType } from './item.type.uts'
+
+/**
+ * 同步 cell 项间分割线：最后一项隐藏底部分割线
+ */
+export function syncCellItemBorders(children : ItemChildType[]) : void {
+	if (children.length == 0) {
+		return
+	}
+	children.forEach((item : ItemChildType) => {
+		item.initBorderNull()
+	})
+	const lastChild = children[children.length - 1]
+	lastChild.initBorder()
+}
+
+export type CellBorderRegistry = {
+	register : (child : ItemChildType) => void
+	unregister : (child : ItemChildType) => void
+}
+
+/**
+ * 创建 cell 边框注册表（register / unregister + 自动 sync）
+ */
+export function createCellBorderRegistry() : CellBorderRegistry {
+	const children : ItemChildType[] = []
+
+	/**
+	 * 注册 cell 并刷新分割线
+	 */
+	function register(child : ItemChildType) : void {
+		children.push(child)
+		syncCellItemBorders(children)
+	}
+
+	/**
+	 * 卸载 cell 并刷新分割线（v-for 动态列表必需）
+	 */
+	function unregister(child : ItemChildType) : void {
+		const next : ItemChildType[] = []
+		for (let i = 0; i < children.length; i++) {
+			if (children[i] != child) {
+				next.push(children[i])
+			}
+		}
+		while (children.length > 0) {
+			children.pop()
+		}
+		for (let j = 0; j < next.length; j++) {
+			children.push(next[j])
+		}
+		syncCellItemBorders(children)
+	}
+
+	return {
+		register,
+		unregister
+	}
+}
+
+/**
+ * 兼容 collapse / cell-group 旧 inject：仅 register 的包装
+ */
+export function wrapCellBorderRegister(registry : CellBorderRegistry) : (child : ItemChildType) => string {
+	return (child : ItemChildType) : string => {
+		registry.register(child)
+		return ''
+	}
+}

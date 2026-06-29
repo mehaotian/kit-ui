@@ -1,0 +1,333 @@
+<template>
+	<scroll-view
+		class="k-pull-refresh"
+		:style="rootStyle"
+		scroll-y="true"
+		:refresher-enabled="refresherEnabled"
+		refresher-default-style="none"
+		:refresher-triggered="refresherActive"
+		:refresher-threshold="thresholdPx"
+		refresher-background="transparent"
+		:lower-threshold="lowerThresholdPx"
+		@refresherpulling="handleRefresherPulling"
+		@refresherrefresh="handleRefresherRefresh"
+		@refresherrestore="handleRefresherRestore"
+		@refresherabort="handleRefresherAbort"
+		@scrolltolower="handleScrollToLower"
+	>
+		<slot></slot>
+		<!-- refresher 必须是 scroll-view 直接子节点 -->
+		<view v-if="!hasCustomRefresher" slot="refresher" class="k-pull-refresh__head">
+			<view v-if="showHeadContent" class="k-pull-refresh__head-inner">
+				<view v-if="isRefreshing" class="k-pull-refresh__spinner-box">
+					<k-ring-spinner size="20" :color="spinnerColor" />
+				</view>
+				<text class="k-pull-refresh__text">{{ headText }}</text>
+			</view>
+		</view>
+		<slot v-if="hasCustomRefresher" name="refresher"></slot>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { useSlots, watch } from 'vue'
+	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
+
+	type KPullRefreshProps = {
+		loading ?: boolean
+		disabled ?: boolean
+		threshold ?: string
+		lowerThreshold ?: string
+		pullingText ?: string
+		loosingText ?: string
+		loadingText ?: string
+		completeText ?: string
+		completeDuration ?: string
+		customStyle ?: string
+	}
+
+	defineOptions({
+		name: 'KPullRefresh'
+	})
+
+	const props = withDefaults(defineProps<KPullRefreshProps>(), {
+		loading: false,
+		disabled: false,
+		threshold: '45',
+		lowerThreshold: '50',
+		pullingText: '下拉刷新',
+		loosingText: '释放刷新',
+		loadingText: '刷新中...',
+		completeText: '刷新成功',
+		completeDuration: '600',
+		customStyle: ''
+	})
+
+	const emit = defineEmits<{
+		'update:loading' : [value : boolean]
+		refresh : []
+		scrolltolower : []
+	}>()
+
+	const slots = useSlots()
+	const themeConfig = inject('kit-theme', {})
+
+	/** 当前下拉距离 px */
+	const pullingDistance = ref<number>(0)
+	/** 组件内部刷新态（避免 v-model 未同步时卡在 loading） */
+	const internalLoading = ref<boolean>(false)
+	/** 刷新完成提示是否展示 */
+	const showComplete = ref<boolean>(false)
+	/** 上一次 props.loading，用于检测 true→false */
+	const previousLoading = ref<boolean>(false)
+
+	let completeTimer : number = 0
+
+	const hasCustomRefresher = computed(() : boolean => {
+		return slots['refresher'] != null
+	})
+
+	const refresherEnabled = computed(() : boolean => {
+		return !props.disabled
+	})
+
+	const thresholdPx = computed(() : number => {
+		if (/^\d+$/.test(props.threshold)) {
+			return parseInt(props.threshold)
+		}
+		return 45
+	})
+
+	const lowerThresholdPx = computed(() : number => {
+		if (/^\d+$/.test(props.lowerThreshold)) {
+			return parseInt(props.lowerThreshold)
+		}
+		return 50
+	})
+
+	const completeDurationMs = computed(() : number => {
+		if (/^\d+$/.test(props.completeDuration)) {
+			return parseInt(props.completeDuration)
+		}
+		return 600
+	})
+
+	const spinnerColor = computed(() : string => {
+		return resolvePrimaryColor(themeConfig)
+	})
+
+	/**
+	 * 实际是否处于刷新中（props + 内部双通道）
+	 */
+	const isRefreshing = computed(() : boolean => {
+		return props.loading || internalLoading.value
+	})
+
+	/**
+	 * scroll-view 是否保持 refresher 展开
+	 */
+	const refresherActive = computed(() : boolean => {
+		return isRefreshing.value || showComplete.value
+	})
+
+	/**
+	 * 是否展示 refresher 文案区
+	 */
+	const showHeadContent = computed(() : boolean => {
+		if (isRefreshing.value || showComplete.value) {
+			return true
+		}
+		return pullingDistance.value > 0
+	})
+
+	const headText = computed(() : string => {
+		if (isRefreshing.value) {
+			return props.loadingText
+		}
+		if (showComplete.value) {
+			return props.completeText
+		}
+		if (pullingDistance.value >= thresholdPx.value) {
+			return props.loosingText
+		}
+		if (pullingDistance.value > 0) {
+			return props.pullingText
+		}
+		return ''
+	})
+
+	const rootStyle = computed(() : string => {
+		const styles : string[] = ['flex:1']
+		const themeStyle = buildThemeStyle(themeConfig, props.customStyle)
+		if (themeStyle != '') {
+			styles.push(themeStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * 清除完成态定时器
+	 */
+	function clearCompleteTimer() : void {
+		if (completeTimer != 0) {
+			clearTimeout(completeTimer)
+			completeTimer = 0
+		}
+	}
+
+	/**
+	 * 展示完成提示后收起
+	 */
+	function showCompleteThenHide() : void {
+		if (showComplete.value) {
+			return
+		}
+		internalLoading.value = false
+		emit('update:loading', false)
+		clearCompleteTimer()
+		pullingDistance.value = 0
+		if (props.completeText == '') {
+			showComplete.value = false
+			return
+		}
+		showComplete.value = true
+		completeTimer = setTimeout(() => {
+			showComplete.value = false
+			completeTimer = 0
+		}, completeDurationMs.value) as number
+	}
+
+	/**
+	 * 结束刷新：业务在请求完成后调用，或配合 v-model:loading=false
+	 */
+	function finishRefresh() : void {
+		showCompleteThenHide()
+	}
+
+	defineExpose({
+		finishRefresh: finishRefresh
+	})
+
+	/**
+	 * v-model:loading 变为 false 时进入完成提示
+	 */
+	watch((): boolean => props.loading, (next : boolean) => {
+		if (next) {
+			clearCompleteTimer()
+			showComplete.value = false
+			internalLoading.value = true
+			previousLoading.value = true
+			return
+		}
+		internalLoading.value = false
+		if (previousLoading.value) {
+			previousLoading.value = false
+			showCompleteThenHide()
+		}
+	})
+
+	/**
+	 * 下拉过程
+	 */
+	function handleRefresherPulling(event : UniRefresherEvent) {
+		if (isRefreshing.value || showComplete.value) {
+			return
+		}
+		const dy = event.detail.dy
+		if (dy <= 0) {
+			pullingDistance.value = 0
+			return
+		}
+		pullingDistance.value = dy
+	}
+
+	/**
+	 * 触发下拉刷新
+	 */
+	function handleRefresherRefresh() {
+		if (props.disabled || isRefreshing.value) {
+			return
+		}
+		clearCompleteTimer()
+		showComplete.value = false
+		pullingDistance.value = 0
+		internalLoading.value = true
+		emit('update:loading', true)
+		emit('refresh')
+	}
+
+	/**
+	 * 刷新复位：loading / complete 阶段仅清理下拉距离
+	 */
+	function handleRefresherRestore() {
+		if (isRefreshing.value || showComplete.value) {
+			return
+		}
+		pullingDistance.value = 0
+	}
+
+	/**
+	 * 刷新中止
+	 */
+	function handleRefresherAbort() {
+		if (isRefreshing.value) {
+			return
+		}
+		pullingDistance.value = 0
+		showComplete.value = false
+	}
+
+	/**
+	 * 滚动触底，用于配合 k-list load-more
+	 */
+	function handleScrollToLower() {
+		emit('scrolltolower')
+	}
+
+	onBeforeUnmount(() => {
+		clearCompleteTimer()
+	})
+</script>
+
+<style lang="scss">
+	.k-pull-refresh {
+		position: relative;
+		box-sizing: border-box;
+
+		&__head {
+			width: 100%;
+			height: 48px;
+			box-sizing: border-box;
+		}
+
+		&__head-inner {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			height: 48px;
+			box-sizing: border-box;
+		}
+
+		&__spinner-box {
+			width: 20px;
+			height: 20px;
+			min-width: 20px;
+			min-height: 20px;
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			margin-right: 8px;
+		}
+
+		&__text {
+			font-size: 14px;
+			color: var(--k-text-color-secondary, #969799);
+			line-height: 20px;
+			text-align: center;
+		}
+	}
+</style>

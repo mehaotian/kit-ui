@@ -1,0 +1,159 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-empty 空状态</text>
+				<text class="page-desc">图标占位 + 描述文案 + 操作区，可与 k-list 空态联动</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">默认图标与描述</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-empty />
+				</view>
+			</view>
+
+			<!-- 自定义文案与图标 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义文案</text>
+					<text class="page-desc">description / icon / iconSize</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-empty description="暂无订单" icon="shopping-cart-line" icon-size="56" />
+				</view>
+			</view>
+
+			<!-- 带操作按钮 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">带操作按钮</text>
+					<text class="page-desc">default slot 放置按钮</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-empty description="购物车是空的">
+						<k-button type="primary" text="去逛逛" size="small" @click="handleGoShop" />
+					</k-empty>
+				</view>
+			</view>
+
+			<!-- 自定义 icon slot -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义图标区</text>
+					<text class="page-desc">#icon slot 完全自定义</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-empty description="网络异常，请检查后重试">
+						<template #icon>
+							<k-icon name="wifi-off-line" size="56" color="#dcdee0" />
+						</template>
+						<k-button text="重新加载" size="small" @click="handleReload" />
+					</k-empty>
+				</view>
+			</view>
+
+			<!-- 在 k-list 中使用 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">k-list 联动</text>
+					<text class="page-desc">k-list 默认 empty slot 内嵌 k-empty</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-list :empty="true" empty-text="暂无消息" empty-icon="mail-line">
+						<template #empty-action>
+							<k-button type="primary" text="刷新" size="small" @click="handleReload" />
+						</template>
+					</k-list>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">长文案 / 双按钮 / 无图标</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-empty
+						description="这是一段较长的空态描述，用于验证在不同平台下是否能够正常换行显示，避免出现单行溢出。"
+					>
+						<view class="demo-action-row">
+							<k-button text="返回首页" size="small" @click="handleGoHome" />
+							<view class="demo-action-spacer"></view>
+							<k-button type="primary" text="重新加载" size="small" @click="handleReload" />
+						</view>
+					</k-empty>
+				</view>
+				<view class="demo-content demo-block demo-block--stack">
+					<k-empty description="仅文案，无图标区域" icon="" />
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	/**
+	 * 去逛逛操作反馈
+	 */
+	const handleGoShop = () => {
+		uni.showToast({
+			title: '前往商品页',
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 重新加载操作反馈
+	 */
+	const handleReload = () => {
+		uni.showToast({
+			title: '重新加载中',
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 返回首页
+	 */
+	const handleGoHome = () => {
+		uni.reLaunch({
+			url: '/pages/index/index'
+		})
+	}
+</script>
+
+<style lang="scss" scoped>
+	.demo-content {
+		overflow: hidden;
+	}
+
+	.demo-block {
+		background-color: #ffffff;
+	}
+
+	.demo-block--stack {
+		margin-top: 12px;
+	}
+
+	.demo-action-row {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.demo-action-spacer {
+		width: 12px;
+		height: 1px;
+	}
+</style>

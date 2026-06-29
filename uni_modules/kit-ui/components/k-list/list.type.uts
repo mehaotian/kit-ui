@@ -1,0 +1,10 @@
+/**
+ * k-list 类型定义
+ */
+
+export type ListLoadMoreTexts = {
+	loadingText ?: string
+	finishedText ?: string
+	errorText ?: string
+	idleText ?: string
+}

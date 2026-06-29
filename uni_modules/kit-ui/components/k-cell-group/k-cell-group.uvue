@@ -16,7 +16,8 @@
 </template>
 
 <script setup lang="uts">
-	import { ItemChildType } from '../k-cell/item.type.uts'
+	import { createCellBorderRegistry, wrapCellBorderRegister } from '../k-cell/cell-border.uts'
+	import { buildThemeStyle } from '../../utils/theme.uts'
 	// 组件属性类型定义
 	type KCellGroupProps = {
 		// 分组标题
@@ -51,7 +52,10 @@
 
 	provide('k-cell-group', cellGroupConfig)
 
-	let childs : ItemChildType[] = []
+	const cellBorderRegistry = createCellBorderRegistry()
+
+	provide('k-collapse-register-child', wrapCellBorderRegister(cellBorderRegistry))
+	provide('k-cell-unregister-child', cellBorderRegistry.unregister)
 
 	// 计算分组容器类名
 	const groupClass = computed(() : string[] => {
@@ -78,41 +82,8 @@
 
 	// 计算分组容器样式
 	const groupStyle = computed(() : string => {
-		const styles : string[] = []
-
-		// 主题变量注入
-		for (let key in themeConfig) {
-			const value = themeConfig[key]
-			if (key != 'mode' && value != null) {
-				// 将驼峰命名转换为 kebab-case
-				const cssVar = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-				styles.push(`--k-${cssVar}: ${value}`)
-			}
-		}
-
-		return styles.join('; ')
+		return buildThemeStyle(themeConfig)
 	})
-
-	function handleChild() {
-		if (childs.length > 0) {
-			// 先清空所有 border 属性
-			childs.forEach(item => {
-				item.initBorderNull()
-			})
-			// 在设置最后一个border为false，避免border设置冲突
-			const lastChild = childs[childs.length - 1]
-			lastChild.initBorder()
-		}
-	}
-
-	function registerItem(child : ItemChildType) : string {
-		childs.push(child)
-		handleChild()
-		return ''
-	}
-
-	provide('k-collapse-register-child', registerItem)
-
 </script>
 
 <style lang="scss">

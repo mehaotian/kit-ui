@@ -91,28 +91,45 @@
 		return classes
 	})
 
+	/**
+	 * 解析 spinner 边长 px（MP flex 下避免 100% 被拉成椭圆）
+	 */
+	function resolveSpinnerPx() : number {
+		if (props.size == 'xs') {
+			return 16
+		}
+		if (props.size == 'sm') {
+			return 20
+		}
+		if (props.size == 'md') {
+			return 24
+		}
+		if (props.size == 'lg') {
+			return 32
+		}
+		if (props.size == 'xl') {
+			return 40
+		}
+		if (/^\d+$/.test(props.size)) {
+			return parseInt(props.size)
+		}
+		const sizeStr = parseLoadingSize(props.size)
+		const numMatch = sizeStr.match(/\d+/)
+		if (numMatch != null) {
+			return parseInt(numMatch[0] as string)
+		}
+		return 24
+	}
+
 	// Spinner 样式
 	const spinnerStyle = computed(() : string => {
-		let style = ''
-		// 处理自定义尺寸
-		if (props.size != 'xs' && props.size != 'sm' && props.size != 'md' && props.size != 'lg' && props.size != 'xl') {
-			let sizeValue = props.size
-			// 如果是纯数字，添加px单位
-			if (/^\d+$/.test(sizeValue)) {
-				sizeValue += 'px'
-			}
-			// 解析数值用于计算边框宽度
-			const numericValue = parseFloat(sizeValue)
-			if (!isNaN(numericValue)) {
-				// 边框宽度约为尺寸的1/8，最小2px
-				const borderWidth = Math.max(2, numericValue / 8)
-				style += `width: ${sizeValue}; height: ${sizeValue}; border-width: ${borderWidth}px;`
-			}
-		}
+		const px = resolveSpinnerPx()
+		const borderWidth = Math.max(2, px / 8)
+		let style = `width:${px}px;height:${px}px;min-width:${px}px;min-height:${px}px;border-width:${borderWidth}px;flex-shrink:0;`
 		// 如果不是预定义颜色，使用自定义颜色
 		if (!LOADING_COLORS.has(props.color)) {
 			const color = loadingColor.value
-			style += `border-left-color: ${color};`
+			style += `border-left-color:${color};`
 		}
 		return style
 	})

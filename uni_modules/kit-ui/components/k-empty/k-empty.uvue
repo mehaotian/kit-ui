@@ -1,0 +1,88 @@
+<template>
+	<view class="k-empty" :style="emptyStyle">
+		<view v-if="showIconArea" class="k-empty__icon">
+			<slot name="icon">
+				<k-icon :name="props.icon" :size="props.iconSize" :color="emptyIconColor" />
+			</slot>
+		</view>
+		<text v-if="props.description != ''" class="k-empty__description">{{ props.description }}</text>
+		<view v-if="hasActionSlot" class="k-empty__action">
+			<slot></slot>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { buildThemeStyle, resolveSecondaryColor } from '../../utils/theme.uts'
+
+	type KEmptyProps = {
+		description ?: string
+		icon ?: string
+		iconSize ?: string
+		customStyle ?: string
+	}
+
+	defineOptions({
+		name: 'KEmpty'
+	})
+
+	const props = withDefaults(defineProps<KEmptyProps>(), {
+		description: '暂无数据',
+		icon: 'file-list-3-line',
+		iconSize: '48',
+		customStyle: ''
+	})
+
+	const slots = useSlots()
+	const themeConfig = inject('kit-theme', {})
+
+	const emptyIconColor = computed(() : string => {
+		return resolveSecondaryColor(themeConfig, '#dcdee0')
+	})
+
+	const showIconArea = computed(() : boolean => {
+		return props.icon != '' || slots['icon'] != null
+	})
+
+	const hasActionSlot = computed(() : boolean => {
+		return slots['default'] != null
+	})
+
+	const emptyStyle = computed(() : string => {
+		return buildThemeStyle(themeConfig, props.customStyle)
+	})
+</script>
+
+<style lang="scss">
+	.k-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 32px 16px;
+		box-sizing: border-box;
+
+		&__icon {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 16px;
+		}
+
+		&__description {
+			font-size: 14px;
+			color: var(--k-empty-description-color, #969799);
+			line-height: 20px;
+			text-align: center;
+		}
+
+		&__action {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			margin-top: 16px;
+		}
+	}
+</style>

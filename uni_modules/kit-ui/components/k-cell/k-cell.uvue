@@ -1,5 +1,5 @@
 <script setup lang="uts">
-	import { onMounted } from 'vue'
+	import { onMounted, onBeforeUnmount } from 'vue'
 	import { ItemChildType } from './item.type.uts'
 	// 尺寸类型定义
 	type SizeType = 'small' | 'medium' | 'large'
@@ -88,6 +88,9 @@
 	const cellGroupConfig = inject('k-cell-group', {})
 
 	const cellChild = inject<((child : ItemChildType) => string) | null>('k-collapse-register-child', null)
+	const cellUnregister = inject<((child : ItemChildType) => void) | null>('k-cell-unregister-child', null)
+
+	let registeredChild : ItemChildType | null = null
 
 	const groupsData : InjectType = {
 		inset: false,
@@ -260,13 +263,23 @@
 	}
 	
 	onMounted(() => {
-		// 与父组件交互，
 		if (cellChild != null) {
-			let childData : ItemChildType = {
+			const childData : ItemChildType = {
 				initBorder,
 				initBorderNull,
 			}
+			registeredChild = childData
 			cellChild(childData)
+		}
+	})
+
+	/**
+	 * 动态列表卸载时从父级 registry 移除，避免底线错乱
+	 */
+	onBeforeUnmount(() => {
+		if (cellUnregister != null && registeredChild != null) {
+			cellUnregister(registeredChild)
+			registeredChild = null
 		}
 	})
 
