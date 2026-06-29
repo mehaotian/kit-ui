@@ -10,8 +10,15 @@
 	/* 小程序特有相关 */
 	"mp-weixin": {
 		"appid": "wx9dcdaed5b2bc94ad",
+		"lazyCodeLoading": "requiredComponents",
 		"setting": {
-			"urlCheck": false
+			"urlCheck": false,
+			"minified": true,
+			"es6": true,
+			"postcss": true
+		},
+		"optimization": {
+			"subPackages": true
 		},
 		"usingComponents": true
 	},

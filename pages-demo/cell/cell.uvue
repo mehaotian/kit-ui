@@ -75,8 +75,8 @@
 					<text class="title-text">页面跳转</text>
 				</view>
 				<view class="demo-content demo-block">
-					<k-cell title="跳转到按钮页面" is-link url="/pages/button/button" />
-					<k-cell title="跳转到布局页面" is-link url="/pages/layout/layout" />
+					<k-cell title="跳转到按钮页面" is-link url="/pages-demo/button/button" />
+					<k-cell title="跳转到布局页面" is-link url="/pages-demo/layout/layout" />
 				</view>
 			</view>
 

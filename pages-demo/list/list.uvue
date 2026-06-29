@@ -16,10 +16,10 @@
 				</view>
 				<view class="demo-content demo-block">
 					<k-list>
-						<k-cell title="k-empty 空状态" label="图标 / 操作按钮 / 自定义 slot" is-link url="/pages/empty/empty" />
-						<k-cell title="k-load-more 加载更多" label="各态切换 / k-list footer 联动" is-link url="/pages/load-more/load-more" />
-						<k-cell title="k-pull-refresh 下拉刷新" label="一期暂不交付，见二期规划" is-link url="/pages/pull-refresh/pull-refresh" />
-						<k-cell title="k-cell 单元格" label="列表行原语" is-link url="/pages/cell/cell" />
+						<k-cell title="k-empty 空状态" label="图标 / 操作按钮 / 自定义 slot" is-link url="/pages-demo/empty/empty" />
+						<k-cell title="k-load-more 加载更多" label="各态切换 / k-list footer 联动" is-link url="/pages-demo/load-more/load-more" />
+						<k-cell title="k-pull-refresh 下拉刷新" label="一期暂不交付，见二期规划" is-link url="/pages-demo/pull-refresh/pull-refresh" />
+						<k-cell title="k-cell 单元格" label="列表行原语" is-link url="/pages-demo/cell/cell" />
 					</k-list>
 				</view>
 			</view>

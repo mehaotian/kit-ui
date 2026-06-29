@@ -255,9 +255,11 @@
 		align-items: center;
 		justify-content: center;
 		overflow: visible;
+		flex-shrink: 0;
 
 		&--relative {
 			position: relative;
+			overflow: visible;
 		}
 	}
 

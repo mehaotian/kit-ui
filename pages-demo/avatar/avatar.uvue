@@ -76,7 +76,7 @@
 					<k-text size="16">带徽标的头像</k-text>
 					<k-text class="demo-desc" size="12" color="#999">添加dot属性，控制头像显示徽标</k-text>
 				</view>
-				<view class="demo-content demo-row">
+				<view class="demo-content demo-row demo-row--badge">
 					<k-avatar src="https://picsum.photos/200/200?random=1" :dot="true" />
 					<k-avatar text="张" badge="5" bg-color="#409eff" text-color="#fff" />
 					<k-avatar icon="user-line" badge="99+" bg-color="#67c23a" icon-color="#fff" />
@@ -216,5 +216,12 @@
 		margin-right: -12px;
 		border: 2px solid #fff;
 		box-sizing: border-box;
+	}
+
+	.demo-row--badge {
+		overflow: visible;
+		align-items: flex-start;
+		padding-top: 4px;
+		padding-right: 4px;
 	}
 </style>

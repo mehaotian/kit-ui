@@ -39,7 +39,7 @@
 	 */
 	const goListDemo = () => {
 		uni.navigateTo({
-			url: '/pages/list/list'
+			url: '/pages-demo/list/list'
 		})
 	}
 </script>

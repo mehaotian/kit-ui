@@ -1,210 +1,219 @@
 {
 	"pages": [{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "uni-app x"
-			}
-		},
-		{
-			"path": "pages/input/input",
-			"style": {
-				"navigationBarTitleText": "输入框"
-			}
-		},
-		{
-			"path": "pages/textarea/textarea",
-			"style": {
-				"navigationBarTitleText": "多行输入"
-			}
-		},
-		{
-			"path": "pages/radio/radio",
-			"style": {
-				"navigationBarTitleText": "单选框"
-			}
-		},
-		{
-			"path": "pages/checkbox/checkbox",
-			"style": {
-				"navigationBarTitleText": "复选框"
-			}
-		},
-		{
-			"path": "pages/switch/switch",
-			"style": {
-				"navigationBarTitleText": "开关"
-			}
-		},
-		{
-			"path": "pages/form/form",
-			"style": {
-				"navigationBarTitleText": "表单"
-			}
-		},
-		{
-			"path": "pages/form-validate/form-validate",
-			"style": {
-				"navigationBarTitleText": "Form|表单-校验增强"
-			}
-		},
-		{
-			"path": "pages/button/button",
-			"style": {
-				"navigationBarTitleText": "按钮"
-			}
-		},
-		{
-			"path": "pages/button-style/button-style",
-			"style": {
-				"navigationBarTitleText": "Button|按钮-样式覆盖"
-			}
-		},
-		{
-			"path": "pages/config/config",
-			"style": {
-				"navigationBarTitleText": "主题配置"
-			}
-		},
-		{
-			"path": "pages/icon/icon",
-			"style": {
-				"navigationBarTitleText": "图标"
-			}
-		},
-		{
-			"path": "pages/icon-list/icon-list",
-			"style": {
-				"navigationBarTitleText": ""
-			}
-		},
-		{
-			"path": "pages/text/text",
-			"style": {
-				"navigationBarTitleText": "文本"
-			}
-		},
-		{
-			"path": "pages/loading/loading",
-			"style": {
-				"navigationBarTitleText": "加载"
-			}
-		},
-		{
-			"path": "pages/divider/divider",
-			"style": {
-				"navigationBarTitleText": "分割线"
-			}
-		},
-		{
-			"path": "pages/image/image",
-			"style": {
-				"navigationBarTitleText": "图片组件"
-			}
-		}, {
-			"path": "pages/layout/layout",
-			"style": {
-				"navigationBarTitleText": "布局"
-			}
-		}, {
-			"path": "pages/badge/badge",
-			"style": {
-				"navigationBarTitleText": "徽标"
-			}
-		}, {
-			"path": "pages/tag/tag",
-			"style": {
-				"navigationBarTitleText": "标签"
-			}
-		}, {
-			"path": "pages/cell/cell",
-			"style": {
-				"navigationBarTitleText": "单元格"
-			}
-		}, {
-			"path": "pages/grid/grid",
-			"style": {
-				"navigationBarTitleText": "宫格"
-			}
-		},
-		{
-				"path": "pages/avatar/avatar",
+		"path": "pages/index/index",
+		"style": {
+			"navigationBarTitleText": "uni-app x"
+		}
+	}],
+	"subPackages": [{
+		"root": "pages-demo",
+		"name": "demo",
+		"pages": [{
+				"path": "input/input",
+				"style": {
+					"navigationBarTitleText": "输入框"
+				}
+			},
+			{
+				"path": "textarea/textarea",
+				"style": {
+					"navigationBarTitleText": "多行输入"
+				}
+			},
+			{
+				"path": "radio/radio",
+				"style": {
+					"navigationBarTitleText": "单选框"
+				}
+			},
+			{
+				"path": "checkbox/checkbox",
+				"style": {
+					"navigationBarTitleText": "复选框"
+				}
+			},
+			{
+				"path": "switch/switch",
+				"style": {
+					"navigationBarTitleText": "开关"
+				}
+			},
+			{
+				"path": "form/form",
+				"style": {
+					"navigationBarTitleText": "表单"
+				}
+			},
+			{
+				"path": "form-validate/form-validate",
+				"style": {
+					"navigationBarTitleText": "Form|表单-校验增强"
+				}
+			},
+			{
+				"path": "button/button",
+				"style": {
+					"navigationBarTitleText": "按钮"
+				}
+			},
+			{
+				"path": "button-style/button-style",
+				"style": {
+					"navigationBarTitleText": "Button|按钮-样式覆盖"
+				}
+			},
+			{
+				"path": "config/config",
+				"style": {
+					"navigationBarTitleText": "主题配置"
+				}
+			},
+			{
+				"path": "icon/icon",
+				"style": {
+					"navigationBarTitleText": "图标"
+				}
+			},
+			{
+				"path": "icon-list/icon-list",
+				"style": {
+					"navigationBarTitleText": ""
+				}
+			},
+			{
+				"path": "text/text",
+				"style": {
+					"navigationBarTitleText": "文本"
+				}
+			},
+			{
+				"path": "loading/loading",
+				"style": {
+					"navigationBarTitleText": "加载"
+				}
+			},
+			{
+				"path": "divider/divider",
+				"style": {
+					"navigationBarTitleText": "分割线"
+				}
+			},
+			{
+				"path": "image/image",
+				"style": {
+					"navigationBarTitleText": "图片组件"
+				}
+			},
+			{
+				"path": "layout/layout",
+				"style": {
+					"navigationBarTitleText": "布局"
+				}
+			},
+			{
+				"path": "badge/badge",
+				"style": {
+					"navigationBarTitleText": "徽标"
+				}
+			},
+			{
+				"path": "tag/tag",
+				"style": {
+					"navigationBarTitleText": "标签"
+				}
+			},
+			{
+				"path": "cell/cell",
+				"style": {
+					"navigationBarTitleText": "单元格"
+				}
+			},
+			{
+				"path": "grid/grid",
+				"style": {
+					"navigationBarTitleText": "宫格"
+				}
+			},
+			{
+				"path": "avatar/avatar",
 				"style": {
 					"navigationBarTitleText": "头像"
 				}
 			},
 			{
-				"path": "pages/collapse/collapse",
+				"path": "collapse/collapse",
 				"style": {
 					"navigationBarTitleText": "折叠面板"
 				}
-			}, {
-			"path": "pages/card/card",
-			"style": {
-				"navigationBarTitleText": "卡片"
-			}
-		},
-		{
-			"path" : "pages/color/color",
-			"style" : 
+			},
 			{
-				"navigationBarTitleText" : ""
+				"path": "card/card",
+				"style": {
+					"navigationBarTitleText": "卡片"
+				}
+			},
+			{
+				"path": "color/color",
+				"style": {
+					"navigationBarTitleText": ""
+				}
+			},
+			{
+				"path": "timeline/timeline",
+				"style": {
+					"navigationBarTitleText": "时间轴"
+				}
+			},
+			{
+				"path": "popup/popup",
+				"style": {
+					"navigationBarTitleText": "弹出层"
+				}
+			},
+			{
+				"path": "toast/toast",
+				"style": {
+					"navigationBarTitleText": "轻提示"
+				}
+			},
+			{
+				"path": "modal/modal",
+				"style": {
+					"navigationBarTitleText": "模态框"
+				}
+			},
+			{
+				"path": "list/list",
+				"style": {
+					"navigationBarTitleText": "列表"
+				}
+			},
+			{
+				"path": "empty/empty",
+				"style": {
+					"navigationBarTitleText": "空状态"
+				}
+			},
+			{
+				"path": "load-more/load-more",
+				"style": {
+					"navigationBarTitleText": "加载更多"
+				}
+			},
+			{
+				"path": "pull-refresh/pull-refresh",
+				"style": {
+					"navigationBarTitleText": "下拉刷新"
+				}
+			},
+			{
+				"path": "list-scroll/list-scroll",
+				"style": {
+					"navigationBarTitleText": "标准列表页"
+				}
 			}
-		},
-		{
-			"path": "pages/timeline/timeline",
-			"style": {
-				"navigationBarTitleText": "时间轴"
-			}
-		},
-		{
-			"path": "pages/popup/popup",
-			"style": {
-				"navigationBarTitleText": "弹出层"
-			}
-		},
-		{
-			"path": "pages/toast/toast",
-			"style": {
-				"navigationBarTitleText": "轻提示"
-			}
-		},
-		{
-			"path": "pages/modal/modal",
-			"style": {
-				"navigationBarTitleText": "模态框"
-			}
-		},
-		{
-			"path": "pages/list/list",
-			"style": {
-				"navigationBarTitleText": "列表"
-			}
-		},
-		{
-			"path": "pages/empty/empty",
-			"style": {
-				"navigationBarTitleText": "空状态"
-			}
-		},
-		{
-			"path": "pages/load-more/load-more",
-			"style": {
-				"navigationBarTitleText": "加载更多"
-			}
-		},
-		{
-			"path": "pages/pull-refresh/pull-refresh",
-			"style": {
-				"navigationBarTitleText": "下拉刷新"
-			}
-		},
-		{
-			"path": "pages/list-scroll/list-scroll",
-			"style": {
-				"navigationBarTitleText": "标准列表页"
-			}
-		}
-	],
+		]
+	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app x",

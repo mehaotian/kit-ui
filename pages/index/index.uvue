@@ -65,20 +65,20 @@
 			icon: 'ball-pen-fill',
 			color: 'linear-gradient(to top right, #667eea, #764ba2)',
 			count: 8,
-			path: '/pages/category/basic',
+			path: '/pages-demo/category/basic',
 			components: [
-				{ name: 'Config | 配置', path: '/pages/config/config', status: 'completed' },
-				{ name: 'Color | 颜色', path: '/pages/color/color', status: 'completed' },
-				{ name: 'Button | 按钮', path: '/pages/button/button', status: 'completed' },
-				{ name: 'Button|按钮-样式覆盖', path: '/pages/button-style/button-style', status: 'completed' },
-				{ name: 'Icon | 图标', path: '/pages/icon/icon', status: 'completed' },
-				{ name: 'IconList | 图标完整示例', path: '/pages/icon-list/icon-list', status: 'completed' },
-				{ name: 'Text | 文本', path: '/pages/text/text', status: 'completed' },
-				{ name: 'Image | 图片', path: '/pages/image/image', status: 'completed' },
-				{ name: 'Layout ｜ 布局', path: '/pages/layout/layout', status: 'completed' },
-				// { name: 'Space | 间隔', path: '/pages/space/space', status: 'planning' },
-				{ name: 'Tag ｜ 标签', path: '/pages/tag/tag', status: 'completed' },
-				{ name: 'Badge ｜ 徽标', path: '/pages/badge/badge', status: 'completed' },
+				{ name: 'Config | 配置', path: '/pages-demo/config/config', status: 'completed' },
+				{ name: 'Color | 颜色', path: '/pages-demo/color/color', status: 'completed' },
+				{ name: 'Button | 按钮', path: '/pages-demo/button/button', status: 'completed' },
+				{ name: 'Button|按钮-样式覆盖', path: '/pages-demo/button-style/button-style', status: 'completed' },
+				{ name: 'Icon | 图标', path: '/pages-demo/icon/icon', status: 'completed' },
+				{ name: 'IconList | 图标完整示例', path: '/pages-demo/icon-list/icon-list', status: 'completed' },
+				{ name: 'Text | 文本', path: '/pages-demo/text/text', status: 'completed' },
+				{ name: 'Image | 图片', path: '/pages-demo/image/image', status: 'completed' },
+				{ name: 'Layout ｜ 布局', path: '/pages-demo/layout/layout', status: 'completed' },
+				// { name: 'Space | 间隔', path: '/pages-demo/space/space', status: 'planning' },
+				{ name: 'Tag ｜ 标签', path: '/pages-demo/tag/tag', status: 'completed' },
+				{ name: 'Badge ｜ 徽标', path: '/pages-demo/badge/badge', status: 'completed' },
 
 			]
 		},
@@ -88,22 +88,22 @@
 			icon: 'layout-3-line',
 			color: 'linear-gradient(to top right, #43e97b, #38f9d7)',
 			count: 10,
-			path: '/pages/category/display',
+			path: '/pages-demo/category/display',
 			components: [
-				{ name: 'Divider | 分割线', path: '/pages/divider/divider', status: 'completed' },
-				{ name: 'Cell | 单元格', path: '/pages/cell/cell', status: 'completed' },
-				{ name: 'Card｜卡片', path: '/pages/card/card', status: 'completed' },
-				{ name: 'Grid | 宫格', path: '/pages/grid/grid', status: 'completed' },
-				{ name: 'Avatar | 头像', path: '/pages/avatar/avatar', status: 'completed' },
-				{ name: 'Collapse | 折叠面板', path: '/pages/collapse/collapse', status: 'completed' },
-				{ name: 'Timeline | 时间轴', path: '/pages/timeline/timeline', status: 'completed' },
-				{ name: 'List｜列表', path: '/pages/list/list', status: 'completed' },
-				{ name: 'Empty｜空状态', path: '/pages/empty/empty', status: 'completed' },
-				{ name: 'LoadMore｜加载更多', path: '/pages/load-more/load-more', status: 'completed' },
-				{ name: 'PullRefresh｜下拉刷新', path: '/pages/pull-refresh/pull-refresh', status: 'planning' },
-				{ name: 'Swiper | 轮播图', path: '/pages/swiper/swiper', status: 'planning' },
-				{ name: 'Calendar｜日历', path: '/pages/calendar/calendar', status: 'planning' },
-				{ name: 'Table｜表格', path: '/pages/table/table', status: 'planning' },
+				{ name: 'Divider | 分割线', path: '/pages-demo/divider/divider', status: 'completed' },
+				{ name: 'Cell | 单元格', path: '/pages-demo/cell/cell', status: 'completed' },
+				{ name: 'Card｜卡片', path: '/pages-demo/card/card', status: 'completed' },
+				{ name: 'Grid | 宫格', path: '/pages-demo/grid/grid', status: 'completed' },
+				{ name: 'Avatar | 头像', path: '/pages-demo/avatar/avatar', status: 'completed' },
+				{ name: 'Collapse | 折叠面板', path: '/pages-demo/collapse/collapse', status: 'completed' },
+				{ name: 'Timeline | 时间轴', path: '/pages-demo/timeline/timeline', status: 'completed' },
+				{ name: 'List｜列表', path: '/pages-demo/list/list', status: 'completed' },
+				{ name: 'Empty｜空状态', path: '/pages-demo/empty/empty', status: 'completed' },
+				{ name: 'LoadMore｜加载更多', path: '/pages-demo/load-more/load-more', status: 'completed' },
+				{ name: 'PullRefresh｜下拉刷新', path: '/pages-demo/pull-refresh/pull-refresh', status: 'planning' },
+				{ name: 'Swiper | 轮播图', path: '/pages-demo/swiper/swiper', status: 'planning' },
+				{ name: 'Calendar｜日历', path: '/pages-demo/calendar/calendar', status: 'planning' },
+				{ name: 'Table｜表格', path: '/pages-demo/table/table', status: 'planning' },
 			]
 		},
 		{
@@ -112,21 +112,21 @@
 			icon: 'calendar-todo-line',
 			color: 'linear-gradient(to top right, #fa709a, #fee140)',
 			count: 12,
-			path: '/pages/category/form',
+			path: '/pages-demo/category/form',
 			components: [
-				{ name: 'Input', path: '/pages/input/input', status: 'completed' },
-				{ name: 'Textarea', path: '/pages/textarea/textarea', status: 'completed' },
-				{ name: 'Radio', path: '/pages/radio/radio', status: 'completed' },
-				{ name: 'Checkbox', path: '/pages/checkbox/checkbox', status: 'completed' },
-				{ name: 'Switch', path: '/pages/switch/switch', status: 'completed' },
-				{ name: 'Form', path: '/pages/form/form', status: 'completed' },
-				{ name: 'Form|表单-校验增强', path: '/pages/form-validate/form-validate', status: 'completed' },
-				{ name: 'Slider', path: '/pages/slider/slider', status: 'planning' },
-				{ name: 'Rate', path: '/pages/rate/rate', status: 'planning' },
-				{ name: 'Picker', path: '/pages/picker/picker', status: 'planning' },
-				{ name: 'DatePicker', path: '/pages/datepicker/datepicker', status: 'planning' },
-				{ name: 'Upload', path: '/pages/upload/upload', status: 'planning' },
-				{ name: 'Search', path: '/pages/search/search', status: 'planning' }
+				{ name: 'Input', path: '/pages-demo/input/input', status: 'completed' },
+				{ name: 'Textarea', path: '/pages-demo/textarea/textarea', status: 'completed' },
+				{ name: 'Radio', path: '/pages-demo/radio/radio', status: 'completed' },
+				{ name: 'Checkbox', path: '/pages-demo/checkbox/checkbox', status: 'completed' },
+				{ name: 'Switch', path: '/pages-demo/switch/switch', status: 'completed' },
+				{ name: 'Form', path: '/pages-demo/form/form', status: 'completed' },
+				{ name: 'Form|表单-校验增强', path: '/pages-demo/form-validate/form-validate', status: 'completed' },
+				{ name: 'Slider', path: '/pages-demo/slider/slider', status: 'planning' },
+				{ name: 'Rate', path: '/pages-demo/rate/rate', status: 'planning' },
+				{ name: 'Picker', path: '/pages-demo/picker/picker', status: 'planning' },
+				{ name: 'DatePicker', path: '/pages-demo/datepicker/datepicker', status: 'planning' },
+				{ name: 'Upload', path: '/pages-demo/upload/upload', status: 'planning' },
+				{ name: 'Search', path: '/pages-demo/search/search', status: 'planning' }
 			]
 		},
 		{
@@ -135,17 +135,17 @@
 			icon: 'mail-line',
 			color: 'linear-gradient(to top right, #a8edea, #fed6e3)',
 			count: 8,
-			path: '/pages/category/feedback',
+			path: '/pages-demo/category/feedback',
 			components: [
-				{ name: 'Popup', path: '/pages/popup/popup', status: 'completed' },
-				{ name: 'Toast', path: '/pages/toast/toast', status: 'completed' },
-				{ name: 'Modal', path: '/pages/modal/modal', status: 'completed' },
-				{ name: 'ActionSheet', path: '/pages/actionsheet/actionsheet', status: 'planning' },
-				{ name: 'Loading', path: '/pages/loading/loading', status: 'completed' },
-				{ name: 'Progress', path: '/pages/progress/progress', status: 'planning' },
-				{ name: 'Alert', path: '/pages/alert/alert', status: 'planning' },
-				{ name: 'Notification', path: '/pages/notification/notification', status: 'planning' },
-				{ name: 'Skeleton', path: '/pages/skeleton/skeleton', status: 'planning' }
+				{ name: 'Popup', path: '/pages-demo/popup/popup', status: 'completed' },
+				{ name: 'Toast', path: '/pages-demo/toast/toast', status: 'completed' },
+				{ name: 'Modal', path: '/pages-demo/modal/modal', status: 'completed' },
+				{ name: 'ActionSheet', path: '/pages-demo/actionsheet/actionsheet', status: 'planning' },
+				{ name: 'Loading', path: '/pages-demo/loading/loading', status: 'completed' },
+				{ name: 'Progress', path: '/pages-demo/progress/progress', status: 'planning' },
+				{ name: 'Alert', path: '/pages-demo/alert/alert', status: 'planning' },
+				{ name: 'Notification', path: '/pages-demo/notification/notification', status: 'planning' },
+				{ name: 'Skeleton', path: '/pages-demo/skeleton/skeleton', status: 'planning' }
 			]
 		},
 		{
@@ -154,14 +154,14 @@
 			icon: 'car-line',
 			color: 'linear-gradient(to top right, #4facfe, #00f2fe)',
 			count: 6,
-			path: '/pages/category/navigation',
+			path: '/pages-demo/category/navigation',
 			components: [
-				{ name: 'Navbar', path: '/pages/navbar/navbar', status: 'planning' },
-				{ name: 'Tabbar', path: '/pages/tabbar/tabbar', status: 'planning' },
-				{ name: 'Tabs', path: '/pages/tabs/tabs', status: 'planning' },
-				{ name: 'Sidebar', path: '/pages/sidebar/sidebar', status: 'planning' },
-				{ name: 'Steps', path: '/pages/steps/steps', status: 'planning' },
-				{ name: 'Breadcrumb', path: '/pages/breadcrumb/breadcrumb', status: 'planning' }
+				{ name: 'Navbar', path: '/pages-demo/navbar/navbar', status: 'planning' },
+				{ name: 'Tabbar', path: '/pages-demo/tabbar/tabbar', status: 'planning' },
+				{ name: 'Tabs', path: '/pages-demo/tabs/tabs', status: 'planning' },
+				{ name: 'Sidebar', path: '/pages-demo/sidebar/sidebar', status: 'planning' },
+				{ name: 'Steps', path: '/pages-demo/steps/steps', status: 'planning' },
+				{ name: 'Breadcrumb', path: '/pages-demo/breadcrumb/breadcrumb', status: 'planning' }
 			]
 		},
 
@@ -171,15 +171,15 @@
 			icon: 'code-box-line',
 			color: 'linear-gradient(to top right, #ff9a9e, #fecfef)',
 			count: 8,
-			path: '/pages/category/business',
+			path: '/pages-demo/category/business',
 			components: [
-				{ name: 'GoodsCard', path: '/pages/goodscard/goodscard', status: 'planning' },
-				{ name: 'UserCard', path: '/pages/usercard/usercard', status: 'planning' },
-				{ name: 'OrderCard', path: '/pages/ordercard/ordercard', status: 'planning' },
-				{ name: 'AddressPicker', path: '/pages/addresspicker/addresspicker', status: 'planning' },
-				{ name: 'ShareSheet', path: '/pages/sharesheet/sharesheet', status: 'planning' },
-				{ name: 'PayKeyboard', path: '/pages/paykeyboard/paykeyboard', status: 'planning' },
-				{ name: 'Coupon', path: '/pages/coupon/coupon', status: 'planning' }
+				{ name: 'GoodsCard', path: '/pages-demo/goodscard/goodscard', status: 'planning' },
+				{ name: 'UserCard', path: '/pages-demo/usercard/usercard', status: 'planning' },
+				{ name: 'OrderCard', path: '/pages-demo/ordercard/ordercard', status: 'planning' },
+				{ name: 'AddressPicker', path: '/pages-demo/addresspicker/addresspicker', status: 'planning' },
+				{ name: 'ShareSheet', path: '/pages-demo/sharesheet/sharesheet', status: 'planning' },
+				{ name: 'PayKeyboard', path: '/pages-demo/paykeyboard/paykeyboard', status: 'planning' },
+				{ name: 'Coupon', path: '/pages-demo/coupon/coupon', status: 'planning' }
 			]
 		}
 	])
@@ -187,7 +187,7 @@
 
 	const goToConfig = () => {
 		uni.navigateTo({
-			url: '/pages/config/config'
+			url: '/pages-demo/config/config'
 		});
 	}
 	// 导航到新主题按钮演示页面
