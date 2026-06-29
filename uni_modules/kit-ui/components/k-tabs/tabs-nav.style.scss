@@ -28,6 +28,7 @@
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0;
 	height: var(--k-tabs-nav-height);
 	padding-left: var(--k-tabs-item-padding-x);
 	padding-right: var(--k-tabs-item-padding-x);

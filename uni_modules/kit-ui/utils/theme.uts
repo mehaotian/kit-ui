@@ -15,6 +15,17 @@ export function resolvePrimaryColor(themeConfig : UTSJSONObject, fallback : stri
 }
 
 /**
+ * 从 kit-theme 配置解析主要文字色
+ */
+export function resolvePrimaryTextColor(themeConfig : UTSJSONObject, fallback : string = '#1f2937') : string {
+	const color = themeConfig['textColorPrimary']
+	if (color != null && `${color}` != '') {
+		return `${color}`
+	}
+	return fallback
+}
+
+/**
  * 从 kit-theme 配置解析次要文字色
  */
 export function resolveSecondaryColor(themeConfig : UTSJSONObject, fallback : string = '#969799') : string {

@@ -1,0 +1,166 @@
+import type { NavbarLayout } from './navbar.type.uts'
+
+export type { NavbarLayout } from './navbar.type.uts'
+
+/** 导航栏内容区默认高度（不含状态栏） */
+export const NAVBAR_CONTENT_HEIGHT = 44
+
+/** 左右默认水平内边距 */
+export const NAVBAR_HORIZONTAL_INSET = 16
+
+/** 默认左右操作区宽度（非页面级 fixed 顶栏） */
+export const NAVBAR_SIDE_WIDTH = 64
+
+/** 小程序：右侧内容与胶囊之间的额外间距 */
+export const MP_CAPSULE_CONTENT_GAP = 10
+
+/** 返回箭头与 leftText 间距 */
+export const NAVBAR_LEFT_ICON_GAP = 4
+
+/** 左侧返回箭头占位宽度（含可点区域） */
+export const NAVBAR_ARROW_TOUCH_WIDTH = 44
+
+/** 侧栏文字宽度粗估（单字符 px，用于标题安全区） */
+export const NAVBAR_TEXT_CHAR_WIDTH = 14
+
+/** 自定义 slot 侧栏最小占位 */
+export const NAVBAR_SLOT_MIN_WIDTH = 56
+
+/**
+ * 默认布局（挂载测量前 SSR/首帧占位）
+ */
+export function createDefaultNavbarLayout() : NavbarLayout {
+	return {
+		statusBarHeight: 0,
+		contentHeight: NAVBAR_CONTENT_HEIGHT,
+		totalHeight: NAVBAR_CONTENT_HEIGHT,
+		rightInset: NAVBAR_HORIZONTAL_INSET,
+		leftInset: NAVBAR_HORIZONTAL_INSET,
+		sideWidth: NAVBAR_SIDE_WIDTH
+	} as NavbarLayout
+}
+
+/**
+ * 读取顶部安全区高度
+ */
+function readStatusBarHeight() : number {
+	let top = 0
+	const info = uni.getWindowInfo()
+	if (info.safeAreaInsets != null && info.safeAreaInsets!.top > 0) {
+		top = info.safeAreaInsets!.top
+	} else if (info.statusBarHeight != null && info.statusBarHeight > 0) {
+		top = info.statusBarHeight
+	} else if (info.safeArea != null && info.safeArea!.top > 0) {
+		top = info.safeArea!.top
+	}
+	return top
+}
+
+/**
+ * 是否按页面级 custom 顶栏布局（fixed + 安全区）
+ */
+export function isPageNavLayout(fixed : boolean, safeAreaInsetTop : boolean) : boolean {
+	return fixed && safeAreaInsetTop
+}
+
+/**
+ * 读取导航栏布局
+ * @param fixed 是否 fixed 顶栏
+ * @param safeAreaInsetTop 是否预留状态栏（仅 fixed 时生效）
+ */
+export function readNavbarLayout(fixed : boolean, safeAreaInsetTop : boolean) : NavbarLayout {
+	let statusBarHeight = 0
+	let contentHeight = NAVBAR_CONTENT_HEIGHT
+	let rightInset = NAVBAR_HORIZONTAL_INSET
+	let leftInset = NAVBAR_HORIZONTAL_INSET
+	let sideWidth = NAVBAR_SIDE_WIDTH
+
+	const usePageNav = isPageNavLayout(fixed, safeAreaInsetTop)
+
+	if (usePageNav) {
+		statusBarHeight = readStatusBarHeight()
+
+		// #ifdef MP-WEIXIN
+		const info = uni.getWindowInfo()
+		const menuButton = uni.getMenuButtonBoundingClientRect()
+		if (menuButton.width > 0 && menuButton.height > 0) {
+			const gap = menuButton.top - statusBarHeight
+			if (gap < 0) {
+				contentHeight = menuButton.height + gap * 2
+			} else {
+				contentHeight = gap * 2 + menuButton.height
+			}
+			if (contentHeight < NAVBAR_CONTENT_HEIGHT) {
+				contentHeight = NAVBAR_CONTENT_HEIGHT
+			}
+			const capsuleReserve = info.windowWidth - menuButton.left + MP_CAPSULE_CONTENT_GAP
+			if (capsuleReserve > rightInset) {
+				rightInset = capsuleReserve
+			}
+			sideWidth = rightInset
+		}
+		// #endif
+	}
+
+	const totalHeight = statusBarHeight + contentHeight
+	return {
+		statusBarHeight: statusBarHeight,
+		contentHeight: contentHeight,
+		totalHeight: totalHeight,
+		rightInset: rightInset,
+		leftInset: leftInset,
+		sideWidth: sideWidth
+	} as NavbarLayout
+}
+
+/**
+ * 计算占位块 / 组件总高度（px）
+ */
+export function resolveNavbarHeight(layout : NavbarLayout, usePageNav : boolean) : number {
+	if (usePageNav) {
+		return layout.totalHeight
+	}
+	return layout.contentHeight
+}
+
+/**
+ * 计算占位块高度
+ */
+export function resolveNavbarPlaceholderHeight(layout : NavbarLayout, usePageNav : boolean) : number {
+	return resolveNavbarHeight(layout, usePageNav)
+}
+
+/**
+ * 估算标题左右安全区（取较大值对称 padding，保证 text-align:center 相对屏幕居中且不与操作区重叠）
+ */
+export function estimateTitleSafePadding(
+	leftInset : number,
+	rightInset : number,
+	leftArrow : boolean,
+	leftText : string,
+	rightText : string,
+	hasLeftSlot : boolean,
+	hasRightSlot : boolean
+) : number {
+	let leftNeed = leftInset
+	if (hasLeftSlot) {
+		leftNeed = leftNeed + NAVBAR_SLOT_MIN_WIDTH
+	} else {
+		if (leftArrow) {
+			leftNeed = leftNeed + NAVBAR_ARROW_TOUCH_WIDTH
+		}
+		if (leftText != '') {
+			leftNeed = leftNeed + leftText.length * NAVBAR_TEXT_CHAR_WIDTH + NAVBAR_LEFT_ICON_GAP
+		}
+	}
+
+	let rightNeed = rightInset
+	if (hasRightSlot) {
+		rightNeed = rightNeed + NAVBAR_SLOT_MIN_WIDTH
+	} else if (rightText != '') {
+		rightNeed = rightNeed + rightText.length * NAVBAR_TEXT_CHAR_WIDTH
+	}
+
+	const safe = leftNeed > rightNeed ? leftNeed : rightNeed
+	return safe < NAVBAR_SIDE_WIDTH ? NAVBAR_SIDE_WIDTH : safe
+}

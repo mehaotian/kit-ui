@@ -217,6 +217,20 @@
 				"style": {
 					"navigationBarTitleText": "标签页"
 				}
+			},
+			{
+				"path": "navbar/navbar",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "导航栏"
+				}
+			},
+			{
+				"path": "navbar-composite/navbar-composite",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "导航组合"
+				}
 			}
 		]
 	}],

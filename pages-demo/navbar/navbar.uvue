@@ -1,0 +1,282 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page page--custom-nav">
+			<k-navbar
+				title="导航栏"
+				fixed
+				placeholder
+				right-text="说明"
+				@click-right="handleShowTip"
+			/>
+
+			<view class="page-desc-wrap">
+				<text class="page-desc">本页已关闭系统导航栏，使用 k-navbar 固定顶栏；微信端自动避让右侧胶囊</text>
+			</view>
+
+			<!-- 基础用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">基础用法</text>
+					<text class="page-desc">标题 + 返回箭头，下方为文档流内嵌示例</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-navbar title="页面标题" :fixed="false" :left-arrow="true" />
+				</view>
+			</view>
+
+			<!-- 左右文字 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">左右文字</text>
+					<text class="page-desc">leftText / rightText；可与 leftArrow 同时显示</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">箭头 + 返回</text>
+						<k-navbar
+							title="订单详情"
+							:fixed="false"
+							left-text="返回"
+							:left-arrow="true"
+							:auto-back="false"
+							@click-left="handleDemoBack"
+						/>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">仅文字</text>
+						<k-navbar
+							title="订单详情"
+							:fixed="false"
+							left-text="返回"
+							:left-arrow="false"
+							right-text="分享"
+							:auto-back="false"
+							@click-left="handleDemoBack"
+							@click-right="handleDemoShare"
+						/>
+					</view>
+				</view>
+			</view>
+
+			<!-- 长标题省略 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">长标题省略</text>
+					<text class="page-desc">标题超出中间区域时单行省略，左右操作区宽度不变</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">箭头 + 右侧操作</text>
+						<k-navbar
+							:title="demoLongTitle"
+							:fixed="false"
+							:left-arrow="true"
+							right-text="分享"
+						/>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">左右文字夹长标题</text>
+						<k-navbar
+							:title="demoLongTitle"
+							:fixed="false"
+							left-text="返回"
+							:left-arrow="true"
+							right-text="更多"
+							:auto-back="false"
+						/>
+					</view>
+				</view>
+			</view>
+
+			<!-- 自定义 slot -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自定义 slot</text>
+					<text class="page-desc">title / right 插槽</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-navbar :fixed="false" :left-arrow="true">
+						<template #title>
+							<view class="demo-navbar-title">
+								<k-icon name="store-2-line" size="18" color="#6366f1" />
+								<text class="demo-navbar-title__text">Kit Shop</text>
+							</view>
+						</template>
+						<template #right>
+							<view class="demo-navbar-actions">
+								<k-icon name="search-line" size="20" color="#374151" />
+								<k-icon name="settings-line" size="20" color="#374151" custom-style="margin-left: 16px;" />
+							</view>
+						</template>
+					</k-navbar>
+				</view>
+			</view>
+
+			<!-- 无返回 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">无返回箭头</text>
+					<text class="page-desc">leftArrow=false，适用于首页级页面</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-navbar title="首页" :fixed="false" :left-arrow="false" right-text="设置" />
+				</view>
+			</view>
+
+			<!-- 边框与背景 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边框与背景</text>
+					<text class="page-desc">border / background</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">无边框</text>
+						<k-navbar title="无边框" :fixed="false" :border="false" />
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">自定义背景</text>
+						<k-navbar
+							title="品牌色顶栏"
+							:fixed="false"
+							background="#6366f1"
+							title-color="#ffffff"
+							left-color="#ffffff"
+							right-color="#ffffff"
+							right-text="完成"
+							:left-arrow="true"
+						/>
+					</view>
+				</view>
+			</view>
+
+			<!-- 禁用 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">禁用</text>
+					<text class="page-desc">disabled 时左右操作不可点</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-navbar
+						title="不可操作"
+						:fixed="false"
+						left-text="返回"
+						right-text="完成"
+						disabled
+					/>
+				</view>
+			</view>
+
+			<!-- 组合示例入口 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">组合示例</text>
+					<text class="page-desc">navbar + tabs + list</text>
+				</view>
+				<view class="demo-content demo-block">
+					<k-cell
+						title="导航组合页"
+						label="固定顶栏 + 标签页 + 列表演示"
+						is-link
+						url="/pages-demo/navbar-composite/navbar-composite"
+					/>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	/** 演示用超长标题，用于验证中间区域单行省略 */
+	const demoLongTitle = '2024年度全国大学生创新创业大赛总决赛成绩公示详情说明'
+
+	/**
+	 * 点击顶栏右侧「说明」
+	 */
+	const handleShowTip = () => {
+		uni.showToast({
+			title: '演示页使用 navigationStyle: custom',
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 内嵌示例：自定义返回
+	 */
+	const handleDemoBack = () => {
+		uni.showToast({
+			title: '自定义返回逻辑',
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 内嵌示例：分享
+	 */
+	const handleDemoShare = () => {
+		uni.showToast({
+			title: '点击分享',
+			icon: 'none'
+		})
+	}
+</script>
+
+<style lang="scss">
+	.page--custom-nav {
+		padding-top: 0;
+	}
+
+	.page-desc-wrap {
+		padding: 12px 16px 0;
+	}
+
+	.demo-block {
+		overflow: hidden;
+		border-radius: 8px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: var(--k-border-color-light, #f3f4f6);
+	}
+
+	.demo-column {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.demo-stack-item {
+		margin-bottom: 12px;
+	}
+
+	.demo-stack-item:last-child {
+		margin-bottom: 0;
+	}
+
+	.demo-case-label {
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+		margin-bottom: 8px;
+	}
+
+	.demo-navbar-title {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.demo-navbar-title__text {
+		font-size: 16px;
+		font-weight: bold;
+		color: var(--k-text-color-primary, #111827);
+		margin-left: 6px;
+	}
+
+	.demo-navbar-actions {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+</style>

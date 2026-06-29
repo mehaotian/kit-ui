@@ -3,7 +3,7 @@
 	import { buildThemeStyle, resolvePrimaryColor, resolveSecondaryColor } from '../../utils/theme.uts'
 	import type { TabPaneRecord, TabPanePatch } from './tab.type.uts'
 	import { resolvePaneKey, resolvePaneName, resolveActiveColorBg, resolveThemeBgColor } from './tab-utils.uts'
-	import { queryScrollNavWidth, queryIndicatorMetrics } from './tabs-layout.uts'
+	import { queryNavLayoutMetrics, queryIndicatorMetrics } from './tabs-layout.uts'
 	import {
 		buildNavWrapCssVars,
 		buildIndicatorClassList,
@@ -108,6 +108,11 @@
 	/** 导航 DOM 在 k-tabs-nav-body 内，查询范围由子组件注册（any 兼容父子 VueComponent） */
 	let navQueryScope : any = tabsInstance
 	const isTabsAlive = ref<boolean>(true)
+	/** 内容宽度超出容器时自动切换为 scrollable（徽标等导致项变宽） */
+	const forceScrollByOverflow = ref<boolean>(false)
+
+	/** 溢出检测滞后阈值（px），避免临界宽度来回切换 scrollable */
+	const OVERFLOW_SCROLL_HYSTERESIS = 8
 
 	/**
 	 * 是否横向滚动导航
@@ -118,6 +123,9 @@
 		}
 		if (props.stretch) {
 			return false
+		}
+		if (forceScrollByOverflow.value) {
+			return true
 		}
 		return panes.value.length > props.swipeThreshold
 	})
@@ -405,22 +413,81 @@
 	}
 
 	/**
-	 * 执行一次滚动导航宽度测量
+	 * 执行一次滚动导航宽度测量，并在内容溢出时自动启用 scrollable
+	 * @param onSettled 测量稳定（含 scrollable 模式切换后的二次测量）后回调
 	 */
-	function measureScrollNavWidth() {
-		if (!isScrollable.value || !isTabsAlive.value) {
+	function measureScrollNavWidth(onSettled : (() => void) | null = null) {
+		if (!isTabsAlive.value) {
+			return
+		}
+		if (props.stretch) {
+			if (forceScrollByOverflow.value) {
+				forceScrollByOverflow.value = false
+			}
+			if (navScrollWidth.value != 0) {
+				navScrollWidth.value = 0
+			}
+			if (onSettled != null) {
+				onSettled()
+			}
 			return
 		}
 		const list = panes.value
 		if (list.length == 0) {
-			navScrollWidth.value = 0
+			if (forceScrollByOverflow.value) {
+				forceScrollByOverflow.value = false
+			}
+			if (navScrollWidth.value != 0) {
+				navScrollWidth.value = 0
+			}
+			if (onSettled != null) {
+				onSettled()
+			}
 			return
 		}
-		queryScrollNavWidth(navQueryScope, list, (totalW : number) => {
-			if (!isTabsAlive.value) {
+		queryNavLayoutMetrics(navQueryScope, navElId, list, (metrics) => {
+			if (!isTabsAlive.value || metrics == null) {
 				return
 			}
-			navScrollWidth.value = totalW
+			const totalW = metrics.totalWidth
+			const navW = metrics.navWidth
+			const countOverflow = list.length > props.swipeThreshold
+			const widthOverflow = totalW > navW + 1 && navW > 0
+			const prevForce = forceScrollByOverflow.value
+			let nextForce = prevForce
+
+			if (!props.scrollable && !countOverflow) {
+				if (!prevForce && widthOverflow) {
+					nextForce = true
+				} else if (prevForce && totalW <= navW - OVERFLOW_SCROLL_HYSTERESIS) {
+					nextForce = false
+				}
+			} else {
+				nextForce = false
+			}
+
+			if (nextForce != prevForce) {
+				forceScrollByOverflow.value = nextForce
+			}
+
+			const needScroll = props.scrollable || countOverflow || forceScrollByOverflow.value
+			const nextScrollWidth = needScroll && totalW > 0 ? totalW : 0
+			if (navScrollWidth.value != nextScrollWidth) {
+				navScrollWidth.value = nextScrollWidth
+			}
+
+			if (nextForce != prevForce) {
+				nextTick(() => {
+					if (!isTabsAlive.value) {
+						return
+					}
+					measureScrollNavWidth(onSettled)
+				})
+				return
+			}
+			if (onSettled != null) {
+				onSettled()
+			}
 		})
 	}
 
@@ -482,12 +549,10 @@
 				return
 			}
 			ensureValidActiveValue()
-			measureScrollNavWidth()
-			nextTick(() => {
+			measureScrollNavWidth(() => {
 				if (!isTabsAlive.value) {
 					return
 				}
-				measureScrollNavWidth()
 				syncIndicator()
 				syncScrollIntoView()
 			})

@@ -128,11 +128,13 @@ k-tab-pane             面板注册与 lazy 挂载
 
 ## 注意事项
 
-1. `value-type="name"` 时请勿混用未设 `name` 的 pane 与字符串 name 随意切换逻辑。
-2. 非法 `v-model`（无对应 pane）会在布局同步时自动回退到首项。
-3. 面板内嵌 `scroll-view` 时需注意与页面滚动协调，见演示页注释。
-4. `beforeChange` 一期仅支持同步返回 `false`，不支持 Promise。
-5. 修改 `manifest.json` / 分包后微信端须 **全量重新编译**，勿仅热更新。
+1. **少量 Tab（如 3～5 个）且带徽标**：优先使用 `stretch` 均分宽度；不要对少量 Tab 强行 `scrollable`。
+2. 未设 `stretch` 时，若 Tab 总宽超出容器（徽标/长标题），组件会 **自动切换为 scrollable**。
+3. `value-type="name"` 时请勿混用未设 `name` 的 pane 与字符串 name 随意切换逻辑。
+4. 非法 `v-model`（无对应 pane）会在布局同步时自动回退到首项。
+5. 面板内嵌 `scroll-view` 时需注意与页面滚动协调，见演示页注释。
+6. `beforeChange` 一期仅支持同步返回 `false`，不支持 Promise。
+7. 修改 `manifest.json` / 分包后微信端须 **全量重新编译**，勿仅热更新。
 
 ## 相关文档
 

@@ -1,0 +1,548 @@
+<template>
+	<view class="k-navbar" :class="rootClass" :style="rootStyle">
+		<view v-if="showPlaceholder" class="k-navbar__placeholder" :style="placeholderStyle"></view>
+		<view
+			class="k-navbar__wrap"
+			:class="{
+				'k-navbar__wrap--fixed': props.fixed,
+				'k-navbar__wrap--border': props.border,
+				'k-navbar__wrap--disabled': props.disabled
+			}"
+			:style="wrapStyle"
+		>
+			<view v-if="usePageNavLayout" class="k-navbar__status" :style="statusBarStyle"></view>
+			<view
+				class="k-navbar__bar"
+				:class="{ 'k-navbar__bar--screen-title': useScreenTitleCenter }"
+				:style="barStyle"
+			>
+				<view
+					class="k-navbar__side k-navbar__left"
+					:style="leftSideStyle"
+					hover-class="k-navbar__side--hover"
+					@click="handleClickLeft"
+				>
+					<slot name="left">
+						<view v-if="hasLeftContent" class="k-navbar__left-inner">
+							<k-icon
+								v-if="props.leftArrow"
+								name="arrow-left-s-line"
+								size="20"
+								:color="resolvedLeftColor"
+							/>
+							<text
+								v-if="props.leftText != ''"
+								class="k-navbar__text k-navbar__text--left"
+								:style="leftTextStyle"
+							>{{ props.leftText }}</text>
+						</view>
+					</slot>
+				</view>
+				<view
+					class="k-navbar__title"
+					:class="{ 'k-navbar__title--screen-center': useScreenTitleCenter }"
+				>
+					<slot name="title">
+						<text
+							class="k-navbar__title-text"
+							:style="titleTextStyle"
+							overflow="ellipsis"
+							:max-lines="1"
+						>{{ props.title }}</text>
+					</slot>
+				</view>
+				<view
+					class="k-navbar__side k-navbar__right"
+					:style="rightSideStyle"
+					hover-class="k-navbar__side--hover"
+					@click="handleClickRight"
+				>
+					<slot name="right">
+						<text
+							v-if="props.rightText != ''"
+							class="k-navbar__text k-navbar__text--right"
+							:style="rightTextStyle"
+						>{{ props.rightText }}</text>
+					</slot>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
+	import {
+		buildThemeStyle,
+		resolvePrimaryTextColor
+	} from '../../utils/theme.uts'
+	import {
+		readNavbarLayout,
+		resolveNavbarPlaceholderHeight,
+		resolveNavbarHeight,
+		isPageNavLayout,
+		createDefaultNavbarLayout,
+		estimateTitleSafePadding
+	} from './navbar-utils.uts'
+
+	defineOptions({
+		name: 'KNavbar'
+	})
+
+	type KNavbarProps = {
+		title ?: string
+		leftText ?: string
+		leftArrow ?: boolean
+		rightText ?: string
+		fixed ?: boolean
+		placeholder ?: boolean
+		safeAreaInsetTop ?: boolean
+		border ?: boolean
+		disabled ?: boolean
+		zIndex ?: number
+		background ?: string
+		titleColor ?: string
+		leftColor ?: string
+		rightColor ?: string
+		autoBack ?: boolean
+		delta ?: number
+		customStyle ?: string
+		customClass ?: string
+	}
+
+	const props = withDefaults(defineProps<KNavbarProps>(), {
+		title: '',
+		leftText: '',
+		leftArrow: true,
+		rightText: '',
+		fixed: false,
+		placeholder: false,
+		safeAreaInsetTop: true,
+		border: true,
+		disabled: false,
+		zIndex: 100,
+		background: '',
+		titleColor: '',
+		leftColor: '',
+		rightColor: '',
+		autoBack: true,
+		delta: 1,
+		customStyle: '',
+		customClass: ''
+	})
+
+	const emit = defineEmits<{
+		'click-left' : []
+		'click-right' : []
+	}>()
+
+	const slots = useSlots()
+	const themeConfig = inject('kit-theme', {})
+
+	const layout = ref(createDefaultNavbarLayout())
+
+	/** 窗口尺寸变化回调（WEB/MP 使用，APP 不编译） */
+	// #ifndef APP
+	let windowResizeHandler : ((res : any) => void) | null = null
+	// #endif
+
+	/**
+	 * 同步布局：仅 fixed + safeAreaInsetTop 时启用状态栏与胶囊避让
+	 */
+	const syncNavbarLayout = () => {
+		layout.value = readNavbarLayout(props.fixed, props.safeAreaInsetTop)
+	}
+
+	/**
+	 * 注册窗口尺寸变化监听（APP 端不支持 uni.onWindowResize，见 kit-ui-uts-app-compat）
+	 */
+	const bindWindowResize = () => {
+		// #ifndef APP
+		if (windowResizeHandler != null) {
+			return
+		}
+		windowResizeHandler = (_res : any) => {
+			syncNavbarLayout()
+		}
+		uni.onWindowResize(windowResizeHandler)
+		// #endif
+	}
+
+	/**
+	 * 注销窗口尺寸变化监听
+	 */
+	const unbindWindowResize = () => {
+		// #ifndef APP
+		if (windowResizeHandler != null) {
+			uni.offWindowResize(windowResizeHandler)
+			windowResizeHandler = null
+		}
+		// #endif
+	}
+
+	onMounted(() => {
+		syncNavbarLayout()
+		bindWindowResize()
+	})
+
+	onUnmounted(() => {
+		unbindWindowResize()
+	})
+
+	watch((): string => `${props.fixed}|${props.safeAreaInsetTop}`, () => {
+		syncNavbarLayout()
+	})
+
+	/** 页面级 custom 顶栏（fixed 且需要安全区） */
+	const usePageNavLayout = computed(() : boolean => {
+		return isPageNavLayout(props.fixed, props.safeAreaInsetTop)
+	})
+
+	/** 页面级顶栏：标题相对整屏居中（原生 navbar 行为） */
+	const useScreenTitleCenter = computed(() : boolean => {
+		return usePageNavLayout.value
+	})
+
+	const hasLeftSlot = computed(() : boolean => {
+		return slots['left'] != null
+	})
+
+	const hasRightSlot = computed(() : boolean => {
+		return slots['right'] != null
+	})
+
+	/** 标题对称安全区，避免与左右操作重叠且保持屏幕居中 */
+	const titleSafePaddingPx = computed(() : number => {
+		if (!useScreenTitleCenter.value) {
+			return 0
+		}
+		return estimateTitleSafePadding(
+			layout.value.leftInset,
+			layout.value.rightInset,
+			props.leftArrow,
+			props.leftText,
+			props.rightText,
+			hasLeftSlot.value,
+			hasRightSlot.value
+		)
+	})
+
+	const hasLeftContent = computed(() : boolean => {
+		if (hasLeftSlot.value) {
+			return true
+		}
+		return props.leftArrow || props.leftText != ''
+	})
+
+	const hasRightContent = computed(() : boolean => {
+		if (hasRightSlot.value) {
+			return true
+		}
+		return props.rightText != ''
+	})
+
+	const showPlaceholder = computed(() : boolean => {
+		return props.fixed && props.placeholder
+	})
+
+	const resolvedLeftColor = computed(() : string => {
+		if (props.leftColor != '') {
+			return props.leftColor
+		}
+		return resolvePrimaryTextColor(themeConfig)
+	})
+
+	const resolvedTitleColor = computed(() : string => {
+		if (props.titleColor != '') {
+			return props.titleColor
+		}
+		return resolvePrimaryTextColor(themeConfig)
+	})
+
+	const resolvedRightColor = computed(() : string => {
+		if (props.rightColor != '') {
+			return props.rightColor
+		}
+		return resolvePrimaryTextColor(themeConfig)
+	})
+
+	const rootClass = computed(() : string => {
+		const classes : string[] = []
+		if (props.disabled) {
+			classes.push('k-navbar--disabled')
+		}
+		if (props.customClass != '') {
+			classes.push(props.customClass)
+		}
+		return classes.join(' ')
+	})
+
+	const rootStyle = computed(() : string => {
+		const parts : string[] = [
+			buildThemeStyle(themeConfig, props.customStyle),
+			`--k-navbar-content-height: ${layout.value.contentHeight}px`,
+			`--k-navbar-side-width: ${layout.value.sideWidth}px`,
+			`--k-navbar-title-safe-padding: ${titleSafePaddingPx.value}px`
+		]
+		return parts.join('; ')
+	})
+
+	const wrapStyle = computed(() : string => {
+		const styles : string[] = []
+		if (props.background != '') {
+			styles.push(`background-color: ${props.background}`)
+		}
+		if (props.fixed) {
+			styles.push(`z-index: ${props.zIndex}`)
+		}
+		return styles.join('; ')
+	})
+
+	const statusBarStyle = computed(() : string => {
+		return `height: ${layout.value.statusBarHeight}px`
+	})
+
+	const barStyle = computed(() : string => {
+		const styles : string[] = []
+		styles.push(`height: ${layout.value.contentHeight}px`)
+		if (!useScreenTitleCenter.value) {
+			styles.push(`padding-right: ${layout.value.rightInset}px`)
+			styles.push(`padding-left: ${layout.value.leftInset}px`)
+		}
+		return styles.join('; ')
+	})
+
+	const leftSideStyle = computed(() : string => {
+		if (useScreenTitleCenter.value) {
+			return `padding-left: ${layout.value.leftInset}px`
+		}
+		return `width: ${layout.value.sideWidth}px`
+	})
+
+	const rightSideStyle = computed(() : string => {
+		if (useScreenTitleCenter.value) {
+			return `padding-right: ${layout.value.rightInset}px`
+		}
+		return `width: ${layout.value.sideWidth}px`
+	})
+
+	const placeholderStyle = computed(() : string => {
+		const height = resolveNavbarPlaceholderHeight(layout.value, usePageNavLayout.value)
+		return `height: ${height}px`
+	})
+
+	const navbarHeightPx = computed(() : number => {
+		return resolveNavbarHeight(layout.value, usePageNavLayout.value)
+	})
+
+	const leftTextStyle = computed(() : string => {
+		if (props.leftColor != '') {
+			return `color: ${resolvedLeftColor.value}`
+		}
+		return ''
+	})
+
+	const titleTextStyle = computed(() : string => {
+		if (props.titleColor != '') {
+			return `color: ${resolvedTitleColor.value}`
+		}
+		return ''
+	})
+
+	const rightTextStyle = computed(() : string => {
+		if (props.rightColor != '') {
+			return `color: ${resolvedRightColor.value}`
+		}
+		return ''
+	})
+
+	/**
+	 * 尝试返回上一页（无历史栈时不调用）
+	 */
+	const tryNavigateBack = () => {
+		const pages = getCurrentPages()
+		if (pages.length > 1) {
+			uni.navigateBack({
+				delta: props.delta
+			})
+		}
+	}
+
+	/**
+	 * 点击左侧：派发事件并按需返回上一页
+	 */
+	const handleClickLeft = () => {
+		if (props.disabled || !hasLeftContent.value) {
+			return
+		}
+		emit('click-left')
+		if (props.autoBack) {
+			tryNavigateBack()
+		}
+	}
+
+	/**
+	 * 点击右侧操作区
+	 */
+	const handleClickRight = () => {
+		if (props.disabled || !hasRightContent.value) {
+			return
+		}
+		emit('click-right')
+	}
+
+	defineExpose({
+		getNavbarHeight: () : number => navbarHeightPx.value,
+		syncLayout: syncNavbarLayout
+	})
+</script>
+
+<style lang="scss">
+	.k-navbar {
+		width: 100%;
+		--k-navbar-content-height: 44px;
+		--k-navbar-side-width: 64px;
+		--k-navbar-title-color: var(--k-text-color-primary, #1f2937);
+		--k-navbar-left-color: var(--k-text-color-primary, #1f2937);
+		--k-navbar-right-color: var(--k-text-color-primary, #1f2937);
+	}
+
+	.k-navbar--disabled {
+		opacity: 0.6;
+	}
+
+	.k-navbar__placeholder {
+		width: 100%;
+	}
+
+	.k-navbar__wrap {
+		width: 100%;
+		background-color: var(--k-bg-color, #ffffff);
+	}
+
+	.k-navbar__wrap--fixed {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+	}
+
+	.k-navbar__wrap--border {
+		border-bottom-width: 1px;
+		border-bottom-style: solid;
+		border-bottom-color: var(--k-border-color-light, #f3f4f6);
+	}
+
+	.k-navbar__status {
+		width: 100%;
+	}
+
+	.k-navbar__bar {
+		position: relative;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		box-sizing: border-box;
+		width: 100%;
+	}
+
+	.k-navbar__side {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+		height: 100%;
+		overflow: hidden;
+	}
+
+	.k-navbar__side--hover {
+		opacity: 0.72;
+	}
+
+	.k-navbar__left {
+		justify-content: flex-start;
+	}
+
+	.k-navbar__right {
+		justify-content: flex-end;
+	}
+
+	.k-navbar__left-inner {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.k-navbar__left-inner .k-navbar__text--left {
+		margin-left: 4px;
+	}
+
+	.k-navbar__bar--screen-title .k-navbar__side {
+		position: relative;
+		z-index: 2;
+		width: auto;
+	}
+
+	.k-navbar__bar--screen-title .k-navbar__right {
+		margin-left: auto;
+	}
+
+	.k-navbar__title--screen-center {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		flex: none;
+		min-width: 0;
+		z-index: 1;
+		pointer-events: none;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.k-navbar__title--screen-center .k-navbar__title-text {
+		box-sizing: border-box;
+		padding-left: var(--k-navbar-title-safe-padding, 64px);
+		padding-right: var(--k-navbar-title-safe-padding, 64px);
+	}
+
+	.k-navbar__title {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		overflow: hidden;
+	}
+
+	.k-navbar__title-text {
+		font-size: 16px;
+		font-weight: bold;
+		width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		text-align: center;
+		color: var(--k-navbar-title-color);
+		/* #ifdef APP */
+		lines: 1;
+		/* #endif */
+	}
+
+	.k-navbar__text {
+		font-size: 14px;
+	}
+
+	.k-navbar__text--left {
+		color: var(--k-navbar-left-color);
+	}
+
+	.k-navbar__text--right {
+		color: var(--k-navbar-right-color);
+	}
+</style>

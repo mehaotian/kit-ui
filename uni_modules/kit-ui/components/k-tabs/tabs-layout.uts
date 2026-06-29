@@ -1,6 +1,14 @@
 import type { TabPaneRecord } from './tab.type.uts'
 import { calcLineIndicator, calcTrackIndicator, parseCssPx, resolveLineIndicatorWidth } from './tab-indicator.uts'
 
+/** Tab 项默认间距（与 tabs-nav.style.scss margin-right 一致） */
+export const TAB_ITEM_GAP = 12
+
+export type NavLayoutMetrics = {
+	totalWidth : number
+	navWidth : number
+}
+
 /**
  * 根据节点测量结果计算指示器/轨道 metrics
  */
@@ -48,6 +56,55 @@ export function calcIndicatorMetricsFromNodes(
 }
 
 /**
+ * 测量导航内容总宽度与容器宽度（用于滚动宽度与溢出检测）
+ */
+export function queryNavLayoutMetrics(
+	scope : any,
+	navElId : string,
+	panes : TabPaneRecord[],
+	onComplete : (metrics : NavLayoutMetrics | null) => void
+) : void {
+	if (panes.length == 0) {
+		onComplete({
+			totalWidth: 0,
+			navWidth: 0
+		} as NavLayoutMetrics)
+		return
+	}
+	const query = uni.createSelectorQuery().in(scope)
+	query.select(`#${navElId}`).boundingClientRect()
+	for (let i = 0; i < panes.length; i++) {
+		query.select(`#k-tabs-item-${panes[i].elId}`).boundingClientRect()
+	}
+	query.exec((ret) => {
+		const nodes = ret as NodeInfo[]
+		if (nodes.length < panes.length + 1) {
+			onComplete(null)
+			return
+		}
+		const navNode = nodes[0]
+		let totalW = 0
+		for (let i = 0; i < panes.length; i++) {
+			const node = nodes[i + 1]
+			if (node != null && node.width != null) {
+				totalW += node.width as number
+			}
+		}
+		if (panes.length > 1) {
+			totalW += TAB_ITEM_GAP * (panes.length - 1)
+		}
+		let navW = 0
+		if (navNode != null && navNode.width != null) {
+			navW = navNode.width as number
+		}
+		onComplete({
+			totalWidth: totalW,
+			navWidth: navW
+		} as NavLayoutMetrics)
+	})
+}
+
+/**
  * 测量滚动导航内容区总宽度
  */
 export function queryScrollNavWidth(
@@ -66,6 +123,7 @@ export function queryScrollNavWidth(
 	query.exec((ret) => {
 		const nodes = ret as NodeInfo[]
 		if (nodes.length < panes.length) {
+			onComplete(0)
 			return
 		}
 		let totalW = 0
@@ -74,6 +132,9 @@ export function queryScrollNavWidth(
 			if (node != null && node.width != null) {
 				totalW += node.width as number
 			}
+		}
+		if (panes.length > 1) {
+			totalW += TAB_ITEM_GAP * (panes.length - 1)
 		}
 		onComplete(totalW)
 	})

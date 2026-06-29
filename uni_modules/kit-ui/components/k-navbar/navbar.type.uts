@@ -1,0 +1,8 @@
+export type NavbarLayout = {
+	statusBarHeight : number
+	contentHeight : number
+	totalHeight : number
+	rightInset : number
+	leftInset : number
+	sideWidth : number
+}

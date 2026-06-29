@@ -156,7 +156,7 @@
 			count: 6,
 			path: '/pages-demo/category/navigation',
 			components: [
-				{ name: 'Navbar', path: '/pages-demo/navbar/navbar', status: 'planning' },
+				{ name: 'Navbar', path: '/pages-demo/navbar/navbar', status: 'completed' },
 				{ name: 'Tabbar', path: '/pages-demo/tabbar/tabbar', status: 'planning' },
 				{ name: 'Tabs', path: '/pages-demo/tabs/tabs', status: 'completed' },
 				{ name: 'Sidebar', path: '/pages-demo/sidebar/sidebar', status: 'planning' },
