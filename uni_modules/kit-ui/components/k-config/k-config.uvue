@@ -7,7 +7,7 @@
 
 	const props = defineProps<{
 		// 主题配置对象
-		theme ?: UTSJSONObject | null,
+		theme ?: UTSJSONObject,
 		// 主题模式: light, dark
 		mode ?: 'light' | 'dark'
 	}>()

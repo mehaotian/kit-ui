@@ -28,7 +28,7 @@
 		confirmDisabled ?: boolean
 		confirmLoading ?: boolean
 		closeOnClickOverlay ?: boolean
-		beforeClose ?: BeforeCloseHandler | null
+		beforeClose ?: BeforeCloseHandler
 		duration ?: number
 		overlayOpacity ?: number
 		width ?: string

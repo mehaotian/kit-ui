@@ -79,7 +79,7 @@
 		loadMoreLoadingText ?: string
 		loadMoreErrorText ?: string
 		loadMoreIdleText ?: string
-		loadMoreTexts ?: ListLoadMoreTexts | null
+		loadMoreTexts ?: ListLoadMoreTexts
 		/** 分页完成后是否隐藏「没有更多了」，默认 false 即保留展示 */
 		hideFinishedFooter ?: boolean
 		customStyle ?: string

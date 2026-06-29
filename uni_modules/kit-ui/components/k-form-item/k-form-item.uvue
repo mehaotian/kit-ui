@@ -35,7 +35,7 @@
 		label ?: string
 		prop ?: string
 		required ?: boolean
-		rules ?: any | null
+		rules ?: any
 		labelWidth ?: string
 		contentAlign ?: string
 		validateStatus ?: string
