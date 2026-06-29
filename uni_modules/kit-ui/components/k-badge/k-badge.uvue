@@ -322,25 +322,22 @@
 <style lang="scss">
 	.k-badge-wrapper {
 		overflow: visible;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
 
-		&:not(.k-badge-wrapper--relative) {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			flex-shrink: 0;
-		}
-
-		&--relative {
-			position: relative;
-			display: inline-flex;
-			flex-direction: row;
-			align-items: flex-start;
-			justify-content: flex-start;
-			flex-shrink: 0;
-			flex-grow: 0;
-			align-self: flex-start;
-			overflow: visible;
-		}
+	.k-badge-wrapper--relative {
+		position: relative;
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: flex-start;
+		flex-shrink: 0;
+		flex-grow: 0;
+		align-self: flex-start;
+		overflow: visible;
 	}
 
 	.k-badge {

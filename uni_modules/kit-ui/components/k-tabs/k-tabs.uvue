@@ -293,9 +293,26 @@
 	})
 
 	/**
+	 * 判断某项是否激活
+	 */
+	function isPaneActive(index : number) : boolean {
+		return activeIndex.value == index
+	}
+
+	/**
+	 * 判断某项是否禁用
+	 */
+	function isPaneDisabled(pane : TabPaneRecord) : boolean {
+		if (props.disabled) {
+			return true
+		}
+		return pane.disabled
+	}
+
+	/**
 	 * 解析 Tab 项图标颜色
 	 */
-	const resolveItemIconColor = (index : number) : string => {
+	function resolveItemIconColor(index : number) : string {
 		if (isPaneActive(index)) {
 			return resolvedActiveColor.value
 		}
@@ -323,26 +340,176 @@
 	})
 
 	/**
-	 * 判断某项是否激活
+	 * APP 端将指示器样式写入 DOM
 	 */
-	const isPaneActive = (index : number) : boolean => {
-		return activeIndex.value == index
+	function applyIndicatorToDom(styleObj : UTSJSONObject) {
+		// #ifdef APP
+		if (indicatorRef.value == null) {
+			return
+		}
+		const el = indicatorRef.value!.style!
+		const duration = props.animated ? `${props.duration}ms` : '0ms'
+		el.setProperty('position', 'absolute')
+		el.setProperty('left', `${styleObj['left']}`)
+		el.setProperty('width', `${styleObj['width']}`)
+		el.setProperty('height', `${styleObj['height']}`)
+		el.setProperty('top', `${styleObj['top']}`)
+		el.setProperty('opacity', `${styleObj['opacity']}`)
+		el.setProperty('transition-property', 'left, width, height, top')
+		el.setProperty('transition-duration', duration)
+		el.setProperty('transition-timing-function', 'ease')
+		if (props.type == 'line') {
+			el.setProperty('background-color', resolvedActiveColor.value)
+			el.setProperty('border-radius', '999px')
+		} else if (props.type == 'card') {
+			el.setProperty('background-color', '#ffffff')
+			el.setProperty('border-radius', '8px')
+		} else if (props.type == 'button') {
+			el.setProperty('background-color', resolvedButtonIndicatorBg.value)
+			el.setProperty('border-radius', '999px')
+		}
+		// #endif
 	}
 
 	/**
-	 * 判断某项是否禁用
+	 * 执行一次滚动导航宽度测量
 	 */
-	const isPaneDisabled = (pane : TabPaneRecord) : boolean => {
-		if (props.disabled) {
-			return true
+	function measureScrollNavWidth() {
+		if (!isScrollable.value || !isTabsAlive.value) {
+			return
 		}
-		return pane.disabled
+		const list = panes.value
+		if (list.length == 0) {
+			navScrollWidth.value = 0
+			return
+		}
+		const query = uni.createSelectorQuery().in(tabsInstance)
+		for (let i = 0; i < list.length; i++) {
+			query.select(`#k-tabs-item-${list[i].elId}`).boundingClientRect()
+		}
+		query.exec((ret) => {
+			if (!isTabsAlive.value) {
+				return
+			}
+			const nodes = ret as NodeInfo[]
+			if (nodes.length < list.length) {
+				return
+			}
+			let totalW = 0
+			for (let i = 0; i < list.length; i++) {
+				const node = nodes[i]
+				if (node != null && node.width != null) {
+					totalW += node.width as number
+				}
+			}
+			navScrollWidth.value = totalW
+		})
+	}
+
+	/**
+	 * 测量滚动导航总宽度，供 scroll-view 识别横向溢出
+	 */
+	function syncScrollNavWidth() {
+		if (!isScrollable.value || !isTabsAlive.value) {
+			navScrollWidth.value = 0
+			return
+		}
+		const list = panes.value
+		if (list.length == 0) {
+			navScrollWidth.value = 0
+			return
+		}
+		nextTick(() => {
+			measureScrollNavWidth()
+			nextTick(() => {
+				measureScrollNavWidth()
+			})
+		})
+	}
+
+	/**
+	 * 测量并同步指示器 / 轨道位置
+	 */
+	function syncIndicator() {
+		if (!showIndicator.value || !isTabsAlive.value) {
+			return
+		}
+		const list = panes.value
+		const idx = activeIndex.value
+		if (list.length == 0 || idx < 0 || idx >= list.length) {
+			return
+		}
+		const pane = list[idx]
+		nextTick(() => {
+			if (!isTabsAlive.value) {
+				return
+			}
+			const query = uni.createSelectorQuery().in(tabsInstance)
+			query.select(`#${navElId}`).boundingClientRect()
+			query.select(`#k-tabs-item-${pane.elId}`).boundingClientRect()
+			query.select(`#k-tabs-inner-${pane.elId}`).boundingClientRect()
+			query.exec((ret) => {
+				if (!isTabsAlive.value) {
+					return
+				}
+				const nodes = ret as NodeInfo[]
+				if (nodes.length < 3) {
+					return
+				}
+				const navNode = nodes[0]
+				const itemNode = nodes[1]
+				const innerNode = nodes[2]
+				if (navNode == null || itemNode == null) {
+					return
+				}
+				if (navNode.left == null || navNode.top == null || navNode.height == null) {
+					return
+				}
+				if (itemNode.left == null || itemNode.top == null || itemNode.width == null || itemNode.height == null) {
+					return
+				}
+				let metrics : UTSJSONObject = {}
+				if (props.type == 'line') {
+					let anchorLeft = itemNode.left as number
+					let anchorWidth = itemNode.width as number
+					if (innerNode != null && innerNode.left != null && innerNode.width != null) {
+						anchorLeft = innerNode.left as number
+						anchorWidth = innerNode.width as number
+					}
+					const lineH = parseCssPx(props.lineHeight, 2)
+					const lineW = resolveLineIndicatorWidth(
+						anchorWidth,
+						props.lineWidth,
+						props.size
+					)
+					metrics = calcLineIndicator(
+						anchorLeft,
+						anchorWidth,
+						navNode.left as number,
+						lineW,
+						lineH,
+						navNode.height as number
+					)
+				} else {
+					metrics = calcTrackIndicator(
+						itemNode.left as number,
+						itemNode.width as number,
+						itemNode.height as number,
+						itemNode.top as number,
+						navNode.left as number,
+						navNode.top as number
+					)
+				}
+				indicatorInline.value = metrics
+				applyIndicatorToDom(metrics)
+			})
+		})
 	}
 
 	/**
 	 * 重新分配面板索引
 	 */
-	const reindexPanes = () => {
+	function reindexPanes() {
 		const list = panes.value
 		for (let i = 0; i < list.length; i++) {
 			list[i].index = i
@@ -456,173 +623,6 @@
 			}
 		}
 		applySelect(index)
-	}
-
-	/**
-	 * APP 端将指示器样式写入 DOM
-	 */
-	const applyIndicatorToDom = (styleObj : UTSJSONObject) => {
-		// #ifdef APP
-		if (indicatorRef.value == null) {
-			return
-		}
-		const el = indicatorRef.value!.style!
-		const duration = props.animated ? `${props.duration}ms` : '0ms'
-		el.setProperty('position', 'absolute')
-		el.setProperty('left', `${styleObj['left']}`)
-		el.setProperty('width', `${styleObj['width']}`)
-		el.setProperty('height', `${styleObj['height']}`)
-		el.setProperty('top', `${styleObj['top']}`)
-		el.setProperty('opacity', `${styleObj['opacity']}`)
-		el.setProperty('transition-property', 'left, width, height, top')
-		el.setProperty('transition-duration', duration)
-		el.setProperty('transition-timing-function', 'ease')
-		if (props.type == 'line') {
-			el.setProperty('background-color', resolvedActiveColor.value)
-			el.setProperty('border-radius', '999px')
-		} else if (props.type == 'card') {
-			el.setProperty('background-color', '#ffffff')
-			el.setProperty('border-radius', '8px')
-		} else if (props.type == 'button') {
-			el.setProperty('background-color', resolvedButtonIndicatorBg.value)
-			el.setProperty('border-radius', '999px')
-		}
-		// #endif
-	}
-
-	/**
-	 * 测量滚动导航总宽度，供 scroll-view 识别横向溢出
-	 */
-	const syncScrollNavWidth = () => {
-		if (!isScrollable.value || !isTabsAlive.value) {
-			navScrollWidth.value = 0
-			return
-		}
-		const list = panes.value
-		if (list.length == 0) {
-			navScrollWidth.value = 0
-			return
-		}
-		nextTick(() => {
-			measureScrollNavWidth()
-			nextTick(() => {
-				measureScrollNavWidth()
-			})
-		})
-	}
-
-	/**
-	 * 执行一次滚动导航宽度测量
-	 */
-	const measureScrollNavWidth = () => {
-		if (!isScrollable.value || !isTabsAlive.value) {
-			return
-		}
-		const list = panes.value
-		if (list.length == 0) {
-			navScrollWidth.value = 0
-			return
-		}
-		const query = uni.createSelectorQuery().in(tabsInstance)
-		for (let i = 0; i < list.length; i++) {
-			query.select(`#k-tabs-item-${list[i].elId}`).boundingClientRect()
-		}
-		query.exec((ret) => {
-			if (!isTabsAlive.value) {
-				return
-			}
-			const nodes = ret as NodeInfo[]
-			if (nodes.length < list.length) {
-				return
-			}
-			let totalW = 0
-			for (let i = 0; i < list.length; i++) {
-				const node = nodes[i]
-				if (node != null && node.width != null) {
-					totalW += node.width as number
-				}
-			}
-			navScrollWidth.value = totalW
-		})
-	}
-
-	/**
-	 * 测量并同步指示器 / 轨道位置
-	 */
-	const syncIndicator = () => {
-		if (!showIndicator.value || !isTabsAlive.value) {
-			return
-		}
-		const list = panes.value
-		const idx = activeIndex.value
-		if (list.length == 0 || idx < 0 || idx >= list.length) {
-			return
-		}
-		const pane = list[idx]
-		nextTick(() => {
-			if (!isTabsAlive.value) {
-				return
-			}
-			const query = uni.createSelectorQuery().in(tabsInstance)
-			query.select(`#${navElId}`).boundingClientRect()
-			query.select(`#k-tabs-item-${pane.elId}`).boundingClientRect()
-			query.select(`#k-tabs-inner-${pane.elId}`).boundingClientRect()
-			query.exec((ret) => {
-				if (!isTabsAlive.value) {
-					return
-				}
-				const nodes = ret as NodeInfo[]
-				if (nodes.length < 3) {
-					return
-				}
-				const navNode = nodes[0]
-				const itemNode = nodes[1]
-				const innerNode = nodes[2]
-				if (navNode == null || itemNode == null) {
-					return
-				}
-				if (navNode.left == null || navNode.top == null || navNode.height == null) {
-					return
-				}
-				if (itemNode.left == null || itemNode.top == null || itemNode.width == null || itemNode.height == null) {
-					return
-				}
-				let metrics : UTSJSONObject = {}
-				if (props.type == 'line') {
-					let anchorLeft = itemNode.left as number
-					let anchorWidth = itemNode.width as number
-					if (innerNode != null && innerNode.left != null && innerNode.width != null) {
-						anchorLeft = innerNode.left as number
-						anchorWidth = innerNode.width as number
-					}
-					const lineH = parseCssPx(props.lineHeight, 2)
-					const lineW = resolveLineIndicatorWidth(
-						anchorWidth,
-						props.lineWidth,
-						props.size
-					)
-					metrics = calcLineIndicator(
-						anchorLeft,
-						anchorWidth,
-						navNode.left as number,
-						lineW,
-						lineH,
-						navNode.height as number
-					)
-				} else {
-					metrics = calcTrackIndicator(
-						itemNode.left as number,
-						itemNode.width as number,
-						itemNode.height as number,
-						itemNode.top as number,
-						navNode.left as number,
-						navNode.top as number
-					)
-				}
-				indicatorInline.value = metrics
-				applyIndicatorToDom(metrics)
-			})
-		})
 	}
 
 	watch(activeIndex, () => {
@@ -835,11 +835,11 @@
 		min-height: var(--k-tabs-nav-height);
 	}
 
-	.k-tabs--stretch:not(.k-tabs--scrollable) .k-tabs__nav-wrap {
+	.k-tabs--stretch .k-tabs__nav-wrap {
 		width: 100%;
 	}
 
-	.k-tabs--stretch:not(.k-tabs--scrollable) .k-tabs__item {
+	.k-tabs--stretch .k-tabs__item {
 		flex: 1;
 	}
 
