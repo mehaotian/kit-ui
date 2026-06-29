@@ -40,18 +40,18 @@ export function resolveLineIndicatorWidth(
 }
 
 /**
- * 计算 line 型指示器位置（固定宽度，居中于文字/内容区）
+ * 计算 line 型指示器位置（固定宽度，居中于锚点内容区）
  */
 export function calcLineIndicator(
-	itemLeft : number,
-	itemWidth : number,
+	anchorLeft : number,
+	anchorWidth : number,
 	navLeft : number,
 	lineWidth : number,
 	lineHeight : number,
 	navHeight : number
 ) : UTSJSONObject {
 	const width = lineWidth
-	const left = itemLeft - navLeft + (itemWidth - width) / 2
+	const left = anchorLeft - navLeft + (anchorWidth - width) / 2
 	const top = navHeight - lineHeight
 	return {
 		left: `${left}px`,

@@ -1,0 +1,12 @@
+/**
+ * k-tabs / k-tab-pane provide / inject 键名
+ */
+export const K_TABS_ACTIVE_VALUE = 'k-tabs-active-value'
+export const K_TABS_VALUE_TYPE = 'k-tabs-value-type'
+export const K_TABS_LAZY = 'k-tabs-lazy'
+export const K_TABS_DESTROY_ON_HIDE = 'k-tabs-destroy-on-hide'
+export const K_TABS_REGISTER_PANE = 'k-tabs-register-pane'
+export const K_TABS_UNREGISTER_PANE = 'k-tabs-unregister-pane'
+export const K_TABS_UPDATE_PANE = 'k-tabs-update-pane'
+export const K_TABS_REGISTER_INDICATOR = 'k-tabs-register-indicator'
+export const K_TABS_REGISTER_NAV_QUERY_SCOPE = 'k-tabs-register-nav-query-scope'

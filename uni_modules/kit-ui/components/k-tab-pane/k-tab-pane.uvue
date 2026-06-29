@@ -1,6 +1,15 @@
 <script setup lang="uts">
 	import { inject, computed, ref, watch, onMounted, onBeforeUnmount, type Ref } from 'vue'
 	import type { TabPanePatch } from '../k-tabs/tab.type.uts'
+	import {
+		K_TABS_ACTIVE_VALUE,
+		K_TABS_VALUE_TYPE,
+		K_TABS_LAZY,
+		K_TABS_DESTROY_ON_HIDE,
+		K_TABS_REGISTER_PANE,
+		K_TABS_UNREGISTER_PANE,
+		K_TABS_UPDATE_PANE
+	} from '../k-tabs/tab.constants.uts'
 
 	defineOptions({
 		name: 'KTabPane'
@@ -31,13 +40,13 @@
 	const paneIndex = ref<number>(0)
 	const hasVisited = ref<boolean>(false)
 
-	const activeValue = inject<Ref<string | number> | null>('k-tabs-active-value', null)
-	const valueType = inject<Ref<string> | null>('k-tabs-value-type', null)
-	const tabsLazy = inject<Ref<boolean> | null>('k-tabs-lazy', null)
-	const tabsDestroyOnHide = inject<Ref<boolean> | null>('k-tabs-destroy-on-hide', null)
-	const registerPane = inject<((elId : string) => number) | null>('k-tabs-register-pane', null)
-	const unregisterPane = inject<((elId : string) => void) | null>('k-tabs-unregister-pane', null)
-	const updatePaneMeta = inject<((elId : string, patch : TabPanePatch) => void) | null>('k-tabs-update-pane', null)
+	const activeValue = inject<Ref<string | number> | null>(K_TABS_ACTIVE_VALUE, null)
+	const valueType = inject<Ref<string> | null>(K_TABS_VALUE_TYPE, null)
+	const tabsLazy = inject<Ref<boolean> | null>(K_TABS_LAZY, null)
+	const tabsDestroyOnHide = inject<Ref<boolean> | null>(K_TABS_DESTROY_ON_HIDE, null)
+	const registerPane = inject<((elId : string) => number) | null>(K_TABS_REGISTER_PANE, null)
+	const unregisterPane = inject<((elId : string) => void) | null>(K_TABS_UNREGISTER_PANE, null)
+	const updatePaneMeta = inject<((elId : string, patch : TabPanePatch) => void) | null>(K_TABS_UPDATE_PANE, null)
 
 	/**
 	 * 解析面板在 v-model 中使用的 name（空 name 回退为注册索引）

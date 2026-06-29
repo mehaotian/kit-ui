@@ -21,15 +21,15 @@
 | valueType | string | `name` | `name` 或 `index` |
 | type | string | `line` | `line` / `card` / `button` |
 | size | string | `medium` | `small` / `medium` / `large` |
-| animated | boolean | `true` | 指示器过渡（stretch + line 时） |
+| animated | boolean | `true` | 指示器 / 轨道过渡动画 |
 | stretch | boolean | `false` | 均分宽度（非 scrollable 时） |
 | scrollable | boolean | `false` | 横向滚动导航 |
 | lazy | boolean | `false` | 懒渲染未访问面板 |
 | destroyOnHide | boolean | `false` | 隐藏时销毁内容（配合 lazy） |
 | swipeThreshold | number | `5` | 超过数量自动 scrollable |
 | duration | number | `300` | 动画时长 ms |
-| lineWidth | string | `20px` | line 指示器宽度 |
-| lineHeight | string | `3px` | line 指示器高度 |
+| lineWidth | string | `''` | line 指示器宽度；空则按内容区宽度自适应（约 94%） |
+| lineHeight | string | `2px` | line 指示器高度 |
 | activeColor | string | `''` | 激活色 |
 | inactiveColor | string | `''` | 未激活文字色 |
 | background | string | `''` | 导航区背景 |
@@ -89,10 +89,12 @@
 | `--k-tabs-active-color` | 激活色 |
 | `--k-tabs-inactive-color` | 未激活文字色 |
 | `--k-tabs-nav-bg` | 导航背景 |
+| `--k-tabs-button-indicator-bg` | button 型轨道浅底色 |
 | `--k-tabs-content-padding` | 内容区 padding |
 
 ## 注意事项
 
 1. `value-type="name"` 时请勿混用未设 `name` 的 pane 与字符串 name 随意切换逻辑。
-2. 面板内嵌 `scroll-view` 时需注意与页面滚动协调，见演示页注释。
-3. APP 端 stretch + line 指示器走 `setProperty` 动画。
+2. 非法 `v-model`（无对应 pane）会在布局同步时自动回退到首项。
+3. 面板内嵌 `scroll-view` 时需注意与页面滚动协调，见演示页注释。
+4. APP 端 line / card / button 指示器动画走 `setProperty`；`k-tabs-nav-body` 通过 inject 向父级注册指示器 DOM ref。

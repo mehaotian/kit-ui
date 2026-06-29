@@ -1,9 +1,20 @@
 <script setup lang="uts">
-	import { inject, computed, ref, watch, onMounted, onUnmounted, nextTick, getCurrentInstance, type ComputedRef } from 'vue'
+	import { inject, computed, ref, watch, onMounted, onUnmounted, nextTick, getCurrentInstance, provide, type Ref } from 'vue'
 	import { buildThemeStyle, resolvePrimaryColor, resolveSecondaryColor } from '../../utils/theme.uts'
 	import type { TabPaneRecord, TabPanePatch } from './tab.type.uts'
-	import { resolvePaneKey, resolvePaneName, resolveActiveColorBg } from './tab-utils.uts'
+	import { resolvePaneKey, resolvePaneName, resolveActiveColorBg, resolveThemeBgColor } from './tab-utils.uts'
 	import { calcLineIndicator, calcTrackIndicator, parseCssPx, resolveLineIndicatorWidth } from './tab-indicator.uts'
+	import {
+		K_TABS_ACTIVE_VALUE,
+		K_TABS_VALUE_TYPE,
+		K_TABS_LAZY,
+		K_TABS_DESTROY_ON_HIDE,
+		K_TABS_REGISTER_PANE,
+		K_TABS_UNREGISTER_PANE,
+		K_TABS_UPDATE_PANE,
+		K_TABS_REGISTER_INDICATOR,
+		K_TABS_REGISTER_NAV_QUERY_SCOPE
+	} from './tab.constants.uts'
 
 	defineOptions({
 		name: 'KTabs'
@@ -76,23 +87,20 @@
 		top: '0px',
 		opacity: '0'
 	})
+	/** 指示器是否已完成首次定位（首次禁用过渡，避免从左上角飞入） */
+	const indicatorLayoutReady = ref<boolean>(false)
 
-	// #ifdef APP
-	const indicatorRef = ref<UniElement | null>(null)
-	// #endif
+	/** APP 端：由 k-tabs-nav-body 注册的指示器 DOM ref */
+	let childIndicatorRef : Ref<UniElement | null> | null = null
+
+	/** 导航布局测量是否已排队（合并多次 register 触发的测量） */
+	let navLayoutPending = false
 
 	/** createSelectorQuery 须在 setup 同步阶段捕获实例；nextTick / exec 内 getCurrentInstance() 为 null */
 	const tabsInstance = getCurrentInstance()!.proxy!
+	/** 导航 DOM 在 k-tabs-nav-body 内，查询范围由子组件注册（any 兼容父子 VueComponent） */
+	let navQueryScope : any = tabsInstance
 	const isTabsAlive = ref<boolean>(true)
-
-	/**
-	 * 同步外部 v-model
-	 */
-	watch((): string | number => props.modelValue, (val : string | number) => {
-		if (innerValue.value != val) {
-			innerValue.value = val
-		}
-	})
 
 	/**
 	 * 是否横向滚动导航
@@ -129,7 +137,7 @@
 	/**
 	 * 注入给子面板：直接提供 ref，避免小程序 inject ComputedRef 响应失效
 	 */
-	provide('k-tabs-active-value', innerValue)
+	provide(K_TABS_ACTIVE_VALUE, innerValue)
 
 	const valueTypeRef = ref<string>(props.valueType)
 	const lazyRef = ref<boolean>(props.lazy)
@@ -147,9 +155,27 @@
 		destroyOnHideRef.value = val
 	})
 
-	provide('k-tabs-value-type', valueTypeRef)
-	provide('k-tabs-lazy', lazyRef)
-	provide('k-tabs-destroy-on-hide', destroyOnHideRef)
+	provide(K_TABS_VALUE_TYPE, valueTypeRef)
+	provide(K_TABS_LAZY, lazyRef)
+	provide(K_TABS_DESTROY_ON_HIDE, destroyOnHideRef)
+
+	/**
+	 * 接收子组件指示器 ref（APP setProperty，避免组件 ref 自定义类型强转）
+	 */
+	const registerIndicatorRef = (sourceRef : Ref<UniElement | null>) => {
+		childIndicatorRef = sourceRef
+	}
+
+	provide(K_TABS_REGISTER_INDICATOR, registerIndicatorRef)
+
+	/**
+	 * 接收子组件实例作为导航区 selectorQuery 作用域
+	 */
+	const registerNavQueryScope = (scope : any) => {
+		navQueryScope = scope
+	}
+
+	provide(K_TABS_REGISTER_NAV_QUERY_SCOPE, registerNavQueryScope)
 
 	/**
 	 * 根节点主题样式
@@ -173,31 +199,30 @@
 	})
 
 	/**
-	 * 滚动导航内容区宽度样式
+	 * 滚动导航激活项 scroll-into-view（小程序需先清空再赋值以触发滚动）
 	 */
-	const navWrapScrollStyle = computed((): UTSJSONObject => {
-		if (!isScrollable.value || navScrollWidth.value <= 0) {
-			return {}
-		}
-		return {
-			width: `${navScrollWidth.value}px`
-		}
-	})
+	const scrollIntoViewActive = ref<string>('')
 
 	/**
-	 * 滚动导航激活项 scroll-into-view 目标 id
+	 * 同步横向滚动位置，使激活 Tab 滚入可视区
 	 */
-	const scrollIntoViewId = computed((): string => {
+	function syncScrollIntoView() {
 		if (!isScrollable.value) {
-			return ''
+			scrollIntoViewActive.value = ''
+			return
 		}
 		const list = panes.value
 		const idx = activeIndex.value
 		if (idx < 0 || idx >= list.length) {
-			return ''
+			scrollIntoViewActive.value = ''
+			return
 		}
-		return `k-tabs-item-${list[idx].elId}`
-	})
+		const targetId = `k-tabs-item-${list[idx].elId}`
+		scrollIntoViewActive.value = ''
+		nextTick(() => {
+			scrollIntoViewActive.value = targetId
+		})
+	}
 
 	/**
 	 * 根节点类名
@@ -253,6 +278,35 @@
 	})
 
 	/**
+	 * 导航区 CSS 变量 + 滚动宽度（子组件 nav-body 内无法继承父级 .k-tabs 变量）
+	 */
+	const navBodyWrapStyle = computed((): UTSJSONObject => {
+		let navHeight = '44px'
+		let paddingX = '16px'
+		let fontSize = '14px'
+		if (props.size == 'small') {
+			navHeight = '32px'
+			paddingX = '10px'
+			fontSize = '12px'
+		} else if (props.size == 'large') {
+			navHeight = '52px'
+			paddingX = '20px'
+			fontSize = '17px'
+		}
+		const style : UTSJSONObject = {
+			'--k-tabs-nav-height': navHeight,
+			'--k-tabs-item-padding-x': paddingX,
+			'--k-tabs-font-size': fontSize,
+			'--k-tabs-active-color': resolvedActiveColor.value,
+			'--k-tabs-inactive-color': resolvedInactiveColor.value
+		}
+		if (isScrollable.value && navScrollWidth.value > 0) {
+			style['width'] = `${navScrollWidth.value}px`
+		}
+		return style
+	})
+
+	/**
 	 * button 型指示器浅底色
 	 */
 	const resolvedButtonIndicatorBg = computed((): string => {
@@ -261,6 +315,10 @@
 			if (customBg != '') {
 				return customBg
 			}
+		}
+		const themeBg = resolveActiveColorBg(resolvePrimaryColor(themeConfig), 0.12)
+		if (themeBg != '') {
+			return themeBg
 		}
 		return 'rgba(99, 102, 241, 0.12)'
 	})
@@ -283,7 +341,7 @@
 	 */
 	const indicatorClass = computed((): string[] => {
 		const classes = ['k-tabs__indicator', `k-tabs__indicator--${props.type}`]
-		if (props.animated) {
+		if (props.animated && indicatorLayoutReady.value) {
 			classes.push('k-tabs__indicator--animated')
 		}
 		return classes
@@ -294,8 +352,10 @@
 	 */
 	const indicatorStyle = computed((): UTSJSONObject => {
 		const base = indicatorInline.value
-		const duration = props.animated ? `${props.duration}ms` : '0ms'
-		return {
+		const useAnim = props.animated && indicatorLayoutReady.value
+		const duration = useAnim ? `${props.duration}ms` : '0ms'
+		const style : UTSJSONObject = {
+			position: 'absolute',
 			left: base['left'],
 			width: base['width'],
 			height: base['height'],
@@ -303,40 +363,10 @@
 			opacity: base['opacity'],
 			transitionDuration: duration
 		}
-	})
-
-	/**
-	 * 判断某项是否激活
-	 */
-	function isPaneActive(index : number) : boolean {
-		return activeIndex.value == index
-	}
-
-	/**
-	 * 判断某项是否禁用
-	 */
-	function isPaneDisabled(pane : TabPaneRecord) : boolean {
-		if (props.disabled) {
-			return true
+		if (useAnim) {
+			style['transitionProperty'] = 'left, width, height, top'
 		}
-		return pane.disabled
-	}
-
-	/**
-	 * 解析 Tab 项图标颜色
-	 */
-	function resolveItemIconColor(index : number) : string {
-		if (isPaneActive(index)) {
-			return resolvedActiveColor.value
-		}
-		return resolvedInactiveColor.value
-	}
-
-	/**
-	 * 导航区类名
-	 */
-	const navClass = computed((): string[] => {
-		return ['k-tabs__nav']
+		return style
 	})
 
 	/**
@@ -353,15 +383,40 @@
 	})
 
 	/**
+	 * 校验 v-model 是否对应已注册面板，无效时回退首项
+	 */
+	function ensureValidActiveValue() {
+		const list = panes.value
+		if (list.length == 0) {
+			return
+		}
+		const type = props.valueType
+		const current = innerValue.value
+		for (let i = 0; i < list.length; i++) {
+			const key = resolvePaneKey(list[i], type)
+			if (key == current) {
+				return
+			}
+		}
+		const fallbackKey = resolvePaneKey(list[0], type)
+		if (innerValue.value != fallbackKey) {
+			innerValue.value = fallbackKey
+			emit('update:modelValue', fallbackKey)
+		}
+	}
+
+	/**
 	 * APP 端将指示器样式写入 DOM
 	 */
 	function applyIndicatorToDom(styleObj : UTSJSONObject) {
 		// #ifdef APP
-		if (indicatorRef.value == null) {
+		const indicatorRef = childIndicatorRef
+		if (indicatorRef == null || indicatorRef.value == null) {
 			return
 		}
 		const el = indicatorRef.value!.style!
-		const duration = props.animated ? `${props.duration}ms` : '0ms'
+		const useAnim = props.animated && indicatorLayoutReady.value
+		const duration = useAnim ? `${props.duration}ms` : '0ms'
 		el.setProperty('position', 'absolute')
 		el.setProperty('left', `${styleObj['left']}`)
 		el.setProperty('width', `${styleObj['width']}`)
@@ -375,7 +430,7 @@
 			el.setProperty('background-color', resolvedActiveColor.value)
 			el.setProperty('border-radius', '999px')
 		} else if (props.type == 'card') {
-			el.setProperty('background-color', '#ffffff')
+			el.setProperty('background-color', resolveThemeBgColor(themeConfig))
 			el.setProperty('border-radius', '8px')
 		} else if (props.type == 'button') {
 			el.setProperty('background-color', resolvedButtonIndicatorBg.value)
@@ -396,7 +451,7 @@
 			navScrollWidth.value = 0
 			return
 		}
-		const query = uni.createSelectorQuery().in(tabsInstance)
+		const query = uni.createSelectorQuery().in(navQueryScope)
 		for (let i = 0; i < list.length; i++) {
 			query.select(`#k-tabs-item-${list[i].elId}`).boundingClientRect()
 		}
@@ -420,27 +475,6 @@
 	}
 
 	/**
-	 * 测量滚动导航总宽度，供 scroll-view 识别横向溢出
-	 */
-	function syncScrollNavWidth() {
-		if (!isScrollable.value || !isTabsAlive.value) {
-			navScrollWidth.value = 0
-			return
-		}
-		const list = panes.value
-		if (list.length == 0) {
-			navScrollWidth.value = 0
-			return
-		}
-		nextTick(() => {
-			measureScrollNavWidth()
-			nextTick(() => {
-				measureScrollNavWidth()
-			})
-		})
-	}
-
-	/**
 	 * 测量并同步指示器 / 轨道位置
 	 */
 	function syncIndicator() {
@@ -457,7 +491,7 @@
 			if (!isTabsAlive.value) {
 				return
 			}
-			const query = uni.createSelectorQuery().in(tabsInstance)
+			const query = uni.createSelectorQuery().in(navQueryScope)
 			query.select(`#${navElId}`).boundingClientRect()
 			query.select(`#k-tabs-item-${pane.elId}`).boundingClientRect()
 			query.select(`#k-tabs-inner-${pane.elId}`).boundingClientRect()
@@ -515,6 +549,40 @@
 				}
 				indicatorInline.value = metrics
 				applyIndicatorToDom(metrics)
+				if (!indicatorLayoutReady.value) {
+					nextTick(() => {
+						indicatorLayoutReady.value = true
+					})
+				}
+			})
+		})
+	}
+
+	/**
+	 * 合并导航宽度与指示器测量（避免每个 pane 注册时重复 query）
+	 */
+	function scheduleNavLayoutSync() {
+		if (!isTabsAlive.value) {
+			return
+		}
+		if (navLayoutPending) {
+			return
+		}
+		navLayoutPending = true
+		nextTick(() => {
+			navLayoutPending = false
+			if (!isTabsAlive.value) {
+				return
+			}
+			ensureValidActiveValue()
+			measureScrollNavWidth()
+			nextTick(() => {
+				if (!isTabsAlive.value) {
+					return
+				}
+				measureScrollNavWidth()
+				syncIndicator()
+				syncScrollIntoView()
 			})
 		})
 	}
@@ -545,8 +613,7 @@
 			icon: ''
 		})
 		nextTick(() => {
-			syncScrollNavWidth()
-			syncIndicator()
+			scheduleNavLayoutSync()
 		})
 		return index
 	}
@@ -560,6 +627,7 @@
 		if (pos >= 0) {
 			list.splice(pos, 1)
 			reindexPanes()
+			scheduleNavLayoutSync()
 		}
 	}
 
@@ -592,9 +660,16 @@
 		}
 	}
 
-	provide('k-tabs-register-pane', registerPane)
-	provide('k-tabs-unregister-pane', unregisterPane)
-	provide('k-tabs-update-pane', updatePaneMeta)
+	function isPaneDisabled(pane : TabPaneRecord) : boolean {
+		if (props.disabled) {
+			return true
+		}
+		return pane.disabled
+	}
+
+	provide(K_TABS_REGISTER_PANE, registerPane)
+	provide(K_TABS_UNREGISTER_PANE, unregisterPane)
+	provide(K_TABS_UPDATE_PANE, updatePaneMeta)
 
 	/**
 	 * 执行切换
@@ -613,6 +688,7 @@
 		emit('update:modelValue', newValue)
 		emit('change', resolvePaneName(pane), index)
 		syncIndicator()
+		syncScrollIntoView()
 	}
 
 	/**
@@ -640,25 +716,34 @@
 
 	watch(activeIndex, () => {
 		syncIndicator()
+		syncScrollIntoView()
 	})
 
-	watch((): number => panes.value.length, () => {
-		syncScrollNavWidth()
-		syncIndicator()
+	watch((): string | number => props.modelValue, (val : string | number) => {
+		if (innerValue.value != val) {
+			innerValue.value = val
+			scheduleNavLayoutSync()
+		}
+	})
+
+	watch((): number => panes.value.length, (len : number) => {
+		if (len == 0) {
+			indicatorLayoutReady.value = false
+		}
+		scheduleNavLayoutSync()
 	})
 
 	watch((): string => `${props.type}|${props.stretch}|${props.size}`, () => {
-		syncScrollNavWidth()
-		syncIndicator()
+		indicatorLayoutReady.value = false
+		scheduleNavLayoutSync()
 	})
 
 	watch(panesLayoutKey, () => {
-		syncScrollNavWidth()
+		scheduleNavLayoutSync()
 	})
 
 	onMounted(() => {
-		syncScrollNavWidth()
-		syncIndicator()
+		scheduleNavLayoutSync()
 	})
 
 	onUnmounted(() => {
@@ -668,102 +753,31 @@
 
 <template>
 	<view :class="rootClass" :style="rootStyle">
-		<view :class="navClass">
+		<view class="k-tabs__nav">
 			<view v-if="$slots['nav-left'] != null" class="k-tabs__nav-extra k-tabs__nav-extra--left">
 				<slot name="nav-left"></slot>
 			</view>
 
-			<scroll-view
-				v-if="isScrollable"
-				class="k-tabs__scroll"
-				direction="horizontal"
-				:show-scrollbar="false"
-				:scroll-into-view="scrollIntoViewId"
-				:scroll-with-animation="props.animated"
-			>
-				<view class="k-tabs__nav-wrap" :id="navElId" :style="navWrapScrollStyle">
-					<view
-						v-if="showIndicator && panes.length > 0"
-						ref="indicatorRef"
-						:class="indicatorClass"
-						:style="indicatorStyle"
-					></view>
-					<view
-						v-for="(pane, index) in panes"
-						:key="pane.elId"
-						:id="'k-tabs-item-' + pane.elId"
-						class="k-tabs__item"
-						:class="{
-							'k-tabs__item--active': isPaneActive(index),
-							'k-tabs__item--disabled': isPaneDisabled(pane)
-						}"
-						@click="handleTabClick(index)"
-					>
-						<view class="k-tabs__item-inner" :id="'k-tabs-inner-' + pane.elId">
-							<k-icon
-								v-if="pane.icon != ''"
-								:name="pane.icon"
-								:size="tabIconSize"
-								:color="resolveItemIconColor(index)"
-								class="k-tabs__item-icon"
-							/>
-							<text class="k-tabs__item-text">{{ pane.title }}</text>
-							<k-badge
-								v-if="pane.dot"
-								:dot="true"
-								class="k-tabs__item-badge"
-							/>
-							<k-badge
-								v-else-if="pane.badge != ''"
-								:value="pane.badge"
-								size="small"
-								class="k-tabs__item-badge"
-							/>
-						</view>
-					</view>
-				</view>
-			</scroll-view>
-			<view v-else class="k-tabs__nav-wrap" :id="navElId">
-				<view
-					v-if="showIndicator && panes.length > 0"
-					ref="indicatorRef"
-					:class="indicatorClass"
-					:style="indicatorStyle"
-				></view>
-				<view
-					v-for="(pane, index) in panes"
-					:key="pane.elId"
-					:id="'k-tabs-item-' + pane.elId"
-					class="k-tabs__item"
-					:class="{
-						'k-tabs__item--active': isPaneActive(index),
-						'k-tabs__item--disabled': isPaneDisabled(pane)
-					}"
-					@click="handleTabClick(index)"
-				>
-					<view class="k-tabs__item-inner" :id="'k-tabs-inner-' + pane.elId">
-						<k-icon
-							v-if="pane.icon != ''"
-							:name="pane.icon"
-							:size="tabIconSize"
-							:color="resolveItemIconColor(index)"
-							class="k-tabs__item-icon"
-						/>
-						<text class="k-tabs__item-text">{{ pane.title }}</text>
-						<k-badge
-							v-if="pane.dot"
-							:dot="true"
-							class="k-tabs__item-badge"
-						/>
-						<k-badge
-							v-else-if="pane.badge != ''"
-							:value="pane.badge"
-							size="small"
-							class="k-tabs__item-badge"
-						/>
-					</view>
-				</view>
-			</view>
+			<k-tabs-nav-body
+				:nav-el-id="navElId"
+				:nav-wrap-style="navBodyWrapStyle"
+				:panes="panes"
+				:show-indicator="showIndicator"
+				:indicator-class="indicatorClass"
+				:indicator-style="indicatorStyle"
+				:active-index="activeIndex"
+				:group-disabled="props.disabled"
+				:tab-icon-size="tabIconSize"
+				:active-color="resolvedActiveColor"
+				:inactive-color="resolvedInactiveColor"
+				:tab-type="props.type"
+				:tab-size="props.size"
+				:scrollable="isScrollable"
+				:stretch="props.stretch && !isScrollable"
+				:scroll-into-view-id="scrollIntoViewActive"
+				:scroll-animated="props.animated"
+				@item-click="handleTabClick"
+			/>
 
 			<view v-if="$slots['nav-right'] != null" class="k-tabs__nav-extra k-tabs__nav-extra--right">
 				<slot name="nav-right"></slot>
@@ -778,6 +792,7 @@
 
 <style lang="scss">
 	@import '../../theme/index.scss';
+	@import './tabs-nav.style.scss';
 
 	.k-tabs {
 		width: 100%;
@@ -829,150 +844,11 @@
 		margin-left: 8px;
 	}
 
-	.k-tabs__scroll {
-		flex: 1;
-		width: 100%;
-		height: var(--k-tabs-nav-height);
-	}
-
-	.k-tabs--scrollable .k-tabs__nav-wrap {
-		flex-shrink: 0;
-		flex-wrap: nowrap;
-	}
-
-	.k-tabs__nav-wrap {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		position: relative;
-		min-height: var(--k-tabs-nav-height);
-	}
-
-	.k-tabs--stretch .k-tabs__nav-wrap {
-		width: 100%;
-	}
-
-	.k-tabs--stretch .k-tabs__item {
-		flex: 1;
-	}
-
-	.k-tabs__item {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		height: var(--k-tabs-nav-height);
-		padding-left: var(--k-tabs-item-padding-x);
-		padding-right: var(--k-tabs-item-padding-x);
-		margin-right: 12px;
-		position: relative;
-		z-index: 1;
-	}
-
-	.k-tabs__item:last-child {
-		margin-right: 0;
-	}
-
-	.k-tabs--scrollable .k-tabs__item {
-		flex-shrink: 0;
-	}
-
-	.k-tabs__item-inner {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.k-tabs__item-icon {
-		margin-right: 4px;
-	}
-
-	.k-tabs__item-text {
-		font-size: var(--k-tabs-font-size);
-		color: var(--k-tabs-inactive-color);
-		font-weight: 400;
-	}
-
-	.k-tabs__item--active .k-tabs__item-text {
-		color: var(--k-tabs-active-color);
-	}
-
-	.k-tabs__item--disabled .k-tabs__item-text {
-		color: var(--k-text-color-disabled, #{$k-text-color-disabled});
-	}
-
-	.k-tabs__item-badge {
-		margin-left: 4px;
-	}
-
-	.k-tabs__indicator {
-		position: absolute;
-		left: 0;
-		top: 0;
-		opacity: 0;
-		pointer-events: none;
-		z-index: 0;
-	}
-
-	.k-tabs__indicator--line {
-		background-color: var(--k-tabs-active-color);
-		border-radius: 999px;
-	}
-
-	.k-tabs__indicator--card {
-		background-color: var(--k-bg-color, #{$k-bg-color});
-		border-radius: 8px;
-	}
-
-	.k-tabs__indicator--button {
-		background-color: var(--k-tabs-button-indicator-bg, var(--k-color-primary-bg, #{$k-color-primary-bg}));
-		border-radius: 999px;
-	}
-
-	.k-tabs__indicator--animated {
-		transition-property: left, width, height, top;
-		transition-timing-function: ease;
-	}
-
 	/* card */
 	.k-tabs--card .k-tabs__nav {
 		background-color: var(--k-bg-color-page, #{$k-bg-color-page});
 		padding: 4px;
 		border-radius: 8px;
-	}
-
-	.k-tabs--card.k-tabs--small .k-tabs__nav-wrap {
-		min-height: 28px;
-	}
-
-	.k-tabs--card.k-tabs--medium .k-tabs__nav-wrap {
-		min-height: 36px;
-	}
-
-	.k-tabs--card.k-tabs--large .k-tabs__nav-wrap {
-		min-height: 44px;
-	}
-
-	.k-tabs--card.k-tabs--small .k-tabs__item {
-		height: 28px;
-	}
-
-	.k-tabs--card.k-tabs--medium .k-tabs__item {
-		height: 36px;
-	}
-
-	.k-tabs--card.k-tabs--large .k-tabs__item {
-		height: 44px;
-	}
-
-	.k-tabs--card .k-tabs__item {
-		margin-right: 4px;
-		border-radius: 8px;
-	}
-
-	.k-tabs--card .k-tabs__item--active {
-		background-color: transparent;
 	}
 
 	.k-tabs--card .k-tabs__content {
@@ -986,48 +862,7 @@
 		border-radius: 999px;
 	}
 
-	.k-tabs--button.k-tabs--small .k-tabs__nav-wrap {
-		min-height: 28px;
-	}
-
-	.k-tabs--button.k-tabs--medium .k-tabs__nav-wrap {
-		min-height: 36px;
-	}
-
-	.k-tabs--button.k-tabs--large .k-tabs__nav-wrap {
-		min-height: 44px;
-	}
-
-	.k-tabs--button.k-tabs--small .k-tabs__item {
-		height: 28px;
-	}
-
-	.k-tabs--button.k-tabs--medium .k-tabs__item {
-		height: 32px;
-	}
-
-	.k-tabs--button.k-tabs--large .k-tabs__item {
-		height: 40px;
-	}
-
-	.k-tabs--button .k-tabs__item {
-		margin-right: 8px;
-		border-radius: 999px;
-	}
-
-	.k-tabs--button .k-tabs__item--active {
-		background-color: transparent;
-	}
-
-	.k-tabs--button .k-tabs__item--active .k-tabs__item-text {
-		color: var(--k-tabs-active-color);
-	}
-
 	.k-tabs__content {
 		padding: var(--k-tabs-content-padding);
-	}
-
-	.k-tabs--disabled .k-tabs__item {
-		opacity: 0.6;
 	}
 </style>

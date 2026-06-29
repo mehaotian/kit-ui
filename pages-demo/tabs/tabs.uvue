@@ -476,6 +476,81 @@
 				<text class="demo-tip">已访问：{{ lazyVisitedText }}</text>
 			</view>
 
+			<!-- 导航附加区 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">导航附加区</text>
+					<text class="page-desc">nav-left / nav-right 插槽，常用于筛选与搜索入口</text>
+				</view>
+				<view class="demo-content">
+					<k-tabs v-model="navExtraActive">
+						<template #nav-left>
+							<view class="tabs-nav-extra-btn">
+								<k-icon name="filter-3-line" size="18" color="#6b7280" />
+							</view>
+						</template>
+						<template #nav-right>
+							<view class="tabs-nav-extra-btn">
+								<k-icon name="search-line" size="18" color="#6b7280" />
+							</view>
+						</template>
+						<k-tab-pane name="all" title="全部">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">展示全部商品</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="sale" title="促销">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">限时折扣与满减活动</text>
+								</view>
+							</view>
+						</k-tab-pane>
+						<k-tab-pane name="new" title="新品">
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__desc">近 7 天上架商品</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+			</view>
+
+			<!-- 动态增删 Tab -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">动态增删 Tab</text>
+					<text class="page-desc">v-for 增删 pane 后导航与指示器自动同步</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<k-button block type="primary" text="新增 Tab" @click="addDynamicTab" />
+					</view>
+					<view class="demo-stack-item">
+						<k-button block text="移除首项" @click="removeDynamicTab" />
+					</view>
+					<k-tabs v-model="dynamicActive">
+						<k-tab-pane
+							v-for="item in dynamicTabs"
+							:key="item.name"
+							:name="item.name"
+							:title="item.title"
+						>
+							<view class="tabs-pane">
+								<view class="tabs-pane__card">
+									<text class="tabs-pane__title">{{ item.title }}</text>
+									<text class="tabs-pane__desc">动态 Tab 内容区</text>
+								</view>
+							</view>
+						</k-tab-pane>
+					</k-tabs>
+				</view>
+				<text class="demo-tip">共 {{ dynamicTabs.length }} 项，当前选中：{{ dynamicActive }}</text>
+			</view>
+
 			<!-- valueType index -->
 			<view class="section">
 				<view class="section-title">
@@ -522,6 +597,11 @@
 		desc : string
 	}
 
+	type DynamicTabItem = {
+		name : string
+		title : string
+	}
+
 	const basicActive = ref<string>('all')
 	const typeLine = ref<string>('todo')
 	const typeCard = ref<string>('goods')
@@ -538,6 +618,13 @@
 	const lazyActive = ref<string>('overview')
 	const lazyVisited = ref<string[]>(['overview'])
 	const indexActive = ref<number>(0)
+	const navExtraActive = ref<string>('all')
+	const dynamicActive = ref<string>('dt1')
+	const dynamicTabs = ref<DynamicTabItem[]>([
+		{ name: 'dt1', title: '标签一' },
+		{ name: 'dt2', title: '标签二' }
+	])
+	let dynamicTabSeed = 3
 
 	const scrollTabList = ref<ScrollTabItem[]>([
 		{ name: 'tab0', title: '推荐', desc: '为你推荐的热门资讯' },
@@ -575,6 +662,34 @@
 	}
 
 	/**
+	 * 动态增删演示：新增 Tab
+	 */
+	const addDynamicTab = () => {
+		const name = `dt${dynamicTabSeed}`
+		const item : DynamicTabItem = {
+			name: name,
+			title: `标签${dynamicTabSeed}`
+		}
+		dynamicTabs.value.push(item)
+		dynamicTabSeed++
+	}
+
+	/**
+	 * 动态增删演示：移除首项
+	 */
+	const removeDynamicTab = () => {
+		const list = dynamicTabs.value
+		if (list.length <= 1) {
+			return
+		}
+		const removed = list[0]
+		list.shift()
+		if (dynamicActive.value == removed.name) {
+			dynamicActive.value = list[0].name
+		}
+	}
+
+	/**
 	 * 拦截切换到 locked Tab
 	 */
 	const handleBeforeChange = (name : string | number, index : number) : boolean => {
@@ -586,6 +701,10 @@
 </script>
 
 <style lang="scss">
+	.tabs-nav-extra-btn {
+		padding: 4px;
+	}
+
 	.demo-case-label {
 		font-size: 12px;
 		color: var(--k-text-color-secondary, #6b7280);

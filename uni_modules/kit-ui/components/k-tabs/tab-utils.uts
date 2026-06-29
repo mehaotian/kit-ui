@@ -1,6 +1,37 @@
 import type { TabPaneRecord } from './tab.type.uts'
 
 /**
+ * 将 #RGB / #RRGGBB 转为 rgba 字符串（用于 button 型浅底指示器）
+ */
+export function resolveActiveColorBg(activeColor : string, alpha : number) : string {
+	let hex = activeColor.trim()
+	if (hex.length == 4 && hex.charAt(0) == '#') {
+		hex = `#${hex.charAt(1)}${hex.charAt(1)}${hex.charAt(2)}${hex.charAt(2)}${hex.charAt(3)}${hex.charAt(3)}`
+	}
+	if (hex.length != 7 || hex.charAt(0) != '#') {
+		return ''
+	}
+	const r = parseInt(hex.substring(1, 3))
+	const g = parseInt(hex.substring(3, 5))
+	const b = parseInt(hex.substring(5, 7))
+	if (isNaN(r) || isNaN(g) || isNaN(b)) {
+		return ''
+	}
+	return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+/**
+ * 从 kit-theme 解析页面背景色（card 指示器）
+ */
+export function resolveThemeBgColor(themeConfig : UTSJSONObject, fallback : string = '#ffffff') : string {
+	const bg = themeConfig['bgColor']
+	if (bg != null && `${bg}` != '') {
+		return `${bg}`
+	}
+	return fallback
+}
+
+/**
  * 解析面板在 v-model 中使用的标识
  */
 export function resolvePaneKey(record : TabPaneRecord, valueType : string) : string | number {
@@ -21,20 +52,4 @@ export function resolvePaneName(record : TabPaneRecord) : string | number {
 		return record.name as string | number
 	}
 	return record.index
-}
-
-/**
- * 将 #RRGGBB 转为 rgba 字符串（用于 button 型浅底指示器）
- */
-export function resolveActiveColorBg(activeColor : string, alpha : number) : string {
-	if (activeColor.length != 7 || activeColor.charAt(0) != '#') {
-		return ''
-	}
-	const r = parseInt(activeColor.substring(1, 3))
-	const g = parseInt(activeColor.substring(3, 5))
-	const b = parseInt(activeColor.substring(5, 7))
-	if (isNaN(r) || isNaN(g) || isNaN(b)) {
-		return ''
-	}
-	return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
