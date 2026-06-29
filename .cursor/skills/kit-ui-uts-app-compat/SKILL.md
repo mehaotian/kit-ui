@@ -53,11 +53,31 @@ export function fn(message : string = '') : string {
 // ❌ APP：Function invocation 'xxx(...)' expected
 export const Factory = { create: createItem }
 
-// ❌ APP：Anonymous functions cannot specify default values
-export const Factory = { create: (msg : string = '') => createItem(msg) }
+// ❌ APP：return { register, unregister } 同样失败
+export function createRegistry() : Registry {
+  function register() {}
+  return { register, unregister }
+}
 
 // ✅ 多个独立 export function，调用方直接 import
 export function createItem(message : string = '') : any { ... }
+
+// ✅ 有状态的 register/unregister 用 class（参考 cell-border.uts）
+export class CellBorderRegistry {
+  register(child : ItemChildType) : void { ... }
+  unregister(child : ItemChildType) : void { ... }
+}
+export function createCellBorderRegistry() : CellBorderRegistry {
+  return new CellBorderRegistry()
+}
+```
+
+provide 方法引用时避免裸 `.unregister`，用箭头函数保留 `this`：
+
+```uts
+provide('k-cell-unregister-child', (child : ItemChildType) => {
+  registry.unregister(child)
+})
 ```
 
 ### 2.3 注释与 HMR
@@ -107,10 +127,43 @@ const formRef = ref<KFormExpose | null>(null)
 
 // ✅ easycom 生成的 ComponentPublicInstance
 const formRef = ref<KFormComponentPublicInstance | null>(null)
-formRef.value?.validate?.()
+
+// ❌ APP：?.resetValidation?.() / ?.validate?.() 可能报 Function invocation expected
+complexFormRef.value?.resetValidation?.()
+
+// ✅ 先取 ref，判空后直接调用
+const form = complexFormRef.value
+if (form != null) {
+  form.resetValidation()
+}
+let valid = false
+if (form != null) {
+  valid = form.validate()
+}
 ```
 
 新增组件若暴露方法，页面 ref 类型以编译器生成的 `K[Name]ComponentPublicInstance` 为准。
+
+### 4.3 生命周期 + 可变变量 Smart cast
+
+```uts
+// ❌ APP：registeredChild 在闭包中被修改，Smart cast 失败
+onBeforeUnmount(() => {
+  if (cellUnregister != null && registeredChild != null) {
+    cellUnregister(registeredChild)
+  }
+})
+
+// ✅ 复制到局部 val 再使用
+onBeforeUnmount(() => {
+  const unregister = cellUnregister
+  const childToUnregister = registeredChild
+  if (unregister != null && childToUnregister != null) {
+    unregister(childToUnregister)
+    registeredChild = null
+  }
+})
+```
 
 ## 五、`.uvue` 组件开发补充
 
@@ -140,6 +193,7 @@ formRef.value?.validate?.()
 ```text
 - [ ] 对外函数无 `param ?: type`（改为 param : T = 默认值）
 - [ ] 无 { method: fnName } 函数引用赋值
+- [ ] 无 return { register, unregister } 对象挂函数（改用 class）
 - [ ] 无对象内 (x : T = v) => 箭头默认参
 - [ ] 动态对象读取有 UTSJSONObject / JSON 路径，无 any 强转
 - [ ] 注释块完整
@@ -150,6 +204,8 @@ formRef.value?.validate?.()
 ```text
 - [ ] inject computed/ref 使用 ComputedRef<T> | null + type ComputedRef 导入
 - [ ] defineExpose 与页面 ref 类型一致（ComponentPublicInstance）
+- [ ] 页面 ref 调用 expose 方法：先 const form = ref.value，再 if (form != null) form.method()
+- [ ] onMounted/onBeforeUnmount 中可变 let 先复制到局部 const 再传入回调
 - [ ] 未在 APP 用 :style 驱动过渡动效属性
 ```
 
@@ -178,6 +234,7 @@ formRef.value?.validate?.()
 | inject ComputedRef | `k-checkbox.uvue`、`k-radio.uvue`、`k-form-item.uvue` |
 | UTSJSONObject / reactive 读值 | `k-form/form-utils.uts` |
 | 独立 export 工具函数 | `k-form/validators.uts`、`k-text/utils.uts` |
+| 有状态 registry（class） | `k-cell/cell-border.uts` |
 | APP setProperty 动画 | `k-switch.uvue`、`k-checkbox.uvue` |
 | 主题 provide | `k-config.uvue` |
 

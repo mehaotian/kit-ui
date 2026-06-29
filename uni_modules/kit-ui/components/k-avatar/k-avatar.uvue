@@ -1,5 +1,5 @@
 <template>
-	<k-badge :dot="dot" :value="badge" :max="badgeMax" :color="badgeColor">
+	<k-badge v-if="needsBadgeWrap" :dot="dot" :value="badge" :max="badgeMax" :color="badgeColor">
 		<view :class="avatarClass" :style="avatarStyle" @click="handleClick">
 			<!-- 图片头像 -->
 			<view v-if="showImage" class="k-avatar-image" :style="imageStyle">
@@ -19,6 +19,23 @@
 			<slot v-else></slot>
 		</view>
 	</k-badge>
+	<view v-else :class="avatarClass" :style="avatarStyle" @click="handleClick">
+		<!-- 图片头像 -->
+		<view v-if="showImage" class="k-avatar-image" :style="imageStyle">
+			<k-image :src="src" :shape="shape == 'circle' ? 'circle' : 'round'" radius="0" :mode="fit" @error="handleImageError" @load="handleImageLoad" />
+		</view>
+
+		<!-- 文字头像 -->
+		<text v-else-if="showText" :class="textClass" :style="textStyle">
+			{{ displayText }}
+		</text>
+
+		<!-- 图标头像 -->
+		<k-icon v-else-if="showIcon" :name="icon" :size="iconSize" :color="iconColor" />
+
+		<!-- 默认插槽 -->
+		<slot v-else></slot>
+	</view>
 </template>
 
 <script setup lang="uts">
@@ -176,6 +193,11 @@
 	// 判断是否显示图标
 	const showIcon = computed(() : boolean => {
 		return (props.type == 'icon' || props.icon.length > 0) && !showImage.value && !showText.value
+	})
+
+	// 是否需要 k-badge 包裹（无徽标时不引入额外矩形包装层）
+	const needsBadgeWrap = computed(() : boolean => {
+		return props.dot || props.badge != ''
 	})
 
 	// 计算头像容器类名

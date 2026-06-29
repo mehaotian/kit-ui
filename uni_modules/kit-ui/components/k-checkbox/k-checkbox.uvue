@@ -101,7 +101,15 @@
 		if (fillMode == 'inset') {
 			return iconSize - 6
 		}
+		// solid：贴齐 border 内侧（icon 为 border-box，2px 边框各占 2px）
 		return iconSize - 4
+	}
+
+	/**
+	 * 解析 solid 模式 fill 贴边定位（px，避免 MP 端 transform 百分比产生白缝）
+	 */
+	const getSolidFillInset = (iconSize: number): number => {
+		return 2
 	}
 
 	/**
@@ -239,11 +247,13 @@
 		return {}
 		// #endif
 		const size = sizeStyle.value
+		const active = isIconActive.value
+		const solid = resolvedFillMode.value == 'solid'
 		return {
 			width: `${size.iconSize}px`,
 			height: `${size.iconSize}px`,
-			backgroundColor: 'transparent',
-			borderColor: isIconActive.value ? primaryColor.value : '#d1d5db'
+			backgroundColor: active && solid ? primaryColor.value : 'transparent',
+			borderColor: active ? primaryColor.value : '#d1d5db'
 		}
 	})
 
@@ -254,14 +264,29 @@
 		// #ifdef APP
 		return {}
 		// #endif
-		const fill = getFillSize(sizeStyle.value.iconSize, resolvedFillMode.value)
+		const iconSize = sizeStyle.value.iconSize
+		const fill = getFillSize(iconSize, resolvedFillMode.value)
+		const active = isIconActive.value
 		const activeSize = `${fill}px`
-		return {
-			width: isIconActive.value ? activeSize : '0px',
-			height: isIconActive.value ? activeSize : '0px',
+		const style : UTSJSONObject = {
+			width: active ? activeSize : '0px',
+			height: active ? activeSize : '0px',
 			backgroundColor: primaryColor.value,
 			borderRadius: props.shape == 'round' ? '100px' : '2px'
 		}
+		// #ifdef MP
+		// solid 选中：贴边定位，不用 translate 百分比，消除 fill 与 border 间白缝
+		if (active && resolvedFillMode.value == 'solid') {
+			const inset = getSolidFillInset(iconSize)
+			const inner = iconSize - inset * 2
+			style['width'] = `${inner}px`
+			style['height'] = `${inner}px`
+			style['left'] = `${inset}px`
+			style['top'] = `${inset}px`
+			style['transform'] = 'none'
+		}
+		// #endif
+		return style
 	})
 
 	// #ifdef APP

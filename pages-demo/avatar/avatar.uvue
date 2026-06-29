@@ -104,8 +104,12 @@
 					<k-text class="demo-desc" size="12" color="#999">通过样式实现头像组</k-text>
 				</view>
 				<view class="demo-content avatar-group">
-					<k-avatar v-for="(user, index) in userList" :key="index" :src="user.avatar" :text="user.name" :bg-color="user.bgColor" text-color="#fff" size="small" shape="circle" class="avatar-group-item" />
-					<k-avatar text="+12" bg-color="#ddd" text-color="#666" size="small" shape="circle" class="avatar-group-item" />
+					<view v-for="(user, index) in userList" :key="index" class="avatar-group-item">
+						<k-avatar :src="user.avatar" :text="user.name" :bg-color="user.bgColor" text-color="#fff" size="small" shape="circle" />
+					</view>
+					<view class="avatar-group-item">
+						<k-avatar text="+12" bg-color="#ddd" text-color="#666" size="small" shape="circle" />
+					</view>
 				</view>
 			</view>
 
@@ -214,8 +218,13 @@
 
 	.avatar-group-item {
 		margin-right: -12px;
-		border: 2px solid #fff;
+		border-radius: 100px;
+		border-width: 2px;
+		border-style: solid;
+		border-color: #ffffff;
+		overflow: hidden;
 		box-sizing: border-box;
+		flex-shrink: 0;
 	}
 
 	.demo-row--badge {
