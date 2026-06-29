@@ -2,6 +2,8 @@
 
 页内分区切换：Tab 导航头由 `k-tabs` 统一渲染，内容区由 `k-tab-pane` 承载。
 
+> v1 范围：`line` / `card` / `button`、`scrollable`、`lazy`、`beforeChange`、徽标与图标。不含 `label` slot、`swipeable`、吸顶（见 `docs/k-tabs开发计划.md` §1.3）。
+
 ## 基础用法
 
 ```vue
@@ -92,20 +94,49 @@
 | `--k-tabs-button-indicator-bg` | button 型轨道浅底色 |
 | `--k-tabs-content-padding` | 内容区 padding |
 
+导航区变量由 `k-tabs` 经 `nav-wrap-style` 注入子组件（子组件无法继承父级 CSS 变量）。
+
 ## 组件结构
 
 ```text
-k-tabs                 状态、测量调度、provide
-k-tabs-nav-body        滚动容器（scroll-view 与 nav-wrap 编排）
-k-tabs-nav-wrap        导航 DOM、Tab 项、指示器（跨端 query / 样式落地）
+k-tabs                 状态、测量调度、provide、APP setProperty
+k-tabs-nav-body        导航编排入口（转发 props / 事件）
+k-tabs-nav-wrap        导航 DOM、Tab 项、指示器；scrollable 时内嵌 scroll-view
 k-tab-pane             面板注册与 lazy 挂载
 ```
 
-相关工具：`tab-indicator.uts`（几何）、`tabs-layout.uts`（selectorQuery）、`tabs-style.uts`（样式变量与类名）。
+相关模块：
+
+| 文件 | 职责 |
+| --- | --- |
+| `tab.type.uts` / `tab.constants.uts` | 类型与 provide 键 |
+| `tab-utils.uts` | 颜色解析、pane key |
+| `tab-indicator.uts` | 指示器几何计算 |
+| `tabs-layout.uts` | `createSelectorQuery` 测量 |
+| `tabs-style.uts` | CSS 变量、指示器类名与内联样式 |
+| `tabs-nav.style.scss` | 导航项 / 指示器样式（nav-wrap 内 import） |
+
+## 跨端说明
+
+| 端 | 要点 |
+| --- | --- |
+| WEB | 指示器走 CSS `left` / `width` + `transition` |
+| APP | 指示器走 `setProperty`；`k-tabs-nav-wrap` 注册指示器 ref |
+| 微信 MP | `scroll-view` 与 Tab 项 `id` 须在 **同一组件**（`k-tabs-nav-wrap`）；`scroll-into-view` 先清空再赋值；card/button 尺寸修饰类挂在 `nav-wrap` |
+
+详见 `docs/k-tabs跨端实现说明.md`。
 
 ## 注意事项
 
 1. `value-type="name"` 时请勿混用未设 `name` 的 pane 与字符串 name 随意切换逻辑。
 2. 非法 `v-model`（无对应 pane）会在布局同步时自动回退到首项。
 3. 面板内嵌 `scroll-view` 时需注意与页面滚动协调，见演示页注释。
-4. APP 端 line / card / button 指示器动画走 `setProperty`；`k-tabs-nav-wrap` 通过 inject 向父级注册指示器 DOM ref 与 query 作用域。
+4. `beforeChange` 一期仅支持同步返回 `false`，不支持 Promise。
+5. 修改 `manifest.json` / 分包后微信端须 **全量重新编译**，勿仅热更新。
+
+## 相关文档
+
+- 方案与 API：`docs/k-tabs开发计划.md`
+- 跨端实现：`docs/k-tabs跨端实现说明.md`
+- 三端验收：`docs/k-tabs三端冒烟验收清单.md`
+- 演示页：`pages-demo/tabs/tabs.uvue`

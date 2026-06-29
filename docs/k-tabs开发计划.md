@@ -2,7 +2,7 @@
 
 > 版本：v1.0  
 > 日期：2026-06-29  
-> 状态：**v1 已验收（2026-06-29）** — 三端验收与质量优化已完成  
+> 状态：**v1 已验收收尾（2026-06-29）** — WEB / APP / 微信三端通过；文档见 `docs/k-tabs三端冒烟验收清单.md`、`docs/k-tabs跨端实现说明.md`  
 > 关联：`docs/一期下一步开发计划.md`、`docs/k-popup方案分析报告.md`（方案文档结构参考）
 
 ---
@@ -64,11 +64,13 @@ k-list / k-cell   分区下的列表承载
 
 ```text
 k-tabs
-├── 导航区 k-tabs__nav（横向 flex；溢出时包 scroll-view）
+├── 导航区 k-tabs__nav（横向 flex）
 │   ├── [slot nav-left]
-│   ├── k-tabs__nav-wrap
-│   │   ├── k-tabs__item × N（来自 tab-pane 元数据）
-│   │   └── k-tabs__line | k-tabs__track（指示器，type=line 时）
+│   ├── k-tabs-nav-body → k-tabs-nav-wrap
+│   │   ├── [scrollable] scroll-view（与 Tab 项 id 同组件，满足 MP scroll-into-view）
+│   │   └── k-tabs__nav-wrap
+│   │       ├── k-tabs__item × N（来自 tab-pane 元数据）
+│   │       └── 指示器（line / card / button 轨道）
 │   └── [slot nav-right]
 └── 内容区 k-tabs__content
     └── k-tab-pane × N（默认 slot 子节点）
@@ -93,8 +95,8 @@ k-tabs
 | `destroyOnHide` | `boolean` | `false` | 隐藏时销毁 pane 内容（与 lazy 组合使用） |
 | `swipeThreshold` | `number` | `5` | 超过该数量自动开启 scrollable（`scrollable=false` 时生效） |
 | `duration` | `number` | `300` | 指示器动画时长（ms） |
-| `lineWidth` | `string` | `'20px'` | `type=line` 时指示器宽度 |
-| `lineHeight` | `string` | `'3px'` | `type=line` 时指示器高度 |
+| `lineWidth` | `string` | `''` | `type=line` 时指示器宽度；空则按内容区自适应（约 94%） |
+| `lineHeight` | `string` | `'2px'` | `type=line` 时指示器高度 |
 | `activeColor` | `string` | `''` | 激活色，空则 `--k-color-primary` |
 | `inactiveColor` | `string` | `''` | 未激活文字色，空则 `--k-text-color-secondary` |
 | `background` | `string` | `''` | 导航区背景色 |
@@ -139,7 +141,8 @@ k-tabs
 | `disabled` | `boolean` | `false` | 禁用该项 |
 | `dot` | `boolean` | `false` | 红点（无数字） |
 | `badge` | `string \| number` | `''` | 徽标数字/文案，复用 `k-badge` 视觉 |
-| `lazy` | `boolean` | `null` | 覆盖父级 `lazy`；`null` 继承 tabs |
+| `lazy` | `boolean` | — | 未传则继承父级 `lazy` |
+| `icon` | `string` | `''` | 标题前图标（一期替代 label slot） |
 | `customStyle` | `string` | `''` | 内容区样式 |
 
 ---
@@ -159,7 +162,8 @@ k-tabs
 | 名称 | 说明 |
 | --- | --- |
 | `default` | 面板内容 |
-| `label` | 自定义 Tab 头（替代 `title` 文案） |
+
+> **`label` slot 一期未实现**（决策 R-01），使用 `icon` + `title`。
 
 ---
 
@@ -236,14 +240,14 @@ k-tabs
 ### 9.1 父子通信（参考 k-collapse）
 
 ```text
-k-tabs provide:
-  k-tabs-value          ComputedRef<activeValue>
-  k-tabs-disabled       ComputedRef<boolean>
-  k-tabs-register-pane  (pane: TabPaneContext) => void
-  k-tabs-unregister-pane (elId: string) => void
-  k-tabs-select         (name | index) => void
+k-tabs provide（键名见 tab.constants.uts）:
+  k-tabs-active-value / k-tabs-value-type
+  k-tabs-lazy / k-tabs-destroy-on-hide
+  k-tabs-register-pane / k-tabs-unregister-pane / k-tabs-update-pane
+  k-tabs-register-indicator / k-tabs-register-nav-query-scope
 
 k-tab-pane inject + onMounted register / onBeforeUnmount unregister
+k-tabs-nav-wrap onMounted 注册 indicatorRef 与 navQueryScope
 ```
 
 **TabPaneContext**（`tab.type.uts`）建议字段：
@@ -263,8 +267,8 @@ k-tab-pane inject + onMounted register / onBeforeUnmount unregister
 
 | 端 | 方案 |
 | --- | --- |
-| WEB / MP | CSS `transform: translateX()` + `transition` |
-| APP | `ref` 获取指示器元素，`setProperty('transform', ...)` + `transition-duration` |
+| WEB / MP | 内联 `left` / `width` / `top` + CSS `transition` |
+| APP | `setProperty('left' | 'width' | ...)` + `transition-duration` |
 
 开发前阅读：`kit-ui-app-animation`、`kit-ui-uts-app-compat`。
 
@@ -283,7 +287,7 @@ k-tab-pane inject + onMounted register / onBeforeUnmount unregister
 | 尺寸 | small / medium / large |
 | 禁用 | 单项 disabled + 整组 disabled |
 | 徽标 | dot + badge |
-| 自定义 label | slot + k-icon |
+| 自定义 label | ~~slot + k-icon~~ | 一期用 `icon` 属性（R-01） |
 | 懒加载 | lazy + 列表 pane 内 k-list 简例 |
 | 滚动导航 | 8+ Tab + scrollable |
 | beforeChange | 拦截切换到某一项 |
@@ -319,22 +323,55 @@ APP 场景整页滚动：`#ifdef APP` 包裹 `scroll-view`。
 
 ## 13. 验收标准（DoD）
 
-- [ ] props / emits / slots 与本文一致（变更需回写本文）
-- [ ] `pages-demo/tabs/tabs.uvue` + `pages.json` 注册
-- [ ] README 四段式完整
-- [ ] WEB / MP / APP 冒烟：切换、禁用、scrollable、lazy
-- [ ] 无 grid / gap / @media 红线
-- [ ] APP 指示器动画可感知（非跳变）
+- [x] props / emits / slots 与 README 一致（`label` slot 一期除外）
+- [x] `pages-demo/tabs/tabs.uvue` + `pages.json` 注册
+- [x] README 与跨端说明、验收清单已补齐
+- [x] WEB / MP / APP 冒烟：切换、禁用、scrollable、lazy（见 `docs/k-tabs三端冒烟验收清单.md`）
+- [x] 无 grid / gap / @media 红线
+- [x] APP 指示器动画可感知（非跳变）
 
 ---
 
-## 14. 相关文件（计划创建）
+## 14. 相关文件（已创建）
 
 | 路径 | 说明 |
 | --- | --- |
-| `uni_modules/kit-ui/components/k-tabs/k-tabs.uvue` | 容器 |
-| `uni_modules/kit-ui/components/k-tabs/tab.type.uts` | 类型与 context |
-| `uni_modules/kit-ui/components/k-tabs/tab-utils.uts` | 纯函数（可选） |
+| `uni_modules/kit-ui/components/k-tabs/k-tabs.uvue` | 容器主控 |
+| `uni_modules/kit-ui/components/k-tabs/tab.type.uts` | 类型 |
+| `uni_modules/kit-ui/components/k-tabs/tab.constants.uts` | provide / inject 键 |
+| `uni_modules/kit-ui/components/k-tabs/tab-utils.uts` | 颜色与 key 解析 |
+| `uni_modules/kit-ui/components/k-tabs/tab-indicator.uts` | 指示器几何 |
+| `uni_modules/kit-ui/components/k-tabs/tabs-layout.uts` | selectorQuery |
+| `uni_modules/kit-ui/components/k-tabs/tabs-style.uts` | 样式变量与类名 |
+| `uni_modules/kit-ui/components/k-tabs/tabs-nav.style.scss` | 导航样式 |
+| `uni_modules/kit-ui/components/k-tabs-nav-body/` | 导航编排入口 |
+| `uni_modules/kit-ui/components/k-tabs-nav-wrap/` | 导航 DOM + scroll-view |
 | `uni_modules/kit-ui/components/k-tab-pane/k-tab-pane.uvue` | 面板项 |
-| `uni_modules/kit-ui/components/k-tabs/README.md` | 文档 |
+| `uni_modules/kit-ui/components/k-tabs/README.md` | 组件文档 |
 | `pages-demo/tabs/tabs.uvue` | 演示 |
+| `docs/k-tabs跨端实现说明.md` | 跨端维护说明 |
+| `docs/k-tabs三端冒烟验收清单.md` | 验收记录 |
+
+---
+
+## 15. v1 收尾记录（2026-06-29）
+
+### 15.1 交付结论
+
+- 一期 v1 **可发版**；综合质量约 95/100（三端验收后）
+- 迭代 3 剩余项：`k-navbar`（`k-tabs` 已闭环）
+
+### 15.2 关键实现决策
+
+| 决策 | 原因 |
+| --- | --- |
+| 拆 `k-tabs-nav-body` + `k-tabs-nav-wrap` | 消除 scroll / 非 scroll 模板重复；测量 scope 与 DOM 同组件 |
+| `scroll-view` 放在 `nav-wrap` 内 | 微信 `scroll-into-view` 不能跨自定义组件找 `id` |
+| card/button 修饰类挂在 `nav-wrap` | 小程序样式隔离 |
+| 文字颜色内联 + CSS 变量注入 | APP / MP 子组件不继承父级变量 |
+| `icon` 替代 `label` slot | slot 跨组件转发限制（R-01） |
+
+### 15.3 二期预留
+
+- `swipeable`、`k-sticky-tabs`、垂直 `placement`、`label` slot、`beforeChange` Promise
+- 与 `k-form` validateTrigger 联动

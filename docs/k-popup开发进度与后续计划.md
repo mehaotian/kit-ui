@@ -129,9 +129,9 @@
 
 ## 4. 迭代 3 预览（迭代 2 完成后）
 
-- `k-tabs` / `k-tab-pane`
+- `k-tabs` / `k-tab-pane` — ✅ v1 已验收（`docs/k-tabs三端冒烟验收清单.md`）
 - `k-navbar`
-- `k-tabbar` / `k-tabbar-item`
+- ~~`k-tabbar` / `k-tabbar-item`~~（二期）
 - `k-pull-refresh` / `k-load-more`
 
 ---
