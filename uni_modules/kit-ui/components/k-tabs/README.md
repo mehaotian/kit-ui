@@ -92,9 +92,20 @@
 | `--k-tabs-button-indicator-bg` | button 型轨道浅底色 |
 | `--k-tabs-content-padding` | 内容区 padding |
 
+## 组件结构
+
+```text
+k-tabs                 状态、测量调度、provide
+k-tabs-nav-body        滚动容器（scroll-view 与 nav-wrap 编排）
+k-tabs-nav-wrap        导航 DOM、Tab 项、指示器（跨端 query / 样式落地）
+k-tab-pane             面板注册与 lazy 挂载
+```
+
+相关工具：`tab-indicator.uts`（几何）、`tabs-layout.uts`（selectorQuery）、`tabs-style.uts`（样式变量与类名）。
+
 ## 注意事项
 
 1. `value-type="name"` 时请勿混用未设 `name` 的 pane 与字符串 name 随意切换逻辑。
 2. 非法 `v-model`（无对应 pane）会在布局同步时自动回退到首项。
 3. 面板内嵌 `scroll-view` 时需注意与页面滚动协调，见演示页注释。
-4. APP 端 line / card / button 指示器动画走 `setProperty`；`k-tabs-nav-body` 通过 inject 向父级注册指示器 DOM ref。
+4. APP 端 line / card / button 指示器动画走 `setProperty`；`k-tabs-nav-wrap` 通过 inject 向父级注册指示器 DOM ref 与 query 作用域。

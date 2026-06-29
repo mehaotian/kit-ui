@@ -1,0 +1,114 @@
+import type { TabPaneRecord } from './tab.type.uts'
+import { calcLineIndicator, calcTrackIndicator, parseCssPx, resolveLineIndicatorWidth } from './tab-indicator.uts'
+
+/**
+ * 根据节点测量结果计算指示器/轨道 metrics
+ */
+export function calcIndicatorMetricsFromNodes(
+	tabType : string,
+	lineWidth : string,
+	lineHeight : string,
+	size : string,
+	navNode : NodeInfo,
+	itemNode : NodeInfo,
+	innerNode : NodeInfo | null
+) : UTSJSONObject | null {
+	if (navNode.left == null || navNode.top == null || navNode.height == null) {
+		return null
+	}
+	if (itemNode.left == null || itemNode.top == null || itemNode.width == null || itemNode.height == null) {
+		return null
+	}
+	if (tabType == 'line') {
+		let anchorLeft = itemNode.left as number
+		let anchorWidth = itemNode.width as number
+		if (innerNode != null && innerNode.left != null && innerNode.width != null) {
+			anchorLeft = innerNode.left as number
+			anchorWidth = innerNode.width as number
+		}
+		const lineH = parseCssPx(lineHeight, 2)
+		const lineW = resolveLineIndicatorWidth(anchorWidth, lineWidth, size)
+		return calcLineIndicator(
+			anchorLeft,
+			anchorWidth,
+			navNode.left as number,
+			lineW,
+			lineH,
+			navNode.height as number
+		)
+	}
+	return calcTrackIndicator(
+		itemNode.left as number,
+		itemNode.width as number,
+		itemNode.height as number,
+		itemNode.top as number,
+		navNode.left as number,
+		navNode.top as number
+	)
+}
+
+/**
+ * 测量滚动导航内容区总宽度
+ */
+export function queryScrollNavWidth(
+	scope : any,
+	panes : TabPaneRecord[],
+	onComplete : (totalWidth : number) => void
+) : void {
+	if (panes.length == 0) {
+		onComplete(0)
+		return
+	}
+	const query = uni.createSelectorQuery().in(scope)
+	for (let i = 0; i < panes.length; i++) {
+		query.select(`#k-tabs-item-${panes[i].elId}`).boundingClientRect()
+	}
+	query.exec((ret) => {
+		const nodes = ret as NodeInfo[]
+		if (nodes.length < panes.length) {
+			return
+		}
+		let totalW = 0
+		for (let i = 0; i < panes.length; i++) {
+			const node = nodes[i]
+			if (node != null && node.width != null) {
+				totalW += node.width as number
+			}
+		}
+		onComplete(totalW)
+	})
+}
+
+/**
+ * 测量并计算指示器/轨道 metrics
+ */
+export function queryIndicatorMetrics(
+	scope : any,
+	navElId : string,
+	pane : TabPaneRecord,
+	tabType : string,
+	lineWidth : string,
+	lineHeight : string,
+	size : string,
+	onComplete : (metrics : UTSJSONObject | null) => void
+) : void {
+	const query = uni.createSelectorQuery().in(scope)
+	query.select(`#${navElId}`).boundingClientRect()
+	query.select(`#k-tabs-item-${pane.elId}`).boundingClientRect()
+	query.select(`#k-tabs-inner-${pane.elId}`).boundingClientRect()
+	query.exec((ret) => {
+		const nodes = ret as NodeInfo[]
+		if (nodes.length < 3) {
+			onComplete(null)
+			return
+		}
+		const navNode = nodes[0]
+		const itemNode = nodes[1]
+		const innerNode = nodes[2]
+		if (navNode == null || itemNode == null) {
+			onComplete(null)
+			return
+		}
+		onComplete(calcIndicatorMetricsFromNodes(tabType, lineWidth, lineHeight, size, navNode, itemNode, innerNode))
+	})
+}

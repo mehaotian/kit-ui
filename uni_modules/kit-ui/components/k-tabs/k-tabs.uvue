@@ -3,7 +3,14 @@
 	import { buildThemeStyle, resolvePrimaryColor, resolveSecondaryColor } from '../../utils/theme.uts'
 	import type { TabPaneRecord, TabPanePatch } from './tab.type.uts'
 	import { resolvePaneKey, resolvePaneName, resolveActiveColorBg, resolveThemeBgColor } from './tab-utils.uts'
-	import { calcLineIndicator, calcTrackIndicator, parseCssPx, resolveLineIndicatorWidth } from './tab-indicator.uts'
+	import { queryScrollNavWidth, queryIndicatorMetrics } from './tabs-layout.uts'
+	import {
+		buildNavWrapCssVars,
+		buildIndicatorClassList,
+		buildIndicatorInlineStyle,
+		buildPanesLayoutKey,
+		resolveTabIconSize
+	} from './tabs-style.uts'
 	import {
 		K_TABS_ACTIVE_VALUE,
 		K_TABS_VALUE_TYPE,
@@ -281,29 +288,13 @@
 	 * 导航区 CSS 变量 + 滚动宽度（子组件 nav-body 内无法继承父级 .k-tabs 变量）
 	 */
 	const navBodyWrapStyle = computed((): UTSJSONObject => {
-		let navHeight = '44px'
-		let paddingX = '16px'
-		let fontSize = '14px'
-		if (props.size == 'small') {
-			navHeight = '32px'
-			paddingX = '10px'
-			fontSize = '12px'
-		} else if (props.size == 'large') {
-			navHeight = '52px'
-			paddingX = '20px'
-			fontSize = '17px'
-		}
-		const style : UTSJSONObject = {
-			'--k-tabs-nav-height': navHeight,
-			'--k-tabs-item-padding-x': paddingX,
-			'--k-tabs-font-size': fontSize,
-			'--k-tabs-active-color': resolvedActiveColor.value,
-			'--k-tabs-inactive-color': resolvedInactiveColor.value
-		}
-		if (isScrollable.value && navScrollWidth.value > 0) {
-			style['width'] = `${navScrollWidth.value}px`
-		}
-		return style
+		return buildNavWrapCssVars(
+			props.size,
+			resolvedActiveColor.value,
+			resolvedInactiveColor.value,
+			navScrollWidth.value,
+			isScrollable.value
+		)
 	})
 
 	/**
@@ -327,59 +318,33 @@
 	 * Tab 图标尺寸（略小于文字）
 	 */
 	const tabIconSize = computed((): string => {
-		if (props.size == 'small') {
-			return '12px'
-		}
-		if (props.size == 'large') {
-			return '16px'
-		}
-		return '14px'
+		return resolveTabIconSize(props.size)
 	})
 
 	/**
 	 * 指示器类名
 	 */
 	const indicatorClass = computed((): string[] => {
-		const classes = ['k-tabs__indicator', `k-tabs__indicator--${props.type}`]
-		if (props.animated && indicatorLayoutReady.value) {
-			classes.push('k-tabs__indicator--animated')
-		}
-		return classes
+		return buildIndicatorClassList(props.type, props.animated, indicatorLayoutReady.value)
 	})
 
 	/**
 	 * 指示器内联样式（WEB / MP）
 	 */
 	const indicatorStyle = computed((): UTSJSONObject => {
-		const base = indicatorInline.value
-		const useAnim = props.animated && indicatorLayoutReady.value
-		const duration = useAnim ? `${props.duration}ms` : '0ms'
-		const style : UTSJSONObject = {
-			position: 'absolute',
-			left: base['left'],
-			width: base['width'],
-			height: base['height'],
-			top: base['top'],
-			opacity: base['opacity'],
-			transitionDuration: duration
-		}
-		if (useAnim) {
-			style['transitionProperty'] = 'left, width, height, top'
-		}
-		return style
+		return buildIndicatorInlineStyle(
+			indicatorInline.value,
+			props.animated,
+			indicatorLayoutReady.value,
+			props.duration
+		)
 	})
 
 	/**
 	 * 面板元数据变化时重新测量滚动宽度（标题/徽标变更会影响 Tab 项宽度）
 	 */
 	const panesLayoutKey = computed((): string => {
-		const list = panes.value
-		const parts : string[] = []
-		for (let i = 0; i < list.length; i++) {
-			const pane = list[i]
-			parts.push(`${pane.title}|${pane.badge}|${pane.icon}|${pane.dot}`)
-		}
-		return parts.join(';')
+		return buildPanesLayoutKey(panes.value)
 	})
 
 	/**
@@ -451,24 +416,9 @@
 			navScrollWidth.value = 0
 			return
 		}
-		const query = uni.createSelectorQuery().in(navQueryScope)
-		for (let i = 0; i < list.length; i++) {
-			query.select(`#k-tabs-item-${list[i].elId}`).boundingClientRect()
-		}
-		query.exec((ret) => {
+		queryScrollNavWidth(navQueryScope, list, (totalW : number) => {
 			if (!isTabsAlive.value) {
 				return
-			}
-			const nodes = ret as NodeInfo[]
-			if (nodes.length < list.length) {
-				return
-			}
-			let totalW = 0
-			for (let i = 0; i < list.length; i++) {
-				const node = nodes[i]
-				if (node != null && node.width != null) {
-					totalW += node.width as number
-				}
 			}
 			navScrollWidth.value = totalW
 		})
@@ -491,70 +441,27 @@
 			if (!isTabsAlive.value) {
 				return
 			}
-			const query = uni.createSelectorQuery().in(navQueryScope)
-			query.select(`#${navElId}`).boundingClientRect()
-			query.select(`#k-tabs-item-${pane.elId}`).boundingClientRect()
-			query.select(`#k-tabs-inner-${pane.elId}`).boundingClientRect()
-			query.exec((ret) => {
-				if (!isTabsAlive.value) {
-					return
-				}
-				const nodes = ret as NodeInfo[]
-				if (nodes.length < 3) {
-					return
-				}
-				const navNode = nodes[0]
-				const itemNode = nodes[1]
-				const innerNode = nodes[2]
-				if (navNode == null || itemNode == null) {
-					return
-				}
-				if (navNode.left == null || navNode.top == null || navNode.height == null) {
-					return
-				}
-				if (itemNode.left == null || itemNode.top == null || itemNode.width == null || itemNode.height == null) {
-					return
-				}
-				let metrics : UTSJSONObject = {}
-				if (props.type == 'line') {
-					let anchorLeft = itemNode.left as number
-					let anchorWidth = itemNode.width as number
-					if (innerNode != null && innerNode.left != null && innerNode.width != null) {
-						anchorLeft = innerNode.left as number
-						anchorWidth = innerNode.width as number
+			queryIndicatorMetrics(
+				navQueryScope,
+				navElId,
+				pane,
+				props.type,
+				props.lineWidth,
+				props.lineHeight,
+				props.size,
+				(metrics : UTSJSONObject | null) => {
+					if (!isTabsAlive.value || metrics == null) {
+						return
 					}
-					const lineH = parseCssPx(props.lineHeight, 2)
-					const lineW = resolveLineIndicatorWidth(
-						anchorWidth,
-						props.lineWidth,
-						props.size
-					)
-					metrics = calcLineIndicator(
-						anchorLeft,
-						anchorWidth,
-						navNode.left as number,
-						lineW,
-						lineH,
-						navNode.height as number
-					)
-				} else {
-					metrics = calcTrackIndicator(
-						itemNode.left as number,
-						itemNode.width as number,
-						itemNode.height as number,
-						itemNode.top as number,
-						navNode.left as number,
-						navNode.top as number
-					)
+					indicatorInline.value = metrics
+					applyIndicatorToDom(metrics)
+					if (!indicatorLayoutReady.value) {
+						nextTick(() => {
+							indicatorLayoutReady.value = true
+						})
+					}
 				}
-				indicatorInline.value = metrics
-				applyIndicatorToDom(metrics)
-				if (!indicatorLayoutReady.value) {
-					nextTick(() => {
-						indicatorLayoutReady.value = true
-					})
-				}
-			})
+			)
 		})
 	}
 

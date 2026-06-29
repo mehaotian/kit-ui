@@ -1,0 +1,102 @@
+import type { TabPaneRecord } from './tab.type.uts'
+
+/**
+ * 解析 Tab 图标尺寸（略小于文字）
+ */
+export function resolveTabIconSize(size : string) : string {
+	if (size == 'small') {
+		return '12px'
+	}
+	if (size == 'large') {
+		return '16px'
+	}
+	return '14px'
+}
+
+/**
+ * 构建 nav-wrap 注入用 CSS 变量（子组件无法继承父级 .k-tabs 变量）
+ */
+export function buildNavWrapCssVars(
+	size : string,
+	activeColor : string,
+	inactiveColor : string,
+	scrollWidth : number,
+	isScrollable : boolean
+) : UTSJSONObject {
+	let navHeight = '44px'
+	let paddingX = '16px'
+	let fontSize = '14px'
+	if (size == 'small') {
+		navHeight = '32px'
+		paddingX = '10px'
+		fontSize = '12px'
+	} else if (size == 'large') {
+		navHeight = '52px'
+		paddingX = '20px'
+		fontSize = '17px'
+	}
+	const style : UTSJSONObject = {
+		'--k-tabs-nav-height': navHeight,
+		'--k-tabs-item-padding-x': paddingX,
+		'--k-tabs-font-size': fontSize,
+		'--k-tabs-active-color': activeColor,
+		'--k-tabs-inactive-color': inactiveColor
+	}
+	if (isScrollable && scrollWidth > 0) {
+		style['width'] = `${scrollWidth}px`
+	}
+	return style
+}
+
+/**
+ * 指示器类名列表
+ */
+export function buildIndicatorClassList(
+	tabType : string,
+	animated : boolean,
+	layoutReady : boolean
+) : string[] {
+	const classes = ['k-tabs__indicator', `k-tabs__indicator--${tabType}`]
+	if (animated && layoutReady) {
+		classes.push('k-tabs__indicator--animated')
+	}
+	return classes
+}
+
+/**
+ * 指示器内联样式（WEB / MP）
+ */
+export function buildIndicatorInlineStyle(
+	inline : UTSJSONObject,
+	animated : boolean,
+	layoutReady : boolean,
+	durationMs : number
+) : UTSJSONObject {
+	const useAnim = animated && layoutReady
+	const duration = useAnim ? `${durationMs}ms` : '0ms'
+	const style : UTSJSONObject = {
+		position: 'absolute',
+		left: inline['left'],
+		width: inline['width'],
+		height: inline['height'],
+		top: inline['top'],
+		opacity: inline['opacity'],
+		transitionDuration: duration
+	}
+	if (useAnim) {
+		style['transitionProperty'] = 'left, width, height, top'
+	}
+	return style
+}
+
+/**
+ * 面板元数据拼接 key（标题/徽标变更触发重新测量）
+ */
+export function buildPanesLayoutKey(panes : TabPaneRecord[]) : string {
+	const parts : string[] = []
+	for (let i = 0; i < panes.length; i++) {
+		const pane = panes[i]
+		parts.push(`${pane.title}|${pane.badge}|${pane.icon}|${pane.dot}`)
+	}
+	return parts.join(';')
+}

@@ -1,7 +1,5 @@
 <script setup lang="uts">
-	import { inject, onMounted, getCurrentInstance, computed, type Ref } from 'vue'
 	import type { TabPaneRecord } from '../k-tabs/tab.type.uts'
-	import { K_TABS_REGISTER_INDICATOR, K_TABS_REGISTER_NAV_QUERY_SCOPE } from '../k-tabs/tab.constants.uts'
 
 	defineOptions({
 		name: 'KTabsNavBody'
@@ -50,207 +48,33 @@
 		itemClick : [index: number]
 	}>()
 
-	const indicatorRef = ref<UniElement | null>(null)
-	const registerIndicatorRef = inject<((sourceRef : Ref<UniElement | null>) => void) | null>(
-		K_TABS_REGISTER_INDICATOR,
-		null
-	)
-	const registerNavQueryScope = inject<((scope : any) => void) | null>(
-		K_TABS_REGISTER_NAV_QUERY_SCOPE,
-		null
-	)
-
-	/** 子组件 setup 同步阶段捕获，供父级 selectorQuery 使用 */
-	const navBodyInstance = getCurrentInstance()!.proxy!
-
 	/**
-	 * nav-wrap 修饰类（type/size 写在子组件内，小程序才能命中 card/button 尺寸）
-	 */
-	const navWrapClass = computed((): string[] => {
-		const classes = [
-			`k-tabs__nav-wrap--${props.tabType}`,
-			`k-tabs__nav-wrap--${props.tabSize}`
-		]
-		if (props.scrollable) {
-			classes.push('k-tabs__nav-wrap--scrollable')
-		}
-		if (props.stretch) {
-			classes.push('k-tabs__nav-wrap--stretch')
-		}
-		return classes
-	})
-
-	/**
-	 * 判断某项是否激活
-	 */
-	function isItemActive(index : number) : boolean {
-		return props.activeIndex == index
-	}
-
-	/**
-	 * 判断某项是否禁用
-	 */
-	function isItemDisabled(pane : TabPaneRecord) : boolean {
-		if (props.groupDisabled) {
-			return true
-		}
-		return pane.disabled
-	}
-
-	/**
-	 * 解析 Tab 项图标颜色
-	 */
-	function resolveItemIconColor(index : number) : string {
-		if (isItemActive(index)) {
-			return props.activeColor
-		}
-		return props.inactiveColor
-	}
-
-	/**
-	 * 解析 Tab 项文字颜色（APP/小程序子组件无法继承父级 CSS 变量，需内联实色）
-	 */
-	function resolveItemTextStyle(index : number) : UTSJSONObject {
-		const pane = props.panes[index]
-		if (isItemDisabled(pane)) {
-			return {}
-		}
-		if (isItemActive(index)) {
-			return { color: props.activeColor }
-		}
-		return { color: props.inactiveColor }
-	}
-
-	/**
-	 * Tab 项点击
+	 * 转发 Tab 项点击
 	 */
 	const handleItemClick = (index : number) => {
 		emit('itemClick', index)
 	}
-
-	onMounted(() => {
-		if (registerNavQueryScope != null) {
-			registerNavQueryScope(navBodyInstance)
-		}
-		if (registerIndicatorRef != null) {
-			registerIndicatorRef(indicatorRef)
-		}
-	})
 </script>
 
 <template>
-	<view v-if="scrollable" class="k-tabs__scroll-host">
-		<scroll-view
-			class="k-tabs__scroll"
-			direction="horizontal"
-			:show-scrollbar="false"
-			:scroll-into-view="scrollIntoViewId"
-			:scroll-with-animation="scrollAnimated"
-		>
-			<view class="k-tabs__nav-wrap" :id="navElId" :class="navWrapClass" :style="navWrapStyle">
-				<view
-					v-if="showIndicator && panes.length > 0"
-					ref="indicatorRef"
-					:class="indicatorClass"
-					:style="indicatorStyle"
-				></view>
-				<view
-					v-for="(pane, index) in panes"
-					:key="pane.elId"
-					:id="'k-tabs-item-' + pane.elId"
-					class="k-tabs__item"
-					:class="{
-						'k-tabs__item--active': isItemActive(index),
-						'k-tabs__item--disabled': isItemDisabled(pane)
-					}"
-					@click="handleItemClick(index)"
-				>
-					<view class="k-tabs__item-inner" :id="'k-tabs-inner-' + pane.elId">
-						<k-icon
-							v-if="pane.icon != ''"
-							:name="pane.icon"
-							:size="tabIconSize"
-							:color="resolveItemIconColor(index)"
-							class="k-tabs__item-icon"
-						/>
-						<text class="k-tabs__item-text" :style="resolveItemTextStyle(index)">{{ pane.title }}</text>
-						<k-badge
-							v-if="pane.dot"
-							:dot="true"
-							class="k-tabs__item-badge"
-						/>
-						<k-badge
-							v-else-if="pane.badge != ''"
-							:value="pane.badge"
-							size="small"
-							class="k-tabs__item-badge"
-						/>
-					</view>
-				</view>
-			</view>
-		</scroll-view>
-	</view>
-	<view
-		v-else
-		class="k-tabs__nav-wrap"
-		:id="navElId"
-		:class="navWrapClass"
-		:style="navWrapStyle"
-	>
-		<view
-			v-if="showIndicator && panes.length > 0"
-			ref="indicatorRef"
-			:class="indicatorClass"
-			:style="indicatorStyle"
-		></view>
-		<view
-			v-for="(pane, index) in panes"
-			:key="pane.elId"
-			:id="'k-tabs-item-' + pane.elId"
-			class="k-tabs__item"
-			:class="{
-				'k-tabs__item--active': isItemActive(index),
-				'k-tabs__item--disabled': isItemDisabled(pane)
-			}"
-			@click="handleItemClick(index)"
-		>
-			<view class="k-tabs__item-inner" :id="'k-tabs-inner-' + pane.elId">
-				<k-icon
-					v-if="pane.icon != ''"
-					:name="pane.icon"
-					:size="tabIconSize"
-					:color="resolveItemIconColor(index)"
-					class="k-tabs__item-icon"
-				/>
-				<text class="k-tabs__item-text" :style="resolveItemTextStyle(index)">{{ pane.title }}</text>
-				<k-badge
-					v-if="pane.dot"
-					:dot="true"
-					class="k-tabs__item-badge"
-				/>
-				<k-badge
-					v-else-if="pane.badge != ''"
-					:value="pane.badge"
-					size="small"
-					class="k-tabs__item-badge"
-				/>
-			</view>
-		</view>
-	</view>
+	<k-tabs-nav-wrap
+		:nav-el-id="navElId"
+		:nav-wrap-style="navWrapStyle"
+		:panes="panes"
+		:show-indicator="showIndicator"
+		:indicator-class="indicatorClass"
+		:indicator-style="indicatorStyle"
+		:active-index="activeIndex"
+		:group-disabled="groupDisabled"
+		:tab-icon-size="tabIconSize"
+		:active-color="activeColor"
+		:inactive-color="inactiveColor"
+		:tab-type="tabType"
+		:tab-size="tabSize"
+		:scrollable="scrollable"
+		:stretch="stretch"
+		:scroll-into-view-id="scrollIntoViewId"
+		:scroll-animated="scrollAnimated"
+		@item-click="handleItemClick"
+	/>
 </template>
-
-<style lang="scss">
-	@import '../../theme/index.scss';
-	@import '../k-tabs/tabs-nav.style.scss';
-
-	.k-tabs__scroll-host {
-		flex: 1;
-		width: 100%;
-		min-width: 0;
-	}
-
-	.k-tabs__scroll {
-		width: 100%;
-		height: var(--k-tabs-nav-height);
-	}
-</style>
