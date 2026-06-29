@@ -17,6 +17,7 @@
 
 <script setup lang="uts">
 	import { createCellBorderRegistry, wrapCellBorderRegister } from '../k-cell/cell-border.uts'
+	import { ItemChildType } from '../k-cell/item.type.uts'
 	import { buildThemeStyle } from '../../utils/theme.uts'
 	// 组件属性类型定义
 	type KCellGroupProps = {
@@ -55,7 +56,9 @@
 	const cellBorderRegistry = createCellBorderRegistry()
 
 	provide('k-collapse-register-child', wrapCellBorderRegister(cellBorderRegistry))
-	provide('k-cell-unregister-child', cellBorderRegistry.unregister)
+	provide('k-cell-unregister-child', (child : ItemChildType) => {
+		cellBorderRegistry.unregister(child)
+	})
 
 	// 计算分组容器类名
 	const groupClass = computed(() : string[] => {

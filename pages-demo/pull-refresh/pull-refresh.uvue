@@ -45,9 +45,11 @@
 </script>
 
 <style lang="scss" scoped>
+	/* #ifndef APP */
 	.page--fill {
 		min-height: 100%;
 	}
+	/* #endif */
 
 	.notice-card {
 		padding: 16px;

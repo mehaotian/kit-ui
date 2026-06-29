@@ -228,7 +228,11 @@
 	 * 提交基础表单
 	 */
 	const handleBasicSubmit = () => {
-		const valid = basicFormRef.value?.validate?.() ?? false
+		const form = basicFormRef.value
+		let valid = false
+		if (form != null) {
+			valid = form.validate()
+		}
 		submitLog.value = valid ? '校验通过' : '校验失败，请检查表单项'
 	}
 
@@ -236,7 +240,11 @@
 	 * 提交复杂表单
 	 */
 	const handleComplexSubmit = () => {
-		const valid = complexFormRef.value?.validate?.() ?? false
+		const form = complexFormRef.value
+		let valid = false
+		if (form != null) {
+			valid = form.validate()
+		}
 		validateLog.value = valid ? '校验通过，可提交' : '校验失败'
 	}
 
@@ -244,7 +252,10 @@
 	 * 重置复杂表单校验状态
 	 */
 	const handleReset = () => {
-		complexFormRef.value?.resetValidation?.()
+		const form = complexFormRef.value
+		if (form != null) {
+			form.resetValidation()
+		}
 		validateLog.value = '已重置校验状态'
 	}
 </script>

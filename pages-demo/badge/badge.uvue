@@ -308,9 +308,12 @@
 </script>
 
 <style lang="scss" scoped>
-	
-
 	.demo-row {
+		overflow: visible;
+		align-items: flex-start;
+	}
+
+	.demo-block {
 		overflow: visible;
 	}
 

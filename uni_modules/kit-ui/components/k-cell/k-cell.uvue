@@ -277,8 +277,10 @@
 	 * 动态列表卸载时从父级 registry 移除，避免底线错乱
 	 */
 	onBeforeUnmount(() => {
-		if (cellUnregister != null && registeredChild != null) {
-			cellUnregister(registeredChild)
+		const unregister = cellUnregister
+		const childToUnregister = registeredChild
+		if (unregister != null && childToUnregister != null) {
+			unregister(childToUnregister)
 			registeredChild = null
 		}
 	})

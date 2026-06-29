@@ -59,6 +59,7 @@
 
 <script setup lang="uts">
 	import { createCellBorderRegistry, wrapCellBorderRegister } from '../k-cell/cell-border.uts'
+	import { ItemChildType } from '../k-cell/item.type.uts'
 	import { buildThemeStyle, resolvePrimaryColor, resolveSecondaryColor } from '../../utils/theme.uts'
 	import { shouldMarkLoadMoreSession, shouldShowBuiltInLoadMore, resolveAllLoadMoreTexts } from './list-utils.uts'
 	import { ListLoadMoreTexts } from './list.type.uts'
@@ -131,7 +132,9 @@
 	})
 
 	provide('k-collapse-register-child', wrapCellBorderRegister(cellBorderRegistry))
-	provide('k-cell-unregister-child', cellBorderRegistry.unregister)
+	provide('k-cell-unregister-child', (child : ItemChildType) => {
+		cellBorderRegistry.unregister(child)
+	})
 
 	/**
 	 * 监听分页相关 props，标记是否进入过 load-more 流程

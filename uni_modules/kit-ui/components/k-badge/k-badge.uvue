@@ -87,6 +87,93 @@
 		return props.dot
 	})
 
+	/**
+	 * 嵌套模式角标锚点外扩距离（px）
+	 * 小程序端 transform 百分比不稳定，改用像素定位挂角
+	 */
+	function resolveBadgeAnchorOffset(size : string | number, dot : boolean) : number {
+		if (dot) {
+			if (size == 'small') {
+				return 3
+			}
+			if (size == 'large') {
+				return 5
+			}
+			if (typeof size == 'number') {
+				return Math.max(2, Math.floor(size / 2))
+			}
+			return 4
+		}
+		if (size == 'small') {
+			return 8
+		}
+		if (size == 'large') {
+			return 12
+		}
+		if (typeof size == 'number') {
+			return Math.floor(size / 2)
+		}
+		return 10
+	}
+
+	/**
+	 * 嵌套模式角标定位样式（top/right/bottom/left + offset）
+	 */
+	function appendNestedBadgePosition(styles : string[]) : void {
+		const anchor = resolveBadgeAnchorOffset(props.size as string | number, isDot.value)
+		let top = 0
+		let right = 0
+		let bottom = 0
+		let left = 0
+
+		if (props.position == 'top-right') {
+			top = -anchor
+			right = -anchor
+		} else if (props.position == 'top-left') {
+			top = -anchor
+			left = -anchor
+		} else if (props.position == 'bottom-right') {
+			bottom = -anchor
+			right = -anchor
+		} else if (props.position == 'bottom-left') {
+			bottom = -anchor
+			left = -anchor
+		}
+
+		if (props.offset.length >= 2) {
+			const offsetX = props.offset[0]
+			const offsetY = props.offset[1]
+			if (props.position == 'top-right') {
+				top = top + offsetY
+				right = right - offsetX
+			} else if (props.position == 'top-left') {
+				top = top + offsetY
+				left = left + offsetX
+			} else if (props.position == 'bottom-right') {
+				bottom = bottom - offsetY
+				right = right - offsetX
+			} else if (props.position == 'bottom-left') {
+				bottom = bottom - offsetY
+				left = left + offsetX
+			}
+		}
+
+		styles.push('position: absolute')
+		styles.push('z-index: 10')
+		if (top != 0) {
+			styles.push(`top: ${top}px`)
+		}
+		if (right != 0) {
+			styles.push(`right: ${right}px`)
+		}
+		if (bottom != 0) {
+			styles.push(`bottom: ${bottom}px`)
+		}
+		if (left != 0) {
+			styles.push(`left: ${left}px`)
+		}
+	}
+
 	// 计算显示值
 	const displayValue = computed(() : string => {
 		if (isDot.value) return ''
@@ -151,9 +238,8 @@
 			classes.push('k-badge--dot')
 		}
 
-		// 添加位置样式（嵌套模式）
+		// 位置样式（嵌套模式类名保留，实际定位走内联 px）
 		if (hasSlot.value) {
-			classes.push('k-badge--absolute')
 			classes.push(`k-badge--${props.position}`)
 		}
 
@@ -195,25 +281,9 @@
 			styles.push(`border-style: solid`)
 		}
 
-		// 处理偏移量（嵌套模式）
-		if (hasSlot.value && props.offset.length >= 2) {
-			let x = props.offset[0]
-			let y = props.offset[1]
-
-			// 根据位置调整偏移方向
-			if (props.position == 'top-right') {
-				styles.push(`top: ${y}px`)
-				styles.push(`right: ${-x}px`)
-			} else if (props.position == 'top-left') {
-				styles.push(`top: ${y}px`)
-				styles.push(`left: ${x}px`)
-			} else if (props.position == 'bottom-right') {
-				styles.push(`bottom: ${-y}px`)
-				styles.push(`right: ${-x}px`)
-			} else if (props.position == 'bottom-left') {
-				styles.push(`bottom: ${-y}px`)
-				styles.push(`left: ${x}px`)
-			}
+		// 嵌套模式：像素锚点定位（MP 端避免 transform 百分比裁切/偏移）
+		if (hasSlot.value) {
+			appendNestedBadgePosition(styles)
 		}
 
 		return styles.join('; ')
@@ -251,14 +321,24 @@
 
 <style lang="scss">
 	.k-badge-wrapper {
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		overflow: visible;
-		flex-shrink: 0;
+
+		&:not(.k-badge-wrapper--relative) {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
 
 		&--relative {
 			position: relative;
+			display: inline-flex;
+			flex-direction: row;
+			align-items: flex-start;
+			justify-content: flex-start;
+			flex-shrink: 0;
+			flex-grow: 0;
+			align-self: flex-start;
 			overflow: visible;
 		}
 	}
@@ -270,37 +350,6 @@
 		box-sizing: border-box;
 		border-radius: 50px;
 		flex-shrink: 0;
-
-		// 绝对定位（嵌套模式）
-		&--absolute {
-			position: absolute;
-			transform: translate(50%, -50%);
-			z-index: 10;
-		}
-
-		// 位置样式
-		&--top-right {
-			top: 0;
-			right: 0;
-		}
-
-		&--top-left {
-			top: 0;
-			left: 0;
-			transform: translate(-50%, -50%);
-		}
-
-		&--bottom-right {
-			bottom: 0;
-			right: 0;
-			transform: translate(50%, 50%);
-		}
-
-		&--bottom-left {
-			bottom: 0;
-			left: 0;
-			transform: translate(-50%, 50%);
-		}
 
 		// 尺寸样式
 		&--small {
