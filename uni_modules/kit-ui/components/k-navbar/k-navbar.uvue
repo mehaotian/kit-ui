@@ -82,7 +82,10 @@
 		resolveNavbarHeight,
 		isPageNavLayout,
 		createDefaultNavbarLayout,
-		estimateTitleSafePadding
+		estimateTitleSafePadding,
+		bindNavbarWindowResize,
+		unbindNavbarWindowResize,
+		type NavbarWindowResizeHandler
 	} from './navbar-utils.uts'
 
 	defineOptions({
@@ -141,10 +144,8 @@
 
 	const layout = ref(createDefaultNavbarLayout())
 
-	/** 窗口尺寸变化回调（WEB/MP 使用，APP 不编译） */
-	// #ifndef APP
-	let windowResizeHandler : ((res : any) => void) | null = null
-	// #endif
+	/** 窗口尺寸变化 token（WEB/MP 使用，APP 为 null） */
+	let windowResizeHandler : NavbarWindowResizeHandler | null = null
 
 	/**
 	 * 同步布局：仅 fixed + safeAreaInsetTop 时启用状态栏与胶囊避让
@@ -154,30 +155,23 @@
 	}
 
 	/**
-	 * 注册窗口尺寸变化监听（APP 端不支持 uni.onWindowResize，见 kit-ui-uts-app-compat）
+	 * 注册窗口尺寸变化监听（APP 端 noop，见 navbar-utils.bindNavbarWindowResize）
 	 */
 	const bindWindowResize = () => {
-		// #ifndef APP
 		if (windowResizeHandler != null) {
 			return
 		}
-		windowResizeHandler = (_res : any) => {
+		windowResizeHandler = bindNavbarWindowResize(() => {
 			syncNavbarLayout()
-		}
-		uni.onWindowResize(windowResizeHandler)
-		// #endif
+		})
 	}
 
 	/**
 	 * 注销窗口尺寸变化监听
 	 */
 	const unbindWindowResize = () => {
-		// #ifndef APP
-		if (windowResizeHandler != null) {
-			uni.offWindowResize(windowResizeHandler)
-			windowResizeHandler = null
-		}
-		// #endif
+		unbindNavbarWindowResize(windowResizeHandler)
+		windowResizeHandler = null
 	}
 
 	onMounted(() => {

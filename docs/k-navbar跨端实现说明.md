@@ -79,13 +79,12 @@ rightInset       ← windowWidth - capsule.left + MP_CAPSULE_CONTENT_GAP(10)
 
 | 端 | 实现 |
 | --- | --- |
-| WEB / 微信 MP | `onMounted` 注册 `uni.onWindowResize` → `syncNavbarLayout()`；`onUnmounted` 注销 |
-| APP | **不使用** `onWindowResize`（UTS/Kotlin 不支持该 API）；依赖 `onMounted` + props `watch`；横竖屏后可调用 `syncLayout()` |
+| WEB / 微信 MP | `bindNavbarWindowResize` → `syncNavbarLayout()`；`onUnmounted` 注销 |
+| APP | **不使用** 窗口 resize（UTS/Kotlin 无该 API）；依赖 `onMounted` + props `watch`；横竖屏后可调用 `syncLayout()` |
 
 ```uts
-// #ifndef APP
-uni.onWindowResize(handler)
-// #endif
+// navbar-utils.uts：WEB 端 Uni 类型未声明 onWindowResize，使用 UTSJSONObject 下标访问
+bindNavbarWindowResize(() => syncNavbarLayout())
 ```
 
 ---

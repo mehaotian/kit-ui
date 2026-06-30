@@ -164,3 +164,65 @@ export function estimateTitleSafePadding(
 	const safe = leftNeed > rightNeed ? leftNeed : rightNeed
 	return safe < NAVBAR_SIDE_WIDTH ? NAVBAR_SIDE_WIDTH : safe
 }
+
+/** 窗口 resize 回调类型（APP 不注册，仅占位） */
+export type NavbarWindowResizeHandler = (res : any) => void
+
+// #ifndef APP
+/**
+ * 通过 UTSJSONObject 下标调用 uni.onWindowResize（WEB 端 Uni 类型未声明该 API）
+ */
+function invokeUniOnWindowResize(handler : NavbarWindowResizeHandler) {
+	const uniApi = uni as UTSJSONObject
+	const fn = uniApi['onWindowResize']
+	if (fn == null) {
+		return
+	}
+	const call = fn as ((h : NavbarWindowResizeHandler) => void)
+	call(handler)
+}
+
+/**
+ * 通过 UTSJSONObject 下标调用 uni.offWindowResize
+ */
+function invokeUniOffWindowResize(handler : NavbarWindowResizeHandler) {
+	const uniApi = uni as UTSJSONObject
+	const fn = uniApi['offWindowResize']
+	if (fn == null) {
+		return
+	}
+	const call = fn as ((h : NavbarWindowResizeHandler) => void)
+	call(handler)
+}
+// #endif
+
+/**
+ * 注册窗口尺寸变化监听（APP 返回 null）
+ */
+export function bindNavbarWindowResize(onResize : () => void) : NavbarWindowResizeHandler | null {
+	// #ifdef APP
+	return null
+	// #endif
+	// #ifndef APP
+	const handler : NavbarWindowResizeHandler = (_res : any) => {
+		onResize()
+	}
+	invokeUniOnWindowResize(handler)
+	return handler
+	// #endif
+}
+
+/**
+ * 注销窗口尺寸变化监听
+ */
+export function unbindNavbarWindowResize(handler : NavbarWindowResizeHandler | null) {
+	// #ifdef APP
+	return
+	// #endif
+	// #ifndef APP
+	if (handler == null) {
+		return
+	}
+	invokeUniOffWindowResize(handler)
+	// #endif
+}
