@@ -1,0 +1,29 @@
+/**
+ * k-swiper 类型定义
+ */
+
+/** 轮播场景预设 */
+export type SwiperMode = 'default' | 'banner' | 'card' | 'vertical'
+
+/** 指示器类型 */
+export type SwiperIndicatorType = 'dot' | 'line' | 'number' | 'none'
+
+/** mode 预设合并结果 */
+export type SwiperModeResolved = {
+	autoplay : boolean
+	circular : boolean
+	vertical : boolean
+	height : string
+	previousMargin : string
+	nextMargin : string
+	radius : string
+	indicatorType : SwiperIndicatorType
+}
+
+/** 数据驱动 list 项（业务可扩展字段） */
+export type SwiperListItem = {
+	image ?: string
+	title ?: string
+	desc ?: string
+	url ?: string
+}

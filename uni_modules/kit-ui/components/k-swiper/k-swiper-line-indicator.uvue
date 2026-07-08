@@ -1,0 +1,65 @@
+<template>
+	<view
+		class="k-swiper__indicator k-swiper__indicator--line"
+		:class="placementClass"
+	>
+		<view
+			v-for="(barIndex) in indexes"
+			:key="barIndex"
+			class="k-swiper__indicator-bar"
+			:class="[barClass, { 'k-swiper__indicator-bar--active': barIndex == current }]"
+			:style="getBarStyle(barIndex)"
+		></view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { computed } from 'vue'
+
+	defineOptions({
+		name: 'KSwiperLineIndicator'
+	})
+
+	type KSwiperLineIndicatorProps = {
+		indexes : number[]
+		current : number
+		onLight ?: boolean
+		placement ?: string
+	}
+
+	const props = withDefaults(defineProps<KSwiperLineIndicatorProps>(), {
+		current: 0,
+		onLight: false,
+		placement: 'overlay'
+	})
+
+	/**
+	 * 指示器定位 class
+	 */
+	const placementClass = computed((): string => {
+		if (props.placement == 'below') {
+			return 'k-swiper__indicator--below'
+		}
+		return 'k-swiper__indicator--overlay'
+	})
+
+	/**
+	 * 指示条 class
+	 */
+	const barClass = computed((): string => {
+		if (props.onLight) {
+			return 'k-swiper__indicator-bar--on-light'
+		}
+		return ''
+	})
+
+	/**
+	 * 长条指示器激活态宽度
+	 */
+	function getBarStyle(index : number) : string {
+		if (index == props.current) {
+			return 'width: 18px'
+		}
+		return 'width: 6px'
+	}
+</script>

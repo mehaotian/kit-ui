@@ -83,7 +83,7 @@ rightInset       ← windowWidth - capsule.left + MP_CAPSULE_CONTENT_GAP(10)
 | APP | **不使用** 窗口 resize（UTS/Kotlin 无该 API）；依赖 `onMounted` + props `watch`；横竖屏后可调用 `syncLayout()` |
 
 ```uts
-// navbar-utils.uts：WEB 端 Uni 类型未声明 onWindowResize，使用 UTSJSONObject 下标访问
+// navbar-utils.uts：WEB 端 Uni 类型未声明 onWindowResize，使用 `uni as unknown as UTSJSONObject` 下标访问
 bindNavbarWindowResize(() => syncNavbarLayout())
 ```
 

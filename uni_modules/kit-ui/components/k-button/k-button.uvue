@@ -138,13 +138,25 @@
 			if (props.type == 'danger') {
 				return 'var(--k-color-error, #ef4444)'
 			}
-			return 'var(--k-text-color, #374151)'
+			return '#374151'
 		}
 
 		if (props.type == 'primary' || props.type == 'success' || props.type == 'warning' || props.type == 'danger') {
 			return '#ffffff'
 		}
-		return 'var(--k-text-color, #374151)'
+		return '#374151'
+	})
+
+	/**
+	 * 文字行内样式（APP 动态切换 type 时 CSS 类色可能不刷新）
+	 */
+	const textStyle = computed((): string => {
+		const styles : string[] = []
+		styles.push(`color: ${contentColor.value}`)
+		if (!props.plain && (props.type == 'primary' || props.type == 'success' || props.type == 'warning' || props.type == 'danger')) {
+			styles.push('font-weight: 700')
+		}
+		return styles.join('; ')
 	})
 
 	/**
@@ -190,7 +202,7 @@
 		<view v-else-if="icon != ''" class="k-button__icon">
 			<k-icon class="k-button__icon-inner" :name="icon" :size="iconSize" :color="contentColor"></k-icon>
 		</view>
-		<text class="k-button__text">
+		<text class="k-button__text" :style="textStyle">
 			<slot>{{ text }}</slot>
 		</text>
 		<!-- #ifdef WEB -->

@@ -1,0 +1,299 @@
+import type { SwiperIndicatorType, SwiperModeResolved } from './swiper.type.uts'
+
+/**
+ * 从 list 项读取字符串字段（兼容 string 项与 UTSJSONObject）
+ */
+export function readSwiperListField(item : any | null, key : string) : string {
+	if (item == null || key == '') {
+		return ''
+	}
+	if (typeof item == 'string') {
+		return item as string
+	}
+	if (item instanceof UTSJSONObject) {
+		const val = (item as UTSJSONObject).get(key)
+		if (val != null && `${val}` != '') {
+			return `${val}`
+		}
+		return ''
+	}
+	const jsonStr = JSON.stringify(item)
+	if (jsonStr == '' || jsonStr == 'null') {
+		return ''
+	}
+	const parsed = JSON.parse<UTSJSONObject>(jsonStr)
+	if (parsed == null) {
+		return ''
+	}
+	const val = parsed.get(key)
+	if (val != null && `${val}` != '') {
+		return `${val}`
+	}
+	return ''
+}
+
+/**
+ * 规范化 list 为数组
+ */
+export function normalizeSwiperList(list : any | null) : any[] {
+	if (list == null) {
+		return []
+	}
+	if (!(list instanceof Array)) {
+		return []
+	}
+	return list as any[]
+}
+
+/**
+ * 解析 list 项图片地址
+ */
+export function resolveSwiperListImage(item : any | null, imageKey : string) : string {
+	if (item == null) {
+		return ''
+	}
+	if (typeof item == 'string') {
+		return item as string
+	}
+	const image = readSwiperListField(item, imageKey)
+	if (image != '') {
+		return image
+	}
+	return readSwiperListField(item, 'src')
+}
+
+/**
+ * 解析 list 项标题
+ */
+export function resolveSwiperListTitle(item : any | null, titleKey : string) : string {
+	return readSwiperListField(item, titleKey)
+}
+
+/**
+ * 解析 list 项描述
+ */
+export function resolveSwiperListDesc(item : any | null, descKey : string) : string {
+	return readSwiperListField(item, descKey)
+}
+
+/**
+ * 根据 mode 生成默认行为（显式 props 可在组件内覆盖）
+ */
+export function resolveSwiperModePreset(mode : string) : SwiperModeResolved {
+	if (mode == 'banner') {
+		return {
+			autoplay: true,
+			circular: true,
+			vertical: false,
+			height: '160px',
+			previousMargin: '0px',
+			nextMargin: '0px',
+			radius: '8px',
+			indicatorType: 'line'
+		}
+	}
+	if (mode == 'card') {
+		return {
+			autoplay: false,
+			circular: false,
+			vertical: false,
+			height: '196px',
+			previousMargin: '52px',
+			nextMargin: '52px',
+			radius: '12px',
+			indicatorType: 'line'
+		}
+	}
+	if (mode == 'vertical') {
+		return {
+			autoplay: false,
+			circular: false,
+			vertical: true,
+			height: '180px',
+			previousMargin: '0px',
+			nextMargin: '0px',
+			radius: '8px',
+			indicatorType: 'dot'
+		}
+	}
+	return {
+		autoplay: false,
+		circular: false,
+		vertical: false,
+		height: '160px',
+		previousMargin: '0px',
+		nextMargin: '0px',
+		radius: '8px',
+		indicatorType: 'dot'
+	}
+}
+
+/**
+ * 解析最终指示器类型
+ */
+export function resolveSwiperIndicatorType(mode : string, indicatorType : string) : SwiperIndicatorType {
+	if (indicatorType == 'dot' || indicatorType == 'line' || indicatorType == 'number' || indicatorType == 'none') {
+		return indicatorType as SwiperIndicatorType
+	}
+	return resolveSwiperModePreset(mode).indicatorType
+}
+
+/**
+ * 是否使用原生 indicator-dots
+ */
+export function useNativeIndicatorDots(indicatorType : SwiperIndicatorType) : boolean {
+	return indicatorType == 'dot'
+}
+
+/**
+ * 是否渲染 kit-ui 自定义指示器层
+ */
+export function useCustomIndicatorLayer(indicatorType : SwiperIndicatorType) : boolean {
+	return indicatorType == 'line' || indicatorType == 'number'
+}
+
+/**
+ * 合并 autoplay：显式传入优先，否则走 mode 预设
+ */
+export function resolveSwiperAutoplay(mode : string, autoplay : boolean | null) : boolean {
+	if (autoplay != null) {
+		return autoplay
+	}
+	return resolveSwiperModePreset(mode).autoplay
+}
+
+/**
+ * 合并 circular
+ */
+export function resolveSwiperCircular(mode : string, circular : boolean | null) : boolean {
+	if (circular != null) {
+		return circular
+	}
+	return resolveSwiperModePreset(mode).circular
+}
+
+/**
+ * 合并 vertical
+ */
+export function resolveSwiperVertical(mode : string, vertical : boolean | null) : boolean {
+	if (vertical != null) {
+		return vertical
+	}
+	return resolveSwiperModePreset(mode).vertical
+}
+
+/**
+ * 合并 height
+ */
+export function resolveSwiperHeight(mode : string, height : string) : string {
+	if (height != '') {
+		return height
+	}
+	return resolveSwiperModePreset(mode).height
+}
+
+/**
+ * 合并 previousMargin
+ */
+export function resolveSwiperPreviousMargin(mode : string, previousMargin : string) : string {
+	if (previousMargin != '') {
+		return previousMargin
+	}
+	return resolveSwiperModePreset(mode).previousMargin
+}
+
+/**
+ * 合并 nextMargin
+ */
+export function resolveSwiperNextMargin(mode : string, nextMargin : string) : string {
+	if (nextMargin != '') {
+		return nextMargin
+	}
+	return resolveSwiperModePreset(mode).nextMargin
+}
+
+/**
+ * 合并 radius
+ */
+export function resolveSwiperRadius(mode : string, radius : string) : string {
+	if (radius != '') {
+		return radius
+	}
+	return resolveSwiperModePreset(mode).radius
+}
+
+/**
+ * 解析指示器数量：list 优先，否则 itemCount
+ */
+export function resolveSwiperIndicatorCount(list : any[] | null, itemCount : number) : number {
+	if (list != null && list.length > 0) {
+		return list.length
+	}
+	if (itemCount > 0) {
+		return itemCount
+	}
+	return 0
+}
+
+/**
+ * 解析 display-multiple-items（MP 不允许大于 item 数量）
+ */
+export function resolveSwiperDisplayMultipleItems(itemCount : number, requested : number) : number {
+	if (itemCount <= 0) {
+		return 1
+	}
+	if (requested <= 0) {
+		return 1
+	}
+	if (requested > itemCount) {
+		return itemCount
+	}
+	return requested
+}
+
+/**
+ * 项数不足时关闭 circular，避免 MP 滑动异常
+ */
+export function resolveSwiperCircularSafe(circular : boolean, itemCount : number) : boolean {
+	if (itemCount <= 1) {
+		return false
+	}
+	return circular
+}
+
+/**
+ * 构建 swiper-item 外壳 class（card 非激活态弱化）
+ */
+export function buildSwiperItemShellClass(
+	mode : string,
+	index : number,
+	current : number,
+	hasImage : boolean,
+	customClass : string
+) : string {
+	const classes : string[] = []
+	if (customClass != '') {
+		classes.push(customClass)
+	}
+	if (hasImage) {
+		classes.push('k-swiper-item--image')
+	}
+	if (mode == 'card') {
+		classes.push('k-swiper-item--card')
+		if (index >= 0 && index != current) {
+			classes.push('k-swiper-item--inactive')
+		}
+	}
+	return classes.join(' ')
+}
+
+/**
+ * 构建分页文案（1-based）
+ */
+export function buildSwiperNumberText(current : number, total : number) : string {
+	if (total <= 0) {
+		return '0/0'
+	}
+	const index = current + 1
+	return `${index}/${total}`
+}

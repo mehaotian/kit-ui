@@ -1,0 +1,5 @@
+/** k-swiper 向子项注入的 mode 键 */
+export const K_SWIPER_MODE_KEY = 'k-swiper-mode'
+
+/** k-swiper 向子项注入的当前索引键 */
+export const K_SWIPER_CURRENT_KEY = 'k-swiper-current'

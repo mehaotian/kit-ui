@@ -101,7 +101,7 @@
 				{ name: 'Empty｜空状态', path: '/pages-demo/empty/empty', status: 'completed' },
 				{ name: 'LoadMore｜加载更多', path: '/pages-demo/load-more/load-more', status: 'completed' },
 				{ name: 'PullRefresh｜下拉刷新', path: '/pages-demo/pull-refresh/pull-refresh', status: 'planning' },
-				{ name: 'Swiper | 轮播图', path: '/pages-demo/swiper/swiper', status: 'planning' },
+				{ name: 'Swiper | 轮播图', path: '/pages-demo/swiper/swiper', status: 'completed' },
 				{ name: 'Calendar｜日历', path: '/pages-demo/calendar/calendar', status: 'planning' },
 				{ name: 'Table｜表格', path: '/pages-demo/table/table', status: 'planning' },
 			]

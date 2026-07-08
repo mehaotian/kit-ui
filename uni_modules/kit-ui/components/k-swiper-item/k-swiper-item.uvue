@@ -1,0 +1,79 @@
+<template>
+	<swiper-item :style="customStyle">
+		<view class="k-swiper-item" :class="itemClass">
+			<k-swiper-item-body
+				:image="image"
+				:title="title"
+				:desc="desc"
+				:image-radius="imageRadius"
+				@click="handleClick"
+			>
+				<slot></slot>
+			</k-swiper-item-body>
+		</view>
+	</swiper-item>
+</template>
+
+<script setup lang="uts">
+	import { inject, computed, type Ref } from 'vue'
+	import { K_SWIPER_MODE_KEY, K_SWIPER_CURRENT_KEY } from '../k-swiper/swiper.constants.uts'
+	import { buildSwiperItemShellClass } from '../k-swiper/swiper-utils.uts'
+
+	defineOptions({
+		name: 'KSwiperItem'
+	})
+
+	type KSwiperItemProps = {
+		index ?: number
+		image ?: string
+		title ?: string
+		desc ?: string
+		imageRadius ?: string
+		customStyle ?: string
+		customClass ?: string
+	}
+
+	const props = withDefaults(defineProps<KSwiperItemProps>(), {
+		index: -1,
+		image: '',
+		title: '',
+		desc: '',
+		imageRadius: '0px',
+		customStyle: '',
+		customClass: ''
+	})
+
+	const emit = defineEmits<{
+		click : [event: Event]
+	}>()
+
+	const swiperMode = inject<Ref<string> | null>(K_SWIPER_MODE_KEY, null)
+	const swiperCurrent = inject<Ref<number> | null>(K_SWIPER_CURRENT_KEY, null)
+
+	/**
+	 * 是否展示图片模式
+	 */
+	const hasImage = computed((): boolean => {
+		return props.image != ''
+	})
+
+	/**
+	 * 项 class
+	 */
+	const itemClass = computed((): string => {
+		const mode = swiperMode != null ? swiperMode.value : 'default'
+		const current = swiperCurrent != null ? swiperCurrent.value : props.index
+		return buildSwiperItemShellClass(mode, props.index, current, hasImage.value, props.customClass)
+	})
+
+	/**
+	 * 处理点击并向父级冒泡
+	 */
+	function handleClick(event : Event) : void {
+		emit('click', event)
+	}
+</script>
+
+<style lang="scss">
+	@import "./k-swiper-item-shell.scss";
+</style>

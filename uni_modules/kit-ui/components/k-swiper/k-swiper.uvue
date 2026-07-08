@@ -1,0 +1,672 @@
+<template>
+	<view
+		class="kit-ui--root k-swiper"
+		:class="rootClass"
+		:style="rootStyle"
+		@mouseenter="handleMouseEnter"
+		@mouseleave="handleMouseLeave"
+	>
+		<view class="k-swiper__viewport" :class="{ 'k-swiper__viewport--card': isCardMode }">
+			<swiper
+				:key="swiperRenderKey"
+				class="k-swiper__inner"
+				:style="swiperStyle"
+				:current="innerCurrent"
+				:autoplay="effectiveAutoplayRunning"
+				:interval="interval"
+				:duration="duration"
+				:circular="effectiveCircularSafe"
+				:vertical="effectiveVertical"
+				:indicator-dots="showNativeIndicator"
+				:indicator-color="resolvedIndicatorColor"
+				:indicator-active-color="resolvedIndicatorActiveColor"
+				:disable-touch="disableTouch"
+				:previous-margin="effectivePreviousMargin"
+				:next-margin="effectiveNextMargin"
+				:display-multiple-items="effectiveDisplayMultipleItems"
+				:easing-function="easingFunction"
+				@change="handleChange"
+				@animationfinish="handleAnimationFinish"
+			>
+				<!-- MP：swiper-item 必须是 swiper 直接子节点，list 模式用原生 swiper-item -->
+				<!-- #ifdef MP -->
+				<swiper-item
+					v-for="(item, index) in normalizedList"
+					v-if="useListMode"
+					:key="index"
+				>
+					<view
+						class="k-swiper-item"
+						:class="getListItemShellClass(index, item)"
+					>
+						<k-swiper-item-body
+							:image="resolveSwiperListImage(item, imageKey)"
+							:title="resolveSwiperListTitle(item, titleKey)"
+							:desc="resolveSwiperListDesc(item, descKey)"
+							:image-radius="listItemImageRadius"
+							@click="handleListItemClick(index, item)"
+						/>
+					</view>
+				</swiper-item>
+				<!-- #endif -->
+				<!-- #ifndef MP -->
+				<k-swiper-item
+					v-for="(item, index) in normalizedList"
+					v-if="useListMode"
+					:key="index"
+					:index="index"
+					:image="resolveSwiperListImage(item, imageKey)"
+					:title="resolveSwiperListTitle(item, titleKey)"
+					:desc="resolveSwiperListDesc(item, descKey)"
+					:image-radius="listItemImageRadius"
+					@click="handleListItemClick(index, item)"
+				/>
+				<slot v-if="!useListMode"></slot>
+				<!-- #endif -->
+			</swiper>
+
+			<k-swiper-line-indicator
+				v-if="showLineIndicator && !isCardMode"
+				:indexes="indicatorIndexes"
+				:current="innerCurrent"
+				placement="overlay"
+			/>
+
+			<view
+				v-if="showNumberIndicator"
+				class="k-swiper__indicator k-swiper__indicator--number k-swiper__indicator--overlay"
+			>
+				<text class="k-swiper__indicator-number">{{ numberIndicatorText }}</text>
+			</view>
+		</view>
+
+		<k-swiper-line-indicator
+			v-if="showLineIndicator && isCardMode"
+			:indexes="indicatorIndexes"
+			:current="innerCurrent"
+			:on-light="true"
+			placement="below"
+		/>
+
+		<slot name="indicator"></slot>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { inject, computed, ref, watch, provide, nextTick } from 'vue'
+	import { buildThemeStyle, resolvePrimaryColor } from '../../utils/theme.uts'
+	import type { SwiperIndicatorType, SwiperMode, SwiperModeResolved } from './swiper.type.uts'
+	import { K_SWIPER_MODE_KEY, K_SWIPER_CURRENT_KEY } from './swiper.constants.uts'
+	import KSwiperLineIndicator from './k-swiper-line-indicator.uvue'
+	import {
+		normalizeSwiperList,
+		resolveSwiperModePreset,
+		useNativeIndicatorDots,
+		useCustomIndicatorLayer,
+		resolveSwiperIndicatorCount,
+		buildSwiperNumberText,
+		resolveSwiperListImage,
+		resolveSwiperListTitle,
+		resolveSwiperListDesc,
+		resolveSwiperDisplayMultipleItems,
+		resolveSwiperCircularSafe,
+		buildSwiperItemShellClass
+	} from './swiper-utils.uts'
+
+	defineOptions({
+		name: 'KSwiper'
+	})
+
+	type KSwiperProps = {
+		modelValue ?: number
+		mode ?: SwiperMode
+		list ?: any[]
+		imageKey ?: string
+		titleKey ?: string
+		descKey ?: string
+		itemCount ?: number
+		autoplay ?: boolean
+		interval ?: number
+		duration ?: number
+		circular ?: boolean
+		vertical ?: boolean
+		indicatorType ?: string
+		indicatorColor ?: string
+		indicatorActiveColor ?: string
+		height ?: string
+		radius ?: string
+		disableTouch ?: boolean
+		previousMargin ?: string
+		nextMargin ?: string
+		displayMultipleItems ?: number
+		easingFunction ?: string
+		pauseOnHover ?: boolean
+		customStyle ?: string
+		customClass ?: string
+	}
+
+	const props = withDefaults(defineProps<KSwiperProps>(), {
+		modelValue: 0,
+		mode: 'default',
+		list: null,
+		imageKey: 'image',
+		titleKey: 'title',
+		descKey: 'desc',
+		itemCount: 0,
+		autoplay: null,
+		interval: 3000,
+		duration: 500,
+		circular: null,
+		vertical: null,
+		indicatorType: '',
+		indicatorColor: '',
+		indicatorActiveColor: '',
+		height: '',
+		radius: '',
+		disableTouch: false,
+		previousMargin: '',
+		nextMargin: '',
+		displayMultipleItems: 1,
+		easingFunction: 'default',
+		pauseOnHover: true,
+		customStyle: '',
+		customClass: ''
+	})
+
+	const emit = defineEmits<{
+		'update:modelValue' : [value: number]
+		change : [current: number, source: string]
+		animationfinish : [current: number, source: string]
+		click : [index: number, item: any | null]
+	}>()
+
+	const themeConfig = inject('kit-theme', {})
+	const innerCurrent = ref<number>(props.modelValue)
+	const hoverPaused = ref<boolean>(false)
+	// #ifdef APP
+	const appSwiperRenderKey = ref<number>(0)
+	// #endif
+
+	const swiperModeRef = ref<string>(props.mode)
+	provide(K_SWIPER_MODE_KEY, swiperModeRef)
+	provide(K_SWIPER_CURRENT_KEY, innerCurrent)
+
+	watch((): string => props.mode, (mode : string) => {
+		swiperModeRef.value = mode
+	})
+
+	watch((): number => props.modelValue, (value : number) => {
+		innerCurrent.value = value
+	})
+
+	/**
+	 * 规范化 list（须先于 useListMode / listItemImageRadius 声明，APP Kotlin 门禁）
+	 */
+	const normalizedList = computed((): any[] => {
+		return normalizeSwiperList(props.list)
+	})
+
+	/**
+	 * mode 预设（单次解析，须先于 effectiveRadius / effective* 声明，APP Kotlin 门禁）
+	 */
+	const modePreset = computed((): SwiperModeResolved => {
+		return resolveSwiperModePreset(props.mode)
+	})
+
+	/**
+	 * mode 合并后的 radius
+	 */
+	const effectiveRadius = computed((): string => {
+		if (props.radius != '') {
+			return props.radius
+		}
+		return modePreset.value.radius
+	})
+
+	/**
+	 * 是否 card 模式（卡片化布局与 banner 区分）
+	 */
+	const isCardMode = computed((): boolean => {
+		return props.mode == 'card'
+	})
+
+	/**
+	 * list 项图片圆角：banner 全幅圆角，card 由卡片容器控制
+	 */
+	const listItemImageRadius = computed((): string => {
+		if (isCardMode.value) {
+			return '0px'
+		}
+		return effectiveRadius.value
+	})
+
+	/**
+	 * 是否数据驱动模式
+	 */
+	const useListMode = computed((): boolean => {
+		return normalizedList.value.length > 0
+	})
+
+	/**
+	 * mode 合并后的 autoplay
+	 */
+	const effectiveAutoplay = computed((): boolean => {
+		if (props.autoplay != null) {
+			return props.autoplay
+		}
+		return modePreset.value.autoplay
+	})
+
+	/**
+	 * 实际运行 autoplay（WEB 悬停暂停）
+	 */
+	const effectiveAutoplayRunning = computed((): boolean => {
+		if (!effectiveAutoplay.value) {
+			return false
+		}
+		return !hoverPaused.value
+	})
+
+	/**
+	 * APP：autoplay 切换时原生 swiper 可能清空子项，强制重建并恢复索引
+	 */
+	// #ifdef APP
+	watch((): boolean => effectiveAutoplay.value, (next : boolean, prev : boolean) => {
+		if (next == prev) {
+			return
+		}
+		const savedIndex = innerCurrent.value
+		appSwiperRenderKey.value = appSwiperRenderKey.value + 1
+		nextTick(() => {
+			innerCurrent.value = savedIndex
+		})
+	})
+	// #endif
+
+	/**
+	 * swiper 重建 key（APP autoplay 切换时使用）
+	 */
+	const swiperRenderKey = computed((): number => {
+		// #ifdef APP
+		return appSwiperRenderKey.value
+		// #endif
+		return 0
+	})
+
+	/**
+	 * swiper 实际子项数量
+	 */
+	const swiperItemCount = computed((): number => {
+		if (useListMode.value) {
+			return normalizedList.value.length
+		}
+		return resolveSwiperIndicatorCount(null, props.itemCount)
+	})
+
+	/**
+	 * mode 合并后的 circular（项数不足时强制关闭，MP 滑动门禁）
+	 */
+	const effectiveCircularSafe = computed((): boolean => {
+		const base = props.circular != null ? props.circular : modePreset.value.circular
+		return resolveSwiperCircularSafe(base, swiperItemCount.value)
+	})
+
+	/**
+	 * display-multiple-items（MP 不得大于 item 数）
+	 */
+	const effectiveDisplayMultipleItems = computed((): number => {
+		return resolveSwiperDisplayMultipleItems(swiperItemCount.value, props.displayMultipleItems)
+	})
+
+	/**
+	 * mode 合并后的 vertical
+	 */
+	const effectiveVertical = computed((): boolean => {
+		if (props.vertical != null) {
+			return props.vertical
+		}
+		return modePreset.value.vertical
+	})
+
+	/**
+	 * mode 合并后的 height
+	 */
+	const effectiveHeight = computed((): string => {
+		if (props.height != '') {
+			return props.height
+		}
+		return modePreset.value.height
+	})
+
+	/**
+	 * mode 合并后的 previousMargin
+	 */
+	const effectivePreviousMargin = computed((): string => {
+		if (props.previousMargin != '') {
+			return props.previousMargin
+		}
+		return modePreset.value.previousMargin
+	})
+
+	/**
+	 * mode 合并后的 nextMargin
+	 */
+	const effectiveNextMargin = computed((): string => {
+		if (props.nextMargin != '') {
+			return props.nextMargin
+		}
+		return modePreset.value.nextMargin
+	})
+
+	/**
+	 * 最终指示器类型
+	 */
+	const effectiveIndicatorType = computed((): SwiperIndicatorType => {
+		if (props.indicatorType == 'dot' || props.indicatorType == 'line' || props.indicatorType == 'number' || props.indicatorType == 'none') {
+			return props.indicatorType as SwiperIndicatorType
+		}
+		return modePreset.value.indicatorType
+	})
+
+	/**
+	 * 自定义指示器索引数组（用于 v-for）
+	 */
+	const indicatorIndexes = computed((): number[] => {
+		const total = swiperItemCount.value
+		const indexes : number[] = []
+		for (let i = 0; i < total; i++) {
+			indexes.push(i)
+		}
+		return indexes
+	})
+
+	/**
+	 * 是否使用原生圆点
+	 */
+	const showNativeIndicator = computed((): boolean => {
+		if (effectiveIndicatorType.value == 'none') {
+			return false
+		}
+		return useNativeIndicatorDots(effectiveIndicatorType.value)
+	})
+
+	/**
+	 * 是否展示长条指示器
+	 */
+	const showLineIndicator = computed((): boolean => {
+		if (!useCustomIndicatorLayer(effectiveIndicatorType.value)) {
+			return false
+		}
+		return effectiveIndicatorType.value == 'line' && swiperItemCount.value > 0
+	})
+
+	/**
+	 * 是否展示数字指示器
+	 */
+	const showNumberIndicator = computed((): boolean => {
+		if (!useCustomIndicatorLayer(effectiveIndicatorType.value)) {
+			return false
+		}
+		return effectiveIndicatorType.value == 'number' && swiperItemCount.value > 0
+	})
+
+	/**
+	 * 数字指示器文案
+	 */
+	const numberIndicatorText = computed((): string => {
+		return buildSwiperNumberText(innerCurrent.value, swiperItemCount.value)
+	})
+
+	/**
+	 * 解析指示点默认色
+	 */
+	const resolvedIndicatorColor = computed((): string => {
+		if (props.indicatorColor != '') {
+			return props.indicatorColor
+		}
+		return 'rgba(0, 0, 0, 0.2)'
+	})
+
+	/**
+	 * 解析指示点激活色
+	 */
+	const resolvedIndicatorActiveColor = computed((): string => {
+		if (props.indicatorActiveColor != '') {
+			return props.indicatorActiveColor
+		}
+		return resolvePrimaryColor(themeConfig as UTSJSONObject, '#6366f1')
+	})
+
+	/**
+	 * 根节点 class
+	 */
+	const rootClass = computed((): string => {
+		const classes : string[] = []
+		if (props.customClass != '') {
+			classes.push(props.customClass)
+		}
+		if (props.mode != 'default') {
+			classes.push(`k-swiper--${props.mode}`)
+		}
+		if (effectiveVertical.value) {
+			classes.push('k-swiper--vertical')
+		}
+		return classes.join(' ')
+	})
+
+	/**
+	 * 根节点样式
+	 */
+	const rootStyle = computed((): string => {
+		const styles : string[] = []
+		styles.push(buildThemeStyle(themeConfig as UTSJSONObject))
+		styles.push(`--k-swiper-radius: ${effectiveRadius.value}`)
+		styles.push(`--k-swiper-indicator-active: ${resolvedIndicatorActiveColor.value}`)
+		if (props.customStyle != '') {
+			styles.push(props.customStyle)
+		}
+		return styles.join('; ')
+	})
+
+	/**
+	 * swiper 高度
+	 */
+	const swiperStyle = computed((): string => {
+		return `height: ${effectiveHeight.value}`
+	})
+
+	/**
+	 * MP list 模式：原生 swiper-item 外壳 class
+	 */
+	function getListItemShellClass(index : number, item : any | null) : string {
+		const image = resolveSwiperListImage(item, props.imageKey)
+		const hasImage = image != ''
+		return buildSwiperItemShellClass(props.mode, index, innerCurrent.value, hasImage, '')
+	}
+
+	/**
+	 * 处理 swiper change
+	 */
+	function handleChange(event : UniSwiperChangeEvent) : void {
+		const detail = event.detail
+		const current = detail.current as number
+		innerCurrent.value = current
+		const source = detail.source != null ? `${detail.source}` : ''
+		emit('update:modelValue', current)
+		emit('change', current, source)
+	}
+
+	/**
+	 * 处理动画结束
+	 */
+	function handleAnimationFinish(event : UniSwiperAnimationFinishEvent) : void {
+		const detail = event.detail
+		const current = detail.current
+		const source = detail.source != null ? `${detail.source}` : ''
+		emit('animationfinish', current, source)
+	}
+
+	/**
+	 * 数据驱动项点击
+	 */
+	function handleListItemClick(index : number, item : any | null) : void {
+		emit('click', index, item)
+	}
+
+	/**
+	 * WEB 悬停暂停自动播放
+	 */
+	function handleMouseEnter() : void {
+		// #ifdef WEB
+		if (props.pauseOnHover && effectiveAutoplay.value) {
+			hoverPaused.value = true
+		}
+		// #endif
+	}
+
+	/**
+	 * WEB 移出恢复自动播放
+	 */
+	function handleMouseLeave() : void {
+		// #ifdef WEB
+		if (props.pauseOnHover && effectiveAutoplay.value) {
+			hoverPaused.value = false
+		}
+		// #endif
+	}
+
+	/**
+	 * 切换到上一屏
+	 */
+	function prev() : void {
+		const total = swiperItemCount.value
+		if (total <= 0) {
+			return
+		}
+		let nextIndex = innerCurrent.value - 1
+		if (nextIndex < 0) {
+			nextIndex = effectiveCircularSafe.value ? total - 1 : 0
+		}
+		innerCurrent.value = nextIndex
+		emit('update:modelValue', nextIndex)
+		emit('change', nextIndex, 'programmatic')
+	}
+
+	/**
+	 * 切换到下一屏
+	 */
+	function next() : void {
+		const total = swiperItemCount.value
+		if (total <= 0) {
+			return
+		}
+		let nextIndex = innerCurrent.value + 1
+		if (nextIndex >= total) {
+			nextIndex = effectiveCircularSafe.value ? 0 : total - 1
+		}
+		innerCurrent.value = nextIndex
+		emit('update:modelValue', nextIndex)
+		emit('change', nextIndex, 'programmatic')
+	}
+
+	defineExpose({
+		prev,
+		next
+	})
+</script>
+
+<style lang="scss">
+	@import "../../theme/index.scss";
+	@import "../k-swiper-item/k-swiper-item-shell.scss";
+
+	.k-swiper {
+		position: relative;
+		width: 100%;
+		background-color: var(--k-bg-color, #ffffff);
+	}
+
+	.k-swiper__viewport {
+		position: relative;
+		width: 100%;
+		overflow: hidden;
+		border-radius: var(--k-swiper-radius, 8px);
+	}
+
+	.k-swiper__viewport--card {
+		overflow: hidden;
+		border-radius: 0;
+		background-color: transparent;
+	}
+
+	.k-swiper--card {
+		overflow: visible;
+		border-radius: 0;
+		background-color: transparent;
+	}
+
+	.k-swiper--banner {
+		background-color: var(--k-bg-color, #ffffff);
+	}
+
+	.k-swiper__inner {
+		width: 100%;
+	}
+
+	.k-swiper__indicator {
+		z-index: 2;
+		pointer-events: none;
+	}
+
+	.k-swiper__indicator--overlay {
+		position: absolute;
+	}
+
+	.k-swiper__indicator--line.k-swiper__indicator--overlay {
+		left: 0;
+		right: 0;
+		bottom: 10px;
+	}
+
+	.k-swiper__indicator--number.k-swiper__indicator--overlay {
+		right: 10px;
+		bottom: 10px;
+		left: auto;
+		padding: 2px 8px;
+		border-radius: 10px;
+		background-color: rgba(0, 0, 0, 0.35);
+	}
+
+	.k-swiper__indicator--line {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.k-swiper__indicator--below {
+		position: relative;
+		margin-top: 12px;
+	}
+
+	.k-swiper__indicator-bar {
+		height: 4px;
+		margin-left: 3px;
+		margin-right: 3px;
+		border-radius: 4px;
+		background-color: rgba(255, 255, 255, 0.45);
+	}
+
+	.k-swiper__indicator-bar--on-light {
+		background-color: rgba(15, 23, 42, 0.12);
+	}
+
+	.k-swiper__indicator-bar--active {
+		background-color: var(--k-swiper-indicator-active, #6366f1);
+	}
+
+	.k-swiper__indicator-number {
+		font-size: 12px;
+		line-height: 18px;
+		color: #ffffff;
+	}
+</style>

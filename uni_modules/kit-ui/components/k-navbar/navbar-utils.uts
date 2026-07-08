@@ -56,6 +56,33 @@ function readStatusBarHeight() : number {
 	return top
 }
 
+/** 微信小程序胶囊按钮布局信息 */
+type NavbarMenuButtonRect = {
+	width : number
+	height : number
+	top : number
+	left : number
+}
+
+/**
+ * 读取微信小程序胶囊按钮布局（WEB Uni 类型未声明该 API，经 unknown 中转下标调用）
+ */
+function readMenuButtonBoundingClientRect() : NavbarMenuButtonRect {
+	const empty = {
+		width: 0,
+		height: 0,
+		top: 0,
+		left: 0
+	} as NavbarMenuButtonRect
+	const uniApi = uni as unknown as UTSJSONObject
+	const fn = uniApi['getMenuButtonBoundingClientRect']
+	if (fn == null) {
+		return empty
+	}
+	const call = fn as (() => NavbarMenuButtonRect)
+	return call()
+}
+
 /**
  * 是否按页面级 custom 顶栏布局（fixed + 安全区）
  */
@@ -82,7 +109,7 @@ export function readNavbarLayout(fixed : boolean, safeAreaInsetTop : boolean) : 
 
 		// #ifdef MP-WEIXIN
 		const info = uni.getWindowInfo()
-		const menuButton = uni.getMenuButtonBoundingClientRect()
+		const menuButton = readMenuButtonBoundingClientRect()
 		if (menuButton.width > 0 && menuButton.height > 0) {
 			const gap = menuButton.top - statusBarHeight
 			if (gap < 0) {
@@ -170,10 +197,10 @@ export type NavbarWindowResizeHandler = (res : any) => void
 
 // #ifndef APP
 /**
- * 通过 UTSJSONObject 下标调用 uni.onWindowResize（WEB 端 Uni 类型未声明该 API）
+ * 通过 unknown 中转后按 UTSJSONObject 下标调用 uni.onWindowResize（WEB 端 Uni 类型未声明该 API）
  */
 function invokeUniOnWindowResize(handler : NavbarWindowResizeHandler) {
-	const uniApi = uni as UTSJSONObject
+	const uniApi = uni as unknown as UTSJSONObject
 	const fn = uniApi['onWindowResize']
 	if (fn == null) {
 		return
@@ -186,7 +213,7 @@ function invokeUniOnWindowResize(handler : NavbarWindowResizeHandler) {
  * 通过 UTSJSONObject 下标调用 uni.offWindowResize
  */
 function invokeUniOffWindowResize(handler : NavbarWindowResizeHandler) {
-	const uniApi = uni as UTSJSONObject
+	const uniApi = uni as unknown as UTSJSONObject
 	const fn = uniApi['offWindowResize']
 	if (fn == null) {
 		return
@@ -220,9 +247,9 @@ export function unbindNavbarWindowResize(handler : NavbarWindowResizeHandler | n
 	return
 	// #endif
 	// #ifndef APP
-	if (handler == null) {
-		return
+	if (handler != null) {
+		const boundHandler = handler as NavbarWindowResizeHandler
+		invokeUniOffWindowResize(boundHandler)
 	}
-	invokeUniOffWindowResize(handler)
 	// #endif
 }

@@ -231,6 +231,12 @@
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "导航组合"
 				}
+			},
+			{
+				"path": "swiper/swiper",
+				"style": {
+					"navigationBarTitleText": "轮播图"
+				}
 			}
 		]
 	}],

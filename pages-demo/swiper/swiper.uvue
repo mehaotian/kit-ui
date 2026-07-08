@@ -1,0 +1,617 @@
+<template>
+	<!-- #ifdef APP -->
+	<scroll-view style="flex: 1;">
+	<!-- #endif -->
+		<view class="page">
+			<view class="page-header">
+				<text class="page-title">k-swiper 轮播</text>
+				<text class="page-desc">覆盖 mode 预设、指示器、list 驱动、自动播放、纵向与交互控制</text>
+			</view>
+
+			<!-- 场景预设：mode -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">场景预设 mode</text>
+					<text class="page-desc">banner / card / vertical / default 四套默认行为</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">banner — 全幅活动 Banner</text>
+						<k-swiper
+							mode="banner"
+							:list="bannerList"
+							@change="handleBannerChange"
+							@click="handleBannerClick"
+						/>
+						<text class="demo-tip">v-model 索引：{{ bannerCurrent + 1 }} / {{ bannerList.length }}</text>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">card — 商品卡片横滑</text>
+						<view class="demo-content--card">
+							<k-swiper mode="card" :list="cardList" />
+						</view>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">vertical — 纵向公告 / 消息</text>
+						<k-swiper
+							v-model="verticalCurrent"
+							mode="vertical"
+							:list="verticalList"
+							@change="handleVerticalChange"
+						/>
+						<text class="demo-tip">当前：{{ verticalCurrent + 1 }} / {{ verticalList.length }}</text>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">default — 手动滑动 + 原生圆点</text>
+						<k-swiper
+							v-model="defaultCurrent"
+							:list="bannerList"
+							:autoplay="false"
+							indicator-type="dot"
+							height="140px"
+						/>
+					</view>
+				</view>
+			</view>
+
+			<!-- 指示器类型 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">指示器 indicator-type</text>
+					<text class="page-desc">dot / line / number / none</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">dot — 原生圆点（跟随主题色）</text>
+						<k-swiper
+							:list="bannerList"
+							indicator-type="dot"
+							:autoplay="false"
+							height="130px"
+						/>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">line — 长条指示器</text>
+						<k-swiper
+							mode="banner"
+							:list="bannerList"
+							:autoplay="false"
+							indicator-type="line"
+						/>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">number — 右下角分页</text>
+						<k-swiper
+							mode="banner"
+							indicator-type="number"
+							:list="bannerList"
+							:autoplay="false"
+						/>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">none — 无指示器</text>
+						<k-swiper
+							indicator-type="none"
+							height="100px"
+							:list="singleBanner"
+						/>
+					</view>
+				</view>
+			</view>
+
+			<!-- 数据驱动 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">数据驱动 list</text>
+					<text class="page-desc">对象数组 / 纯图片 URL / 自定义字段名</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">对象数组（复用 bannerList 结构）</text>
+						<k-swiper mode="banner" :list="bannerList" :autoplay="false" />
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">纯 string[] 图片 URL</text>
+						<k-swiper
+							:list="imageOnlyList"
+							indicator-type="dot"
+							height="120px"
+							:autoplay="false"
+						/>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">自定义 imageKey / titleKey / descKey</text>
+						<k-swiper
+							:list="customKeyList"
+							image-key="cover"
+							title-key="name"
+							desc-key="subtitle"
+							indicator-type="dot"
+							height="130px"
+							:autoplay="false"
+						/>
+					</view>
+				</view>
+			</view>
+
+			<!-- 自动播放与衔接 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">自动播放 autoplay</text>
+					<text class="page-desc">autoplay + circular + interval + duration</text>
+				</view>
+				<view class="demo-content">
+					<k-swiper
+						:list="bannerList"
+						:autoplay="autoplayEnabled"
+						:circular="true"
+						:interval="autoplayInterval"
+						:duration="400"
+						indicator-type="line"
+						height="140px"
+					/>
+				</view>
+				<view class="demo-action-row">
+					<k-button
+						:type="autoplayEnabled ? 'primary' : 'default'"
+						text="自动播放"
+						size="small"
+						@click="handleToggleAutoplay"
+					/>
+					<view class="demo-action-spacer"></view>
+					<k-button text="间隔 2s" size="small" @click="handleSetInterval2000" />
+					<view class="demo-action-spacer"></view>
+					<k-button text="间隔 4s" size="small" @click="handleSetInterval4000" />
+				</view>
+				<text class="demo-tip">WEB 悬停可暂停（pause-on-hover 默认 true）</text>
+			</view>
+
+			<!-- 尺寸与主题色 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">尺寸与主题</text>
+					<text class="page-desc">height / radius / indicatorColor / indicatorActiveColor</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">height="200px" radius="16px"</text>
+						<k-swiper
+							:list="bannerList"
+							height="200px"
+							radius="16px"
+							indicator-type="line"
+							:autoplay="false"
+						/>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">自定义指示器颜色</text>
+						<k-swiper
+							:list="bannerList"
+							height="140px"
+							indicator-type="dot"
+							indicator-color="rgba(255,255,255,0.35)"
+							indicator-active-color="#f59e0b"
+							:autoplay="false"
+						/>
+					</view>
+				</view>
+			</view>
+
+			<!-- slot 用法（MP 须用 list，见组件 README） -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">slot 用法</text>
+					<text class="page-desc">image prop 简化项 / 完全自定义内容（MP 请用 list）</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">list 传 image / title / desc（全端推荐）</text>
+						<k-swiper
+							v-model="imageListCurrent"
+							mode="banner"
+							:list="bannerList"
+							:autoplay="false"
+						/>
+					</view>
+					<!-- #ifndef MP -->
+					<view class="demo-stack-item">
+						<text class="demo-case-label">k-swiper-item 手写项（WEB / APP）</text>
+						<k-swiper
+							v-model="imageSlotCurrent"
+							mode="banner"
+							:autoplay="false"
+							:item-count="2"
+						>
+							<k-swiper-item
+								image="https://picsum.photos/750/320?random=21"
+								title="图片项 A"
+								desc="内置 k-image + 渐变标题"
+							/>
+							<k-swiper-item
+								image="https://picsum.photos/750/320?random=22"
+								title="图片项 B"
+								desc="无需手写 image 标签"
+							/>
+						</k-swiper>
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">default slot 自定义布局（WEB / APP）</text>
+						<k-swiper
+							v-model="slotCurrent"
+							indicator-type="line"
+							:item-count="3"
+							height="120px"
+						>
+							<k-swiper-item :index="0">
+								<view class="swiper-slide swiper-slide--violet">
+									<text class="swiper-slide__title">自定义 A</text>
+								</view>
+							</k-swiper-item>
+							<k-swiper-item :index="1">
+								<view class="swiper-slide swiper-slide--cyan">
+									<text class="swiper-slide__title">自定义 B</text>
+								</view>
+							</k-swiper-item>
+							<k-swiper-item :index="2">
+								<view class="swiper-slide swiper-slide--amber">
+									<text class="swiper-slide__title">自定义 C</text>
+								</view>
+							</k-swiper-item>
+						</k-swiper>
+					</view>
+					<!-- #endif -->
+					<!-- #ifdef MP -->
+					<view class="demo-stack-item">
+						<text class="demo-case-label">自定义内容等效 list（MP）</text>
+						<k-swiper
+							v-model="slotCurrent"
+							:list="customSlideList"
+							indicator-type="line"
+							height="120px"
+							:autoplay="false"
+						/>
+						<text class="demo-tip">小程序不支持 slot 注入 swiper-item，请用 list 或 pages 内原生 swiper</text>
+					</view>
+					<!-- #endif -->
+				</view>
+			</view>
+
+			<!-- 交互控制 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">交互控制</text>
+					<text class="page-desc">disableTouch / ref.prev() / ref.next() / change 事件</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">禁止手势 + 外部按钮切屏</text>
+						<k-swiper
+							ref="lockedSwiperRef"
+							v-model="lockedCurrent"
+							:list="lockedSlideList"
+							:disable-touch="true"
+							indicator-type="dot"
+							height="100px"
+							:autoplay="false"
+							@change="handleLockedChange"
+						/>
+						<view class="demo-action-row">
+							<k-button text="上一页" size="small" @click="handleLockedPrev" />
+							<view class="demo-action-spacer"></view>
+							<k-button type="primary" text="下一页" size="small" @click="handleLockedNext" />
+						</view>
+						<text class="demo-tip">change source：{{ lockedChangeSource }}</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 边界用法 -->
+			<view class="section">
+				<view class="section-title">
+					<text class="title-text">边界用法</text>
+					<text class="page-desc">单屏 list / 显式覆盖 mode 预设</text>
+				</view>
+				<view class="demo-content demo-column">
+					<view class="demo-stack-item">
+						<text class="demo-case-label">仅 1 项 list</text>
+						<k-swiper indicator-type="none" height="100px" :list="singleBanner" />
+					</view>
+					<view class="demo-stack-item">
+						<text class="demo-case-label">mode="banner" 但关闭自动播放</text>
+						<k-swiper mode="banner" :list="bannerList" :autoplay="false" />
+					</view>
+				</view>
+			</view>
+		</view>
+	<!-- #ifdef APP -->
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script setup lang="uts">
+	type BannerItem = {
+		image : string
+		title : string
+		desc : string
+	}
+
+	type CustomKeyItem = {
+		cover : string
+		name : string
+		subtitle : string
+	}
+
+	const bannerList = ref<BannerItem[]>([
+		{
+			image: 'https://picsum.photos/750/320?random=11',
+			title: '春季上新',
+			desc: '全场 8 折起，限时 3 天'
+		},
+		{
+			image: 'https://picsum.photos/750/320?random=12',
+			title: '会员日',
+			desc: '积分翻倍，专属礼遇'
+		},
+		{
+			image: 'https://picsum.photos/750/320?random=13',
+			title: '限时秒杀',
+			desc: '每日 10 点准时开抢'
+		}
+	])
+
+	const cardList = ref<BannerItem[]>([
+		{
+			image: 'https://picsum.photos/680/280?random=14',
+			title: '无线降噪耳机',
+			desc: '限时立减 ¥200'
+		},
+		{
+			image: 'https://picsum.photos/680/280?random=15',
+			title: '智能运动手表',
+			desc: '新品首发 · 12 期免息'
+		},
+		{
+			image: 'https://picsum.photos/680/280?random=16',
+			title: '便携投影仪',
+			desc: '家用小型 · 1080P'
+		}
+	])
+
+	const verticalList = ref<BannerItem[]>([
+		{
+			image: 'https://picsum.photos/750/180?random=31',
+			title: '系统通知',
+			desc: '您的订单已发货'
+		},
+		{
+			image: 'https://picsum.photos/750/180?random=32',
+			title: '活动提醒',
+			desc: '优惠券即将过期'
+		},
+		{
+			image: 'https://picsum.photos/750/180?random=33',
+			title: '版本更新',
+			desc: 'kit-ui v1.1 已发布'
+		}
+	])
+
+	const singleBanner = ref<BannerItem[]>([
+		{
+			image: 'https://picsum.photos/750/320?random=17',
+			title: '单屏活动',
+			desc: '仅 1 项'
+		}
+	])
+
+	const imageOnlyList = ref<string[]>([
+		'https://picsum.photos/750/240?random=41',
+		'https://picsum.photos/750/240?random=42',
+		'https://picsum.photos/750/240?random=43'
+	])
+
+	const customKeyList = ref<CustomKeyItem[]>([
+		{
+			cover: 'https://picsum.photos/750/240?random=51',
+			name: '自定义 cover 字段',
+			subtitle: 'image-key="cover"'
+		},
+		{
+			cover: 'https://picsum.photos/750/240?random=52',
+			name: '自定义 title 字段',
+			subtitle: 'title-key="name"'
+		}
+	])
+
+	const customSlideList = ref<BannerItem[]>([
+		{
+			image: 'https://picsum.photos/750/240?random=81',
+			title: '自定义 A',
+			desc: 'list 驱动'
+		},
+		{
+			image: 'https://picsum.photos/750/240?random=82',
+			title: '自定义 B',
+			desc: 'list 驱动'
+		},
+		{
+			image: 'https://picsum.photos/750/240?random=83',
+			title: '自定义 C',
+			desc: 'list 驱动'
+		}
+	])
+
+	const lockedSlideList = ref<BannerItem[]>([
+		{
+			image: 'https://picsum.photos/750/200?random=71',
+			title: '屏 1',
+			desc: ''
+		},
+		{
+			image: 'https://picsum.photos/750/200?random=72',
+			title: '屏 2',
+			desc: ''
+		}
+	])
+
+	const bannerCurrent = ref<number>(0)
+	const verticalCurrent = ref<number>(0)
+	const defaultCurrent = ref<number>(0)
+	const imageListCurrent = ref<number>(0)
+	const imageSlotCurrent = ref<number>(0)
+	const slotCurrent = ref<number>(0)
+	const lockedCurrent = ref<number>(0)
+	const lockedChangeSource = ref<string>('-')
+	const autoplayEnabled = ref<boolean>(true)
+	const autoplayInterval = ref<number>(2500)
+	const lockedSwiperRef = ref<KSwiperComponentPublicInstance | null>(null)
+
+	/**
+	 * 从 list 项读取 title 用于 toast
+	 */
+	function readBannerTitle(item : any | null) : string {
+		if (item == null) {
+			return ''
+		}
+		if (item instanceof UTSJSONObject) {
+			const val = (item as UTSJSONObject).get('title')
+			if (val != null) {
+				return `${val}`
+			}
+		}
+		const typed = item as BannerItem
+		if (typed.title != null && typed.title != '') {
+			return typed.title
+		}
+		return ''
+	}
+
+	/**
+	 * Banner 切换同步索引
+	 */
+	const handleBannerChange = (current : number, _source : string) => {
+		bannerCurrent.value = current
+	}
+
+	/**
+	 * 纵向轮播切换
+	 */
+	const handleVerticalChange = (current : number, _source : string) => {
+		verticalCurrent.value = current
+	}
+
+	/**
+	 * Banner 点击跳转反馈
+	 */
+	const handleBannerClick = (index : number, item : any | null) => {
+		const title = readBannerTitle(item)
+		uni.showToast({
+			title: title != '' ? `点击：${title}` : `点击第 ${index + 1} 项`,
+			icon: 'none'
+		})
+	}
+
+	/**
+	 * 禁止手势场景 change 记录 source
+	 */
+	const handleLockedChange = (current : number, source : string) => {
+		lockedCurrent.value = current
+		lockedChangeSource.value = source != '' ? source : 'unknown'
+	}
+
+	/**
+	 * 切换自动播放开关
+	 */
+	const handleToggleAutoplay = () => {
+		autoplayEnabled.value = !autoplayEnabled.value
+	}
+
+	/**
+	 * 设置自动播放间隔 2s
+	 */
+	const handleSetInterval2000 = () => {
+		autoplayInterval.value = 2000
+	}
+
+	/**
+	 * 设置自动播放间隔 4s
+	 */
+	const handleSetInterval4000 = () => {
+		autoplayInterval.value = 4000
+	}
+
+	/**
+	 * 外部 prev 切屏
+	 */
+	const handleLockedPrev = () => {
+		lockedSwiperRef.value?.prev?.()
+	}
+
+	/**
+	 * 外部 next 切屏
+	 */
+	const handleLockedNext = () => {
+		lockedSwiperRef.value?.next?.()
+	}
+</script>
+
+<style lang="scss" scoped>
+	.demo-tip {
+		margin-top: 8px;
+		font-size: 12px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.demo-content--card {
+		padding: 8px 0 12px;
+		background-color: var(--k-bg-color-page, #f3f4f6);
+		border-radius: 8px;
+	}
+
+	.demo-case-label {
+		margin-bottom: 8px;
+		font-size: 13px;
+		color: var(--k-text-color-secondary, #6b7280);
+	}
+
+	.demo-action-row {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		margin-top: 12px;
+	}
+
+	.demo-action-spacer {
+		width: 12px;
+		height: 1px;
+	}
+
+	.swiper-slide {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		box-sizing: border-box;
+		padding: 16px;
+	}
+
+	.swiper-slide__title {
+		font-size: 18px;
+		font-weight: bold;
+		color: #ffffff;
+	}
+
+	.swiper-slide--violet {
+		background-image: linear-gradient(to bottom right, #6366f1, #8b5cf6);
+	}
+
+	.swiper-slide--cyan {
+		background-image: linear-gradient(to bottom right, #06b6d4, #3b82f6);
+	}
+
+	.swiper-slide--amber {
+		background-image: linear-gradient(to bottom right, #f59e0b, #ef4444);
+	}
+</style>
