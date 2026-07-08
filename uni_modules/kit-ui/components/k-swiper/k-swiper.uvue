@@ -40,9 +40,9 @@
 						:class="getListItemShellClass(index, item)"
 					>
 						<k-swiper-item-body
-							:image="resolveSwiperListImage(item, imageKey)"
-							:title="resolveSwiperListTitle(item, titleKey)"
-							:desc="resolveSwiperListDesc(item, descKey)"
+							:image="getListItemImage(item)"
+							:title="getListItemTitle(item)"
+							:desc="getListItemDesc(item)"
 							:image-radius="listItemImageRadius"
 							@click="handleListItemClick(index, item)"
 						/>
@@ -55,9 +55,9 @@
 					v-if="useListMode"
 					:key="index"
 					:index="index"
-					:image="resolveSwiperListImage(item, imageKey)"
-					:title="resolveSwiperListTitle(item, titleKey)"
-					:desc="resolveSwiperListDesc(item, descKey)"
+					:image="getListItemImage(item)"
+					:title="getListItemTitle(item)"
+					:desc="getListItemDesc(item)"
 					:image-radius="listItemImageRadius"
 					@click="handleListItemClick(index, item)"
 				/>
@@ -476,10 +476,31 @@
 	})
 
 	/**
+	 * 解析 list 项图片（模板绑定须用组件内函数，APP 不可直接调用 .uts 导出函数）
+	 */
+	function getListItemImage(item : any | null) : string {
+		return resolveSwiperListImage(item, props.imageKey)
+	}
+
+	/**
+	 * 解析 list 项标题
+	 */
+	function getListItemTitle(item : any | null) : string {
+		return resolveSwiperListTitle(item, props.titleKey)
+	}
+
+	/**
+	 * 解析 list 项描述
+	 */
+	function getListItemDesc(item : any | null) : string {
+		return resolveSwiperListDesc(item, props.descKey)
+	}
+
+	/**
 	 * MP list 模式：原生 swiper-item 外壳 class
 	 */
 	function getListItemShellClass(index : number, item : any | null) : string {
-		const image = resolveSwiperListImage(item, props.imageKey)
+		const image = getListItemImage(item)
 		const hasImage = image != ''
 		return buildSwiperItemShellClass(props.mode, index, innerCurrent.value, hasImage, '')
 	}
